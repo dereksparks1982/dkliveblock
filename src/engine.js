@@ -4,9 +4,10 @@ const R=DKRules;
 class FilterEngine {
  constructor(text=""){this.load(text);}
  load(text){
-  this.hostIndex=new Map();this.generic=[];this.special=[];this.cosmetic=[];this.networkCount=0;this.unsupportedCount=0;
+  this.hostIndex=new Map();this.generic=[];this.special=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
   const pending=[],disabled=new Set();
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==="!"||line[0]==="[")continue;
+   const p=R.procedural(line);if(p){this.procedural.push(p);continue;}
    const c=R.cosmetic(line);if(c){this.cosmetic.push(c);continue;}
    const rule=R.network(line);if(!rule){this.unsupportedCount++;continue;}
    if(rule.badfilter)disabled.add(rule.key);else pending.push(rule);
@@ -41,6 +42,12 @@ class FilterEngine {
   return important?{block:true,rule:important}:allow?{block:false,rule:allow}:{block:!!block,rule:block};
  }
  shouldBlock(url,type,docHost,policy){return this.checkRequest(url,type,docHost,policy).block;}
+ getProcedural(h,policy={}){
+  if(policy.document||policy.elemhide)return [];
+  const matching=this.procedural.filter(x=>R.domains(h,x.scope,","));
+  const except=new Set(matching.filter(x=>x.exception).map(x=>x.selector+"|"+x.text));
+  return matching.filter(x=>!x.exception&&!except.has(x.selector+"|"+x.text)).map(x=>({selector:x.selector,text:x.text}));
+ }
  getSelectors(h,policy={}){
   if(policy.document||policy.elemhide)return [];
   const hidden=new Set(),exceptions=new Set();
