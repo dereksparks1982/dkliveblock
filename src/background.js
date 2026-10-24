@@ -62,7 +62,7 @@ browser.runtime.onMessage.addListener(async(msg,sender)=>{
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState};
  if(msg.action==="getLog")return (data.logs.get(id)||[]).slice().reverse();
  if(msg.action==="updateLists")return updateLists();
- if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url);return {active:enabled(h)&&!policy.document,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,css:enabled(h)?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):""};}
+ if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=enabled(h)&&enabled(top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,css:active?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){data.settings.enabled=!!msg.enabled;await persist();rebuild();return status(id,url);}
  if(msg.action==="toggleSite"){if(!h)return {error:"No website"};data.settings.paused=data.settings.paused.filter(x=>x!==h);if(msg.disable)data.settings.paused.push(h);await persist();rebuild();badge(id);return status(id,url);}
  if(msg.action==="addElementRule"){
