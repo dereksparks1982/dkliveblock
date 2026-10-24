@@ -15,7 +15,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,console,Date,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["rules.js","engine.js","privacy.js","background.js"]){
+ for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));
@@ -42,6 +42,8 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(listeners.network({url:"https://site.test/?fbclid=abc",type:"main_frame",tabId:1}).redirectUrl,undefined);
  await listeners.popup({tabId:6,sourceTabId:1,url:"https://ads-pop.test/window"});
  assert.equal(removedTabs.length,1);
+ const rejected=await listeners.message({action:"saveSettings",settings:{customSubscriptions:["http://insecure.test/list.txt"]}});
+ assert.match(rejected.error,/HTTPS/);
  const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(css.active,false);
 });

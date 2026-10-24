@@ -4,7 +4,7 @@ const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
 const flagKeys=["autoUpdate","youtubeSkip","cookieReject","stripTracking"];
 let lastSettings=null;
 function collect(){
- const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value};
+ const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
  for(const key of listKeys)s.listEnabled[key]=$(key).checked;
  for(const key of flagKeys)s[key]=$(key).checked;
  return s;
@@ -15,6 +15,7 @@ async function load(){
  for(const key of listKeys)$(key).checked=!!s.listEnabled[key];
  for(const key of flagKeys)$(key).checked=!!s[key];
  $("customRules").value=s.customRules||"";
+ $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")).join(" · ");
 }
