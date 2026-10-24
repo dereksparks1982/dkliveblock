@@ -1,0 +1,16 @@
+"use strict";
+const test=require("node:test"),assert=require("node:assert/strict");
+const {matches}=require("../src/procedural.js");
+test("text predicates require matching content",()=>{
+ assert.equal(matches({textContent:"Sponsored article"},{mode:"text",selector:"div",text:"Sponsored"}),true);
+ assert.equal(matches({textContent:"Editorial"},{mode:"text",selector:"div",text:"Sponsored"}),false);
+});
+test("descendant predicates require a matching element",()=>{
+ assert.equal(matches({querySelector:s=>s===".sponsor"?{}:null},{mode:"has",selector:"div",target:".sponsor"}),true);
+ assert.equal(matches({querySelector:()=>null},{mode:"has",selector:"div",target:".sponsor"}),false);
+});
+test("invalid selectors and unsupported actions fail closed",()=>{
+ assert.equal(matches({querySelector:()=>{throw Error("invalid CSS")}},{mode:"has",selector:"div",target:"~"}),false);
+ assert.equal(matches({textContent:"Sponsored"},{mode:"script",selector:"div",text:"Sponsored"}),false);
+ assert.equal(matches(null,{mode:"text",selector:"div",text:"Sponsored"}),false);
+});

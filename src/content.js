@@ -13,7 +13,7 @@
  }
  async function refresh(){
   try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;procedural=Array.isArray(s.procedural)?s.procedural:[];if(!active)restoreHidden();applyCSS();
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();applyCSS();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -26,7 +26,7 @@
    let elements;try{elements=document.querySelectorAll(rule.selector);}catch(_){continue;}
    let count=0;
    for(const el of elements){if(++count>200)break;
-    if(el===document.body||el===document.documentElement||!el.textContent?.includes(rule.text))continue;
+    if(el===document.body||el===document.documentElement||!DKProcedural.matches(el,rule))continue;
     if(!hidden.has(el))hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
     el.style.setProperty("display","none","important");if(hidden.size>800)break;
    }

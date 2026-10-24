@@ -72,8 +72,9 @@ class FilterEngine {
  getProcedural(h,policy={}){
   if(policy.document||policy.elemhide)return [];
   const matching=this.procedural.filter(x=>R.domains(h,x.scope,","));
-  const except=new Set(matching.filter(x=>x.exception).map(x=>x.selector+"|"+x.text));
-  return matching.filter(x=>!x.exception&&!except.has(x.selector+"|"+x.text)).map(x=>({selector:x.selector,text:x.text}));
+  const key=x=>x.selector+"|"+x.mode+"|"+(x.text||x.target);
+  const except=new Set(matching.filter(x=>x.exception).map(key));
+  return matching.filter(x=>!x.exception&&!except.has(key(x))).map(x=>({selector:x.selector,mode:x.mode,...(x.mode==="text"?{text:x.text}:{target:x.target})}));
  }
  getSelectors(h,policy={}){
   if(policy.document||policy.elemhide)return [];

@@ -65,7 +65,7 @@ test("text-only procedural cosmetics and exceptions",()=>{
  const f=new FilterEngine("page.test#?#div.ad:-abp-contains(Sponsored)\npage.test#@?#div.ad:-abp-contains(Sponsored)");
  assert.deepEqual(f.getProcedural("page.test"),[]);
  const g=new FilterEngine("page.test#?#div.ad:-abp-contains(Sponsored)");
- assert.deepEqual(g.getProcedural("page.test"),[{selector:"div.ad",text:"Sponsored"}]);
+ assert.deepEqual(g.getProcedural("page.test"),[{selector:"div.ad",mode:"text",text:"Sponsored"}]);
  assert.deepEqual(g.getProcedural("other.test"),[]);
 });
 test("elemhide exception cancels style and procedural hiding",()=>{
@@ -125,4 +125,19 @@ test("removeparam respects site restrictions, exceptions and important signed ke
  assert.equal(f.cleanNavigation("https://shop.example/private?clickid=123"),null);
  assert.equal(f.cleanNavigation("https://other.example/item?clickid=123"),null);
  assert.equal(R.network("*$removeparam=/unsafe-regexp/"),null);
+});
+
+test("site-scoped ABP has selector identifies sponsored cards",()=>{
+ const rules="page.test#?#div.card:-abp-has(.sponsored-label)";
+ const f=new FilterEngine(rules);
+ assert.deepEqual(f.getProcedural("page.test"),[{selector:"div.card",mode:"has",target:".sponsored-label"}]);
+ assert.deepEqual(f.getProcedural("elsewhere.test"),[]);
+});
+test("procedural has exceptions work without overriding text filters",()=>{
+ const f=new FilterEngine("page.test#?#div.card:-abp-has(.sponsored-label)\npage.test#@?#div.card:-abp-has(.sponsored-label)\npage.test#?#div.ad:-abp-contains(Sponsored)");
+ assert.deepEqual(f.getProcedural("page.test"),[{selector:"div.ad",mode:"text",text:"Sponsored"}]);
+});
+test("scriptlets and malformed procedural filters are rejected",()=>{
+ assert.equal(R.procedural("page.test#?#div:-abp-has(+js(code))"),null);
+ assert.equal(R.procedural("page.test#?#div:-abp-has(.ad;body)"),null);
 });
