@@ -8,7 +8,7 @@ One main branch. Incremental tested development slices. No public release/downlo
 
 Source is MIT-licensed. External filter subscriptions have their own licenses. No ABP application code is copied.
 
-Run tests with: node --test tests/*.test.js
+Run offline checks with: bash scripts/test-local.sh
 
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
@@ -30,12 +30,16 @@ See docs/ROADMAP.md for the acceptance checklist.
 
 Run from the repository root:
 
-    node --test tests/*.test.js
+    bash scripts/test-local.sh
 
-GitHub Actions CI also runs tests, JavaScript syntax checks and manifest JSON parsing. These tests do not establish Firefox playback compatibility or ABP feature parity.
+All GitHub Actions workflows have been removed. Tests are run offline with `bash scripts/test-local.sh`, without consuming hosted runner minutes. These tests do not establish Firefox playback compatibility or ABP feature parity.
 
 ## Security and limitations
 
 The engine intentionally declines unsupported directives instead of executing remote scriptlets. Downloaded filter subscriptions are data, not JavaScript code. Requests canceled before download may affect some websites; the toolbar allows a per-site pause. The third-party classifier uses a limited suffix approximation, not the full Public Suffix List. Some ad delivery systems are inseparable from protected video streams.
 
 This is **not a released product** and is **not yet certified as good as or better than ABP**.
+
+## No GitHub Actions
+
+No GitHub Actions workflows are permitted. Pushes must not trigger hosted builds or tests. Run tests locally before committing. Keep `.github/workflows/` absent.

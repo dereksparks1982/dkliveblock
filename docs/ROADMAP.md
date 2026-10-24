@@ -19,9 +19,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 ## Completed development checks
 
-- 20 automated regression tests passed on the GitHub Actions Ubuntu/Node.js runner (19 filtering tests and 1 background-runtime smoke test).
+- Automated regression tests are maintained locally; earlier CI results are historical only.
 - Mock Firefox runtime verified seeded request blocking, tab counters, request-log isolation and site pause.
-- GitHub Actions now runs Node.js tests, syntax checks and manifest validation on main. Verify a green CI run for the latest commit before treating a slice as checked.
+- GitHub Actions removed at user request. Run `bash scripts/test-local.sh` locally before publishing any slice.
 
 ## Important unfinished items
 
@@ -30,3 +30,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - Actual Firefox browser performance and video playback testing, especially YouTube and Disney+.
 - Real list-download verification and long-duration memory/performance measurements.
 - Mozilla signing, security review and stable release approval.
+
+## Non-negotiable cost constraint
+
+- Do not add, enable or trigger GitHub Actions. Tests are local only.
+- Repository pushes store source, not hosted builds or deployments.
+- No finished download until ABP-or-better equivalence is verified.

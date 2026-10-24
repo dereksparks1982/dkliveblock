@@ -14,7 +14,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   browserAction:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
- const context=vm.createContext({browser,URL,console,Date,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
+ const context=vm.createContext({browser,URL,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
  for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
