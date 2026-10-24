@@ -1,7 +1,8 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,style=null,picking=false,selected=null,banner=null;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0;
+ const hidden=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  function applyCSS(){
   if(!document.documentElement)return;
@@ -11,8 +12,26 @@
  }
  async function refresh(){
   try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;applyCSS();
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;procedural=Array.isArray(s.procedural)?s.procedural:[];if(!active)restoreHidden();applyCSS();
   }catch(_){/* A broken extension must not break the page. */}
+ }
+ function restoreHidden(){
+  for(const [el,old] of hidden){try{if(el.isConnected)el.style.setProperty("display",old.value,old.priority);}catch(_){}}
+  hidden.clear();
+ }
+ function hideProcedural(){
+  if(!active||!procedural.length)return;
+  for(const rule of procedural.slice(0,50)){
+   let elements;try{elements=document.querySelectorAll(rule.selector);}catch(_){continue;}
+   let count=0;
+   for(const el of elements){if(++count>200)break;
+    if(el===document.body||el===document.documentElement||!el.textContent?.includes(rule.text))continue;
+    if(!hidden.has(el))hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
+    el.style.setProperty("display","none","important");if(hidden.size>800)break;
+   }
+   if(hidden.size>800)break;
+  }
+  for(const el of hidden.keys())if(!el.isConnected)hidden.delete(el);
  }
  function skipVideo(){
   if(!active||!youtubeSkip||!isYouTube)return;
@@ -77,5 +96,5 @@
  });
  refresh();
  if(!document.documentElement){const watcher=new MutationObserver(()=>{if(document.documentElement){watcher.disconnect();applyCSS();}});watcher.observe(document,{childList:true,subtree:true});}
- setInterval(()=>{skipVideo();rejectCookies();},1250);
+ setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}},1250);
 })();
