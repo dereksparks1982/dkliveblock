@@ -40,6 +40,7 @@ class FilterEngine {
   const target=R.host(url),kind=R.TYPE[type]||type||"other";
   let block=null,allow=null,important=null;
   for(const r of this.candidates(url)){
+   if(kind==="popup"&&!r.include.has("popup"))continue;
    if(policy.genericblock&&!r.scope&&!r.exception)continue;
    if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.domains(docHost,r.scope))continue;
    if(r.third!==null&&r.third!==(!!(target&&docHost&&R.site(target)!==R.site(docHost))))continue;

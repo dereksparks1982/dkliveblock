@@ -104,3 +104,11 @@ test("reject costly regexp constructs",()=>{
  assert.equal(R.regex("/(a+)+/"),null);
  assert.equal(R.regex("/(foo)\\1/"),null);
 });
+
+test("popup rules only affect explicit popup requests",()=>{
+ const f=new FilterEngine("||popup.test^$popup\n||ads.test^\n@@||popup.test/allow*$popup");
+ assert.equal(f.shouldBlock("https://popup.test/x","popup","page.test"),true);
+ assert.equal(f.shouldBlock("https://popup.test/x","script","page.test"),false);
+ assert.equal(f.shouldBlock("https://ads.test/x","popup","page.test"),false);
+ assert.equal(f.shouldBlock("https://popup.test/allow-me","popup","page.test"),false);
+});

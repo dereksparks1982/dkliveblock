@@ -36,6 +36,14 @@ function updateLists(){if(data.updateJob)return data.updateJob;
   return {updated,errors};
  })().finally(()=>{data.updateJob=null;});return data.updateJob;
 }
+function recordBlock(tabId,url,type,rule){
+ if(tabId<0)return;
+ data.counts.set(tabId,(data.counts.get(tabId)||0)+1);
+ data.settings.blockedTotal++;scheduleSave();badge(tabId);
+ const rows=data.logs.get(tabId)||[];
+ rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),when:Date.now()});
+ if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
+}
 browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!data.ready||!data.settings.enabled||d.type==="main_frame"||!/^https?:/i.test(d.url))return {};
  const top=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url);
@@ -43,13 +51,22 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
- if(d.tabId>=0){
-  data.counts.set(d.tabId,(data.counts.get(d.tabId)||0)+1);
-  data.settings.blockedTotal++;scheduleSave();badge(d.tabId);
-  let rows=data.logs.get(d.tabId)||[];rows.push({host:host(d.url),type:d.type,rule:(result.rule?.p||"").slice(0,140),when:Date.now()});if(rows.length>250)rows.shift();data.logs.set(d.tabId,rows);
- }
+ recordBlock(d.tabId,d.url,d.type,result.rule);
  return {cancel:true};
 },{urls:["<all_urls>"]},["blocking"]);
+// Only explicit $popup filters can close a newly opened advertising tab.
+browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
+ if(!data.ready||!data.settings.enabled||event.tabId<0||event.sourceTabId<0||!/^https?:/i.test(event.url))return;
+ try{
+  const origin=await browser.tabs.get(event.sourceTabId);
+  const originUrl=origin?.url||"",originHost=host(originUrl);
+  if(!originHost||!enabled(originHost))return;
+  const verdict=data.engine.checkRequest(event.url,"popup",originHost,data.engine.getPagePolicy(originUrl));
+  if(!verdict.block)return;
+  await browser.tabs.remove(event.tabId);
+  recordBlock(event.sourceTabId,event.url,"popup",verdict.rule);
+ }catch(error){console.warn("DK Live Block popup check:",error);}
+});
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);badge(id);}
 });

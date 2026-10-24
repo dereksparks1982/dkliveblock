@@ -1,7 +1,7 @@
 /* DK Live Block: shared rule helpers. */
 (function(g){"use strict";
 const TYPE={main_frame:"document",sub_frame:"subdocument",xmlhttprequest:"xmlhttprequest"};
-const RES=new Set(["script","image","stylesheet","media","font","object","xmlhttprequest","subdocument","document","ping","websocket","other"]);
+const RES=new Set(["script","image","stylesheet","media","font","object","xmlhttprequest","subdocument","document","ping","websocket","other","popup"]);
 const SUFFIX=new Set(["co.uk","org.uk","co.nz","com.au","co.jp","co.in","co.kr","com.br"]);
 function host(url){try{return new URL(url).hostname.toLowerCase().replace(/\.$/,"");}catch(_){return "";}}
 function sub(h,d){return Boolean(h&&d&&(h===d||h.endsWith("."+d)));}
