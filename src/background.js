@@ -55,7 +55,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
 });
 browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
-browser.runtime.onMessage.addListener(async(msg,sender)=>{
+browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
  const id=Number.isInteger(msg.tabId)?msg.tabId:sender.tab?.id||-1,url=msg.url||sender.url||"",h=host(url);
  if(msg.action==="status")return status(id,url);
