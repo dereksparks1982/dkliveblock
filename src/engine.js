@@ -4,7 +4,7 @@ const R=DKRules;
 class FilterEngine {
  constructor(text=""){this.load(text);}
  load(text){
-  this.hostIndex=new Map();this.generic=[];this.special=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
+  this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
   const pending=[],disabled=new Set();
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==="!"||line[0]==="[")continue;
    const p=R.procedural(line);if(p){this.procedural.push(p);continue;}
@@ -15,13 +15,20 @@ class FilterEngine {
   for(const r of pending){if(disabled.has(r.key))continue;
    if(r.special){this.special.push(r);continue;}
    this.networkCount++;
-   if(!r.anchor){this.generic.push(r);continue;}
+   if(!r.anchor){
+    const text=r.p.startsWith("/")&&r.p.endsWith("/")?[]:r.p.split(/[\*\^\|]/).filter(x=>x.length>=4);
+    const token=text.sort((a,b)=>b.length-a.length)[0]?.toLowerCase().slice(0,4);
+    if(token){if(!this.tokenIndex.has(token))this.tokenIndex.set(token,[]);this.tokenIndex.get(token).push(r);}else this.generic.push(r);
+    continue;
+   }
    if(!this.hostIndex.has(r.anchor))this.hostIndex.set(r.anchor,[]);
    this.hostIndex.get(r.anchor).push(r);
   }
  }
  candidates(url){const result=this.generic.slice(),parts=R.host(url).split(".");
   for(let i=0;i<parts.length;i++){const rules=this.hostIndex.get(parts.slice(i).join("."));if(rules)result.push(...rules);}
+  const lower=url.toLowerCase(),seen=new Set();
+  for(let i=0;i<lower.length-3;i++){const token=lower.slice(i,i+4);if(seen.has(token))continue;seen.add(token);const rules=this.tokenIndex.get(token);if(rules)result.push(...rules);}
   return result;
  }
  getPagePolicy(url){const policy={document:false,elemhide:false,generichide:false,genericblock:false},h=R.host(url);
