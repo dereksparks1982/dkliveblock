@@ -29,6 +29,7 @@
       "engine.js",
       "privacy.js",
       "subscriptions.js",
+      "manual-rules.js",
       "background.js"
     ],
     "persistent": true

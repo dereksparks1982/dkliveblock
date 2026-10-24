@@ -92,6 +92,13 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=enabled(h)&&enabled(top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,css:active?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){data.settings.enabled=!!msg.enabled;await persist();rebuild();return status(id,url);}
  if(msg.action==="toggleSite"){if(!h)return {error:"No website"};data.settings.paused=data.settings.paused.filter(x=>x!==h);if(msg.disable)data.settings.paused.push(h);await persist();rebuild();badge(id);return status(id,url);}
+ if(msg.action==="allowHost"){
+  const rule=DKManualRules.allowHostOnSite(h,msg.host);
+  if(!rule)return {error:"Invalid site or blocked-request hostname."};
+  const existing=data.settings.customRules.split("\n");
+  if(!existing.includes(rule))data.settings.customRules+="\n"+rule;
+  await persist();rebuild();return {ok:true,rule};
+ }
  if(msg.action==="undoElementRule"){
   const lines=data.settings.customRules.split("\n"),prefix=h+"##";
   const index=lines.findLastIndex(line=>line.startsWith(prefix));

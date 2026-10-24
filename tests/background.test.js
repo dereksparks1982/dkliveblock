@@ -15,7 +15,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","background.js"]){
+ for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));
@@ -30,6 +30,11 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(log.length,1);
  assert.equal(log[0].host,"doubleclick.net");
  assert.equal(JSON.stringify(log).includes("/pixel"),false);
+ const unsafe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"bad^$important"});
+ assert.match(unsafe.error,/Invalid/);
+ const safe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"doubleclick.net"});
+ assert.equal(safe.ok,true);
+ assert.equal(listeners.network(request).cancel,undefined);
  await listeners.popup({tabId:4,sourceTabId:1,url:"https://ads-pop.test/window"});
  assert.equal(removedTabs.length,1);
  assert.equal(removedTabs[0],4);

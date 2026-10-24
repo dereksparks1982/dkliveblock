@@ -33,10 +33,24 @@ $("update").addEventListener("click",async()=>{
  }catch(e){$("message").textContent=e.message;}finally{$("update").disabled=false;await load();}
 });
 $("logRefresh").addEventListener("click",async()=>{
- const [tab]=await browser.tabs.query({active:true,currentWindow:true});
- if(!tab){$("log").textContent="No active tab.";return;}
+ const tabs=await browser.tabs.query({currentWindow:true});
+ const [tab]=tabs.filter(t=>/^https?:\/\//i.test(t.url||"")).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0));
+ const log=$("log");log.replaceChildren();
+ if(!tab){log.textContent="No website tab available.";return;}
  const rows=await browser.runtime.sendMessage({action:"getLog",tabId:tab.id});
- $("log").textContent=rows.length?rows.map(x=>new Date(x.when).toLocaleTimeString()+" "+x.type+" "+x.host+" · "+x.rule).join("\n"):"No blocked requests recorded on this tab.";
+ if(!rows.length){log.textContent="No blocked requests logged for "+new URL(tab.url).hostname+".";return;}
+ for(const row of rows.slice(0,50)){
+  const record=document.createElement("div");record.className="log-row";
+  const description=document.createElement("span");
+  description.textContent=new Date(row.when).toLocaleTimeString()+" · "+row.type+" · "+row.host+" · "+row.rule;
+  const allow=document.createElement("button");allow.textContent="Allow on this site";
+  allow.addEventListener("click",async()=>{
+   const result=await browser.runtime.sendMessage({action:"allowHost",url:tab.url,host:row.host});
+   if(result.ok){allow.textContent="Allowed. Reload site.";allow.disabled=true;}
+   else $("message").textContent=result.error||"Unable to add exception.";
+  });
+  record.append(description,allow);log.appendChild(record);
+ }
 });
 $("export").addEventListener("click",()=>{
  const data={format:"DK-Live-Block-settings",version:1,settings:collect()};

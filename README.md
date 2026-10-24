@@ -23,7 +23,7 @@ See docs/ROADMAP.md for the acceptance checklist.
 - Standard cosmetic CSS filters and restricted, domain-scoped text-only procedural hiding.
 - YouTube Skip Ad button assistant when available. This cannot remove every video ad.
 - Opt-in rejection of clearly labeled optional cookie consent buttons.
-- Global and per-site switches, element picker and undo, temporary host-only request log.
+- Global and per-site switches, element picker and undo, temporary host-only request log with per-site allow controls.
 - JSON preferences export/import. No accounts, telemetry or Acceptable Ads exemptions.
 
 ## Verification
