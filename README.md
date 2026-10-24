@@ -19,7 +19,7 @@ See docs/ROADMAP.md for the acceptance checklist.
 - Firefox Manifest V2 with a synchronous blocking webRequest listener.
 - Bundled offline fallback domain rules and opt-in daily subscription downloads.
 - EasyList + EasyPrivacy enabled by default; cookie, annoyance and social lists optional.
-- ABP-style URL blocking patterns, ordinary exceptions, type/domain/third-party filters, important, badfilter, and basic document-wide exceptions.
+- ABP-style URL blocking patterns, ordinary exceptions, type/domain/third-party filters, important, badfilter, scoped named `removeparam` cleanup on navigations, and basic document-wide exceptions.
 - Standard cosmetic CSS filters and restricted, domain-scoped text-only procedural hiding.
 - YouTube Skip Ad button assistant when available. This cannot remove every video ad.
 - Opt-in rejection of clearly labeled optional cookie consent buttons.

@@ -4,7 +4,7 @@ const R=DKRules;
 class FilterEngine {
  constructor(text=""){this.load(text);}
  load(text){
-  this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
+  this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.paramRules=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
   const pending=[],disabled=new Set();
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==="!"||line[0]==="[")continue;
    const p=R.procedural(line);if(p){this.procedural.push(p);continue;}
@@ -14,6 +14,7 @@ class FilterEngine {
   }
   for(const r of pending){if(disabled.has(r.key))continue;
    if(r.special){this.special.push(r);continue;}
+   if(r.removeparam){this.paramRules.push(r);continue;}
    this.networkCount++;
    if(!r.anchor){
     const text=r.p.startsWith("/")&&r.p.endsWith("/")?[]:r.p.split(/[\*\^\|]/).filter(x=>x.length>=4);
@@ -30,6 +31,24 @@ class FilterEngine {
   const lower=url.toLowerCase(),seen=new Set();
   for(let i=0;i<lower.length-3;i++){const token=lower.slice(i,i+4);if(seen.has(token))continue;seen.add(token);const rules=this.tokenIndex.get(token);if(rules)result.push(...rules);}
   return result;
+ }
+ cleanNavigation(raw){
+  if(typeof raw!=="string"||raw.length>16000||!/^https?:\/\//i.test(raw)||!raw.includes("?"))return null;
+  if(this.getPagePolicy(raw).document)return null;
+  let url;try{url=new URL(raw);}catch(_){return null;}
+  const host=R.host(raw),remove=new Set(),except=new Set();
+  const reserved=new Set(["token","auth","signature","sig","state","code","key","expires"]);
+  for(const rule of this.paramRules){
+   if(rule.include.size&&!rule.include.has("document")||rule.exclude.has("document"))continue;
+   if(!R.domains(host,rule.scope)||rule.third===true||rule.anchor&&!R.sub(host,rule.anchor)||!rule.compiled.test(raw))continue;
+   if(rule.exception)except.add(rule.removeparam);else remove.add(rule.removeparam);
+  }
+  let changed=false;
+  for(const key of remove){
+   if(except.has(key)||reserved.has(key.toLowerCase())||!url.searchParams.has(key))continue;
+   url.searchParams.delete(key);changed=true;
+  }
+  return changed?url.toString():null;
  }
  getPagePolicy(url){const policy={document:false,elemhide:false,generichide:false,genericblock:false},h=R.host(url);
   for(const r of this.special)if(R.domains(h,r.scope)&&(!r.anchor||R.sub(h,r.anchor))&&r.compiled.test(url))policy[r.special]=true;

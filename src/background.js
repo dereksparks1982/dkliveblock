@@ -53,7 +53,8 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!data.ready||!data.settings.enabled||!/^https?:/i.test(d.url))return {};
  if(d.type==="main_frame"){
   if(!data.settings.stripTracking||!enabled(host(d.url)))return {};
-  const cleaned=DKPrivacy.stripTrackingParameters(d.url);
+  const ruleCleaned=data.engine.cleanNavigation(d.url)||d.url;
+  const cleaned=DKPrivacy.stripTrackingParameters(ruleCleaned)||(ruleCleaned!==d.url?ruleCleaned:null);
   return cleaned?{redirectUrl:cleaned}:{};
  }
  const top=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url);

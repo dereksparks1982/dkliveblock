@@ -23,9 +23,15 @@ function network(raw){
  let p=line,opts=[],i=line.lastIndexOf("$");
  if(i>0&&/^[a-z~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
  if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
- const include=new Set(),exclude=new Set();let scope="",third=null,important=false,badfilter=false,special="",matchCase=false;
+ const include=new Set(),exclude=new Set();let scope="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="";
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
   if(o.startsWith("domain=")&&!neg){scope=o.slice(7).toLowerCase();if(!/^[\w.~|-]+$/.test(scope))return null;continue;}
+  if(o.startsWith("removeparam=")&&!neg){
+   if(removeparam)return null;
+   removeparam=o.slice(12);
+   if(!/^[a-zA-Z0-9_.~-]{1,64}$/.test(removeparam))return null;
+   continue;
+  }
   if(o==="third-party"){third=!neg;continue;}
   if(o==="match-case"){matchCase=!neg;continue;}
   if(o==="important"&&!neg){important=true;continue;}
@@ -35,7 +41,7 @@ function network(raw){
  }
  const compiled=regex(p,matchCase);if(!compiled)return null;
  let anchor="";if(p.startsWith("||")){const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?*: ]|$)/i.exec(p);if(m)anchor=m[1].toLowerCase();}
- return {p,compiled,anchor,exception,include,exclude,scope,third,important,badfilter,special,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
+ return {p,compiled,anchor,exception,include,exclude,scope,third,important,badfilter,special,removeparam,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 
 function cosmetic(line){

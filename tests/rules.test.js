@@ -112,3 +112,17 @@ test("popup rules only affect explicit popup requests",()=>{
  assert.equal(f.shouldBlock("https://ads.test/x","popup","page.test"),false);
  assert.equal(f.shouldBlock("https://popup.test/allow-me","popup","page.test"),false);
 });
+
+test("named removeparam rules clean top-level navigation only",()=>{
+ const f=new FilterEngine("*$removeparam=clickid");
+ assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&product=boots#details"),"https://shop.example/item?product=boots#details");
+ assert.equal(f.cleanNavigation("https://shop.example/item?product=boots"),null);
+ assert.equal(f.shouldBlock("https://shop.example/item?clickid=123","script","site.example"),false);
+});
+test("removeparam respects site restrictions, exceptions and important signed keys",()=>{
+ const f=new FilterEngine("*$removeparam=clickid,domain=shop.example\n@@||shop.example/private^$removeparam=clickid\n*$removeparam=signature");
+ assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&signature=x"),"https://shop.example/item?signature=x");
+ assert.equal(f.cleanNavigation("https://shop.example/private?clickid=123"),null);
+ assert.equal(f.cleanNavigation("https://other.example/item?clickid=123"),null);
+ assert.equal(R.network("*$removeparam=/unsafe-regexp/"),null);
+});
