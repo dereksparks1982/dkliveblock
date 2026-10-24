@@ -1,0 +1,48 @@
+{
+  "manifest_version": 2,
+  "name": "DK Live Block",
+  "version": "0.2.0",
+  "description": "Unreleased, independent Firefox ad and tracker blocker",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "dk-live-block@elderred-softworks.local",
+      "strict_min_version": "115.0"
+    }
+  },
+  "permissions": [
+    "webRequest",
+    "webRequestBlocking",
+    "tabs",
+    "storage",
+    "alarms",
+    "<all_urls>"
+  ],
+  "background": {
+    "scripts": [
+      "rules.js",
+      "engine.js",
+      "background.js"
+    ],
+    "persistent": true
+  },
+  "browser_action": {
+    "default_title": "DK Live Block",
+    "default_popup": "popup.html"
+  },
+  "options_ui": {
+    "page": "options.html",
+    "open_in_tab": true
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "content.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true
+    }
+  ]
+}
