@@ -13,3 +13,15 @@ test("reject malformed backup payloads instead of coercing arbitrary values",()=
  assert.equal(typeof validate("https://example.test/filter.txt").error,"string");
  assert.equal(typeof validate([null]).error,"string");
 });
+
+test("reject direct IPs, internal and special-use names",()=>{
+ for(const value of ["https://127.0.0.1/a","https://192.168.1.3/rules","https://10.0.0.3/a","https://[::1]/list","https://[fd00::1]/list","https://router.lan/list","https://device.home.arpa/a","https://host.internal/a","https://printer.local/a","https://example.invalid/list"])
+  assert.equal(typeof validate([value]).error,"string",value);
+});
+test("custom subscriptions must have publicly named HTTPS hosts",()=>{
+ const {publicHost}=require("../src/subscriptions.js");
+ assert.equal(publicHost("example.org"),true);
+ assert.equal(publicHost("example.local"),false);
+ assert.equal(publicHost("localhost"),false);
+ assert.equal(publicHost("[::1]"),false);
+});

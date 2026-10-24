@@ -19,9 +19,9 @@ function rebuild(){data.engine=new DKFilter.FilterEngine(assemble());for(const i
 function badge(id){const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";browser.browserAction.setBadgeText({tabId:id,text:enabled(h)&&n?String(Math.min(n,9999)):""}).catch(()=>{});}
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persist().catch(console.warn);},60000);}
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:enabled(h),tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
-async function downloadList(url){
+async function downloadList(url,followRedirects=true){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
- try{const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit"});if(!res.ok)throw Error("HTTP "+res.status);
+ try{const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit",redirect:followRedirects?"follow":"error"});if(!res.ok)throw Error("HTTP "+res.status);
   const size=Number(res.headers.get("content-length")||0);if(size>20000000)throw Error("List too large");
   const text=await res.text();if(text.length<300||text.length>20000000||!/\[Adblock Plus|! Title:|! Homepage:/i.test(text.slice(0,4000)))throw Error("Invalid filter list");
   return text;
@@ -33,7 +33,7 @@ function updateLists(){if(data.updateJob)return data.updateJob;
    try{const text=await downloadList(entry.url);data.lists[key]={text,updated:Date.now()};delete data.listErrors[key];updated++;}catch(e){data.listErrors[key]=String(e.message||e).slice(0,150);errors.push(entry.name+": "+data.listErrors[key]);}
   }
   for(const u of data.settings.customSubscriptions||[]){
-   try{const text=await downloadList(u);data.customLists[u]={text,updated:Date.now()};delete data.listErrors[u];updated++;}
+   try{const text=await downloadList(u,false);data.customLists[u]={text,updated:Date.now()};delete data.listErrors[u];updated++;}
    catch(e){data.listErrors[u]=String(e.message||e).slice(0,150);errors.push("Custom "+host(u)+": "+data.listErrors[u]);}
   }
   if(updated){data.settings.lastUpdate=Date.now();rebuild();}
