@@ -44,6 +44,11 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(removedTabs.length,1);
  const rejected=await listeners.message({action:"saveSettings",settings:{customSubscriptions:["http://insecure.test/list.txt"]}});
  assert.match(rejected.error,/HTTPS/);
+ const updated=await listeners.message({action:"updateLists"});
+ assert.equal(updated.updated,0);
+ assert.ok(updated.errors.some(x=>x.includes("EasyList")));
+ const health=await listeners.message({action:"getSettings"});
+ assert.match(health.listState.easylist.error,/unexpected list fetch/);
  const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(css.active,false);
 });

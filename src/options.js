@@ -17,7 +17,7 @@ async function load(){
  $("customRules").value=s.customRules||"";
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
- $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")).join(" · ");
+ $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
 }
 $("save").addEventListener("click",async()=>{
  const s=collect();
