@@ -3,13 +3,13 @@
 const TYPE={main_frame:"document",sub_frame:"subdocument",xmlhttprequest:"xmlhttprequest"};
 const RES=new Set(["script","image","stylesheet","media","font","object","xmlhttprequest","subdocument","document","ping","websocket","other"]);
 const SUFFIX=new Set(["co.uk","org.uk","co.nz","com.au","co.jp","co.in","co.kr","com.br"]);
-function host(url){try{return new URL(url).hostname.toLowerCase();}catch(_){return "";}}
+function host(url){try{return new URL(url).hostname.toLowerCase().replace(/\.$/,"");}catch(_){return "";}}
 function sub(h,d){return Boolean(h&&d&&(h===d||h.endsWith("."+d)));}
-function site(h){const b=h.split(".");return b.slice(-(SUFFIX.has(b.slice(-2).join("."))?3:2)).join(".");}
+function site(h){if(!h||!h.includes(".")||h.includes(":")||/^\d+\.\d+\.\d+\.\d+$/.test(h))return h;const b=h.replace(/\.$/,"").split(".");return b.slice(-(SUFFIX.has(b.slice(-2).join("."))?3:2)).join(".");}
 function domains(h,list,sep="|"){if(!list)return true;const a=list.split(sep),yes=a.filter(x=>x&&!x.startsWith("~"));return !a.some(x=>x.startsWith("~")&&sub(h,x.slice(1)))&&(!yes.length||yes.some(x=>sub(h,x)));}
 
 function regex(pattern,matchCase=false){
- if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){try{return new RegExp(pattern.slice(1,-1),matchCase?"":"i");}catch(_){return null;}}
+ if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){const expr=pattern.slice(1,-1);if(expr.length>512||/\\[1-9]|\(\?<|\([^)]*[+*][^)]*\)[+*{]/.test(expr))return null;try{return new RegExp(expr,matchCase?"":"i");}catch(_){return null;}}
  let p=pattern,start="",end="";
  if(p.startsWith("||")){start="^[a-z][a-z0-9+.-]*:\\/\\/(?:[^/?#@:]*\\.)?";p=p.slice(2);}
  else if(p[0]==="|"){start="^";p=p.slice(1);}
@@ -18,11 +18,11 @@ function regex(pattern,matchCase=false){
  try{return new RegExp(start+s+end,matchCase?"":"i");}catch(_){return null;}
 }
 function network(raw){
- let line=raw.trim();if(!line||/^[!\[#]/.test(line)||line.includes("##")||line.includes("#@#")||line.includes("#?#"))return null;
+ let line=raw.trim();if(!line||/^[!\[#]/.test(line)||/##|#@#|#@\?#|#\?#|#\$#|#%#|#@\$#/.test(line))return null;
  const exception=line.startsWith("@@");if(exception)line=line.slice(2);
  let p=line,opts=[],i=line.lastIndexOf("$");
  if(i>0&&/^[a-z~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
- if(!p||p.length>2048||/\s/.test(p))return null;
+ if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
  const include=new Set(),exclude=new Set();let scope="",third=null,important=false,badfilter=false,special="",matchCase=false;
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
   if(o.startsWith("domain=")&&!neg){scope=o.slice(7).toLowerCase();if(!/^[\w.~|-]+$/.test(scope))return null;continue;}

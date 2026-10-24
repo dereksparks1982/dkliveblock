@@ -42,7 +42,7 @@ class FilterEngine {
   for(const r of this.candidates(url)){
    if(policy.genericblock&&!r.scope&&!r.exception)continue;
    if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.domains(docHost,r.scope))continue;
-   if(r.third!==null&&r.third!==(R.site(target)!==R.site(docHost)))continue;
+   if(r.third!==null&&r.third!==(!!(target&&docHost&&R.site(target)!==R.site(docHost))))continue;
    if(r.anchor&&!R.sub(target,r.anchor)||!r.compiled.test(url))continue;
    if(r.exception)allow=r;else if(r.important)important=r;else block=r;
   }

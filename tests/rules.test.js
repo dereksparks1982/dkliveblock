@@ -86,3 +86,21 @@ test("wildcard and separator anchors remain correct",()=>{
  assert.equal(f.shouldBlock("https://cdn.test/ads/3/banner?x=1","image","page.test"),true);
  assert.equal(f.shouldBlock("https://cdn.test/ads/3/bannerd.jpg","image","page.test"),false);
 });
+
+test("URL normalization and missing document context",()=>{
+ assert.equal(R.host("https://EXAMPLE.TEST./a"),"example.test");
+ assert.equal(R.site("192.168.11.42"),"192.168.11.42");
+ const f=new FilterEngine("||ads.test^$third-party");
+ assert.equal(f.shouldBlock("https://ads.test/script","script",""),false);
+});
+test("case-sensitive filters and unsupported cosmetic syntax",()=>{
+ const f=new FilterEngine("|https://cdn.test/Ad.js|$match-case");
+ assert.equal(f.shouldBlock("https://cdn.test/Ad.js","script","page.test"),true);
+ assert.equal(f.shouldBlock("https://cdn.test/ad.js","script","page.test"),false);
+ assert.equal(R.network("site.test#@?#div:-abp-contains(ad)"),null);
+ assert.equal(R.network("site.test#$#div{display:none}"),null);
+});
+test("reject costly regexp constructs",()=>{
+ assert.equal(R.regex("/(a+)+/"),null);
+ assert.equal(R.regex("/(foo)\\1/"),null);
+});
