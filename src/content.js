@@ -2,6 +2,7 @@
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
  let active=false,css="",youtubeSkip=true,cookieReject=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0;
+ const clickedRejectButtons=new WeakSet();
  const hidden=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  function applyCSS(){
@@ -42,11 +43,12 @@
   if(!active||!cookieReject)return;
   const selectors=["[role='dialog']","[aria-modal='true']","#onetrust-banner-sdk","#CybotCookiebotDialog",".qc-cmp2-container"];
   for(const root of document.querySelectorAll(selectors.join(","))){
-   const info=(root.textContent||"").slice(0,800).toLowerCase();
-   if(!/cookie|consent|privacy preferences/.test(info))continue;
+   const info=(root.textContent||"").slice(0,1500);
+   if(!DKConsent.cookieContext(info))continue;
    const buttons=root.querySelectorAll("button,[role='button']");
-   for(const button of buttons){const label=(button.textContent||button.getAttribute("aria-label")||"").trim().toLowerCase();
-    if(/^(reject all|decline all|deny all|refuse all|reject optional|only necessary|necessary only)$/i.test(label)&&button.getClientRects().length){
+   for(const button of buttons){const label=button.textContent||button.getAttribute("aria-label")||"";
+    if(!clickedRejectButtons.has(button)&&DKConsent.rejectLabel(label)&&button.getClientRects().length){
+      clickedRejectButtons.add(button);
       button.click();return;
     }
    }

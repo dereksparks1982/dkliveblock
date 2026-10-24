@@ -6,7 +6,7 @@ Status: UNRELEASED. Do not claim ABP feature parity or verified video ad blockin
 - [x] Public repository and project identity
 - [x] Independent blocking engine, page exceptions, element hiding, regression tests
 - [x] List subscriptions and automatic updates (EasyList, EasyPrivacy)
-- [x] Optional cookie, social and annoyance lists and basic opt-in reject assistant (limited)
+- [x] Optional cookie, social and annoyance lists and opt-in multilingual cookie rejection assistant (limited and conservative)
 - [x] Per-site pause, rule picker, undo and private bounded request logger
 - [x] Settings import/export and local privacy controls
 - [ ] Advanced ABP filters, snippets, redirects and robust procedural cosmetics

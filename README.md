@@ -22,7 +22,7 @@ See docs/ROADMAP.md for the acceptance checklist.
 - ABP-style URL blocking patterns, ordinary exceptions, type/domain/third-party filters, important, badfilter, scoped named `removeparam` cleanup on navigations, and basic document-wide exceptions.
 - Standard cosmetic CSS filters and restricted, domain-scoped text-only procedural hiding.
 - YouTube Skip Ad button assistant when available. This cannot remove every video ad.
-- Opt-in rejection of clearly labeled optional cookie consent buttons.
+- Opt-in rejection of clearly labeled optional cookie consent buttons in several languages, with single-click safeguards.
 - Global and per-site switches, element picker and undo, temporary host-only request log with per-site allow controls.
 - JSON preferences export/import. No accounts, telemetry or Acceptable Ads exemptions.
 

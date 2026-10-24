@@ -48,6 +48,7 @@
         "<all_urls>"
       ],
       "js": [
+        "consent.js",
         "content.js"
       ],
       "run_at": "document_start",
