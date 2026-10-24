@@ -36,3 +36,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - Do not add, enable or trigger GitHub Actions. Tests are local only.
 - Repository pushes store source, not hosted builds or deployments.
 - No finished download until ABP-or-better equivalence is verified.
+
+## Latest offline checks
+
+- Added conservative popup handling, query-parameter cleanup, secure custom subscriptions, manual request-log exceptions, multilingual cookie rejection and two limited procedural filter modes.
+- Added a synthetic 45,000-rule benchmark to the offline Node.js suite. Full browser profiling and ABP parity are **still unfinished**.
+- No `.github/workflows/` files are permitted or present.

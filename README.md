@@ -43,3 +43,7 @@ This is **not a released product** and is **not yet certified as good as or bett
 ## No GitHub Actions
 
 No GitHub Actions workflows are permitted. Pushes must not trigger hosted builds or tests. Run tests locally before committing. Keep `.github/workflows/` absent.
+
+## Local performance gate
+
+The offline test runner includes a synthetic **45,000 network-rule / 1,500 request** workload with generous time limits. This is only a JavaScript-core regression benchmark; it is not proof of real Firefox or streaming performance. It uses Node.js locally, never GitHub Actions.
