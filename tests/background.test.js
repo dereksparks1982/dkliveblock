@@ -3,10 +3,12 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("background blocks seeded ads, logs host-only requests, then pauses the site",async()=>{
  const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;}});
- let stored={settings:{autoUpdate:false}};
+ let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup"}};
+ const removedTabs=[];
  const browser={
   webRequest:{onBeforeRequest:reg("network")},
-  tabs:{onUpdated:reg("updated"),onRemoved:reg("removed"),query:async()=>[{id:1,url:"https://site.test"}],sendMessage:async()=>({}),reload:async()=>{}},
+  webNavigation:{onCreatedNavigationTarget:reg("popup")},
+  tabs:{onUpdated:reg("updated"),onRemoved:reg("removed"),query:async()=>[{id:1,url:"https://site.test"}],get:async id=>({id,url:"https://site.test"}),remove:async id=>{removedTabs.push(id);},sendMessage:async()=>({}),reload:async()=>{}},
   alarms:{onAlarm:reg("alarm"),create:async()=>{}},
   runtime:{onMessage:reg("message")},
   browserAction:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
@@ -26,8 +28,17 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(log.length,1);
  assert.equal(log[0].host,"doubleclick.net");
  assert.equal(JSON.stringify(log).includes("/pixel"),false);
+ await listeners.popup({tabId:4,sourceTabId:1,url:"https://ads-pop.test/window"});
+ assert.equal(removedTabs.length,1);
+ assert.equal(removedTabs[0],4);
+ const afterPopup=await listeners.message({action:"getLog",tabId:1});
+ assert.equal(afterPopup[0].type,"popup");
+ await listeners.popup({tabId:5,sourceTabId:1,url:"https://other.test/window"});
+ assert.equal(removedTabs.length,1);
  await listeners.message({action:"toggleSite",tabId:1,url:"https://site.test",disable:true});
  assert.equal(listeners.network(request).cancel,undefined);
+ await listeners.popup({tabId:6,sourceTabId:1,url:"https://ads-pop.test/window"});
+ assert.equal(removedTabs.length,1);
  const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(css.active,false);
 });
