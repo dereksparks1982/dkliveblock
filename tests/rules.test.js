@@ -75,3 +75,14 @@ test("elemhide exception cancels style and procedural hiding",()=>{
  assert.deepEqual(f.getSelectors("page.test",p),[]);
  assert.deepEqual(f.getProcedural("page.test",p),[]);
 });
+
+test("unanchored literal rules remain indexed and effective",()=>{
+ const f=new FilterEngine("*/bannerads/*");
+ assert.equal(f.shouldBlock("https://cdn.test/x/bannerads/a","image","page.test"),true);
+ assert.equal(f.shouldBlock("https://cdn.test/x/organic/a","image","page.test"),false);
+});
+test("wildcard and separator anchors remain correct",()=>{
+ const f=new FilterEngine("/ads/*/banner^");
+ assert.equal(f.shouldBlock("https://cdn.test/ads/3/banner?x=1","image","page.test"),true);
+ assert.equal(f.shouldBlock("https://cdn.test/ads/3/bannerd.jpg","image","page.test"),false);
+});
