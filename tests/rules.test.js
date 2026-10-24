@@ -60,3 +60,18 @@ test("domain suffix approximation and hostname",()=>{
  assert.equal(R.site("cdn.example.co.uk"),"example.co.uk");
  assert.equal(R.host("https://EXAMPLE.test/"),"example.test");
 });
+
+test("text-only procedural cosmetics and exceptions",()=>{
+ const f=new FilterEngine("page.test#?#div.ad:-abp-contains(Sponsored)\npage.test#@?#div.ad:-abp-contains(Sponsored)");
+ assert.deepEqual(f.getProcedural("page.test"),[]);
+ const g=new FilterEngine("page.test#?#div.ad:-abp-contains(Sponsored)");
+ assert.deepEqual(g.getProcedural("page.test"),[{selector:"div.ad",text:"Sponsored"}]);
+ assert.deepEqual(g.getProcedural("other.test"),[]);
+});
+test("elemhide exception cancels style and procedural hiding",()=>{
+ const f=new FilterEngine("##.ad\npage.test#?#div.ad:-abp-contains(Sponsored)\n@@||page.test^$elemhide");
+ const p=f.getPagePolicy("https://page.test/");
+ assert.equal(p.elemhide,true);
+ assert.deepEqual(f.getSelectors("page.test",p),[]);
+ assert.deepEqual(f.getProcedural("page.test",p),[]);
+});
