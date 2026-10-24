@@ -1,7 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
-const flagKeys=["autoUpdate","youtubeSkip","cookieReject"];
+const flagKeys=["autoUpdate","youtubeSkip","cookieReject","stripTracking"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value};

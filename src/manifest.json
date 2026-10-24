@@ -27,6 +27,7 @@
     "scripts": [
       "rules.js",
       "engine.js",
+      "privacy.js",
       "background.js"
     ],
     "persistent": true

@@ -15,7 +15,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,console,Date,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["rules.js","engine.js","background.js"]){
+ for(const name of ["rules.js","engine.js","privacy.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));
@@ -23,6 +23,8 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(listeners.network(request).cancel,true);
  const state=await listeners.message({action:"status",tabId:1,url:"https://site.test"});
  assert.equal(state.tabBlocked,1);
+ const cleaned=listeners.network({url:"https://site.test/?utm_source=mail&post=42",type:"main_frame",tabId:1});
+ assert.equal(cleaned.redirectUrl,"https://site.test/?post=42");
  assert.equal(state.ready,true);
  const log=await listeners.message({action:"getLog",tabId:1});
  assert.equal(log.length,1);
@@ -37,6 +39,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(removedTabs.length,1);
  await listeners.message({action:"toggleSite",tabId:1,url:"https://site.test",disable:true});
  assert.equal(listeners.network(request).cancel,undefined);
+ assert.equal(listeners.network({url:"https://site.test/?fbclid=abc",type:"main_frame",tabId:1}).redirectUrl,undefined);
  await listeners.popup({tabId:6,sourceTabId:1,url:"https://ads-pop.test/window"});
  assert.equal(removedTabs.length,1);
  const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});

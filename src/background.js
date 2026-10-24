@@ -8,7 +8,7 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,customRules:"",blockedTotal:0,lastUpdate:0};
+const DEFAULT={enabled:true,paused:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,stripTracking:true,customRules:"",blockedTotal:0,lastUpdate:0};
 const data={settings:{...DEFAULT},lists:{},engine:new DKFilter.FilterEngine(SEED),hosts:new Map(),counts:new Map(),logs:new Map(),ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
@@ -45,7 +45,12 @@ function recordBlock(tabId,url,type,rule){
  if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
 }
 browser.webRequest.onBeforeRequest.addListener(d=>{
- if(!data.ready||!data.settings.enabled||d.type==="main_frame"||!/^https?:/i.test(d.url))return {};
+ if(!data.ready||!data.settings.enabled||!/^https?:/i.test(d.url))return {};
+ if(d.type==="main_frame"){
+  if(!data.settings.stripTracking||!enabled(host(d.url)))return {};
+  const cleaned=DKPrivacy.stripTrackingParameters(d.url);
+  return cleaned?{redirectUrl:cleaned}:{};
+ }
  const top=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url);
  if(!enabled(top))return {};
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
@@ -97,6 +102,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
   if(typeof s.cookieReject==="boolean")data.settings.cookieReject=s.cookieReject;
+  if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))data.settings.paused=s.paused.filter(x=>typeof x==="string"&&/^[a-z0-9.-]{1,253}$/.test(x)).slice(0,500);
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
