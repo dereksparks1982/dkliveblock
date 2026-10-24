@@ -1,0 +1,24 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Live Block settings</title><link rel="stylesheet" href="style.css"></head>
+<body class="options"><header><strong>DK LIVE BLOCK</strong><small>Privacy first. Everything free.</small></header><main>
+<h1>Protection settings</h1>
+<p class="warning">Development build. Adblock Plus feature parity and real YouTube and Disney+ video playback are not yet verified.</p>
+<section><h2>Filter subscriptions</h2>
+<label><input id="easylist" type="checkbox"> EasyList: advertisements</label>
+<label><input id="easyprivacy" type="checkbox"> EasyPrivacy: tracking</label>
+<label><input id="cookies" type="checkbox"> EasyList Cookie: cookie notices</label>
+<label><input id="annoyances" type="checkbox"> Fanboy Annoyances: overlays and distractions</label>
+<label><input id="social" type="checkbox"> Fanboy Social: social widgets</label>
+<label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
+<p id="updated"></p><button id="update">Update enabled lists</button></section>
+<section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
+<label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists</label></section>
+<section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
+<textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea></section>
+<section><h2>Paused domains</h2><p>One hostname per line.</p><textarea id="paused" class="short" spellcheck="false"></textarea></section>
+<section><h2>Private request log</h2><p>Temporary in-memory log, limited to 250 records per tab. Domain and rule only, not full request URLs.</p>
+<button id="logRefresh">Show current tab log</button><pre id="log"></pre></section>
+<section><h2>Settings backup</h2><button id="export">Export JSON</button>
+<label class="import">Import JSON <input id="import" type="file" accept="application/json,.json"></label></section>
+<div class="actions"><button id="save">Save settings</button><span id="message" role="status"></span></div>
+<footer>No accounts · No telemetry · No paid features</footer>
+</main><script src="options.js"></script></body></html>
