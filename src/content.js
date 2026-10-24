@@ -1,0 +1,81 @@
+"use strict";
+/* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
+(function(){
+ let active=false,css="",youtubeSkip=true,cookieReject=false,style=null,picking=false,selected=null,banner=null;
+ const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
+ function applyCSS(){
+  if(!document.documentElement)return;
+  if(!active||!css){style?.remove();style=null;return;}
+  if(!style||!style.isConnected){style=document.createElement("style");style.id="dk-live-block-style";document.documentElement.appendChild(style);}
+  if(style.textContent!==css)style.textContent=css;
+ }
+ async function refresh(){
+  try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;applyCSS();
+  }catch(_){/* A broken extension must not break the page. */}
+ }
+ function skipVideo(){
+  if(!active||!youtubeSkip||!isYouTube)return;
+  const btn=document.querySelector(".ytp-ad-skip-button, .ytp-ad-skip-button-modern, button.ytp-skip-ad-button, button[aria-label='Skip Ads']");
+  if(btn&&!btn.disabled&&btn.getClientRects().length)btn.click();
+ }
+ function rejectCookies(){
+  if(!active||!cookieReject)return;
+  const selectors=["[role='dialog']","[aria-modal='true']","#onetrust-banner-sdk","#CybotCookiebotDialog",".qc-cmp2-container"];
+  for(const root of document.querySelectorAll(selectors.join(","))){
+   const info=(root.textContent||"").slice(0,800).toLowerCase();
+   if(!/cookie|consent|privacy preferences/.test(info))continue;
+   const buttons=root.querySelectorAll("button,[role='button']");
+   for(const button of buttons){const label=(button.textContent||button.getAttribute("aria-label")||"").trim().toLowerCase();
+    if(/^(reject all|decline all|deny all|refuse all|reject optional|only necessary|necessary only)$/i.test(label)&&button.getClientRects().length){
+      button.click();return;
+    }
+   }
+  }
+ }
+ function cleanSelector(el){
+  if(el.id&&el.id.length<70)return "#"+CSS.escape(el.id);
+  const names=[];let node=el;
+  for(let i=0;i<5&&node&&node!==document.documentElement;i++){
+   let value=node.localName;if(!value)break;
+   const cls=[...node.classList].filter(x=>/^[a-zA-Z_-][\w-]{2,30}$/.test(x)&&!/^css-|^jsx-/.test(x));
+   if(cls.length)value+="."+cls.slice(0,2).map(CSS.escape).join(".");
+   const siblings=node.parentElement?[...node.parentElement.children].filter(x=>x.localName===node.localName):[];
+   if(siblings.length>1)value+=":nth-of-type("+(siblings.indexOf(node)+1)+")";
+   names.unshift(value);if(node.id){names[0]="#"+CSS.escape(node.id);break;}node=node.parentElement;
+  }
+  return names.join(" > ");
+ }
+ function endPicker(){
+  picking=false;
+  if(selected){selected.style.outline="";selected=null;}banner?.remove();banner=null;
+  document.removeEventListener("mouseover",hover,true);document.removeEventListener("click",choose,true);document.removeEventListener("keydown",keys,true);
+ }
+ function hover(event){
+  if(!picking||event.target===banner||banner?.contains(event.target))return;
+  if(!(event.target instanceof Element)||event.target===document.body||event.target===document.documentElement)return;
+  if(selected)selected.style.outline="";selected=event.target;selected.style.outline="3px solid #11ac99";
+ }
+ async function choose(event){
+  if(!picking||event.target===banner||banner?.contains(event.target))return;
+  event.preventDefault();event.stopImmediatePropagation();
+  const selector=cleanSelector(event.target);endPicker();
+  if(selector&&selector.length<=600){try{await browser.runtime.sendMessage({action:"addElementRule",selector});}catch(_){}}
+ }
+ function keys(e){if(e.key==="Escape"){e.preventDefault();endPicker();}}
+ function startPicker(){
+  if(!active||picking||!document.body)return false;
+  picking=true;banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
+  banner.setAttribute("style","position:fixed!important;z-index:2147483647!important;right:12px!important;top:12px!important;padding:12px!important;background:#073934!important;color:white!important;border:2px solid #14b8a6!important;font:14px sans-serif!important");
+  document.documentElement.appendChild(banner);
+  document.addEventListener("mouseover",hover,true);document.addEventListener("click",choose,true);document.addEventListener("keydown",keys,true);
+  return true;
+ }
+ browser.runtime.onMessage.addListener(msg=>{
+  if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
+  if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
+ });
+ refresh();
+ if(!document.documentElement){const watcher=new MutationObserver(()=>{if(document.documentElement){watcher.disconnect();applyCSS();}});watcher.observe(document,{childList:true,subtree:true});}
+ setInterval(()=>{skipVideo();rejectCookies();},1250);
+})();
