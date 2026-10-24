@@ -44,6 +44,14 @@ function cosmetic(line){
  if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:style\(|:remove\(/i.test(selector))return null;
  return {scope,selector,exception:m[2]==="#@#"};
 }
-g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic};
+function procedural(line){
+ const match=/^([^#]+)(#@\?#|#\?#)(.+)$/.exec(line.trim());if(!match)return null;
+ const scope=match[1].toLowerCase(),raw=match[3].trim();
+ if(!/^[a-z0-9.-]+$/.test(scope))return null;
+ const parsed=/^([a-z][\w.#>[\]="'\s:-]{0,160}):-abp-contains\(([^()]{1,120})\)$/i.exec(raw);
+ if(!parsed||/[{};\\]/.test(parsed[2]))return null;
+ return {scope,selector:parsed[1].trim(),text:parsed[2],exception:match[2]==="#@?#"};
+}
+g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic,procedural};
 if(typeof module!=="undefined")module.exports=g.DKRules;
 })(typeof globalThis!=="undefined"?globalThis:this);
