@@ -38,5 +38,12 @@ function network(raw){
  return {p,compiled,anchor,exception,include,exclude,scope,third,important,badfilter,special,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 
-g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network};
+function cosmetic(line){
+ const m=/^([^#]*)(#@#|##)(.+)$/.exec(line.trim());if(!m)return null;
+ const scope=m[1].toLowerCase(),selector=m[3].trim();
+ if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:style\(|:remove\(/i.test(selector))return null;
+ return {scope,selector,exception:m[2]==="#@#"};
+}
+g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic};
+if(typeof module!=="undefined")module.exports=g.DKRules;
 })(typeof globalThis!=="undefined"?globalThis:this);
