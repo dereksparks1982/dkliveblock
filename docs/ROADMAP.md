@@ -4,11 +4,11 @@ Status: UNRELEASED. Do not claim ABP feature parity or verified video ad blockin
 
 ## Development slices
 - [x] Public repository and project identity
-- [ ] Independent blocking engine, page exceptions, element hiding, regression tests
-- [ ] List subscriptions and automatic updates (EasyList, EasyPrivacy)
-- [ ] Optional cookie, social and annoyance protection
-- [ ] Per-site pause, rule picker, private bounded request logger
-- [ ] Settings import/export and local privacy controls
+- [x] Independent blocking engine, page exceptions, element hiding, regression tests
+- [x] List subscriptions and automatic updates (EasyList, EasyPrivacy)
+- [x] Optional cookie, social and annoyance lists and basic opt-in reject assistant (limited)
+- [x] Per-site pause, rule picker, undo and private bounded request logger
+- [x] Settings import/export and local privacy controls
 - [ ] Advanced ABP filters, snippets, redirects and robust procedural cosmetics
 - [ ] Public Suffix List, performance and security hardening
 - [ ] Real Firefox/Ubuntu site tests, YouTube pre/mid-roll and Disney+ playback
@@ -16,3 +16,17 @@ Status: UNRELEASED. Do not claim ABP feature parity or verified video ad blockin
 
 ### Constraints
 Never advertise a package for download before it meets the user's ABP-or-better requirement. Avoid misrepresenting unsupported filters as working. Keep video playback intact if an advertising rule would break the player.
+
+## Completed development checks
+
+- 16 rule-level regression cases validated in a JavaScript test harness.
+- Mock Firefox runtime verified seeded request blocking, tab counters, request-log isolation and site pause.
+- GitHub Actions now runs Node.js tests, syntax checks and manifest validation on main. Review CI status before treating any slice as verified.
+
+## Important unfinished items
+
+- Advanced ABP compatibility: scriptlets, redirects and many procedural syntaxes.
+- More robust third-party site categorization using a full Public Suffix List.
+- Actual Firefox browser performance and video playback testing, especially YouTube and Disney+.
+- Real list-download verification and long-duration memory/performance measurements.
+- Mozilla signing, security review and stable release approval.
