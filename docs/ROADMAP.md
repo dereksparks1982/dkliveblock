@@ -19,9 +19,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 ## Completed development checks
 
-- 16 rule-level regression cases validated in a JavaScript test harness.
+- 20 automated regression tests passed on the GitHub Actions Ubuntu/Node.js runner (19 filtering tests and 1 background-runtime smoke test).
 - Mock Firefox runtime verified seeded request blocking, tab counters, request-log isolation and site pause.
-- GitHub Actions now runs Node.js tests, syntax checks and manifest validation on main. Review CI status before treating any slice as verified.
+- GitHub Actions now runs Node.js tests, syntax checks and manifest validation on main. Verify a green CI run for the latest commit before treating a slice as checked.
 
 ## Important unfinished items
 
