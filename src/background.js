@@ -15,7 +15,7 @@ function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>
 function assemble(){const all=[SEED];for(const k of Object.keys(SOURCES)){if(data.settings.listEnabled[k]&&data.lists[k]?.text)all.push(data.lists[k].text);}if(data.settings.customRules)all.push(data.settings.customRules);return all.join("\n");}
 async function persist(){await browser.storage.local.set({settings:data.settings,lists:data.lists});}
 function refreshTabs(){browser.tabs.query({}).then(t=>Promise.all(t.map(tab=>browser.tabs.sendMessage(tab.id,{action:"refresh"}).catch(()=>{})))).catch(()=>{});}
-function rebuild(){data.engine=new DKFilter.FilterEngine(assemble());refreshTabs();}
+function rebuild(){data.engine=new DKFilter.FilterEngine(assemble());for(const id of data.counts.keys())badge(id);refreshTabs();}
 function badge(id){const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";browser.browserAction.setBadgeText({tabId:id,text:enabled(h)&&n?String(Math.min(n,9999)):""}).catch(()=>{});}
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persist().catch(console.warn);},60000);}
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:enabled(h),tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0}]))};}
@@ -65,6 +65,12 @@ browser.runtime.onMessage.addListener(async(msg,sender)=>{
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=enabled(h)&&enabled(top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,css:active?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){data.settings.enabled=!!msg.enabled;await persist();rebuild();return status(id,url);}
  if(msg.action==="toggleSite"){if(!h)return {error:"No website"};data.settings.paused=data.settings.paused.filter(x=>x!==h);if(msg.disable)data.settings.paused.push(h);await persist();rebuild();badge(id);return status(id,url);}
+ if(msg.action==="undoElementRule"){
+  const lines=data.settings.customRules.split("\n"),prefix=h+"##";
+  const index=lines.findLastIndex(line=>line.startsWith(prefix));
+  if(index<0)return {error:"No element rule to undo on this site"};
+  lines.splice(index,1);data.settings.customRules=lines.join("\n");await persist();rebuild();return {ok:true};
+ }
  if(msg.action==="addElementRule"){
   const selector=String(msg.selector||"");if(!h||!DKRules.cosmetic(h+"##"+selector))return {error:"Invalid selector"};
   data.settings.customRules+="\n"+h+"##"+selector;await persist();rebuild();return {ok:true};
@@ -82,7 +88,7 @@ browser.runtime.onMessage.addListener(async(msg,sender)=>{
  return {error:"Unknown action"};
 });
 async function boot(){
- try{const stored=await browser.storage.local.get(["settings","lists"]);data.settings={...DEFAULT,...stored.settings,listEnabled:{...DEFAULT.listEnabled,...stored.settings?.listEnabled}};data.lists=stored.lists||{};rebuild();
+ try{const stored=await browser.storage.local.get(["settings","lists"]);data.settings={...DEFAULT,...stored.settings,listEnabled:{...DEFAULT.listEnabled,...stored.settings?.listEnabled},paused:Array.isArray(stored.settings?.paused)?stored.settings.paused:[]};data.lists=stored.lists||{};rebuild();
   const tabs=await browser.tabs.query({});for(const t of tabs)if(t.url)data.hosts.set(t.id,host(t.url));
   data.ready=true;await browser.alarms.create("refresh-rules",{periodInMinutes:1440});
   if(data.settings.autoUpdate&&Date.now()-data.settings.lastUpdate>86400000)updateLists().catch(console.warn);
