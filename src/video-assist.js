@@ -29,6 +29,7 @@ function safeCosmetics(selectors,host){
 function playerElement(element){
  if(!element)return false;
  try{if(element.matches?.("video, audio, ytd-player, #movie_player, .html5-video-player, .html5-video-container, .video-stream, .ytp-chrome-bottom"))return true;
+  if(element.querySelector?.("video, audio"))return true;
   if(element.closest?.("video, audio, #movie_player, .html5-video-player, .html5-video-container, .ytp-chrome-bottom"))return true;
  }catch(_){}
  return false;

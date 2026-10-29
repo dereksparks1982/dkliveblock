@@ -72,3 +72,10 @@ test("Playback Rescue is opt-in, media only, and bound to a single website hostn
  assert.equal(V.mediaRecoveryAllowed("www.youtube.com","media",["www.youtube.com"]),true);
  assert.equal(V.mediaRecoveryAllowed("www.disneyplus.com","media",["www.disneyplus.com"]),true);
 });
+
+test("the element picker refuses parent wrappers containing active media",()=>{
+ const wrapper={matches:()=>false,closest:()=>null,querySelector:x=>x.includes("video")?{}:null};
+ assert.equal(V.playerElement(wrapper),true);
+ const unrelated={matches:()=>false,closest:()=>null,querySelector:()=>null};
+ assert.equal(V.playerElement(unrelated),false);
+});
