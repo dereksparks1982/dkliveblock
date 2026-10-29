@@ -1,0 +1,64 @@
+"use strict";
+const {test}=require("node:test"),assert=require("node:assert/strict");
+const V=require("../src/video-assist.js");
+function btn({cls="ytp-ad-skip-button",label="Skip Ad",visible=true,disabled=false,ad=true}={}){
+ let clicks=0;
+ const button={className:cls,textContent:label,isConnected:true,disabled,
+  getAttribute:name=>name==="aria-label"?label:null,
+  getClientRects:()=>visible?[1]:[],
+  closest:selector=>ad&&selector.includes("ad-showing")?{}:null,
+  click:()=>{clicks++;}};
+ return {button,clicks:()=>clicks};
+}
+test("only known streaming hosts receive player-safe cosmetics",()=>{
+ for(const name of ["youtube.com","www.youtube.com","m.youtube.com","youtube-nocookie.com","www.disneyplus.com"])
+  assert.equal(V.isStreamingHost(name),true,name);
+ for(const name of ["youtube.com.attacker.net","fakedisneyplus.com","video.example","youtubecom"])
+  assert.equal(V.isStreamingHost(name),false,name);
+ const input=["ytd-ad-slot-renderer","video","#movie_player",".html5-video-player",".ytp-chrome-bottom",
+   ".sponsored,.video-stream",".advertisement","div:has(video)"];
+ assert.deepEqual(V.safeCosmetics(input,"www.youtube.com"),["ytd-ad-slot-renderer",".advertisement"]);
+ assert.deepEqual(V.safeCosmetics(input,"news.example"),input);
+});
+test("guard real player containers while allowing ad-slot UI to be hidden",()=>{
+ for(const selector of ["video",".video-stream","ytd-player","#movie_player",".ad, video",".box:has(video)",".ytp-progress-bar"])
+  assert.equal(V.protectSelector(selector),true,selector);
+ for(const selector of [".ad-slot","ytd-ad-slot-renderer","#player-ads",".sponsored"])
+  assert.equal(V.protectSelector(selector),false,selector);
+});
+test("skip known visible ad controls once per cooldown window",()=>{
+ const x=btn(),controller=V.createController();
+ const doc={querySelectorAll:()=>[x.button]};
+ assert.equal(controller.scan(doc,10000).clicked,true);
+ assert.equal(x.clicks(),1);
+ assert.equal(controller.scan(doc,11000).clicked,false);
+ assert.equal(x.clicks(),1);
+ assert.equal(controller.scan(doc,16100).clicked,true);
+ assert.equal(x.clicks(),2);
+});
+test("never click intro, skip-next, disabled or invisible controls",()=>{
+ const controls=[btn({cls:"",label:"Skip Intro"}),btn({cls:"",label:"Skip Ad",ad:false}),
+  btn({cls:"ytp-ad-skip-button",disabled:true}),btn({cls:"ytp-ad-skip-button",visible:false})];
+ const controller=V.createController();
+ assert.equal(controller.scan({querySelectorAll:()=>controls.map(x=>x.button)}).clicked,false);
+ for(const x of controls)assert.equal(x.clicks(),0);
+});
+test("ad-labelled generic controls require the actual ad player context",()=>{
+ const x=btn({cls:"",label:"Skip Ads",ad:true});
+ assert.equal(V.isAdSkip(x.button),true);
+ const controller=V.createController();
+ assert.equal(controller.scan({querySelectorAll:()=>[x.button]},100).clicked,true);
+});
+test("exhaustive scanning is bounded and malformed pages fail safely",()=>{
+ const controls=Array.from({length:40},()=>btn({cls:"",label:"Skip Intro"}));
+ const x=btn();
+ const result=V.createController().scan({querySelectorAll:()=>[...controls.map(a=>a.button),x.button]},200);
+ assert.equal(result.clicked,false);
+ assert.equal(x.clicks(),0);
+ assert.equal(V.createController().scan({querySelectorAll:()=>{throw Error("bad selector")}}).clicked,false);
+});
+test("element picker never allows selecting live player controls",()=>{
+ const node={matches:selector=>selector.includes("video"),closest:()=>null};
+ assert.equal(V.playerElement(node),true);
+ assert.equal(V.playerElement({matches:()=>false,closest:()=>null}),false);
+});

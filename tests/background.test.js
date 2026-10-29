@@ -15,7 +15,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","background.js"]){
+ for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));
@@ -97,4 +97,27 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  const paywallOff=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(paywallOff.paywallPopups,false);
  assert.equal(styleAfter.active,false);
+ // Guard genuine streaming player containers, but retain advertising slots.
+ const streamingRules=[
+  "youtube.com##video","youtube.com###movie_player",
+  "youtube.com##.html5-video-player","youtube.com##ytd-ad-slot-renderer",
+  "youtube.com##.sponsored",
+  "disneyplus.com##video","disneyplus.com##.video-stream",
+  "disneyplus.com##.sponsored"
+ ].join("\n");
+ const addedStreaming=await listeners.message({action:"saveSettings",settings:{customRules:streamingRules}});
+ assert.equal(addedStreaming.ok,true);
+ const youtube=await listeners.message({action:"getStyle",url:"https://www.youtube.com/watch?v=abc"},
+  {tab:{id:30,url:"https://www.youtube.com/watch?v=abc"},url:"https://www.youtube.com/watch?v=abc"});
+ assert.equal(youtube.active,true);
+ assert.equal(youtube.youtubeSkip,true);
+ assert.match(youtube.css,/ytd-ad-slot-renderer/);
+ assert.match(youtube.css,/\.sponsored/);
+ assert.doesNotMatch(youtube.css,/video\s*\{/);
+ assert.doesNotMatch(youtube.css,/#movie_player\s*\{/);
+ const disney=await listeners.message({action:"getStyle",url:"https://www.disneyplus.com/video/abc"},
+  {tab:{id:31,url:"https://www.disneyplus.com/video/abc"},url:"https://www.disneyplus.com/video/abc"});
+ assert.match(disney.css,/\.sponsored/);
+ assert.doesNotMatch(disney.css,/video\s*\{/);
+ assert.doesNotMatch(disney.css,/\.video-stream\s*\{/);
 });

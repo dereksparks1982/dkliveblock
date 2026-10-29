@@ -29,7 +29,7 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  }
  const context=vm.createContext({document:doc,window:win,location:{hostname:"news.example",href:"https://news.example/"},
   Element,MutationObserver:Observer,browser:fakeBrowser,CSS:{},console,Date,
-  DKConsent:{},DKPaywall:{hasLoadedArticle:()=>false},DKProcedural:{},DKAntiAdblock:require("../src/anti-adblock.js"),
+  DKConsent:{},DKVideoAssist:require("../src/video-assist.js"),DKPaywall:{hasLoadedArticle:()=>false},DKProcedural:{},DKAntiAdblock:require("../src/anti-adblock.js"),
   setTimeout:fn=>{scheduled.push(fn);return scheduled.length;},setInterval:fn=>{interval=fn;}});
  vm.runInContext(fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8"),context);
  await new Promise(resolve=>setTimeout(resolve,0));

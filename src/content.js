@@ -5,6 +5,7 @@
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),antiHidden=new Map(),scrollUnlocks=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
+ const videoController=DKVideoAssist.createController();
  function applyCSS(){
   if(!document.documentElement)return;
   if(!active||!css){style?.remove();style=null;return;}
@@ -168,9 +169,8 @@
   }catch(_){overlayObserver=null;}
  }
  function skipVideo(){
-  if(!active||!youtubeSkip||!isYouTube)return;
-  const btn=document.querySelector(".ytp-ad-skip-button, .ytp-ad-skip-button-modern, button.ytp-skip-ad-button, button[aria-label='Skip Ads']");
-  if(btn&&!btn.disabled&&btn.getClientRects().length)btn.click();
+  if(!active||!youtubeSkip||!isYouTube||picking)return;
+  videoController.scan(document);
  }
  function rejectCookies(){
   if(!active||!cookieReject)return;
@@ -207,11 +207,13 @@
  }
  function hover(event){
   if(!picking||event.target===banner||banner?.contains(event.target))return;
-  if(!(event.target instanceof Element)||event.target===document.body||event.target===document.documentElement)return;
+  if(!(event.target instanceof Element)||event.target===document.body||event.target===document.documentElement||
+    DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(event.target))return;
   if(selected)selected.style.outline="";selected=event.target;selected.style.outline="3px solid #11ac99";
  }
  async function choose(event){
   if(!picking||event.target===banner||banner?.contains(event.target))return;
+  if(DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(event.target))return;
   event.preventDefault();event.stopImmediatePropagation();
   const selector=cleanSelector(event.target);endPicker();
   if(selector&&selector.length<=600){try{await browser.runtime.sendMessage({action:"addElementRule",selector});}catch(_){}}

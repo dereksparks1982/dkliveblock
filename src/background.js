@@ -240,7 +240,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   await persistSettings();refreshTabs();return {ok:true};
  }
  if(msg.action==="updateLists")return updateLists();
- if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,antiAdblock:data.settings.antiAdblock,paywallPopups:data.settings.paywallPopups,css:active?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
+ if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,antiAdblock:data.settings.antiAdblock,paywallPopups:data.settings.paywallPopups,css:active?DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
   const previous=data.settings.enabled;
   data.settings.enabled=!!msg.enabled;

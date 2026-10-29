@@ -37,6 +37,7 @@
       "list-io.js",
       "subscription-cache.js",
       "settings.js",
+      "video-assist.js",
       "background.js"
     ],
     "persistent": true
@@ -59,6 +60,7 @@
         "procedural.js",
         "anti-adblock.js",
         "paywall.js",
+        "video-assist.js",
         "content.js"
       ],
       "run_at": "document_start",

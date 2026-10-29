@@ -22,7 +22,7 @@ async function setup(){
  };
  const st=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
  const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextDecoder,fetch,setTimeout:st,clearTimeout});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","background.js"])
+ for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","background.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,20));
  return {handlers,requests,fail:()=>{throwNetwork=true;}};

@@ -24,7 +24,7 @@ function setup({text="Ad blocker detected. Please disable your ad blocker.",hasV
  const window={innerHeight:700,getComputedStyle:el=>({visibility:"visible",display:"block",position:inline?"static":"fixed",overflowY:el===modal?"visible":"hidden"})};
  const location={hostname:"youtube.com",href:"https://www.youtube.com/watch?v=test"};
  const context=vm.createContext({browser,document,window,location,Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},DKConsent:{cookieContext:()=>false},DKProcedural:{matches:()=>false}});
- for(const name of ["anti-adblock.js","content.js"]){
+ for(const name of ["anti-adblock.js","video-assist.js","content.js"]){
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  return {state,modal,root,body,tick:()=>interval(),refresh:async()=>{await listener({action:"refresh"});await new Promise(resolve=>setTimeout(resolve,0));}};
