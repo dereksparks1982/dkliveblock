@@ -6,15 +6,15 @@ async function load(){
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
  $("enabled").checked=current.enabled;$("site").textContent=current.host||"Browser page";
- $("toggle").textContent=current.siteActive?"Pause on site":"Resume on site";
+ $("toggle").textContent=current.sitePaused?"Resume on site":"Pause on site";
  $("toggle").disabled=!current.host||!current.enabled;
  $("temporary").textContent=current.temporarilyPaused?"Resume this tab":"Pause this tab";
- $("temporary").disabled=!current.host||!current.enabled;
+ $("temporary").disabled=!current.host||!current.enabled||current.sitePaused;
  $("picker").disabled=!current.host||!current.siteActive;
  $("info").textContent=(current.networkRules||0).toLocaleString()+" network rules · "+(current.cosmeticRules||0).toLocaleString()+" cosmetic filters";
 }
 $("enabled").addEventListener("change",async()=>{await browser.runtime.sendMessage({action:"setGlobal",enabled:$("enabled").checked,tabId:tab.id,url:tab.url});await load();});
-$("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage({action:"toggleSite",url:tab.url,tabId:tab.id,disable:current.siteActive});await browser.tabs.reload(tab.id);await load();});
+$("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage({action:"toggleSite",url:tab.url,tabId:tab.id,disable:!current.sitePaused});await browser.tabs.reload(tab.id);await load();});
 $("temporary").addEventListener("click",async()=>{
  await browser.runtime.sendMessage({action:"toggleTabPause",tabId:tab.id,url:tab.url,paused:!current.temporarilyPaused});
  await browser.tabs.reload(tab.id);await load();

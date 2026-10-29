@@ -1,9 +1,9 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0;
  const clickedRejectButtons=new WeakSet();
- const hidden=new Map();
+ const hidden=new Map(),antiHidden=new Map(),scrollUnlocks=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  function applyCSS(){
   if(!document.documentElement)return;
@@ -13,7 +13,7 @@
  }
  async function refresh(){
   try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();applyCSS();
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -33,6 +33,75 @@
    if(hidden.size>800)break;
   }
   for(const el of hidden.keys())if(!el.isConnected)hidden.delete(el);
+ }
+ function restoreAntiHidden(){
+  for(const [el,prior] of antiHidden){
+   try{
+    if(!el.isConnected)continue;
+    if(prior.value)el.style.setProperty("display",prior.value,prior.priority);
+    else el.style.removeProperty("display");
+   }catch(_){}
+  }
+  antiHidden.clear();
+  for(const [el,prior] of scrollUnlocks){
+   try{
+    if(!el.isConnected)continue;
+    if(prior.value)el.style.setProperty("overflow-y",prior.value,prior.priority);
+    else el.style.removeProperty("overflow-y");
+   }catch(_){}
+  }
+  scrollUnlocks.clear();
+ }
+ function unlockScrollAfterNotice(){
+  if(document.fullscreenElement||!document.documentElement)return;
+  if(document.documentElement.scrollHeight<=window.innerHeight+80)return;
+  for(const el of [document.documentElement,document.body]){
+   if(!el||scrollUnlocks.has(el))continue;
+   const overflow=window.getComputedStyle(el).overflowY;
+   if(overflow!=="hidden"&&overflow!=="clip")continue;
+   scrollUnlocks.set(el,{value:el.style.getPropertyValue("overflow-y"),priority:el.style.getPropertyPriority("overflow-y")});
+   el.style.setProperty("overflow-y","auto","important");
+  }
+ }
+ function suppressAntiAdblockNotices(){
+  if(!active||!antiAdblock||picking||!document.body)return;
+  const selector=[
+   "dialog[open]","[role='dialog']","[aria-modal='true']",
+   "yt-confirm-dialog-renderer","tp-yt-paper-dialog","ytd-enforcement-message-view-model",
+   "[id*='adblock' i]","[class*='adblock' i]",
+   "[id*='anti-ad' i]","[class*='anti-ad' i]",
+   "[class*='modal' i]","[class*='overlay' i]","[class*='popup' i]"
+  ].join(",");
+  let candidates;
+  try{candidates=document.querySelectorAll(selector);}catch(_){return;}
+  const player=document.querySelector("video");
+  let inspected=0,removed=0;
+  for(const el of candidates){
+   if(++inspected>120||removed>=6)break;
+   if(antiHidden.has(el)||el===document.documentElement||el===document.body||el===banner)continue;
+   if((player&&el.contains(player))||el.querySelector("video, audio"))continue;
+   const info=(el.textContent||"").trim();
+   if(info.length<12||info.length>1800)continue;
+   const computed=window.getComputedStyle(el);
+   const visible=Boolean(el.isConnected&&el.getClientRects().length)&&computed.visibility!=="hidden"&&computed.display!=="none";
+   const kind=[el.localName||"",el.id||"",typeof el.className==="string"?el.className:""].join(" ");
+   const overlay=/(?:dialog|modal|overlay|popup|enforcement)/i.test(kind)||
+    el.getAttribute?.("role")==="dialog"||el.getAttribute?.("aria-modal")==="true"||
+    computed.position==="fixed"||computed.position==="sticky";
+   if(!DKAntiAdblock.shouldHide({text:info,visible,overlay,containsPlayer:false,rootElement:false}))continue;
+   antiHidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
+   el.style.setProperty("display","none","important");
+   removed++;
+   // Remove only an adjacent modal backdrop, and only after confirming the notice.
+   for(const sibling of [el.previousElementSibling,el.nextElementSibling]){
+    if(!sibling||antiHidden.has(sibling)||!sibling.matches?.('[class*="backdrop" i]'))continue;
+    if(player&&sibling.contains(player))continue;
+    antiHidden.set(sibling,{value:sibling.style.getPropertyValue("display"),priority:sibling.style.getPropertyPriority("display")});
+    sibling.style.setProperty("display","none","important");
+   }
+  }
+  if(removed)unlockScrollAfterNotice();
+  for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
  }
  function skipVideo(){
   if(!active||!youtubeSkip||!isYouTube)return;
@@ -98,5 +167,5 @@
  });
  refresh();
  if(!document.documentElement){const watcher=new MutationObserver(()=>{if(document.documentElement){watcher.disconnect();applyCSS();}});watcher.observe(document,{childList:true,subtree:true});}
- setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}},1250);
+ setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}if(Date.now()-lastAnti>2200){lastAnti=Date.now();suppressAntiAdblockNotices();}},1250);
 })();

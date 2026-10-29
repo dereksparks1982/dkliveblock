@@ -50,6 +50,7 @@
       "js": [
         "consent.js",
         "procedural.js",
+        "anti-adblock.js",
         "content.js"
       ],
       "run_at": "document_start",

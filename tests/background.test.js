@@ -39,7 +39,9 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(listeners.network(another).cancel,true);
  await listeners.message({action:"toggleTabPause",tabId:1,url:"https://site.test/",paused:true});
  assert.equal(listeners.network(another).cancel,undefined);
- assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test/"})).temporarilyPaused,true);
+ const pausedTab=await listeners.message({action:"status",tabId:1,url:"https://site.test/"});
+ assert.equal(pausedTab.temporarilyPaused,true);
+ assert.equal(pausedTab.sitePaused,false);
  await listeners.message({action:"toggleTabPause",tabId:1,url:"https://site.test/",paused:false});
  assert.equal(listeners.network(another).cancel,true);
  await listeners.popup({tabId:4,sourceTabId:1,url:"https://ads-pop.test/window"});
@@ -50,6 +52,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  await listeners.popup({tabId:5,sourceTabId:1,url:"https://other.test/window"});
  assert.equal(removedTabs.length,1);
  await listeners.message({action:"toggleSite",tabId:1,url:"https://site.test",disable:true});
+ assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test/"})).sitePaused,true);
  assert.equal(listeners.network(request).cancel,undefined);
  assert.equal(listeners.network({url:"https://site.test/?fbclid=abc",type:"main_frame",tabId:1}).redirectUrl,undefined);
  await listeners.popup({tabId:6,sourceTabId:1,url:"https://ads-pop.test/window"});
@@ -70,6 +73,11 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(listeners.network(request).cancel,undefined);
  await listeners.message({action:"resetStatistics"});
  assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test"})).totalBlocked,0);
- const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
- assert.equal(css.active,false);
+ const styleBefore=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
+ assert.equal(styleBefore.antiAdblock,true);
+ const setting=await listeners.message({action:"saveSettings",settings:{antiAdblock:false}});
+ assert.equal(setting.ok,true);
+ const styleAfter=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
+ assert.equal(styleAfter.antiAdblock,false);
+ assert.equal(styleAfter.active,false);
 });
