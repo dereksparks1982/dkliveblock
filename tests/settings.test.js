@@ -5,6 +5,7 @@ require("../src/network-recovery.js");
 require("../src/manual-rules.js");
 require("../src/list-io.js");
 require("../src/subscription-cache.js");
+require("../src/video-assist.js");
 const Settings=require("../src/settings.js");
 const defaults={enabled:true,autoUpdate:true,requestLog:true,blockedTotal:0,lastUpdate:0,
  listEnabled:{easylist:true,easyprivacy:true},paused:[],customSubscriptions:[],network:{enabled:false,type:"socks",host:"127.0.0.1",port:9050,proxyDNS:true,mode:"domains",domains:[]},customRules:""};
@@ -44,4 +45,13 @@ test("stored error messages cannot inject arbitrary fields or huge strings",()=>
  const value=Settings.restoreErrors({easylist:"x".repeat(200),evil:"secret"},["easylist"]);
  assert.equal(value.easylist.length,150);
  assert.equal(value.evil,undefined);
+});
+
+test("saved Playback Rescue restores only authorized streaming hostnames",()=>{
+ const value=Settings.restoreSettings({
+  mediaRecovery:["www.youtube.com","www.youtube.com","www.disneyplus.com","news.example","router.local",123,{}]
+ },defaults,["easylist"]);
+ assert.deepEqual(value.mediaRecovery,["www.youtube.com","www.disneyplus.com"]);
+ const bad=Settings.restoreSettings({mediaRecovery:"yes"},defaults,["easylist"]);
+ assert.deepEqual(bad.mediaRecovery,[]);
 });

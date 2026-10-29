@@ -6,6 +6,10 @@ async function load(){
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
  $("issues").textContent=String(current.networkIssueCount||0);
+ $("mediaRecoveryRow").hidden=!current.mediaRecoveryAvailable;
+ $("mediaWarning").hidden=!current.mediaRecoveryAvailable;
+ $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
+ $("mediaRecovery").disabled=!current.siteActive;
  $("enabled").checked=current.enabled;$("site").textContent=current.host||"Browser page";
  $("toggle").textContent=current.sitePaused?"Resume on site":"Pause on site";
  $("toggle").disabled=!current.host||!current.enabled;
@@ -19,6 +23,16 @@ $("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage
 $("temporary").addEventListener("click",async()=>{
  await browser.runtime.sendMessage({action:"toggleTabPause",tabId:tab.id,url:tab.url,paused:!current.temporarilyPaused});
  await browser.tabs.reload(tab.id);await load();
+});
+$("mediaRecovery").addEventListener("click",async()=>{
+ if(!current?.mediaRecoveryAvailable)return;
+ $("mediaRecovery").disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"toggleMediaRecovery",url:tab.url,tabId:tab.id,enabled:!current.mediaRecoveryEnabled});
+  if(result.error){$("info").textContent=result.error;return;}
+  await browser.tabs.reload(tab.id);
+  await load();
+ }catch(e){$("info").textContent=e.message;}finally{$("mediaRecovery").disabled=false;}
 });
 $("picker").addEventListener("click",async()=>{try{const result=await browser.tabs.sendMessage(tab.id,{action:"startPicker"});if(result.ok)window.close();}catch(e){$("info").textContent="Reload the tab and try again."; }});
 $("update").addEventListener("click",async()=>{$("update").disabled=true;try{const result=await browser.runtime.sendMessage({action:"updateLists"});$("info").textContent=result.updated+" changed; "+result.checked+" checked; "+result.errors.length+" failed.";}catch(e){$("info").textContent=e.message;}finally{$("update").disabled=false;}});

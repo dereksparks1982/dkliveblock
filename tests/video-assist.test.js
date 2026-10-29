@@ -62,3 +62,13 @@ test("element picker never allows selecting live player controls",()=>{
  assert.equal(V.playerElement(node),true);
  assert.equal(V.playerElement({matches:()=>false,closest:()=>null}),false);
 });
+
+test("Playback Rescue is opt-in, media only, and bound to a single website hostname",()=>{
+ assert.equal(V.mediaRecoveryAllowed("www.youtube.com","media",[]),false);
+ assert.equal(V.mediaRecoveryAllowed("www.youtube.com","script",["www.youtube.com"]),false);
+ assert.equal(V.mediaRecoveryAllowed("www.youtube.com","xmlhttprequest",["www.youtube.com"]),false);
+ assert.equal(V.mediaRecoveryAllowed("news.example","media",["news.example"]),false);
+ assert.equal(V.mediaRecoveryAllowed("m.youtube.com","media",["www.youtube.com"]),false);
+ assert.equal(V.mediaRecoveryAllowed("www.youtube.com","media",["www.youtube.com"]),true);
+ assert.equal(V.mediaRecoveryAllowed("www.disneyplus.com","media",["www.disneyplus.com"]),true);
+});

@@ -16,3 +16,15 @@ test("Firefox popup retains ordinary controls alongside recovery",()=>{
  for(const id of ["enabled","toggle","temporary","picker","undo","update","settings"])
   assert.match(html,new RegExp('id="'+id+'"'));
 });
+
+test("Playback Rescue is available only as an explicit toolbar action",()=>{
+ const html=fs.readFileSync(path.join(root,"popup.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"popup.js"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ assert.match(html,/id="mediaRecoveryRow" hidden/);
+ assert.match(html,/id="mediaRecovery"/);
+ assert.match(html,/Some video ads may play/);
+ assert.match(js,/mediaRecoveryAvailable/);
+ assert.match(js,/toggleMediaRecovery/);
+ assert.match(bg,/mediaRecoveryAllowed/);
+});

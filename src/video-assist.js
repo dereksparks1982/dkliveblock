@@ -18,6 +18,10 @@ const streamingDomains=["youtube.com","youtube-nocookie.com","youtu.be","disneyp
 function hostnameMatches(host,base){return host===base||host.endsWith("."+base);}
 function isStreamingHost(host){return typeof host==="string"&&streamingDomains.some(base=>hostnameMatches(host.toLowerCase(),base));}
 function protectSelector(selector){return typeof selector==="string"&&PLAYER_GUARD.test(selector);}
+function mediaRecoveryAllowed(pageHost,resourceType,siteAllowances){
+ return resourceType==="media"&&isStreamingHost(pageHost)&&
+  Array.isArray(siteAllowances)&&siteAllowances.includes(pageHost);
+}
 function safeCosmetics(selectors,host){
  if(!Array.isArray(selectors))return [];
  return isStreamingHost(host)?selectors.filter(x=>!protectSelector(x)):selectors;
@@ -68,7 +72,7 @@ function createController(cooldownMs=5000){
  }
  return {scan};
 }
-const api={isStreamingHost,protectSelector,safeCosmetics,playerElement,isAdSkip,createController};
+const api={isStreamingHost,mediaRecoveryAllowed,protectSelector,safeCosmetics,playerElement,isAdSkip,createController};
 root.DKVideoAssist=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

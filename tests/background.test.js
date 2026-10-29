@@ -120,4 +120,27 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.match(disney.css,/\.sponsored/);
  assert.doesNotMatch(disney.css,/video\s*\{/);
  assert.doesNotMatch(disney.css,/\.video-stream\s*\{/);
+ const mediaRequest={url:"https://r1---sn.googlevideo.com/videoplayback",
+  tabId:30,type:"media",documentUrl:"https://www.youtube.com/watch?v=test"};
+ const normalRules=await listeners.message({action:"saveSettings",settings:{
+  customRules:"||googlevideo.com^$media"
+ }});
+ assert.equal(normalRules.ok,true);
+ assert.equal(listeners.network(mediaRequest).cancel,true);
+ const enabledMedia=await listeners.message({action:"toggleMediaRecovery",
+  url:"https://www.youtube.com/watch?v=test",tabId:30,enabled:true});
+ assert.equal(enabledMedia.mediaRecoveryEnabled,true);
+ assert.equal(enabledMedia.mediaRecoveryAvailable,true);
+ assert.equal(listeners.network(mediaRequest).cancel,undefined);
+ assert.equal(listeners.network({url:"https://doubleclick.net/script.js",
+  tabId:30,type:"script",documentUrl:"https://www.youtube.com/"}).cancel,true);
+ assert.equal(listeners.network({...mediaRequest,
+  tabId:33,documentUrl:"https://news.example/story"}).cancel,true);
+ const unsafeMedia=await listeners.message({action:"toggleMediaRecovery",
+  url:"https://news.example/story",tabId:33,enabled:true});
+ assert.match(unsafeMedia.error,/supported streaming/);
+ const disabledMedia=await listeners.message({action:"toggleMediaRecovery",
+  url:"https://www.youtube.com/watch?v=test",tabId:30,enabled:false});
+ assert.equal(disabledMedia.mediaRecoveryEnabled,false);
+ assert.equal(listeners.network(mediaRequest).cancel,true);
 });
