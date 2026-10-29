@@ -67,3 +67,7 @@ The project includes local-only manifest checks, a manually gated unsigned packa
 ## Reduced-bandwidth filter updates
 
 Installed filter lists now retain their HTTP ETag or Last-Modified validator, when provided. Subsequent daily checks can use conditional requests so unchanged lists are reused from local cache without re-downloading their entire contents. Failed updates retain the last working filters and are reported in settings. This is client implementation only; real filter-server behavior still requires Firefox testing.
+
+## Per-site recovery
+
+A website-repair panel lets users review and revoke individual site-specific request allowances previously added from the private request log. No all-or-nothing disabling is required to reverse a mistaken exception.

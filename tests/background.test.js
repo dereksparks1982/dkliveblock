@@ -35,6 +35,15 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  const safe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"doubleclick.net"});
  assert.equal(safe.ok,true);
  assert.equal(listeners.network(request).cancel,undefined);
+ const siteRules=await listeners.message({action:"getSiteExceptions",url:"https://site.test/"});
+ assert.deepEqual(Array.from(siteRules),["doubleclick.net"]);
+ const revoked=await listeners.message({action:"removeSiteException",url:"https://site.test/",host:"doubleclick.net"});
+ assert.equal(revoked.ok,true);
+ assert.equal(listeners.network(request).cancel,true);
+ const nonexistent=await listeners.message({action:"removeSiteException",url:"https://site.test/",host:"doubleclick.net"});
+ assert.match(nonexistent.error,/No matching/);
+ await listeners.message({action:"allowHost",url:"https://site.test/",host:"doubleclick.net"});
+ assert.equal(listeners.network(request).cancel,undefined);
  const another={url:"https://googlesyndication.com/ad",tabId:1,type:"image",documentUrl:"https://site.test/"};
  assert.equal(listeners.network(another).cancel,true);
  await listeners.message({action:"toggleTabPause",tabId:1,url:"https://site.test/",paused:true});

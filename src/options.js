@@ -169,3 +169,26 @@ $("issueClear").addEventListener("click",async()=>{
  $("networkIssues").textContent="Local network diagnostics cleared.";
 });
 loadNetwork().catch(e=>$("netMessage").textContent=e.message);
+
+
+async function showSiteExceptions(){
+ const panel=$("siteExceptionRows");panel.replaceChildren();
+ const tab=await networkTab();
+ if(!tab){panel.textContent="No website tab available.";return;}
+ const hosts=await browser.runtime.sendMessage({action:"getSiteExceptions",url:tab.url});
+ if(!Array.isArray(hosts)){panel.textContent=hosts.error||"Could not read allowances.";return;}
+ if(!hosts.length){panel.textContent="No saved request allowances for "+new URL(tab.url).hostname+".";return;}
+ for(const host of hosts){
+  const row=document.createElement("div");row.className="log-row";
+  const title=document.createElement("span");title.textContent=host;
+  const button=document.createElement("button");button.textContent="Revoke allowance";
+  button.addEventListener("click",async()=>{
+   button.disabled=true;
+   const result=await browser.runtime.sendMessage({action:"removeSiteException",url:tab.url,host});
+   if(result.ok){row.remove();$("message").textContent="Allowance revoked. Reload the website to check it.";}
+   else{button.disabled=false;$("message").textContent=result.error||"Unable to revoke.";}
+  });
+  row.append(title,button);panel.appendChild(row);
+ }
+}
+$("siteExceptions").addEventListener("click",()=>showSiteExceptions().catch(e=>$("message").textContent=e.message));

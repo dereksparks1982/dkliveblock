@@ -195,6 +195,14 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(!existing.includes(rule))data.settings.customRules+="\n"+rule;
   await persist();rebuild();return {ok:true,rule};
  }
+ if(msg.action==="getSiteExceptions")return DKManualRules.listSiteExceptions(data.settings.customRules,h);
+ if(msg.action==="removeSiteException"){
+  if(!h)return {error:"No website selected."};
+  const changed=DKManualRules.removeSiteException(data.settings.customRules,h,msg.host);
+  if(changed.error)return changed;
+  data.settings.customRules=changed.text;await persistSettings();rebuild();
+  return {ok:true,removed:changed.removed};
+ }
  if(msg.action==="undoElementRule"){
   const lines=data.settings.customRules.split("\n"),prefix=h+"##";
   const index=lines.findLastIndex(line=>line.startsWith(prefix));
