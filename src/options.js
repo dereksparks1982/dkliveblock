@@ -29,7 +29,7 @@ $("save").addEventListener("click",async()=>{
 $("update").addEventListener("click",async()=>{
  $("update").disabled=true;$("message").textContent="Updating lists…";
  try{const r=await browser.runtime.sendMessage({action:"updateLists"});
- $("message").textContent=r.updated+" lists updated"+(r.errors.length?" · "+r.errors.join("; "):"");
+ $("message").textContent=r.updated+" lists changed; "+r.checked+" checked"+(r.errors.length?" · "+r.errors.join("; "):"");
  }catch(e){$("message").textContent=e.message;}finally{$("update").disabled=false;await load();}
 });
 $("logRefresh").addEventListener("click",async()=>{

@@ -21,24 +21,38 @@ function rebuild(){data.engine=new DKFilter.FilterEngine(assemble());for(const i
 function badge(id){const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";browser.browserAction.setBadgeText({tabId:id,text:activeTab(id,h)&&n?String(Math.min(n,9999)):""}).catch(()=>{});}
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persistSettings().catch(console.warn);},60000);}
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),temporarilyPaused:data.tempPaused.has(id),tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
-async function downloadList(url,followRedirects=true){
+async function downloadList(url,followRedirects=true,previous=null){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
- try{const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit",redirect:followRedirects?"follow":"error"});if(!res.ok)throw Error("HTTP "+res.status);
-  return await DKListIO.read(res);
+ try{
+  const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit",
+   redirect:followRedirects?"follow":"error",headers:DKSubscriptionCache.headers(previous)});
+  const unchanged=res.status===304;
+  if(unchanged&&!previous?.text)throw Error("304 received without a cached filter list");
+  if(!unchanged&&!res.ok)throw Error("HTTP "+res.status);
+  const metadata=DKSubscriptionCache.metadata(res,previous,unchanged);
+  return unchanged?{unchanged,metadata}:{unchanged:false,text:await DKListIO.read(res),metadata};
  }finally{clearTimeout(timer);}
 }
 function updateLists(){if(data.updateJob)return data.updateJob;
- data.updateJob=(async()=>{let updated=0,errors=[];
+ data.updateJob=(async()=>{let updated=0,checked=0,errors=[];
   for(const [key,entry] of Object.entries(SOURCES)){if(!data.settings.listEnabled[key])continue;
-   try{const text=await downloadList(entry.url);data.lists[key]={text,updated:Date.now()};delete data.listErrors[key];updated++;}catch(e){data.listErrors[key]=String(e.message||e).slice(0,150);errors.push(entry.name+": "+data.listErrors[key]);}
+   try{
+    const result=await downloadList(entry.url,true,data.lists[key]);
+    data.lists[key]=DKSubscriptionCache.store(data.lists[key],result,Date.now());
+    delete data.listErrors[key];checked++;if(!result.unchanged)updated++;
+   }catch(e){data.listErrors[key]=String(e.message||e).slice(0,150);errors.push(entry.name+": "+data.listErrors[key]);}
   }
   for(const u of data.settings.customSubscriptions||[]){
-   try{const text=await downloadList(u,false);data.customLists[u]={text,updated:Date.now()};delete data.listErrors[u];updated++;}
-   catch(e){data.listErrors[u]=String(e.message||e).slice(0,150);errors.push("Custom "+host(u)+": "+data.listErrors[u]);}
+   try{
+    const result=await downloadList(u,false,data.customLists[u]);
+    data.customLists[u]=DKSubscriptionCache.store(data.customLists[u],result,Date.now());
+    delete data.listErrors[u];checked++;if(!result.unchanged)updated++;
+   }catch(e){data.listErrors[u]=String(e.message||e).slice(0,150);errors.push("Custom "+host(u)+": "+data.listErrors[u]);}
   }
-  if(updated){data.settings.lastUpdate=Date.now();rebuild();}
+  if(checked)data.settings.lastUpdate=Date.now();
+  if(updated)rebuild();
   await persist();
-  return {updated,errors};
+  return {updated,checked,errors};
  })().finally(()=>{data.updateJob=null;});return data.updateJob;
 }
 function addNetworkIssue(tabId,url,type,error){

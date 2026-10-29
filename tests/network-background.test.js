@@ -1,7 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-const sources=["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","background.js"];
+const sources=["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","background.js"];
 async function setup(){
  const handlers={},on=name=>({addListener:fn=>{handlers[name]=fn;}});
  let stored={settings:{autoUpdate:false}},queries=0;

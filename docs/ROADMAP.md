@@ -52,3 +52,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Local-filter-list download streaming size limits and stricter content-script message authorization. Security regressions run offline. IMPORTANT: Firefox proxy.onRequest does not offer guaranteed fail-closed connectivity; do not market network routing as leak-proof.
 
 - [x] Expanded partial ABP network options with `from=`, `to=`, and `denyallow=` and strict domain validation. No unsupported script execution.
+
+- [x] Conditional filter updates with cache validators and 304 preservation, avoiding unnecessary transfers where servers support it.
