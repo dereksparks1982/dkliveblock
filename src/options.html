@@ -27,7 +27,7 @@
 <label>Routing scope <select id="netMode"><option value="domains">Only requests to selected website domains</option><option value="images">Only image requests on selected websites</option></select></label>
 <p>One website hostname per line, including its subdomains. Enter domains only, without https:// or paths. Images mode can route image CDN requests made by pages on these sites.</p>
 <textarea id="netDomains" class="short" spellcheck="false" placeholder="restricted.example.org"></textarea>
-<div class="network-buttons"><button id="netTorPreset" type="button">Fill local Tor settings</button><button id="netSave" type="button">Save network settings</button><button id="netOff" type="button">Disable routing</button></div>
+<div class="network-buttons"><button id="netTorPreset" type="button">Fill local Tor settings</button><button id="netSave" type="button">Save network settings</button><button id="netOff" type="button">Disable routing</button><button id="netTest" type="button">Test saved proxy connection</button></div>
 <p id="netMessage" role="status"></p>
 <p><strong>Important:</strong> Local Tor must be running before a SOCKS proxy at 127.0.0.1:9050 can work. An incorrectly configured proxy may make selected websites unavailable. Firefox may still attempt direct access after proxy failure; this is not a network kill switch or anonymity protection. These settings cannot bypass every kind of network blocking.</p>
 <h3>DNS diagnostics</h3>

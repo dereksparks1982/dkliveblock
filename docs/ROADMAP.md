@@ -58,3 +58,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Hostname-indexed cosmetic/procedural lookup and offline 52,000-rule scaling gate.
 
 - [x] Debounced DOM-mutation observation for late popups with a 15-second scan fallback; preserve bounded checks and reversible hiding.
+
+- [x] Optional, explicit proxy connectivity probe with safe destination validation, no cookies, no automatic background probes and a visible route-policy warning. Real proxy tests still pending.

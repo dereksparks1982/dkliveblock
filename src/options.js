@@ -192,3 +192,16 @@ async function showSiteExceptions(){
  }
 }
 $("siteExceptions").addEventListener("click",()=>showSiteExceptions().catch(e=>$("message").textContent=e.message));
+
+
+$("netTest").addEventListener("click",async()=>{
+ const domain=$("netDomains").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean)[0]||"";
+ $("netTest").disabled=true;$("netMessage").textContent="Checking proxy configuration against the first selected website…";
+ try{
+  const outcome=await browser.runtime.sendMessage({action:"testNetworkProxy",host:domain});
+  if(outcome.error)$("netMessage").textContent=outcome.error;
+  else $("netMessage").textContent="Site responded with HTTP "+outcome.status+
+   ". Routing policy observed: "+(outcome.routePolicyObserved?"yes":"not confirmed")+
+   ". This is not proof of a network kill switch or privacy.";
+ }catch(e){$("netMessage").textContent=e.message;}finally{$("netTest").disabled=false;}
+});

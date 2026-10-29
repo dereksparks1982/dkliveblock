@@ -9,7 +9,7 @@ const SOURCES={
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,paused:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),ownBlocked:new Set(),proxyErrors:[],ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -75,7 +75,9 @@ browser.proxy?.onRequest?.addListener(d=>{
  if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return null;
  const origin=data.hosts.get(d.tabId)||"";
  if(origin&&data.settings.paused.some(h=>DKRules.sub(origin,h)))return null;
- return DKNetwork.route(d,data.settings.network,origin?("https://"+origin+"/"):"");
+ const routing=DKNetwork.route(d,data.settings.network,origin?("https://"+origin+"/"):"");
+ if(data.networkProbe&&data.networkProbe.url===d.url&&routing)data.networkProbe.routed=true;
+ return routing;
 },{urls:["<all_urls>"]});
 browser.proxy?.onError?.addListener(e=>{
  const error=String(e?.message||e?.error||"Proxy configuration error").slice(0,120);
@@ -164,6 +166,28 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   data.settings.network=validation.value;
   data.proxyErrors=[];
   await persistSettings();return {ok:true,config:data.settings.network};
+ }
+ if(msg.action==="testNetworkProxy"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  const config=data.settings.network;
+  if(!config?.enabled)return {error:"Enable and save your proxy configuration before testing."};
+  if(config.mode!=="domains")return {error:"A live proxy test requires domain-routing mode. Image-only mode must be checked with a real page image."};
+  if(!browser.proxy?.onRequest)return {error:"Firefox proxy routing API is not available."};
+  const target=String(msg.host||"").toLowerCase().trim();
+  if(!DKNetwork.validHost(target)||DKNetwork.privateDestination(target)||target.endsWith(".onion")||
+     !config.domains.some(domain=>DKNetwork.domainMatch(target,domain)))
+   return {error:"Select a saved public website hostname. Onion destinations cannot be probed here."};
+  if(data.networkProbe)return {error:"Another proxy test is already running."};
+  const url="https://"+target+"/",probe={url,routed:false};
+  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),10000);
+  data.networkProbe=probe;
+  try{
+   const reply=await fetch(url,{method:"HEAD",credentials:"omit",cache:"no-store",redirect:"manual",signal:stop.signal});
+   return {ok:true,host:target,status:reply.status,routePolicyObserved:probe.routed,
+    note:"An HTTP response is not proof of anonymity or that Firefox cannot fall back to direct connections."};
+  }catch(e){
+   return {error:"Connectivity test failed: "+String(e.message||e).slice(0,110),routePolicyObserved:probe.routed};
+  }finally{clearTimeout(timer);if(data.networkProbe===probe)data.networkProbe=null;}
  }
  if(msg.action==="dnsLookup"){
   if(sender?.tab)return {error:"Extension settings only."};
