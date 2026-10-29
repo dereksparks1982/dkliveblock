@@ -4,11 +4,17 @@ const R=DKRules;
 class FilterEngine {
  constructor(text=""){this.load(text);}
  load(text){
-  this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.paramRules=[];this.cosmetic=[];this.procedural=[];this.networkCount=0;this.unsupportedCount=0;
+  this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.paramRules=[];this.cosmetic=[];this.procedural=[];this.cosmeticGlobal=[];this.cosmeticByHost=new Map();this.proceduralByHost=new Map();this.networkCount=0;this.unsupportedCount=0;
   const pending=[],disabled=new Set();
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==="!"||line[0]==="[")continue;
-   const p=R.procedural(line);if(p){this.procedural.push(p);continue;}
-   const c=R.cosmetic(line);if(c){this.cosmetic.push(c);continue;}
+   const p=R.procedural(line);if(p){this.procedural.push(p);this.addIndex(this.proceduralByHost,p.scope,p);continue;}
+   const c=R.cosmetic(line);if(c){
+    this.cosmetic.push(c);
+    const parts=c.scope.split(",").map(x=>x.trim()).filter(x=>x&&!x.startsWith("~"));
+    if(!parts.length)this.cosmeticGlobal.push(c);
+    else for(const scope of parts)this.addIndex(this.cosmeticByHost,scope,c);
+    continue;
+   }
    const rule=R.network(line);if(!rule){this.unsupportedCount++;continue;}
    if(rule.badfilter)disabled.add(rule.key);else pending.push(rule);
   }
@@ -25,6 +31,20 @@ class FilterEngine {
    if(!this.hostIndex.has(r.anchor))this.hostIndex.set(r.anchor,[]);
    this.hostIndex.get(r.anchor).push(r);
   }
+ }
+ addIndex(index,domain,rule){
+  const bucket=index.get(domain);
+  if(bucket)bucket.push(rule);
+  else index.set(domain,[rule]);
+ }
+ byHost(index,host){
+  if(!host)return [];
+  const parts=host.split("."),result=[];
+  for(let i=0;i<parts.length;i++){
+   const list=index.get(parts.slice(i).join("."));
+   if(list)result.push(...list);
+  }
+  return result;
  }
  candidates(url){const result=this.generic.slice(),parts=R.host(url).split(".");
   for(let i=0;i<parts.length;i++){const rules=this.hostIndex.get(parts.slice(i).join("."));if(rules)result.push(...rules);}
@@ -73,7 +93,7 @@ class FilterEngine {
  shouldBlock(url,type,docHost,policy){return this.checkRequest(url,type,docHost,policy).block;}
  getProcedural(h,policy={}){
   if(policy.document||policy.elemhide)return [];
-  const matching=this.procedural.filter(x=>R.domains(h,x.scope,","));
+  const matching=this.byHost(this.proceduralByHost,h).filter(x=>R.domains(h,x.scope,","));
   const key=x=>x.selector+"|"+x.mode+"|"+(x.text||x.target);
   const except=new Set(matching.filter(x=>x.exception).map(key));
   return matching.filter(x=>!x.exception&&!except.has(key(x))).map(x=>({selector:x.selector,mode:x.mode,...(x.mode==="text"?{text:x.text}:{target:x.target})}));
@@ -81,7 +101,7 @@ class FilterEngine {
  getSelectors(h,policy={}){
   if(policy.document||policy.elemhide)return [];
   const hidden=new Set(),exceptions=new Set();
-  for(const r of this.cosmetic)if(R.domains(h,r.scope,",")&&!(policy.generichide&&!r.scope))(r.exception?exceptions:hidden).add(r.selector);
+  for(const r of [...this.cosmeticGlobal,...this.byHost(this.cosmeticByHost,h)])if(R.domains(h,r.scope,",")&&!(policy.generichide&&!r.scope))(r.exception?exceptions:hidden).add(r.selector);
   for(const s of exceptions)hidden.delete(s);return [...hidden];
  }
 }

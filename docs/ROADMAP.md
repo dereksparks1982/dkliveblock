@@ -54,3 +54,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Expanded partial ABP network options with `from=`, `to=`, and `denyallow=` and strict domain validation. No unsupported script execution.
 
 - [x] Conditional filter updates with cache validators and 304 preservation, avoiding unnecessary transfers where servers support it.
+
+- [x] Hostname-indexed cosmetic/procedural lookup and offline 52,000-rule scaling gate.

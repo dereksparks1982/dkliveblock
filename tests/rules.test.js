@@ -180,3 +180,18 @@ test("denyallow works with exceptions and important priorities",()=>{
  assert.equal(f.shouldBlock("https://ads.example/a","script","site.example"),true);
  assert.equal(f.shouldBlock("https://safe.ads.example/a","script","site.example"),false);
 });
+
+
+test("indexed cosmetics honor negative-only scopes, generic exceptions, and nested domains",()=>{
+ const f=new FilterEngine("##.global\n~private.example##.except-private\nexample##.parent\napp.example##.child\nexample,~blocked.example##.scoped\napp.example#@#.global");
+ assert.deepEqual(f.getSelectors("app.example").sort(),[".except-private",".parent",".child",".scoped"].sort());
+ assert.ok(!f.getSelectors("private.example").includes(".except-private"));
+ assert.ok(!f.getSelectors("blocked.example").includes(".scoped"));
+ assert.ok(f.getSelectors("other.example").includes(".global"));
+});
+test("domain index still returns precise procedural rules",()=>{
+ const f=new FilterEngine("a.example#?#div.ad:-abp-contains(Sponsored)\nb.example#?#div.ad:-abp-contains(Paid)");
+ assert.deepEqual(f.getProcedural("a.example"),[{selector:"div.ad",mode:"text",text:"Sponsored"}]);
+ assert.deepEqual(f.getProcedural("b.example"),[{selector:"div.ad",mode:"text",text:"Paid"}]);
+ assert.deepEqual(f.getProcedural("other.example"),[]);
+});

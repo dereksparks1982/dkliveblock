@@ -71,3 +71,7 @@ Installed filter lists now retain their HTTP ETag or Last-Modified validator, wh
 ## Per-site recovery
 
 A website-repair panel lets users review and revoke individual site-specific request allowances previously added from the private request log. No all-or-nothing disabling is required to reverse a mistaken exception.
+
+## Indexed cosmetic filtering
+
+Cosmetic and supported procedural filters are indexed by website domain rather than re-scanning all active hiding rules on every page. A synthetic 40,000-cosmetic / 12,000-procedural offline regression gate protects against severe scaling regressions; live Firefox performance remains unverified.
