@@ -13,6 +13,9 @@ function verify(text){
  if(typeof text!=="string"||text.length<MIN_LENGTH||text.length>MAX_BYTES||
     !/\[Adblock Plus|! Title:|! Homepage:/i.test(text.slice(0,4000)))throw Error("Invalid filter list");
  if(text.includes("\u0000"))throw Error("Invalid binary filter list");
+ const first=text.slice(0,1000).replace(/^\uFEFF/,"").trimStart();
+ if(/^(?:<!doctype\s+html|<html\b|<body\b|<script\b)/i.test(first))
+  throw Error("HTML page is not a filter subscription");
  return text;
 }
 async function read(res){

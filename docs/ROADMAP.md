@@ -68,3 +68,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Conditional proxy listener registration: no interception when routing is disabled, hostname-limited filters for domain mode, unregister on disable/pause and guard against unavailable APIs.
 
 - [x] Toolbar failed-resource indicator and Network Recovery shortcut, keeping existing blocking and picker controls.
+
+- [x] Reject HTML error bodies and non-HTTPS final redirect destinations for filter subscriptions; preserve last-good cache and report errors.

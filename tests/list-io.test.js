@@ -25,3 +25,10 @@ test("stream download rejects data exceeding cap before buffering it",async()=>{
  const response={...res(),body:{getReader:()=>reader}};
  await assert.rejects(read(response),/List too large/);
 });
+
+test("reject HTML error/login pages even if they contain filter-list-looking markers",()=>{
+ const html="<!doctype html><html><body>! Title: Error page"+" ".repeat(400)+"</body></html>";
+ assert.throws(()=>verify(html),/HTML page/);
+ const script="<script>alert('fail')</script>! Title: Filters"+" ".repeat(350);
+ assert.throws(()=>verify(script),/HTML page/);
+});

@@ -8,6 +8,7 @@ test("conditional 304 updates reuse valid cached lists, preserve last-good on er
  const fetch=async (url,opts)=>{
   calls.push({url,headers:opts.headers});
   if(mode==="error")throw Error("simulated offline");
+  if(mode==="unsafe")return {ok:true,status:200,url:"http://insecure.example/list.txt",headers:{get:name=>name==="etag"?'"v2"':null},text:async()=>doc};
   if(mode==="cached")return {ok:false,status:304,headers:{get:name=>name==="etag"?'"v1"':null}};
   return {ok:true,status:200,headers:{get:name=>name==="etag"?'"v1"':null},text:async()=>doc};
  };
@@ -47,4 +48,10 @@ test("conditional 304 updates reuse valid cached lists, preserve last-good on er
  assert.equal(saved.lists.easylist.text,cached);
  const health=await handlers.message({action:"getSettings"});
  assert.match(health.listState.easylist.error,/simulated offline/);
+ mode="unsafe";
+ response=await handlers.message({action:"updateLists"});
+ assert.equal(response.updated,0);
+ assert.equal(response.errors.length,2);
+ assert.equal(saved.lists.easylist.text,cached);
+ assert.match(response.errors[0],/Insecure filter list redirect/);
 });

@@ -26,6 +26,12 @@ async function downloadList(url,followRedirects=true,previous=null){
  try{
   const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit",
    redirect:followRedirects?"follow":"error",headers:DKSubscriptionCache.headers(previous)});
+  if(typeof res.url==="string"&&res.url){
+   let destination;
+   try{destination=new URL(res.url);}catch(_){throw Error("Invalid filter list redirect");}
+   if(destination.protocol!=="https:"||!DKSubscriptions.publicHost(destination.hostname))
+    throw Error("Insecure filter list redirect");
+  }
   const unchanged=res.status===304;
   if(unchanged&&!previous?.text)throw Error("304 received without a cached filter list");
   if(!unchanged&&!res.ok)throw Error("HTTP "+res.status);

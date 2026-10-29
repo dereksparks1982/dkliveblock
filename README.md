@@ -99,3 +99,7 @@ DK Network Recovery registers Firefox's proxy interceptor **only** when the user
 ## Recovery in the toolbar
 
 The toolbar now shows a temporary count of failed website resources when private request logging is enabled, with a direct button to network recovery options. This is a diagnostic indicator, not proof that an ISP or government blocked a resource. No failed request URL is stored in the counter.
+
+## Verified list origins
+
+The subscription updater rejects insecure final destinations after redirects, rejects obvious HTML error pages in place of filter-list data, and preserves previously verified cached rules when a remote response is unsuitable. A response cannot inject executable code through the filter parser.
