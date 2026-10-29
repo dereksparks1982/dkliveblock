@@ -6,7 +6,7 @@ DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include gene
 
 One main branch. Incremental tested development slices. No public release/download until the full feature and stability gates are met.
 
-Source is MIT-licensed. External filter subscriptions have their own licenses. No ABP application code is copied.
+DK Live Block application code is MIT-licensed; the bundled Mozilla Public Suffix List source and generated dataset are MPL-2.0 (see `src/LICENSE-PSL.txt` and `vendor/public_suffix_list.dat`). External filter subscriptions have their own licenses. No ABP application code is copied.
 
 Run offline checks with: bash scripts/test-local.sh
 
@@ -36,7 +36,7 @@ All GitHub Actions workflows have been removed. Tests are run offline with `bash
 
 ## Security and limitations
 
-The engine intentionally declines unsupported directives instead of executing remote scriptlets. Downloaded filter subscriptions are data, not JavaScript code. Requests canceled before download may affect some websites; the toolbar allows a per-site pause. The third-party classifier uses a limited suffix approximation, not the full Public Suffix List. Some ad delivery systems are inseparable from protected video streams.
+The engine intentionally declines unsupported directives instead of executing remote scriptlets. Downloaded filter subscriptions are data, not JavaScript code. Requests canceled before download may affect some websites; the toolbar allows a per-site pause. The third-party classifier uses a bundled full Mozilla Public Suffix List snapshot, including private suffixes. Some ad delivery systems are inseparable from protected video streams.
 
 This is **not a released product** and is **not yet certified as good as or better than ABP**.
 
@@ -107,3 +107,9 @@ The subscription updater rejects insecure final destinations after redirects, re
 ## Improved third-party classification
 
 The hostname classifier now recognizes more commonly used multi-level country domains and separately operated hosting domains (for example, GitHub Pages and Pages.dev). This improves first/third-party rule matching without remote lookups. It remains a **curated approximation**, not the full Mozilla Public Suffix List, and requires a complete PSL before Adblock Plus parity can be claimed.
+
+## Complete Public Suffix List
+
+DK Live Block now bundles the ICANN and PRIVATE sections of the Mozilla Public Suffix List to identify the effective registrable domain for first-party and third-party filtering, including wildcard/exception rules and internationalized names. The dataset is credited under MPL-2.0 and is kept as auditable source under `vendor/`; `src/public-suffix.js` is the generated, extension-bundled representation. Updates should be taken only from the canonical publicsuffix.org source. This is an offline snapshot, not a continuously updated list.
+
+The PSL implementation keeps at most 4,096 cached host classifications in memory; cache entries are automatically discarded in batches when the limit is reached. The offline suite verifies that the generated dataset matches its MPL-licensed source snapshot exactly.

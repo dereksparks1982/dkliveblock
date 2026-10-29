@@ -6,7 +6,14 @@ const RES=new Set(["script","image","stylesheet","media","font","object","xmlhtt
 const SUFFIX=new Set(["co.uk","org.uk","ac.uk","gov.uk","net.uk","me.uk","co.nz","org.nz","govt.nz","ac.nz","net.nz","com.au","net.au","org.au","edu.au","gov.au","asn.au","id.au","com.br","net.br","org.br","gov.br","co.jp","ne.jp","or.jp","ac.jp","go.jp","co.kr","ne.kr","or.kr","go.kr","ac.kr","co.in","net.in","org.in","firm.in","gen.in","ind.in","ac.in","gov.in","com.mx","org.mx","gob.mx","com.ar","net.ar","org.ar","gob.ar","com.tr","com.cn","net.cn","org.cn","gov.cn","com.tw","org.tw","gov.tw","com.hk","com.sg","com.my","com.ph","com.pk","co.id","co.th","co.za","co.ke","com.ng","com.gh","co.ug","co.tz","co.il","org.il","gov.il","ac.il","com.eg","com.sa","com.ua","com.ru","github.io","pages.dev","netlify.app","vercel.app","blogspot.com","appspot.com","herokuapp.com","workers.dev","web.app","firebaseapp.com","azurewebsites.net","cloudfront.net","s3.amazonaws.com"]);
 function host(url){try{return new URL(url).hostname.toLowerCase().replace(/\.$/,"");}catch(_){return "";}}
 function sub(h,d){return Boolean(h&&d&&(h===d||h.endsWith("."+d)));}
-function site(h){if(!h||!h.includes(".")||h.includes(":")||/^\d+\.\d+\.\d+\.\d+$/.test(h))return h;const b=h.replace(/\.$/,"").split(".");return b.slice(-(SUFFIX.has(b.slice(-2).join("."))?3:2)).join(".");}
+function site(h){
+ if(!h||!h.includes(".")||h.includes(":")||/^\d+\.\d+\.\d+\.\d+$/.test(h))return h;
+ const psl=typeof DKPublicSuffix!=="undefined"?DKPublicSuffix:
+  typeof require==="function"?require("./public-suffix.js"):null;
+ if(psl)return psl.registrable(h);
+ const b=h.replace(/\.$/,"").split(".");
+ return b.slice(-(SUFFIX.has(b.slice(-2).join("."))?3:2)).join(".");
+}
 function domains(h,list,sep="|"){if(!list)return true;const a=list.split(sep),yes=a.filter(x=>x&&!x.startsWith("~"));return !a.some(x=>x.startsWith("~")&&sub(h,x.slice(1)))&&(!yes.length||yes.some(x=>sub(h,x)));}
 
 function validDomains(str){

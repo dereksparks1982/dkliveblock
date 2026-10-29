@@ -7,6 +7,9 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.equal(m.name,"DK Live Block");
  assert.equal(m.manifest_version,2);
  assert.ok(m.permissions.includes("webRequestBlocking"));
+ assert.ok(m.background.scripts.indexOf("public-suffix.js")>=0);
+ assert.ok(m.background.scripts.indexOf("public-suffix.js")<m.background.scripts.indexOf("rules.js"));
+ assert.ok(fs.existsSync(path.join(root,"src/LICENSE-PSL.txt")));
  const assets=[...m.background.scripts,...m.content_scripts.flatMap(c=>c.js),m.browser_action.default_popup,m.options_ui.page];
  for(const file of assets)assert.ok(fs.existsSync(path.join(root,"src",file)),"Missing "+file);
  for(const file of [m.browser_action.default_popup,m.options_ui.page]){

@@ -10,7 +10,7 @@ Status: UNRELEASED. Do not claim ABP feature parity or verified video ad blockin
 - [x] Per-site pause, rule picker, undo and private bounded request logger
 - [x] Settings import/export and local privacy controls
 - [ ] Advanced ABP filters, snippets, redirects and robust procedural cosmetics
-- [ ] Public Suffix List, performance and security hardening
+- [ ] Finish the remaining performance and security hardening (the full Public Suffix List is integrated).
 - [ ] Real Firefox/Ubuntu site tests, YouTube pre/mid-roll and Disney+ playback
 - [ ] Mozilla signing and explicit release authorization
 
@@ -26,7 +26,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 ## Important unfinished items
 
 - Advanced ABP compatibility: scriptlets, redirects and many procedural syntaxes.
-- More robust third-party site categorization using a full Public Suffix List.
+- Keep the bundled full Public Suffix List snapshot updated from the official source and validate its matching behavior.
 - Actual Firefox browser performance and video playback testing, especially YouTube and Disney+.
 - Real list-download verification and long-duration memory/performance measurements.
 - Mozilla signing, security review and stable release approval.
@@ -71,4 +71,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Reject HTML error bodies and non-HTTPS final redirect destinations for filter subscriptions; preserve last-good cache and report errors.
 
-- [x] Curated multi-level ccTLD and private-hosted-domain suffix improvements, with third-party classification regressions. Full PSL remains an open release task.
+- [x] Curated multi-level ccTLD and private-hosted-domain suffix improvements, with third-party classification regressions. The full PSL snapshot is now integrated; keeping it updated remains a release-maintenance task.
+
+- [x] Complete offline Mozilla Public Suffix List with ICANN and PRIVATE rules, wildcard/exception matching, IDN normalization, and MPL-2.0 compliance. Future updates: refresh from canonical publicsuffix.org URL, rebuild locally, retest.

@@ -27,6 +27,7 @@
   ],
   "background": {
     "scripts": [
+      "public-suffix.js",
       "rules.js",
       "engine.js",
       "privacy.js",

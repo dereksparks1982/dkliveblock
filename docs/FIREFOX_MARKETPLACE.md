@@ -16,3 +16,7 @@
 - No guaranteed bypass of a server-side paywall, protected streams, or network censorship.
 - No claims of Adblock Plus parity or public readiness without actual external tests and user approval.
 - Never create `.github/workflows` or run GitHub Actions. Repository pushes are source commits, not hosted builds.
+
+## Bundled PSL attribution
+
+The bundled Public Suffix List snapshot and generated JavaScript dataset are distributed under Mozilla Public License 2.0, not the application-code MIT license. Include `src/LICENSE-PSL.txt` in the extension package and keep `vendor/public_suffix_list.dat` in the source repository. Regenerate via `python3 scripts/update-psl.py --refresh`, which retrieves only from the canonical publicsuffix.org URL, then run all offline regression gates. Verify Mozilla source-submission requirements when applying.

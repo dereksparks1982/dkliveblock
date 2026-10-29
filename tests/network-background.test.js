@@ -1,7 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-const sources=["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","background.js"];
+const sources=["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","background.js"];
 async function setup(){
  const handlers={},filters={},on=name=>({addListener:(fn,filter)=>{handlers[name]=fn;filters[name]=filter;},removeListener:fn=>{if(handlers[name]===fn)delete handlers[name];delete filters[name];}});
  let stored={settings:{autoUpdate:false}},queries=0;

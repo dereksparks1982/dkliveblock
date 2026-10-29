@@ -52,6 +52,10 @@ def verify():
             paths.append(value)
         if re.search(r'<script(?![^>]*\bsrc=)[^>]*>', data, re.I):
             issues.append("Inline extension script in " + page)
+    if "public-suffix.js" not in paths:
+        issues.append("Missing Mozilla Public Suffix List asset")
+    if not (SRC / "LICENSE-PSL.txt").is_file():
+        issues.append("MPL-2.0 notice/license missing from extension package")
     for relative in paths:
         if not isinstance(relative, str):
             issues.append("Invalid manifest asset")
