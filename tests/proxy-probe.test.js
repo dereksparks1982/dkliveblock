@@ -2,7 +2,7 @@
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 async function setup(){
- const handlers={},on=name=>({addListener:fn=>{handlers[name]=fn;}});
+ const handlers={},on=name=>({addListener:fn=>{handlers[name]=fn;},removeListener:fn=>{if(handlers[name]===fn)delete handlers[name];}});
  const requests=[];let storage={settings:{autoUpdate:false}},throwNetwork=false;
  const fetch=async(url,options)=>{
   requests.push({url,options:{...options,signal:null}});

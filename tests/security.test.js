@@ -2,7 +2,7 @@
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("content script cannot mutate settings, proxy policy or logs",async()=>{
- const handles={},reg=n=>({addListener:f=>handles[n]=f});
+ const handles={},reg=n=>({addListener:f=>{handles[n]=f;},removeListener:f=>{if(handles[n]===f)delete handles[n];}});
  let saved={settings:{autoUpdate:false}};
  const browser={
   webRequest:{onBeforeRequest:reg("before"),onErrorOccurred:reg("error")},

@@ -2,7 +2,7 @@
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("background blocks seeded ads, logs host-only requests, then pauses the site",async()=>{
- const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;}});
+ const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;},removeListener(fn){if(listeners[name]===fn)delete listeners[name];}});
  let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup"}};
  const removedTabs=[];
  const browser={

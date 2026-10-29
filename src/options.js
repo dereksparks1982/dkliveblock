@@ -101,7 +101,7 @@ async function loadNetwork(){
  $("netProxyDNS").checked=s.proxyDNS!==false;
  $("netMode").value=s.mode||"domains";
  $("netDomains").value=(s.domains||[]).join("\n");
- $("netMessage").textContent=data.supported?"Proxy API available. Routing "+(s.enabled?"enabled for selected sites.":"disabled."):"Firefox proxy API unavailable.";
+ $("netMessage").textContent=data.supported?"Proxy API available. Routing "+(data.active?"active for selected sites.":s.enabled?"configured but inactive (global protection may be paused).":"disabled."):"Firefox proxy API unavailable.";
  if(data.proxyErrors?.length)$("netMessage").textContent+=" Most recent proxy error: "+data.proxyErrors.at(-1).error;
 }
 $("netSave").addEventListener("click",async()=>{

@@ -68,18 +68,39 @@ function rememberOwnBlock(requestId){
  data.ownBlocked.add(String(requestId));
  if(data.ownBlocked.size>800)data.ownBlocked.clear();
 }
-function networkStatus(){return {config:data.settings.network,proxyErrors:data.proxyErrors.slice(-5),supported:!!browser.proxy?.onRequest,hasDNS:!!browser.dns?.resolve};}
-// Firefox evaluates the proxy listener before webRequest blocking rules.
-// A null result leaves other browser proxy preferences alone.
-browser.proxy?.onRequest?.addListener(d=>{
+let proxyRegistered=false;
+function networkStatus(){
+ return {config:data.settings.network,proxyErrors:data.proxyErrors.slice(-5),
+  supported:!!(browser.proxy?.onRequest?.addListener&&browser.proxy?.onRequest?.removeListener),
+  active:proxyRegistered,hasDNS:!!browser.dns?.resolve};
+}
+function routeProxyRequest(d){
  if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return null;
  const origin=data.hosts.get(d.tabId)||"";
  if(origin&&data.settings.paused.some(h=>DKRules.sub(origin,h)))return null;
  const routing=DKNetwork.route(d,data.settings.network,origin?("https://"+origin+"/"):"");
  if(data.networkProbe&&data.networkProbe.url===d.url&&routing)data.networkProbe.routed=true;
  return routing;
-},{urls:["<all_urls>"]});
+}
+// Only install interception when explicitly enabled. For domain mode, Firefox
+// receives a hostname-limited filter so unrelated traffic never hits this handler.
+function syncProxyListener(){
+ const api=browser.proxy?.onRequest;
+ if(!api?.addListener||!api?.removeListener){
+  if(data.settings.network?.enabled)return false;
+  return false;
+ }
+ if(proxyRegistered){api.removeListener(routeProxyRequest);proxyRegistered=false;}
+ if(!data.ready||!data.settings.enabled||!data.settings.network?.enabled)return false;
+ const urls=data.settings.network.mode==="domains"
+  ?data.settings.network.domains.map(domain=>"*://*."+domain+"/*")
+  :["<all_urls>"];
+ api.addListener(routeProxyRequest,{urls});
+ proxyRegistered=true;
+ return true;
+}
 browser.proxy?.onError?.addListener(e=>{
+ if(!proxyRegistered)return;
  const error=String(e?.message||e?.error||"Proxy configuration error").slice(0,120);
  data.proxyErrors.push({error,when:Date.now()});if(data.proxyErrors.length>8)data.proxyErrors.shift();
 });
@@ -163,14 +184,23 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(sender?.tab)return {error:"Extension settings only."};
   const validation=DKNetwork.validate(msg.config);
   if(validation.error)return {error:validation.error};
+  if(validation.value.enabled&&!browser.proxy?.onRequest?.removeListener)
+   return {error:"Firefox proxy routing API is unavailable."};
+  const previous=data.settings.network;
   data.settings.network=validation.value;
+  try{syncProxyListener();}
+  catch(error){
+   data.settings.network=previous;
+   try{syncProxyListener();}catch(_){}
+   return {error:"Could not apply proxy routing: "+String(error.message||error).slice(0,100)};
+  }
   data.proxyErrors=[];
   await persistSettings();return {ok:true,config:data.settings.network};
  }
  if(msg.action==="testNetworkProxy"){
   if(sender?.tab)return {error:"Extension settings only."};
   const config=data.settings.network;
-  if(!config?.enabled)return {error:"Enable and save your proxy configuration before testing."};
+  if(!config?.enabled||!proxyRegistered)return {error:"Enable DK Live Block and save your proxy configuration before testing."};
   if(config.mode!=="domains")return {error:"A live proxy test requires domain-routing mode. Image-only mode must be checked with a real page image."};
   if(!browser.proxy?.onRequest)return {error:"Firefox proxy routing API is not available."};
   const target=String(msg.host||"").toLowerCase().trim();
@@ -205,7 +235,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  }
  if(msg.action==="updateLists")return updateLists();
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,antiAdblock:data.settings.antiAdblock,paywallPopups:data.settings.paywallPopups,css:active?data.engine.getSelectors(h,policy).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
- if(msg.action==="setGlobal"){data.settings.enabled=!!msg.enabled;await persist();rebuild();return status(id,url);}
+ if(msg.action==="setGlobal"){
+  const previous=data.settings.enabled;
+  data.settings.enabled=!!msg.enabled;
+  try{syncProxyListener();}catch(error){data.settings.enabled=previous;return {error:"Could not update proxy routing: "+String(error.message||error).slice(0,100)};}
+  await persist();rebuild();return status(id,url);
+ }
  if(msg.action==="toggleTabPause"){
   if(id<0)return {error:"No browser tab."};
   if(msg.paused)data.tempPaused.add(id);else data.tempPaused.delete(id);
@@ -274,7 +309,12 @@ async function boot(){
   data.listErrors={...errors,...built.errors,...custom.errors};
   rebuild();
   const tabs=await browser.tabs.query({});for(const t of tabs)if(t.url)data.hosts.set(t.id,host(t.url));
-  data.ready=true;await browser.alarms.create("refresh-rules",{periodInMinutes:1440});
+  data.ready=true;
+  try{syncProxyListener();}catch(error){
+   console.warn("DK Live Block proxy activation failed:",error);
+   data.settings.network.enabled=false;
+  }
+  await browser.alarms.create("refresh-rules",{periodInMinutes:1440});
   const needsDownload=Object.keys(SOURCES).some(key=>data.settings.listEnabled[key]&&!data.lists[key]?.text)||
    data.settings.customSubscriptions.some(url=>!data.customLists[url]?.text);
   if(data.settings.autoUpdate&&(needsDownload||Date.now()-data.settings.lastUpdate>86400000))
