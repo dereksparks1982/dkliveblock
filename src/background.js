@@ -8,8 +8,8 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),ready:false,updateJob:null,saveTimer:null};
+const DEFAULT={enabled:true,paused:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),ownBlocked:new Set(),proxyErrors:[],ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -43,6 +43,39 @@ function updateLists(){if(data.updateJob)return data.updateJob;
   return {updated,errors};
  })().finally(()=>{data.updateJob=null;});return data.updateJob;
 }
+function addNetworkIssue(tabId,url,type,error){
+ if(tabId<0||!data.settings.requestLog)return;
+ const target=host(url);if(!target)return;
+ const category=DKNetwork.classifyFailure(error);
+ const rows=data.networkIssues.get(tabId)||[];
+ rows.push({host:target,type,category,when:Date.now()});
+ if(rows.length>60)rows.shift();data.networkIssues.set(tabId,rows);
+}
+function rememberOwnBlock(requestId){
+ if(requestId===undefined||requestId===null)return;
+ data.ownBlocked.add(String(requestId));
+ if(data.ownBlocked.size>800)data.ownBlocked.clear();
+}
+function networkStatus(){return {config:data.settings.network,proxyErrors:data.proxyErrors.slice(-5),supported:!!browser.proxy?.onRequest,hasDNS:!!browser.dns?.resolve};}
+// Firefox evaluates the proxy listener before webRequest blocking rules.
+// A null result leaves other browser proxy preferences alone.
+browser.proxy?.onRequest?.addListener(d=>{
+ if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return null;
+ const origin=data.hosts.get(d.tabId)||"";
+ if(origin&&data.settings.paused.some(h=>DKRules.sub(origin,h)))return null;
+ return DKNetwork.route(d,data.settings.network,origin?("https://"+origin+"/"):"");
+},{urls:["<all_urls>"]});
+browser.proxy?.onError?.addListener(e=>{
+ const error=String(e?.message||e?.error||"Proxy configuration error").slice(0,120);
+ data.proxyErrors.push({error,when:Date.now()});if(data.proxyErrors.length>8)data.proxyErrors.shift();
+});
+browser.webRequest.onErrorOccurred?.addListener(d=>{
+ if(d.type!=="image"&&d.type!=="imageset"&&d.type!=="main_frame")return;
+ const id=String(d.requestId??"");
+ if(id&&data.ownBlocked.delete(id))return;
+ if(data.tempPaused.has(d.tabId))return;
+ addNetworkIssue(d.tabId,d.url,d.type,d.error);
+},{urls:["<all_urls>"]});
 function recordBlock(tabId,url,type,rule){
  if(tabId<0)return;
  data.counts.set(tabId,(data.counts.get(tabId)||0)+1);
@@ -65,6 +98,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
+ rememberOwnBlock(d.requestId);
  recordBlock(d.tabId,d.url,d.type,result.rule);
  return {cancel:true};
 },{urls:["<all_urls>"]},["blocking"]);
@@ -82,15 +116,43 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
- if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);badge(id);}
+ if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);badge(id);}
 });
-browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.tempPaused.delete(id);});
+browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
  const id=Number.isInteger(msg.tabId)?msg.tabId:sender.tab?.id||-1,url=msg.url||sender.url||"",h=host(url);
  if(msg.action==="status")return status(id,url);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState};
+ if(msg.action==="networkStatus"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  return networkStatus();
+ }
+ if(msg.action==="getNetworkIssues"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  return (data.networkIssues.get(id)||[]).slice().reverse();
+ }
+ if(msg.action==="clearNetworkIssues"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  data.networkIssues.delete(id);return {ok:true};
+ }
+ if(msg.action==="saveNetwork"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  const validation=DKNetwork.validate(msg.config);
+  if(validation.error)return {error:validation.error};
+  data.settings.network=validation.value;
+  data.proxyErrors=[];
+  await persistSettings();return {ok:true,config:data.settings.network};
+ }
+ if(msg.action==="dnsLookup"){
+  if(sender?.tab)return {error:"Extension settings only."};
+  const h=String(msg.host||"").toLowerCase().trim();
+  if(!DKNetwork.validHost(h)||DKNetwork.privateDestination(h)||h.endsWith(".onion"))return {error:"Enter a valid public website hostname."};
+  if(!browser.dns?.resolve)return {error:"Firefox DNS diagnostic API is unavailable."};
+  try{const answer=await browser.dns.resolve(h);return {host:h,addresses:(answer?.addresses||[]).slice(0,8)};}
+  catch(e){return {host:h,error:"DNS lookup failed: "+String(e.message||e).slice(0,120)};}
+ }
  if(msg.action==="getLog")return (data.logs.get(id)||[]).slice().reverse();
  if(msg.action==="clearLog"){data.logs.delete(id);return {ok:true};}
  if(msg.action==="resetStatistics"){
@@ -150,7 +212,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  return {error:"Unknown action"};
 });
 async function boot(){
- try{const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors"]);data.settings={...DEFAULT,...stored.settings,listEnabled:{...DEFAULT.listEnabled,...stored.settings?.listEnabled},paused:Array.isArray(stored.settings?.paused)?stored.settings.paused:[]};data.lists=stored.lists||{};data.customLists=stored.customLists||{};data.listErrors=stored.listErrors||{};
+ try{const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors"]);data.settings={...DEFAULT,...stored.settings,listEnabled:{...DEFAULT.listEnabled,...stored.settings?.listEnabled},paused:Array.isArray(stored.settings?.paused)?stored.settings.paused:[]};
+  const net=DKNetwork.validate(data.settings.network||DKNetwork.DEFAULT);
+  data.settings.network=net.value||{...DKNetwork.DEFAULT};data.lists=stored.lists||{};data.customLists=stored.customLists||{};data.listErrors=stored.listErrors||{};
   const validation=DKSubscriptions.validate(data.settings.customSubscriptions||[]);
   data.settings.customSubscriptions=validation.urls||[];
   for(const u of Object.keys(data.customLists))if(!data.settings.customSubscriptions.includes(u))delete data.customLists[u];

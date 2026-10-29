@@ -17,6 +17,27 @@
 <label><input id="paywallPopups" type="checkbox"> Hide subscription popups covering already-loaded articles (Wall Street Journal, BBC and other sites where possible)</label>
 <p>This does not create access to missing articles or unlock server-side subscriptions. Turn this off per preference, or pause DK Live Block on an affected site.</p>
 <label><input id="stripTracking" type="checkbox"> Remove marketing tracking parameters from website addresses (never video or API requests)</label></section>
+<section id="network-recovery"><h2>DK Network Recovery / Open Access</h2>
+<p>Optional proxy routing for restricted websites and failing images. <strong>Off by default.</strong> DK Live Block provides no proxy server, VPN or Tor service. A proxy you configure can see network metadata. Nothing is routed automatically without opting in.</p>
+<label><input id="netEnabled" type="checkbox"> Enable selective proxy routing</label>
+<label>Proxy protocol <select id="netType"><option value="socks">SOCKS5 (recommended for Tor)</option><option value="https">HTTPS proxy</option><option value="http">HTTP proxy</option></select></label>
+<label>Proxy hostname or IP address <input id="netHost" type="text" autocomplete="off" spellcheck="false" placeholder="127.0.0.1"></label>
+<label>Proxy port <input id="netPort" type="number" min="1" max="65535" value="9050"></label>
+<label><input id="netProxyDNS" type="checkbox"> Resolve destination DNS through SOCKS5 (recommended)</label>
+<label>Routing scope <select id="netMode"><option value="domains">Only requests to selected website domains</option><option value="images">Only image requests on selected websites</option></select></label>
+<p>One website hostname per line, including its subdomains. Enter domains only, without https:// or paths. Images mode can route image CDN requests made by pages on these sites.</p>
+<textarea id="netDomains" class="short" spellcheck="false" placeholder="restricted.example.org"></textarea>
+<div class="network-buttons"><button id="netTorPreset" type="button">Fill local Tor settings</button><button id="netSave" type="button">Save network settings</button><button id="netOff" type="button">Disable routing</button></div>
+<p id="netMessage" role="status"></p>
+<p><strong>Important:</strong> Local Tor must be running before a SOCKS proxy at 127.0.0.1:9050 can work. An incorrectly configured proxy may make selected websites unavailable. There is no direct fallback if a selected proxy fails. These settings cannot bypass every kind of network blocking.</p>
+<h3>DNS diagnostics</h3>
+<p>Check a public hostname using Firefox's configured DNS resolver. This does not change your DNS settings. For encrypted DNS, use Firefox Settings → Privacy &amp; Security → DNS over HTTPS.</p>
+<label>Hostname <input id="dnsHost" type="text" spellcheck="false" placeholder="example.org"></label>
+<button id="dnsCheck" type="button">Check DNS</button><p id="dnsResult" role="status"></p>
+<h3>Failed images and sites</h3>
+<p>Only failed request hostnames and error categories are kept temporarily in this browser session, never full URLs. A failure does not prove government or ISP blocking. Click to inspect; no automatic proxy routing is applied.</p>
+<div class="network-buttons"><button id="issueRefresh" type="button">Show recent failures</button><button id="issueClear" type="button">Clear failures</button><button id="netReload" type="button">Reload selected website</button></div>
+<div id="networkIssues"></div></section>
 <section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
 <textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea></section>
 <section><h2>Paused domains</h2><p>One hostname per line.</p><textarea id="paused" class="short" spellcheck="false"></textarea></section>

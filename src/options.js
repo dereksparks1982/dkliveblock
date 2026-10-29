@@ -79,3 +79,93 @@ $("import").addEventListener("change",async(event)=>{
  }catch(e){$("message").textContent=e.message;}
 });
 load().catch(e=>$("message").textContent=e.message);
+
+
+/* Network Recovery settings are saved independently to avoid accidental proxy activation. */
+function getNetworkForm(){
+ return {
+  enabled:$("netEnabled").checked,type:$("netType").value,
+  host:$("netHost").value.trim(),port:Number($("netPort").value),
+  proxyDNS:$("netProxyDNS").checked,mode:$("netMode").value,
+  domains:$("netDomains").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean)
+ };
+}
+async function loadNetwork(){
+ const data=await browser.runtime.sendMessage({action:"networkStatus"});
+ if(data.error){$("netMessage").textContent=data.error;return;}
+ const s=data.config||{};
+ $("netEnabled").checked=!!s.enabled;
+ $("netType").value=s.type||"socks";
+ $("netHost").value=s.host||"127.0.0.1";
+ $("netPort").value=s.port||9050;
+ $("netProxyDNS").checked=s.proxyDNS!==false;
+ $("netMode").value=s.mode||"domains";
+ $("netDomains").value=(s.domains||[]).join("\n");
+ $("netMessage").textContent=data.supported?"Proxy API available. Routing "+(s.enabled?"enabled for selected sites.":"disabled."):"Firefox proxy API unavailable.";
+ if(data.proxyErrors?.length)$("netMessage").textContent+=" Most recent proxy error: "+data.proxyErrors.at(-1).error;
+}
+$("netSave").addEventListener("click",async()=>{
+ $("netSave").disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"saveNetwork",config:getNetworkForm()});
+  $("netMessage").textContent=result.ok?"Network settings saved. Selected website routing "+(result.config.enabled?"enabled.":"disabled."):(result.error||"Invalid settings.");
+  if(result.ok)await loadNetwork();
+ }catch(e){$("netMessage").textContent=e.message;}finally{$("netSave").disabled=false;}
+});
+$("netOff").addEventListener("click",async()=>{
+ $("netEnabled").checked=false;
+ const result=await browser.runtime.sendMessage({action:"saveNetwork",config:getNetworkForm()});
+ $("netMessage").textContent=result.ok?"Proxy routing disabled.":"Unable to disable routing: "+result.error;
+ if(result.ok)await loadNetwork();
+});
+$("netTorPreset").addEventListener("click",()=>{
+ $("netType").value="socks";$("netHost").value="127.0.0.1";$("netPort").value="9050";
+ $("netProxyDNS").checked=true;
+ $("netMessage").textContent="Tor SOCKS5 values filled. Install/start Tor separately, add a destination hostname, then explicitly save and enable routing.";
+});
+$("dnsCheck").addEventListener("click",async()=>{
+ $("dnsCheck").disabled=true;$("dnsResult").textContent="Checking Firefox DNS…";
+ try{
+  const result=await browser.runtime.sendMessage({action:"dnsLookup",host:$("dnsHost").value.trim().toLowerCase()});
+  $("dnsResult").textContent=result.error||((result.addresses||[]).length?(result.host+": "+result.addresses.join(", ")):"No addresses returned.");
+ }catch(e){$("dnsResult").textContent=e.message;}finally{$("dnsCheck").disabled=false;}
+});
+async function networkTab(){
+ const tabs=await browser.tabs.query({currentWindow:true});
+ return tabs.filter(t=>/^https?:\/\//i.test(t.url||"")).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0))[0];
+}
+$("issueRefresh").addEventListener("click",async()=>{
+ const box=$("networkIssues");box.replaceChildren();
+ const tab=await networkTab();
+ if(!tab){box.textContent="No website tab available.";return;}
+ const rows=await browser.runtime.sendMessage({action:"getNetworkIssues",tabId:tab.id});
+ if(!Array.isArray(rows)){box.textContent=rows.error||"Unable to read network diagnostics.";return;}
+ if(!rows.length){box.textContent="No failed image or page requests recorded for "+new URL(tab.url).hostname+".";return;}
+ for(const row of rows.slice(0,45)){
+  const div=document.createElement("div");div.className="log-row";
+  const line=document.createElement("span");
+  line.textContent=new Date(row.when).toLocaleTimeString()+" · "+row.type+" · "+row.host+" · "+row.category;
+  const button=document.createElement("button");button.textContent="Add host to routing list";
+  button.addEventListener("click",()=>{
+   const values=$("netDomains").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean);
+   if(!values.includes(row.host))values.push(row.host);
+   $("netDomains").value=values.join("\n");
+   $("netMode").value="domains";
+   $("netMessage").textContent="Added "+row.host+" to the form only. Review and save network settings to apply. No traffic has been routed.";
+  });
+  div.append(line,button);box.appendChild(div);
+ }
+});
+$("netReload").addEventListener("click",async()=>{
+ const tab=await networkTab();
+ if(!tab){$("netMessage").textContent="No website tab available to reload.";return;}
+ $("netMessage").textContent="Reloading website with current saved proxy settings.";
+ await browser.tabs.reload(tab.id);
+});
+$("issueClear").addEventListener("click",async()=>{
+ const tab=await networkTab();if(!tab)return;
+ await browser.runtime.sendMessage({action:"clearNetworkIssues",tabId:tab.id});
+ $("networkIssues").replaceChildren();
+ $("networkIssues").textContent="Local network diagnostics cleared.";
+});
+loadNetwork().catch(e=>$("netMessage").textContent=e.message);

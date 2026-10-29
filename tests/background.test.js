@@ -6,7 +6,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup"}};
  const removedTabs=[];
  const browser={
-  webRequest:{onBeforeRequest:reg("network")},
+  webRequest:{onBeforeRequest:reg("network"),onErrorOccurred:reg("networkError")},proxy:{onRequest:reg("proxy"),onError:reg("proxyError")},dns:{resolve:async host=>({addresses:["203.0.113.10"]})},
   webNavigation:{onCreatedNavigationTarget:reg("popup")},
   tabs:{onUpdated:reg("updated"),onRemoved:reg("removed"),query:async()=>[{id:1,url:"https://site.test"}],get:async id=>({id,url:"https://site.test"}),remove:async id=>{removedTabs.push(id);},sendMessage:async()=>({}),reload:async()=>{}},
   alarms:{onAlarm:reg("alarm"),create:async()=>{}},
@@ -15,7 +15,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","background.js"]){
+ for(const name of ["rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","background.js"]){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));

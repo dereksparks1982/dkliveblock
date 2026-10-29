@@ -21,7 +21,9 @@
     "storage",
     "alarms",
     "<all_urls>",
-    "webNavigation"
+    "webNavigation",
+    "proxy",
+    "dns"
   ],
   "background": {
     "scripts": [
@@ -30,6 +32,7 @@
       "privacy.js",
       "subscriptions.js",
       "manual-rules.js",
+      "network-recovery.js",
       "background.js"
     ],
     "persistent": true

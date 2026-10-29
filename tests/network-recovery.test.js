@@ -30,7 +30,7 @@ test("invalid proxy settings are rejected",()=>{
 });
 test("Tor onion sites require SOCKS5 remote DNS",()=>{
  assert.ok(N.route({url:"http://hiddenservice.onion/",type:"main_frame"},c({domains:["hiddenservice.onion"]})));
- assert.equal(N.route({url:"http://hiddenservice.onion/",type:"main_frame"},c({domains:["hiddenservice.onion"],proxyDNS:false})),null);
+ assert.ok(N.validate({...N.DEFAULT,enabled:true,domains:["hiddenservice.onion"],proxyDNS:false}).error);
  assert.ok(N.validate({...N.DEFAULT,type:"https",domains:["hiddenservice.onion"]}).error);
 });
 test("errors are diagnostic categories, never claims of censorship",()=>{

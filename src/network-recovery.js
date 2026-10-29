@@ -41,6 +41,7 @@ function validate(input){
   if(d.endsWith(".onion")&&type!=="socks")return {error:"Onion sites require SOCKS5 with remote DNS."};
   if(!domains.includes(d))domains.push(d);
  }
+ if(domains.some(d=>d.endsWith(".onion"))&&type==="socks"&&input.proxyDNS===false)return {error:"Onion destinations require remote DNS."};
  if(enabled&&!domains.length)return {error:"Choose at least one website before enabling the proxy."};
  return {value:{enabled,type,mode,host,port,domains,proxyDNS:type==="socks"?input.proxyDNS!==false:true}};
 }
