@@ -155,3 +155,28 @@ test("common third-party and resource aliases",()=>{
  const css=new FilterEngine("||cdn.test^$css");
  assert.equal(css.shouldBlock("https://cdn.test/x","stylesheet","other.test"),true);
 });
+
+test("from and to match requester and destination separately",()=>{
+ const f=new FilterEngine("||cdn.example^$from=news.example,to=ads.cdn.example");
+ assert.equal(f.shouldBlock("https://ads.cdn.example/a","script","news.example"),true);
+ assert.equal(f.shouldBlock("https://cdn.example/a","script","news.example"),false);
+ assert.equal(f.shouldBlock("https://ads.cdn.example/a","script","other.example"),false);
+});
+test("denyallow keeps selected CDN endpoints available under a site rule",()=>{
+ const f=new FilterEngine("*$domain=publisher.example,denyallow=safe.cdn.example|news.cdn.example");
+ assert.equal(f.shouldBlock("https://ads.other.example/ad","script","publisher.example"),true);
+ assert.equal(f.shouldBlock("https://safe.cdn.example/script","script","publisher.example"),false);
+ assert.equal(f.shouldBlock("https://news.cdn.example/photo","image","publisher.example"),false);
+ assert.equal(f.shouldBlock("https://safe.cdn.example.evil.org/p","image","publisher.example"),true);
+});
+test("reject invalid domain lists, duplicate scopes and denyallow without requester",()=>{
+ for(const src of ["*$denyallow=cdn.example","*$domain=bad..host","*$domain=~","*$to=.invalid.com",
+  "*$domain=site.example,from=other.example","*$to=good.example,to=evil.example",
+  "*$domain=page.example,denyallow=~safe.example","*$domain=site.example,denyallow=foo..example"])
+  assert.equal(R.network(src),null,src);
+});
+test("denyallow works with exceptions and important priorities",()=>{
+ const f=new FilterEngine("||ads.example^$important,domain=site.example,denyallow=safe.ads.example\n@@||ads.example^$domain=site.example");
+ assert.equal(f.shouldBlock("https://ads.example/a","script","site.example"),true);
+ assert.equal(f.shouldBlock("https://safe.ads.example/a","script","site.example"),false);
+});

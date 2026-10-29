@@ -9,6 +9,15 @@ function sub(h,d){return Boolean(h&&d&&(h===d||h.endsWith("."+d)));}
 function site(h){if(!h||!h.includes(".")||h.includes(":")||/^\d+\.\d+\.\d+\.\d+$/.test(h))return h;const b=h.replace(/\.$/,"").split(".");return b.slice(-(SUFFIX.has(b.slice(-2).join("."))?3:2)).join(".");}
 function domains(h,list,sep="|"){if(!list)return true;const a=list.split(sep),yes=a.filter(x=>x&&!x.startsWith("~"));return !a.some(x=>x.startsWith("~")&&sub(h,x.slice(1)))&&(!yes.length||yes.some(x=>sub(h,x)));}
 
+function validDomains(str){
+ if(typeof str!=="string"||str.length>1500||!str)return false;
+ const parts=str.split("|");
+ return parts.length<=64&&parts.every(p=>{
+  const hostname=p.startsWith("~")?p.slice(1):p;
+  return !!hostname&&hostname.length<=253&&!hostname.includes("..")&&!hostname.startsWith(".")&&!hostname.endsWith(".")&&
+   hostname.split(".").every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
+ });
+}
 function regex(pattern,matchCase=false){
  if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){const expr=pattern.slice(1,-1);if(expr.length>512||/\\[1-9]|\(\?<|\([^)]*[+*][^)]*\)[+*{]/.test(expr))return null;try{return new RegExp(expr,matchCase?"":"i");}catch(_){return null;}}
  let p=pattern,start="",end="";
@@ -24,9 +33,16 @@ function network(raw){
  let p=line,opts=[],i=line.lastIndexOf("$");
  if(i>0&&/^[a-z0-9~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
  if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
- const include=new Set(),exclude=new Set();let scope="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="";
+ const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="";
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
-  if(o.startsWith("domain=")&&!neg){scope=o.slice(7).toLowerCase();if(!/^[\w.~|-]+$/.test(scope))return null;continue;}
+  if((o.startsWith("domain=")||o.startsWith("from="))&&!neg){
+   if(scope)return null;
+   scope=o.slice(o.indexOf("=")+1).toLowerCase();
+   if(!validDomains(scope))return null;
+   continue;
+  }
+  if(o.startsWith("to=")&&!neg){if(targetScope)return null;targetScope=o.slice(3).toLowerCase();if(!validDomains(targetScope))return null;continue;}
+  if(o.startsWith("denyallow=")&&!neg){if(denyallow)return null;denyallow=o.slice(10).toLowerCase();if(!validDomains(denyallow)||denyallow.includes("~"))return null;continue;}
   if(o.startsWith("removeparam=")&&!neg){
    if(removeparam)return null;
    removeparam=o.slice(12);
@@ -42,9 +58,10 @@ function network(raw){
   const resource=ALIASES[o]||o;
   if(RES.has(resource)){(neg?exclude:include).add(resource);continue;}return null;
  }
+ if(denyallow&&!scope)return null;
  const compiled=regex(p,matchCase);if(!compiled)return null;
  let anchor="";if(p.startsWith("||")){const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?*: ]|$)/i.exec(p);if(m)anchor=m[1].toLowerCase();}
- return {p,compiled,anchor,exception,include,exclude,scope,third,important,badfilter,special,removeparam,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
+ return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 
 function cosmetic(line){
@@ -65,6 +82,6 @@ function procedural(line){
   return {scope,selector:has[1].trim(),mode:"has",target:has[2].trim(),exception:match[2]==="#@?#"};
  return null;
 }
-g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic,procedural};
+g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic,procedural,validDomains};
 if(typeof module!=="undefined")module.exports=g.DKRules;
 })(typeof globalThis!=="undefined"?globalThis:this);
