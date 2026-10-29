@@ -56,7 +56,7 @@ function route(request,config,tabURL=""){
  if(!match)return null;
  const proxy={type:config.type,host:config.host,port:config.port};
  if(config.type==="socks")proxy.proxyDNS=config.proxyDNS;
- return [proxy,null]; // Do not fall back silently to a different proxy on failure.
+ return [proxy,null]; // Prevent fallback to another configured browser proxy (not a kill switch).
 }
 function classifyFailure(reason){
  const e=String(reason||"").toUpperCase().slice(0,120);

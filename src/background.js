@@ -24,9 +24,7 @@ function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data
 async function downloadList(url,followRedirects=true){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
  try{const res=await fetch(url,{signal:stop.signal,cache:"no-cache",credentials:"omit",redirect:followRedirects?"follow":"error"});if(!res.ok)throw Error("HTTP "+res.status);
-  const size=Number(res.headers.get("content-length")||0);if(size>20000000)throw Error("List too large");
-  const text=await res.text();if(text.length<300||text.length>20000000||!/\[Adblock Plus|! Title:|! Homepage:/i.test(text.slice(0,4000)))throw Error("Invalid filter list");
-  return text;
+  return await DKListIO.read(res);
  }finally{clearTimeout(timer);}
 }
 function updateLists(){if(data.updateJob)return data.updateJob;
@@ -122,7 +120,15 @@ browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
- const id=Number.isInteger(msg.tabId)?msg.tabId:sender.tab?.id||-1,url=msg.url||sender.url||"",h=host(url);
+ // Page/content scripts have only the minimum permissions needed to style a page
+ // and submit a user-initiated element-picker rule for their own frame.
+ // Never trust tabId or URL supplied by page-originated messages.
+ const fromContent=!!sender.tab;
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule")
+  return {error:"This action is only available in the extension interface."};
+ const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
+ const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
+ const h=host(url);
  if(msg.action==="status")return status(id,url);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState};
  if(msg.action==="networkStatus"){

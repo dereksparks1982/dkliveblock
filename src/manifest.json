@@ -33,6 +33,7 @@
       "subscriptions.js",
       "manual-rules.js",
       "network-recovery.js",
+      "list-io.js",
       "background.js"
     ],
     "persistent": true
