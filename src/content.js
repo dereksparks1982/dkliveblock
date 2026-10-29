@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,overlayTimer=null,overlayObserver=null;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),antiHidden=new Map(),scrollUnlocks=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
@@ -13,7 +13,7 @@
  }
  async function refresh(){
   try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;paywallPopups=!!s.paywallPopups;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;paywallPopups=!!s.paywallPopups;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();queueOverlayScan();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -144,6 +144,29 @@
   if(hiddenCount)unlockScrollAfterNotice();
   for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
  }
+
+ function scanDynamicOverlays(){
+  if(!active||picking||!document.body||(!antiAdblock&&!paywallPopups))return;
+  lastOverlayScan=Date.now();
+  if(antiAdblock){lastAnti=lastOverlayScan;suppressAntiAdblockNotices();}
+  if(paywallPopups){lastPaywall=lastOverlayScan;suppressSubscriptionModals();}
+ }
+ function queueOverlayScan(){
+  if(overlayTimer!==null||!active||(!antiAdblock&&!paywallPopups)||typeof setTimeout!=="function")return;
+  const delay=Math.max(220,800-(Date.now()-lastOverlayScan));
+  overlayTimer=setTimeout(()=>{
+   overlayTimer=null;scanDynamicOverlays();
+  },delay);
+ }
+ function observePopupChanges(){
+  if(overlayObserver||!document.documentElement||typeof MutationObserver!=="function")return;
+  try{
+   overlayObserver=new MutationObserver(records=>{
+    for(const item of records){if(item.addedNodes?.length){queueOverlayScan();break;}}
+   });
+   overlayObserver.observe(document.documentElement,{childList:true,subtree:true});
+  }catch(_){overlayObserver=null;}
+ }
  function skipVideo(){
   if(!active||!youtubeSkip||!isYouTube)return;
   const btn=document.querySelector(".ytp-ad-skip-button, .ytp-ad-skip-button-modern, button.ytp-skip-ad-button, button[aria-label='Skip Ads']");
@@ -207,6 +230,19 @@
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
  });
  refresh();
- if(!document.documentElement){const watcher=new MutationObserver(()=>{if(document.documentElement){watcher.disconnect();applyCSS();}});watcher.observe(document,{childList:true,subtree:true});}
- setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}if(Date.now()-lastAnti>2200){lastAnti=Date.now();suppressAntiAdblockNotices();}if(Date.now()-lastPaywall>2400){lastPaywall=Date.now();suppressSubscriptionModals();}},1250);
+ if(!document.documentElement){
+  try{
+   const watcher=new MutationObserver(()=>{
+    if(document.documentElement){watcher.disconnect();applyCSS();observePopupChanges();queueOverlayScan();}
+   });
+   watcher.observe(document,{childList:true,subtree:true});
+  }catch(_){}
+ }else observePopupChanges();
+ // Lightweight video/cookie checks remain periodic; heavy overlay scans run on DOM changes
+ // and at a low-frequency fallback for pages that modify existing nodes in place.
+ setInterval(()=>{
+  skipVideo();rejectCookies();
+  if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}
+  if(Date.now()-lastOverlayScan>15000)scanDynamicOverlays();
+ },1250);
 })();

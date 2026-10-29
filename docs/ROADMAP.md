@@ -56,3 +56,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Conditional filter updates with cache validators and 304 preservation, avoiding unnecessary transfers where servers support it.
 
 - [x] Hostname-indexed cosmetic/procedural lookup and offline 52,000-rule scaling gate.
+
+- [x] Debounced DOM-mutation observation for late popups with a 15-second scan fallback; preserve bounded checks and reversible hiding.
