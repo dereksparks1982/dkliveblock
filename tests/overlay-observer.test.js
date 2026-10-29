@@ -35,6 +35,8 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  await new Promise(resolve=>setTimeout(resolve,0));
  assert.equal(callbacks.observed.childList,true);
  assert.equal(callbacks.observed.subtree,true);
+ assert.equal(callbacks.observed.attributes,true);
+ assert.ok(callbacks.observed.attributeFilter.includes("style"));
  // Complete the initial empty-page scan.
  while(scheduled.length)scheduled.shift()();
  assert.equal(visible.length,0);
@@ -43,6 +45,12 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  callbacks.mutation([{addedNodes:[popup]}]);
  callbacks.mutation([{addedNodes:[popup]}]);
  assert.equal(scheduled.length,1,"Repeated mutations should be debounced");
+ scheduled.shift()();
+ assert.equal(popup.style.getPropertyValue("display"),"none");
+ callbacks.mutation([{type:"attributes",target:popup}]);
+ assert.equal(scheduled.length,0,"Our own style change should not rescan");
+ callbacks.mutation([{type:"attributes",target:{}}]);
+ assert.equal(scheduled.length,1,"External style changes should trigger one scan");
  scheduled.shift()();
  assert.equal(popup.style.getPropertyValue("display"),"none");
  assert.equal(typeof interval,"function");

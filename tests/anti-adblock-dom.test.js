@@ -51,3 +51,12 @@ test("leave article text about ad blockers alone unless shown as a popup",async(
  const x=setup({inline:true});await x.refresh();x.tick();
  assert.equal(x.modal.style.getPropertyValue("display"),"");
 });
+
+test("recognize AP's disable-ad-blocker request only when shown as an overlay",async()=>{
+ const ap=setup({text:"Support independent journalism. Please consider disabling your ad blocker or donate to support our reporting."});
+ await ap.refresh();ap.tick();
+ assert.equal(ap.modal.style.getPropertyValue("display"),"none");
+ const story=setup({text:"Please read our article about ad blockers and their impact."});
+ await story.refresh();story.tick();
+ assert.equal(story.modal.style.getPropertyValue("display"),"");
+});

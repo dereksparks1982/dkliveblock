@@ -17,3 +17,23 @@ test("only suppress visible notices, never containing players or site roots",()=
 test("do not mistake subscription paywalls for anti-adblock nags",()=>{
  assert.equal(shouldHide({text:"To continue watching this video, please sign in or subscribe.",visible:true,overlay:true}),false);
 });
+
+test("AP support-journalism anti-adblock dialogs and newer YouTube wording",()=>{
+ for(const msg of [
+  "Support Independent Journalism. Advertising delivers vital revenue. Please consider disabling your ad blocker, or support AP directly by making a donation.",
+  "We noticed that you're using an ad blocker. Please turn it off to continue.",
+  "Ad blockers are not allowed on YouTube",
+  "To continue watching, please turn off your ad blocker.",
+  "We’ve noticed you’re using an ad blocker."
+ ])assert.equal(isAntiAdblockNotice(msg),true,msg);
+});
+test("do not classify articles and unrelated donation or player notices",()=>{
+ for(const msg of [
+  "Please read our article on ad blockers, published today.",
+  "Support our journalism by making a donation.",
+  "Please enable cookies to continue.",
+  "Use an ad blocker to improve your privacy.",
+  "Please pause this video while you read.",
+  "Allow ads for an advertising campaign in your newsletter"
+ ])assert.equal(isAntiAdblockNotice(msg),false,msg);
+});

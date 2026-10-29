@@ -163,9 +163,19 @@
   if(overlayObserver||!document.documentElement||typeof MutationObserver!=="function")return;
   try{
    overlayObserver=new MutationObserver(records=>{
-    for(const item of records){if(item.addedNodes?.length){queueOverlayScan();break;}}
+    // Detect late dialogs and existing overlays changing visibility.
+    // Ignore attribute mutations caused by our own hiding changes.
+    for(const item of records.slice(0,40)){
+     if(item.addedNodes?.length||
+        item.type==="attributes"&&item.target&&!antiHidden.has(item.target)){
+      queueOverlayScan();break;
+     }
+    }
    });
-   overlayObserver.observe(document.documentElement,{childList:true,subtree:true});
+   overlayObserver.observe(document.documentElement,{
+    childList:true,subtree:true,attributes:true,
+    attributeFilter:["class","style","hidden","aria-hidden","open"]
+   });
   }catch(_){overlayObserver=null;}
  }
  function skipVideo(){
@@ -232,6 +242,11 @@
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
  });
  refresh();
+ // YouTube single-page navigation does not necessarily reload the document.
+ if(typeof window.addEventListener==="function"){
+  window.addEventListener("yt-navigate-finish",()=>refresh(),false);
+  window.addEventListener("popstate",()=>refresh(),false);
+ }
  if(!document.documentElement){
   try{
    const watcher=new MutationObserver(()=>{
