@@ -5,6 +5,7 @@ async function load(){
  [tab]=await browser.tabs.query({active:true,currentWindow:true});
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
+ $("issues").textContent=String(current.networkIssueCount||0);
  $("enabled").checked=current.enabled;$("site").textContent=current.host||"Browser page";
  $("toggle").textContent=current.sitePaused?"Resume on site":"Pause on site";
  $("toggle").disabled=!current.host||!current.enabled;
@@ -22,5 +23,6 @@ $("temporary").addEventListener("click",async()=>{
 $("picker").addEventListener("click",async()=>{try{const result=await browser.tabs.sendMessage(tab.id,{action:"startPicker"});if(result.ok)window.close();}catch(e){$("info").textContent="Reload the tab and try again."; }});
 $("update").addEventListener("click",async()=>{$("update").disabled=true;try{const result=await browser.runtime.sendMessage({action:"updateLists"});$("info").textContent=result.updated+" changed; "+result.checked+" checked; "+result.errors.length+" failed.";}catch(e){$("info").textContent=e.message;}finally{$("update").disabled=false;}});
 $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendMessage({action:"undoElementRule",url:tab.url,tabId:tab.id});$("info").textContent=r.ok?"Last hidden element restored. Reload this tab.":r.error;});
+$("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 load().catch(e=>$("info").textContent=e.message);

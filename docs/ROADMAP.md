@@ -66,3 +66,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Additional conservative regex safety checks, 16 KiB URL matching cap and no routing of single-label intranet hosts through the image proxy.
 
 - [x] Conditional proxy listener registration: no interception when routing is disabled, hostname-limited filters for domain mode, unregister on disable/pause and guard against unavailable APIs.
+
+- [x] Toolbar failed-resource indicator and Network Recovery shortcut, keeping existing blocking and picker controls.
