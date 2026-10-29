@@ -35,6 +35,7 @@
       "network-recovery.js",
       "list-io.js",
       "subscription-cache.js",
+      "settings.js",
       "background.js"
     ],
     "persistent": true

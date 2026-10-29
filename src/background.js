@@ -251,7 +251,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.antiAdblock==="boolean")data.settings.antiAdblock=s.antiAdblock;
   if(typeof s.paywallPopups==="boolean")data.settings.paywallPopups=s.paywallPopups;
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog)data.logs.clear();}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))data.settings.paused=s.paused.filter(x=>typeof x==="string"&&/^[a-z0-9.-]{1,253}$/.test(x)).slice(0,500);
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
@@ -264,16 +264,21 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  return {error:"Unknown action"};
 });
 async function boot(){
- try{const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors"]);data.settings={...DEFAULT,...stored.settings,listEnabled:{...DEFAULT.listEnabled,...stored.settings?.listEnabled},paused:Array.isArray(stored.settings?.paused)?stored.settings.paused:[]};
-  const net=DKNetwork.validate(data.settings.network||DKNetwork.DEFAULT);
-  data.settings.network=net.value||{...DKNetwork.DEFAULT};data.lists=stored.lists||{};data.customLists=stored.customLists||{};data.listErrors=stored.listErrors||{};
-  const validation=DKSubscriptions.validate(data.settings.customSubscriptions||[]);
-  data.settings.customSubscriptions=validation.urls||[];
-  for(const u of Object.keys(data.customLists))if(!data.settings.customSubscriptions.includes(u))delete data.customLists[u];
+ try{
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors"]);
+  data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
+  const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);
+  data.lists=built.lists;data.customLists=custom.lists;
+  const errors=DKSettings.restoreErrors(stored.listErrors,[...Object.keys(SOURCES),...data.settings.customSubscriptions]);
+  data.listErrors={...errors,...built.errors,...custom.errors};
   rebuild();
   const tabs=await browser.tabs.query({});for(const t of tabs)if(t.url)data.hosts.set(t.id,host(t.url));
   data.ready=true;await browser.alarms.create("refresh-rules",{periodInMinutes:1440});
-  if(data.settings.autoUpdate&&Date.now()-data.settings.lastUpdate>86400000)updateLists().catch(console.warn);
+  const needsDownload=Object.keys(SOURCES).some(key=>data.settings.listEnabled[key]&&!data.lists[key]?.text)||
+   data.settings.customSubscriptions.some(url=>!data.customLists[url]?.text);
+  if(data.settings.autoUpdate&&(needsDownload||Date.now()-data.settings.lastUpdate>86400000))
+   updateLists().catch(console.warn);
  }catch(e){console.error("DK Live Block startup:",e);data.ready=true;}
 }
 boot();

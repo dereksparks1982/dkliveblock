@@ -1,0 +1,47 @@
+"use strict";
+const test=require("node:test"),assert=require("node:assert/strict");
+require("../src/subscriptions.js");
+require("../src/network-recovery.js");
+require("../src/manual-rules.js");
+require("../src/list-io.js");
+require("../src/subscription-cache.js");
+const Settings=require("../src/settings.js");
+const defaults={enabled:true,autoUpdate:true,requestLog:true,blockedTotal:0,lastUpdate:0,
+ listEnabled:{easylist:true,easyprivacy:true},paused:[],customSubscriptions:[],network:{enabled:false,type:"socks",host:"127.0.0.1",port:9050,proxyDNS:true,mode:"domains",domains:[]},customRules:""};
+test("bad stored preferences cannot enable unintended proxies or corrupt the filter engine",()=>{
+ const v=Settings.restoreSettings({enabled:"false",listEnabled:{easylist:"false"},paused:[null,{},123,"bad..host","good.example"],customRules:{},customSubscriptions:"bad",network:{enabled:true,domains:["127.0.0.1"]},blockedTotal:"999"},defaults,["easylist","easyprivacy"]);
+ assert.equal(v.enabled,true);
+ assert.equal(v.listEnabled.easylist,true);
+ assert.deepEqual(v.paused,["good.example"]);
+ assert.equal(v.customRules,"");
+ assert.deepEqual(v.customSubscriptions,[]);
+ assert.equal(v.network.enabled,false);
+ assert.equal(v.blockedTotal,0);
+});
+test("valid settings, explicit proxies and counters are preserved",()=>{
+ const value=Settings.restoreSettings({enabled:false,autoUpdate:false,paused:["good.example","good.example"],blockedTotal:44,network:{enabled:true,type:"socks",host:"127.0.0.1",port:9050,proxyDNS:true,mode:"domains",domains:["allowed.example"]}},defaults,["easylist"]);
+ assert.equal(value.enabled,false);
+ assert.equal(value.network.enabled,true);
+ assert.equal(value.blockedTotal,44);
+ assert.deepEqual(value.paused,["good.example"]);
+});
+test("invalid filter-list caches are quarantined, valid lists survive",()=>{
+ const txt="[Adblock Plus 2.0]\n! Title: local fixture\n"+"||advertiser.example^\n".repeat(25);
+ const x=Settings.restoreLists({good:{text:txt,etag:'"v1"',updated:9},bad:{text:"not a list"}},["good","bad"]);
+ assert.equal(x.lists.good.text,txt);
+ assert.equal(x.lists.good.etag,'"v1"');
+ assert.equal(x.errors.bad,"Ignored invalid cached filter-list data.");
+ assert.equal(x.lists.bad,undefined);
+});
+test("total cache budget prevents resource exhaustion on startup",()=>{
+ const text="[Adblock Plus 2.0]\n! Title: fixture\n"+"||tracker.example^\n".repeat(30);
+ const result=Settings.restoreLists({a:{text},b:{text}},["a","b"],text.length+5);
+ assert.equal(result.lists.a.text,text);
+ assert.equal(result.lists.b,undefined);
+ assert.match(result.errors.b,/budget/);
+});
+test("stored error messages cannot inject arbitrary fields or huge strings",()=>{
+ const value=Settings.restoreErrors({easylist:"x".repeat(200),evil:"secret"},["easylist"]);
+ assert.equal(value.easylist.length,150);
+ assert.equal(value.evil,undefined);
+});
