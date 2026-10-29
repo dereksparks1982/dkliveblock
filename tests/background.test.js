@@ -35,6 +35,13 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  const safe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"doubleclick.net"});
  assert.equal(safe.ok,true);
  assert.equal(listeners.network(request).cancel,undefined);
+ const another={url:"https://googlesyndication.com/ad",tabId:1,type:"image",documentUrl:"https://site.test/"};
+ assert.equal(listeners.network(another).cancel,true);
+ await listeners.message({action:"toggleTabPause",tabId:1,url:"https://site.test/",paused:true});
+ assert.equal(listeners.network(another).cancel,undefined);
+ assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test/"})).temporarilyPaused,true);
+ await listeners.message({action:"toggleTabPause",tabId:1,url:"https://site.test/",paused:false});
+ assert.equal(listeners.network(another).cancel,true);
  await listeners.popup({tabId:4,sourceTabId:1,url:"https://ads-pop.test/window"});
  assert.equal(removedTabs.length,1);
  assert.equal(removedTabs[0],4);
