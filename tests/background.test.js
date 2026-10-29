@@ -54,6 +54,15 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.ok(updated.errors.some(x=>x.includes("EasyList")));
  const health=await listeners.message({action:"getSettings"});
  assert.match(health.listState.easylist.error,/unexpected list fetch/);
+ const beforeClear=await listeners.message({action:"getLog",tabId:1});
+ assert.ok(beforeClear.length>0);
+ await listeners.message({action:"clearLog",tabId:1});
+ assert.equal((await listeners.message({action:"getLog",tabId:1})).length,0);
+ const privacy=await listeners.message({action:"saveSettings",settings:{requestLog:false}});
+ assert.equal(privacy.ok,true);
+ assert.equal(listeners.network(request).cancel,undefined);
+ await listeners.message({action:"resetStatistics"});
+ assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test"})).totalBlocked,0);
  const css=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(css.active,false);
 });

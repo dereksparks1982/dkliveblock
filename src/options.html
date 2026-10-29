@@ -17,8 +17,9 @@
 <section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
 <textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea></section>
 <section><h2>Paused domains</h2><p>One hostname per line.</p><textarea id="paused" class="short" spellcheck="false"></textarea></section>
-<section><h2>Private request log</h2><p>Temporary in-memory log, limited to 250 records per tab. Domain and rule only, not full request URLs.</p>
-<button id="logRefresh">Show most recent website log</button><div id="log"></div></section>
+<section><h2>Private request log</h2><label><input id="requestLog" type="checkbox"> Keep a temporary in-memory list of blocked request domains</label><p>Temporary in-memory log, limited to 250 records per tab. Domain and rule only, not full request URLs.</p>
+<button id="logRefresh">Show most recent website log</button> <button id="clearLog">Clear current site log</button><div id="log"></div></section>
+<section><h2>Statistics</h2><p>Blocked-request counters are stored locally. Reset removes counts and temporary logs.</p><button id="resetStats">Reset statistics</button></section>
 <section><h2>Settings backup</h2><button id="export">Export JSON</button>
 <label class="import">Import JSON <input id="import" type="file" accept="application/json,.json"></label></section>
 <div class="actions"><button id="save">Save settings</button><span id="message" role="status"></span></div>

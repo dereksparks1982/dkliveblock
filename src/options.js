@@ -1,7 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
-const flagKeys=["autoUpdate","youtubeSkip","cookieReject","stripTracking"];
+const flagKeys=["autoUpdate","youtubeSkip","cookieReject","stripTracking","requestLog"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
@@ -51,6 +51,17 @@ $("logRefresh").addEventListener("click",async()=>{
   });
   record.append(description,allow);log.appendChild(record);
  }
+});
+$("clearLog").addEventListener("click",async()=>{
+ const tabs=await browser.tabs.query({currentWindow:true});
+ const [tab]=tabs.filter(t=>/^https?:\/\//i.test(t.url||"")).sort((a,b)=>(b.lastAccessed||0)-(a.lastAccessed||0));
+ if(!tab){$("message").textContent="No website tab available.";return;}
+ await browser.runtime.sendMessage({action:"clearLog",tabId:tab.id});
+ $("log").replaceChildren();$("message").textContent="Site log cleared.";
+});
+$("resetStats").addEventListener("click",async()=>{
+ await browser.runtime.sendMessage({action:"resetStatistics"});
+ $("log").replaceChildren();$("message").textContent="All local counts and logs cleared.";
 });
 $("export").addEventListener("click",()=>{
  const data={format:"DK-Live-Block-settings",version:1,settings:collect()};
