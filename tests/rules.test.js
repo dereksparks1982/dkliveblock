@@ -141,3 +141,17 @@ test("scriptlets and malformed procedural filters are rejected",()=>{
  assert.equal(R.procedural("page.test#?#div:-abp-has(+js(code))"),null);
  assert.equal(R.procedural("page.test#?#div:-abp-has(.ad;body)"),null);
 });
+
+test("common third-party and resource aliases",()=>{
+ const one=new FilterEngine("||cdn.test^$1p,~script");
+ assert.equal(one.shouldBlock("https://cdn.test/x","image","cdn.test"),true);
+ assert.equal(one.shouldBlock("https://cdn.test/x","script","cdn.test"),false);
+ assert.equal(one.shouldBlock("https://cdn.test/x","image","other.test"),false);
+ const three=new FilterEngine("||cdn.test^$3p,xhr");
+ assert.equal(three.shouldBlock("https://cdn.test/x","xmlhttprequest","other.test"),true);
+ assert.equal(three.shouldBlock("https://cdn.test/x","xmlhttprequest","cdn.test"),false);
+ const img=new FilterEngine("||cdn.test^$image");
+ assert.equal(img.shouldBlock("https://cdn.test/x","imageset","other.test"),true);
+ const css=new FilterEngine("||cdn.test^$css");
+ assert.equal(css.shouldBlock("https://cdn.test/x","stylesheet","other.test"),true);
+});
