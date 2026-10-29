@@ -19,7 +19,10 @@ function validDomains(str){
  });
 }
 function regex(pattern,matchCase=false){
- if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){const expr=pattern.slice(1,-1);if(expr.length>512||/\\[1-9]|\(\?<|\([^)]*[+*][^)]*\)[+*{]/.test(expr))return null;try{return new RegExp(expr,matchCase?"":"i");}catch(_){return null;}}
+ if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){const expr=pattern.slice(1,-1);if(expr.length>512||/\\[1-9]|\(\?<|\([^)]*[+*][^)]*\)[+*{]/.test(expr))return null;
+  // Reject obvious polynomial/exponential backtracking patterns from untrusted lists.
+  if(/\((?:\?:)?[^()]*\|[^()]*\)[+*{]/.test(expr)||/\.\*\.\*/.test(expr)||
+     /\([^)]*\)[+*][+*]/.test(expr))return null;try{return new RegExp(expr,matchCase?"":"i");}catch(_){return null;}}
  let p=pattern,start="",end="";
  if(p.startsWith("||")){start="^[a-z][a-z0-9+.-]*:\\/\\/(?:[^/?#@:]*\\.)?";p=p.slice(2);}
  else if(p[0]==="|"){start="^";p=p.slice(1);}

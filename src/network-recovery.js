@@ -9,7 +9,7 @@ function validHost(input){
 }
 function privateDestination(host){
  const x=String(host||"").toLowerCase().replace(/\.$/,"");
- if(!x||x==="localhost"||x.includes(":")||badSuffixes.some(s=>x.endsWith(s)))return true;
+ if(!x||x==="localhost"||!x.includes(".")||x.includes(":")||badSuffixes.some(s=>x.endsWith(s)))return true;
  if(/^\d+(?:\.\d+){3}$/.test(x))return true; // No IP literal routing, including private LAN.
  return false;
 }

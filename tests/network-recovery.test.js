@@ -40,3 +40,9 @@ test("errors are diagnostic categories, never claims of censorship",()=>{
  assert.equal(N.classifyFailure("NS_ERROR_NET_TIMEOUT"),"connection");
  assert.equal(N.classifyFailure("NS_BINDING_ABORTED"),"other");
 });
+
+test("single-label intranet names are never routed through an image proxy",()=>{
+ const img=c({mode:"images"});
+ for(const url of ["http://printer/photo","http://nas/file","http://router/config","http://localhost/a"])
+  assert.equal(N.route({url,type:"image",documentUrl:"https://blocked.example/story"},img),null,url);
+});

@@ -75,7 +75,7 @@ class FilterEngine {
   return policy;
  }
  checkRequest(url,type,docHost,policy={}){
-  if(!/^https?:/i.test(url)||policy.document)return {block:false,rule:null};
+  if(typeof url!=="string"||url.length>16384||!/^https?:/i.test(url)||policy.document)return {block:false,rule:null};
   const target=R.host(url),kind=R.TYPE[type]||type||"other";
   let block=null,allow=null,important=null;
   for(const r of this.candidates(url)){

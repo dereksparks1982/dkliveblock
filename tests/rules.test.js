@@ -195,3 +195,18 @@ test("domain index still returns precise procedural rules",()=>{
  assert.deepEqual(f.getProcedural("b.example"),[{selector:"div.ad",mode:"text",text:"Paid"}]);
  assert.deepEqual(f.getProcedural("other.example"),[]);
 });
+
+test("obvious catastrophic regex structures fail closed",()=>{
+ for(const p of ["/(a|aa)+$/","/(?:a|aa)+$/","/.*.*foo/","/(a+)+/","/(abc)++/"]){
+  assert.equal(R.regex(p),null,p);
+  assert.equal(R.network(p),null,p);
+ }
+ const f=new FilterEngine("/ad(?:one|two)/");
+ assert.equal(f.shouldBlock("https://example.test/adone","script","site.test"),true);
+});
+test("oversized request URLs cannot trigger unbounded regular expression matching",()=>{
+ const f=new FilterEngine("||ads.test^");
+ const huge="https://ads.test/"+("a".repeat(20000));
+ assert.equal(f.shouldBlock(huge,"script","site.test"),false);
+ assert.equal(f.shouldBlock("https://ads.test/ad","script","site.test"),true);
+});
