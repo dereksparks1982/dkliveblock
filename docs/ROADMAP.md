@@ -44,3 +44,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - No `.github/workflows/` files are permitted or present.
 
 - [x] Conservative anti-adblock popup detection, optional toggle, reversible hiding and offline classification tests. **Live streaming behavior remains unverified.**
+
+- [x] Add conservative subscription overlay detection for already-loaded articles, independent on/off setting and local regression tests. Not a server-side paywall bypass; live site effectiveness is unverified.

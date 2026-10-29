@@ -19,6 +19,31 @@ function isSubscriptionWall(text){
 function shouldHide({text="",visible=false,overlay=false,articleLoaded=false,containsPlayer=false,rootElement=false}={}){
  return Boolean(visible&&overlay&&articleLoaded&&!containsPlayer&&!rootElement&&isSubscriptionWall(text));
 }
-root.DKPaywall={isSubscriptionWall,shouldHide};
+
+function hasLoadedArticle(doc){
+ if(!doc||typeof doc.querySelectorAll!=="function")return false;
+ const groups=["article","[itemprop='articleBody']","[data-testid*='article-body' i]","[class*='article-body' i]","[data-module*='ArticleBody' i]","main"];
+ for(const query of groups){
+  let candidates;
+  try{candidates=doc.querySelectorAll(query);}catch(_){continue;}
+  let checked=0;
+  for(const node of candidates){
+   if(++checked>8)break;
+   let paragraphs;
+   try{paragraphs=node.querySelectorAll("p");}catch(_){continue;}
+   if(paragraphs.length<3)continue;
+   let characters=0,paragraphCount=0;
+   for(const p of paragraphs){
+    if(paragraphCount>=45)break;
+    const text=String(p.textContent||"").trim();
+    if(text.length<35)continue;
+    paragraphCount++;characters+=text.length;
+    if(paragraphCount>=3&&characters>=420)return true;
+   }
+  }
+ }
+ return false;
+}
+root.DKPaywall={isSubscriptionWall,shouldHide,hasLoadedArticle};
 if(typeof module!=="undefined")module.exports=root.DKPaywall;
 })(typeof globalThis!=="undefined"?globalThis:this);

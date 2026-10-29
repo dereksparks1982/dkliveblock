@@ -51,6 +51,7 @@
         "consent.js",
         "procedural.js",
         "anti-adblock.js",
+        "paywall.js",
         "content.js"
       ],
       "run_at": "document_start",

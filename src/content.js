@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),antiHidden=new Map(),scrollUnlocks=new Map();
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
@@ -13,7 +13,7 @@
  }
  async function refresh(){
   try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();
+   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;paywallPopups=!!s.paywallPopups;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -103,6 +103,47 @@
   if(removed)unlockScrollAfterNotice();
   for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
  }
+ function suppressSubscriptionModals(){
+  if(!active||!paywallPopups||picking||!document.body||document.fullscreenElement)return;
+  // Never guess that withheld or server-side content can be recovered.
+  if(!DKPaywall.hasLoadedArticle(document))return;
+  const candidates=[
+   "dialog[open]","[role='dialog']","[aria-modal='true']",
+   "[class*='paywall' i]","[id*='paywall' i]",
+   "[class*='subscribe' i]","[id*='subscribe' i]",
+   "[class*='modal' i]","[class*='overlay' i]","[class*='gateway' i]",
+   "[data-testid*='paywall' i]"
+  ].join(",");
+  let nodes;try{nodes=document.querySelectorAll(candidates);}catch(_){return;}
+  const video=document.querySelector("video");
+  let visited=0,hiddenCount=0;
+  for(const el of nodes){
+   if(++visited>100||hiddenCount>=4)break;
+   if(antiHidden.has(el)||el===document.body||el===document.documentElement||el===banner)continue;
+   // A modal may contain a purchase button, but never hide actual readable articles or players.
+   if((video&&el.contains(video))||el.querySelector("video, audio, article, [itemprop='articleBody']"))continue;
+   const text=(el.textContent||"").trim();
+   if(text.length>1600||text.length<17)continue;
+   const style=window.getComputedStyle(el);
+   const visible=Boolean(el.isConnected&&el.getClientRects().length)&&style.visibility!=="hidden"&&style.display!=="none";
+   const label=[el.localName||"",el.id||"",typeof el.className==="string"?el.className:""].join(" ");
+   const explicitDialog=el.localName==="dialog"||el.getAttribute?.("role")==="dialog"||el.getAttribute?.("aria-modal")==="true";
+   const positioned=style.position==="fixed"||style.position==="sticky"||style.position==="absolute";
+   const overlay=explicitDialog||positioned&&/(?:dialog|modal|paywall|overlay|subscribe|gateway)/i.test(label);
+   if(!DKPaywall.shouldHide({text,visible,overlay,articleLoaded:true,containsPlayer:false,rootElement:false}))continue;
+   antiHidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
+   el.style.setProperty("display","none","important");
+   hiddenCount++;
+   for(const sibling of [el.previousElementSibling,el.nextElementSibling]){
+    if(!sibling||antiHidden.has(sibling)||!sibling.matches?.('[class*="backdrop" i], [class*="scrim" i]'))continue;
+    if(video&&sibling.contains(video))continue;
+    antiHidden.set(sibling,{value:sibling.style.getPropertyValue("display"),priority:sibling.style.getPropertyPriority("display")});
+    sibling.style.setProperty("display","none","important");
+   }
+  }
+  if(hiddenCount)unlockScrollAfterNotice();
+  for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
+ }
  function skipVideo(){
   if(!active||!youtubeSkip||!isYouTube)return;
   const btn=document.querySelector(".ytp-ad-skip-button, .ytp-ad-skip-button-modern, button.ytp-skip-ad-button, button[aria-label='Skip Ads']");
@@ -167,5 +208,5 @@
  });
  refresh();
  if(!document.documentElement){const watcher=new MutationObserver(()=>{if(document.documentElement){watcher.disconnect();applyCSS();}});watcher.observe(document,{childList:true,subtree:true});}
- setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}if(Date.now()-lastAnti>2200){lastAnti=Date.now();suppressAntiAdblockNotices();}},1250);
+ setInterval(()=>{skipVideo();rejectCookies();if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}if(Date.now()-lastAnti>2200){lastAnti=Date.now();suppressAntiAdblockNotices();}if(Date.now()-lastPaywall>2400){lastPaywall=Date.now();suppressSubscriptionModals();}},1250);
 })();

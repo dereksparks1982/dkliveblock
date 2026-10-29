@@ -75,9 +75,14 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal((await listeners.message({action:"status",tabId:1,url:"https://site.test"})).totalBlocked,0);
  const styleBefore=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(styleBefore.antiAdblock,true);
+ assert.equal(styleBefore.paywallPopups,true);
  const setting=await listeners.message({action:"saveSettings",settings:{antiAdblock:false}});
  assert.equal(setting.ok,true);
  const styleAfter=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
  assert.equal(styleAfter.antiAdblock,false);
+ const disablePaywall=await listeners.message({action:"saveSettings",settings:{paywallPopups:false}});
+ assert.equal(disablePaywall.ok,true);
+ const paywallOff=await listeners.message({action:"getStyle",url:"https://site.test"},{tab:{id:1},url:"https://site.test"});
+ assert.equal(paywallOff.paywallPopups,false);
  assert.equal(styleAfter.active,false);
 });
