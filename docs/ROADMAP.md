@@ -70,3 +70,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Toolbar failed-resource indicator and Network Recovery shortcut, keeping existing blocking and picker controls.
 
 - [x] Reject HTML error bodies and non-HTTPS final redirect destinations for filter subscriptions; preserve last-good cache and report errors.
+
+- [x] Curated multi-level ccTLD and private-hosted-domain suffix improvements, with third-party classification regressions. Full PSL remains an open release task.

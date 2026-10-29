@@ -210,3 +210,22 @@ test("oversized request URLs cannot trigger unbounded regular expression matchin
  assert.equal(f.shouldBlock(huge,"script","site.test"),false);
  assert.equal(f.shouldBlock("https://ads.test/ad","script","site.test"),true);
 });
+
+test("common multi-level country domains classify registrable sites accurately",()=>{
+ for(const [host,site] of [
+  ["cdn.example.com.au","example.com.au"],["cdn.example.co.za","example.co.za"],
+  ["mail.example.com.mx","example.com.mx"],["img.example.com.tr","example.com.tr"],
+  ["cdn.example.co.id","example.co.id"],["a.example.ac.uk","example.ac.uk"],
+  ["cdn.example.com.sg","example.com.sg"],["i.example.co.il","example.co.il"]
+ ])assert.equal(R.site(host),site,host);
+});
+test("separately hosted web pages count as distinct first parties",()=>{
+ for(const base of ["github.io","pages.dev","blogspot.com","workers.dev","netlify.app","vercel.app"]){
+  assert.equal(R.site("alice."+base),"alice."+base);
+  assert.equal(R.site("sub.alice."+base),"alice."+base);
+  assert.notEqual(R.site("bob."+base),R.site("alice."+base));
+ }
+ const f=new FilterEngine("||alice.github.io^$3p");
+ assert.equal(f.shouldBlock("https://alice.github.io/ad.js","script","bob.github.io"),true);
+ assert.equal(f.shouldBlock("https://alice.github.io/ad.js","script","docs.alice.github.io"),false);
+});

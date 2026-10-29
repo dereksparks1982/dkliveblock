@@ -103,3 +103,7 @@ The toolbar now shows a temporary count of failed website resources when private
 ## Verified list origins
 
 The subscription updater rejects insecure final destinations after redirects, rejects obvious HTML error pages in place of filter-list data, and preserves previously verified cached rules when a remote response is unsuitable. A response cannot inject executable code through the filter parser.
+
+## Improved third-party classification
+
+The hostname classifier now recognizes more commonly used multi-level country domains and separately operated hosting domains (for example, GitHub Pages and Pages.dev). This improves first/third-party rule matching without remote lookups. It remains a **curated approximation**, not the full Mozilla Public Suffix List, and requires a complete PSL before Adblock Plus parity can be claimed.
