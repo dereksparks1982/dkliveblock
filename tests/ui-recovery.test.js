@@ -41,3 +41,14 @@ test("popup cleanup can be paused per site without disabling the blocker",()=>{
  assert.match(bg,/popupAllowed/);
  assert.match(options,/popupProtectionPaused/);
 });
+
+test("popup displays only a bounded per-tab popup-cleanup count",()=>{
+ const html=fs.readFileSync(path.join(root,"popup.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"popup.js"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ assert.match(html,/id="popups"/);
+ assert.match(js,/current\.popupHiddenCount/);
+ assert.match(bg,/popupCounts:new Map/);
+ assert.match(bg,/reportPopupCleanup/);
+ assert.match(bg,/Math\.min\(1000/);
+});

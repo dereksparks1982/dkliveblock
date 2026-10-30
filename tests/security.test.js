@@ -27,6 +27,10 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
  assert.equal(saved.settings.enabled,undefined);
  const style=await handles.message({action:"getStyle",url:"https://other.example",tabId:200},frame);
  assert.equal(typeof style.active,"boolean");
+ const invalidReport=await handles.message({action:"reportPopupCleanup",count:100000,kind:"paywall"},frame);
+ assert.match(invalidReport.error,/Invalid popup report/);
+ const invalidKind=await handles.message({action:"reportPopupCleanup",count:1,kind:"other"},frame);
+ assert.match(invalidKind.error,/Invalid popup report/);
  const rule=await handles.message({action:"addElementRule",selector:".sponsored"},frame);
  assert.equal(rule.ok,true);
  assert.match(saved.settings.customRules,/site\.example##\.sponsored/);

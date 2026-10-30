@@ -166,4 +166,18 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  const activeStyle=await listeners.message({action:"getStyle",url:page},{tab:{id:30,url:page},url:page});
  assert.equal(activeStyle.antiAdblock,true);
  assert.equal(activeStyle.paywallPopups,true);
+ const report=await listeners.message({action:"reportPopupCleanup",kind:"antiAdblock",count:2},
+  {tab:{id:30,url:page},url:page});
+ assert.equal(report.ok,true);
+ const tally=await listeners.message({action:"status",url:page,tabId:30});
+ assert.equal(tally.popupHiddenCount,2);
+ const invalid=await listeners.message({action:"reportPopupCleanup",kind:"antiAdblock",count:999},
+  {tab:{id:30,url:page},url:page});
+ assert.match(invalid.error,/Invalid popup report/);
+ const noExtension=await listeners.message({action:"reportPopupCleanup",kind:"antiAdblock",count:1});
+ assert.match(noExtension.error,/Invalid popup report/);
+ const stillTwo=await listeners.message({action:"status",url:page,tabId:30});
+ assert.equal(stillTwo.popupHiddenCount,2);
+ listeners.updated(30,{status:"loading"},{url:page});
+ assert.equal((await listeners.message({action:"status",url:page,tabId:30})).popupHiddenCount,0);
 });

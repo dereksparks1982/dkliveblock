@@ -67,7 +67,10 @@
    removed++;
    overlayRecovery.hideBackdropAround(el);
   }
-  if(removed)unlockScrollAfterNotice();
+  if(removed){
+   unlockScrollAfterNotice();
+   try{browser.runtime.sendMessage({action:"reportPopupCleanup",kind:"antiAdblock",count:removed}).catch(()=>{});}catch(_){}
+  }
   overlayRecovery.prune();
  }
  function suppressSubscriptionModals(){
@@ -103,7 +106,10 @@
    hiddenCount++;
    overlayRecovery.hideBackdropAround(el);
   }
-  if(hiddenCount)unlockScrollAfterNotice();
+  if(hiddenCount){
+   unlockScrollAfterNotice();
+   try{browser.runtime.sendMessage({action:"reportPopupCleanup",kind:"paywall",count:hiddenCount}).catch(()=>{});}catch(_){}
+  }
   overlayRecovery.prune();
  }
 

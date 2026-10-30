@@ -141,3 +141,7 @@ A subscription notice is hidden only when a substantive article body is present 
 ## Site-specific popup cleanup
 
 The Firefox toolbar can exclude **only anti-adblock and subscription-popup cleanup** on an individual website, without disabling network ad/tracker filtering, cosmetic rules, or video playback safeguards. The choice is stored locally, supports settings backup and restoration, and can be reversed with one click. The global anti-adblock and subscription toggles remain independently configurable in settings.
+
+## In-memory popup cleanup count
+
+The toolbar shows how many anti-adblock and subscription overlays DK Live Block has hidden or re-hidden on the current tab. Only a capped numeric total (up to 1,000) is kept in memory, reset on navigation or tab closure. No popup text, full URLs, user data, or telemetry is recorded by this counter. The private count is deliberately not a claim that a paywall or video restriction was bypassed.

@@ -9,7 +9,7 @@ const SOURCES={
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -23,7 +23,7 @@ function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
- mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
+ mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,popupHiddenCount:data.popupCounts.get(id)||0,tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
 async function downloadList(url,followRedirects=true,previous=null){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
  try{
@@ -163,9 +163,9 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
- if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);badge(id);}
+ if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
-browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.tempPaused.delete(id);});
+browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -173,13 +173,23 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  // and submit a user-initiated element-picker rule for their own frame.
  // Never trust tabId or URL supplied by page-originated messages.
  const fromContent=!!sender.tab;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
  if(msg.action==="status")return status(id,url);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState};
+ if(msg.action==="reportPopupCleanup"){
+  if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||
+     !["antiAdblock","paywall"].includes(msg.kind))return {error:"Invalid popup report."};
+  const site=data.hosts.get(id)||host(sender.tab?.url)||h;
+  if(!data.ready||!activeTab(id,site)||
+    data.settings.popupProtectionPaused.some(x=>DKRules.sub(site,x)))return {error:"Popup protection is not active."};
+  const total=Math.min(1000,(data.popupCounts.get(id)||0)+msg.count);
+  data.popupCounts.set(id,total);
+  return {ok:true};
+ }
  if(msg.action==="networkStatus"){
   if(sender?.tab)return {error:"Extension settings only."};
   return networkStatus();

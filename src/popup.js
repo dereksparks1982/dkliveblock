@@ -6,6 +6,7 @@ async function load(){
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
  $("issues").textContent=String(current.networkIssueCount||0);
+ $("popups").textContent=String(current.popupHiddenCount||0);
  $("mediaRecoveryRow").hidden=!current.mediaRecoveryAvailable;
  $("mediaWarning").hidden=!current.mediaRecoveryAvailable;
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
