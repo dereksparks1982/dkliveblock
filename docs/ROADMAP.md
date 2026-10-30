@@ -111,3 +111,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 19 conservative automatic DOM ad recognition: labeled slots, GPT/Google ad markers, bounded scanning, reversible hiding, player/login/article safeguards and offline cases.
 
 - [x] Build 19 independent opt-out for automatic ad slot recognition, with restoration of its own hidden DOM elements, persistent settings and optional UI control.
+
+- [x] Build 19D reuses compiled filter engines when subscription rules have not changed; works with native and optional Ghostery engines, with regression coverage.
