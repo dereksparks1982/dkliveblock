@@ -193,3 +193,5 @@ Changing site pauses, recognition, logging, cookie choices, popup protections, o
 ### Local Ghostery library installation
 
 From the DK Live Block source directory on Ubuntu run `bash scripts/install-ghostery.sh`. It installs the pinned npm dependencies, compiles a self-contained local `src/ghostery-vendor.js`, and checks basic blocking and scoped exceptions before replacing the placeholder. The script does not open Firefox, prompt for credentials, publish an extension, or create a ZIP. The cloud coding environment cannot reach the npm registry; actual package compilation must occur on an Ubuntu computer with npm access.
+
+Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, YouTube maintenance and browser-like TextEncoder/TextDecoder globals load together. The filter-list cache regression disables unrelated YouTube fetches in its own test fixture rather than changing production defaults.

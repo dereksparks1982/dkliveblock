@@ -3,7 +3,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("conditional 304 updates reuse valid cached lists, preserve last-good on errors",async()=>{
  const handlers={},on=name=>({addListener:f=>{handlers[name]=f;},removeListener:f=>{if(handlers[name]===f)delete handlers[name];}});
- let saved={settings:{autoUpdate:false}},calls=[],mode="fresh";
+ let saved={settings:{autoUpdate:false,autoYouTubeRules:false}},calls=[],mode="fresh";
  const doc="[Adblock Plus 2.0]\n! Title: Network test\n"+"||ad.example.net^\n".repeat(30);
  const fetch=async (url,opts)=>{
   calls.push({url,headers:opts.headers});
@@ -24,8 +24,8 @@ test("conditional 304 updates reuse valid cached lists, preserve last-good on er
   storage:{local:{get:async()=>saved,set:async value=>{saved={...saved,...value};}}}
  };
  const st=(fn,ms)=>{const timer=setTimeout(fn,ms);if(ms>=60000)timer.unref();return timer;};
- const context=vm.createContext({browser,URL,TextDecoder,AbortController,Date,console,fetch,setTimeout:st,clearTimeout});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","background.js"])
+ const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,AbortController,Date,console,fetch,setTimeout:st,clearTimeout});
+ for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","youtube-maintenance.js","ghostery-vendor.js","hybrid-engine.js","background.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,20));
  let response=await handlers.message({action:"updateLists"});

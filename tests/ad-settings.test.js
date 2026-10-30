@@ -15,7 +15,7 @@ test("automatic ad detection can be disabled without disabling normal blocking",
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const timer=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
- const context=vm.createContext({browser,console,URL,Date,AbortController,TextDecoder,
+ const context=vm.createContext({browser,console,URL,Date,AbortController,TextEncoder,TextDecoder,
   fetch:async()=>{throw Error("offline test");},setTimeout:timer,clearTimeout});
  for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js",
   "manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js",

@@ -1,7 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-const sources=["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","background.js"];
+const sources=["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","youtube-maintenance.js","ghostery-vendor.js","hybrid-engine.js","background.js"];
 async function setup(){
  const handlers={},filters={},on=name=>({addListener:(fn,filter)=>{handlers[name]=fn;filters[name]=filter;},removeListener:fn=>{if(handlers[name]===fn)delete handlers[name];delete filters[name];}});
  let stored={settings:{autoUpdate:false}},queries=0;
@@ -19,7 +19,7 @@ async function setup(){
   storage:{local:{get:async()=>stored,set:async values=>{stored={...stored,...values};}}}
  };
  const setTimeoutSafe=(fn,ms,...args)=>{const t=setTimeout(fn,ms,...args);if(ms>=60000)t.unref();return t;};
- const context=vm.createContext({browser,URL,console,Date,AbortController,fetch:async()=>{throw Error("Unexpected network fetch")},setTimeout:setTimeoutSafe,clearTimeout});
+ const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,console,Date,AbortController,fetch:async()=>{throw Error("Unexpected network fetch")},setTimeout:setTimeoutSafe,clearTimeout});
  for(const file of sources)vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",file),"utf8"),context,{filename:file});
  await new Promise(resolve=>setTimeout(resolve,25));
  return {handlers,filters,browser,storage:()=>stored,queries:()=>queries};

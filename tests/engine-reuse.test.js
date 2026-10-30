@@ -16,7 +16,7 @@ async function start(){
   storage:{local:{get:async()=>stored,set:async value=>{stored={...stored,...value};}}}
  };
  const timeout=(f,ms)=>{const t=setTimeout(f,ms);if(ms>=60000)t.unref();return t;};
- const ctx=vm.createContext({browser,URL,Date,AbortController,console,TextDecoder,
+ const ctx=vm.createContext({browser,URL,Date,AbortController,console,TextEncoder,TextDecoder,
   fetch:async()=>{throw Error("offline")},setTimeout:timeout,clearTimeout});
  for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js",
   "manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js",

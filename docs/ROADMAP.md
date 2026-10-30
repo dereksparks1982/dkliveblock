@@ -119,3 +119,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 20A: avoid redundant Ghostery decisions, enforce popup-only provenance, respect page exceptions; protect YouTube Skip Ad controls and stale-control cooldown; test with no hosted CI.
 
 - [x] Build 20B: YouTube data-only compatibility pack v2, additional mobile/desktop ad containers, internal development version 0.2.1. Firefox playback remains unverified.
+
+- [x] Build 20C: bring background regression mocks up to the actual embedded-engine loading order; simulate a browser-like TextEncoder/TextDecoder and isolate list-cache network tests.
