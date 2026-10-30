@@ -25,10 +25,20 @@
 <label>Resource type <select id="monitorType"><option value="all">All types</option></select></label>
 <label>Find hostname <input id="monitorSearch" type="search" maxlength="120" placeholder="e.g. doubleclick.net"></label>
 </div>
+<section id="accessInspector"><h2>Website Access Inspector &amp; Request Controls</h2>
+<p>Select a blocked request to see what Firefox observed and its possible purpose. Labels marked <strong>Likely</strong> are educated guesses, not proof of what was transmitted or accessed on your computer.</p>
+<label>When you allow a blocked request, how long should the exception last?
+<select id="allowScope"><option value="temporary">This tab · 10 minutes</option>
+<option value="session">This browser session · this website</option>
+<option value="remember">Remember for this website</option></select></label>
+<p><strong>Important:</strong> An exception allows the exact <strong>destination hostname and resource type</strong> on this website. It does NOT permit just one URL, and repeated requests matching that pair may pass. It will never disable the strict popup trap or allow navigation. Avoid allowing unfamiliar scripts or trackers.</p>
+<p id="allowStatus" role="status">No exceptions have been added.</p>
+<div id="allowList"></div>
+</section>
 <p id="monitorCount" role="status">No requests captured.</p>
-<div class="network-monitor-table"><table><thead><tr><th>Time</th><th>Decision</th><th>Hostname</th><th>Type</th><th>Method</th><th>HTTP</th><th>Details</th></tr></thead><tbody id="monitorRows"></tbody></table></div>
+<div class="network-monitor-table"><table><thead><tr><th>Time</th><th>Decision</th><th>Hostname</th><th>Type</th><th>Method</th><th>HTTP</th><th>Details</th><th>Possible purpose</th><th>Control</th></tr></thead><tbody id="monitorRows"></tbody></table></div>
 <p><button id="monitorMore" type="button" hidden>Show more requests</button></p>
 <p><strong>Privacy:</strong> The monitor keeps up to 1,500 recent requests per tab in Firefox memory. It does not collect full URL paths, query strings, request or response bodies, cookies, headers, passwords or IP packet contents. When the limit is reached, older rows are discarded and a warning appears. Export happens only when you click Export CSV.</p>
 <p>The number on the DK Live Block toolbar icon counts blocked requests on the current tab independently of whether monitoring is enabled. It resets when the tab navigates or reloads.</p>
 <p><strong>Scope:</strong> This shows Firefox web requests, not all traffic from your Linux computer. Some browser-internal or cached activity may not appear.</p>
-</main><script src="network-monitor.js"></script></body></html>
+</main><script src="access-inspector.js"></script><script src="network-monitor.js"></script></body></html>

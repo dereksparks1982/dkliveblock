@@ -181,3 +181,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 37 acceptance: Firefox support page/mailto handling, test clipboard fallback and final Mozilla Add-ons support listing configuration at release.
 
 - [x] Repository support documentation: prominent README **Bug Reporting & Support** section, root SUPPORT.md, mailto contact and reporting guidance using elderredsoftworks@proton.me.
+
+- [x] Build 38: request-level Network Monitor controls (exact source site + destination hostname + Firefox resource type), ten-minute tab / browser-session / remembered exceptions, on-screen revocation, opt-in evidence and confirmation gates, and conservative Access Inspector with observed vs. likely classifications.
+- [ ] Build 38 acceptance: full local test suite, Firefox real-site filter behavior, allowed/blocked UI lifecycle and persisted exception tests, sensitive URL and proxy compatibility review.

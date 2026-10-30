@@ -63,6 +63,11 @@ function transition(sessions,tab,requestId,status,details={}){
  if(status==="redirected")row.reason="Navigation or HTTP redirect";
  return true;
 }
+function note(sessions,tab,requestId,text){
+ const session=sessions.get(tab),row=session?.byId.get(String(requestId??"").slice(0,90));
+ if(!row||typeof text!=="string"||text.length>90)return false;
+ row.reason=text;session.revision++;return true;
+}
 function syntheticBlock(sessions,tab,siteHost,url,type,now=Date.now()){
  const s=sessions.get(tab);if(!s?.active||s.siteHost!==siteHost)return false;
  const dest=normalizeHost(hostname(url));if(!dest)return false;
@@ -82,7 +87,7 @@ function snapshot(sessions,tab){
   rows:s.rows.map(({host,type,method,status,httpStatus,when,error,reason})=>
    ({host,type,method,status,httpStatus,when,error,reason}))};
 }
-const API=Object.freeze({MAX,start,stop,clear,remove,record,transition,syntheticBlock,snapshot,hostname});
+const API=Object.freeze({MAX,start,stop,clear,remove,record,transition,note,syntheticBlock,snapshot,hostname});
 root.DKNetworkMonitor=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -116,7 +116,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -329,6 +329,12 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
+ // A manual allowance never overrides popup protection or page navigation.
+ // It matches one exact site, destination hostname and Firefox resource type.
+ if(DKRequestControls.matches(data.requestControls,d.tabId,top,host(d.url),d.type)){
+  DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,"User-approved hostname/type exception");
+  return {};
+ }
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
  rememberOwnBlock(d.requestId);
  recordBlock(d.tabId,d.url,d.type,result.rule);
@@ -401,6 +407,7 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
+   DKRequestControls.dropTab(data.requestControls,id);
    DKPopupTrap.revoke(data.popupTrapPermits,id);
    data.popupTrapCounts.delete(id);
   }
@@ -412,6 +419,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
+ DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
  DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
@@ -450,6 +458,39 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getNetworkMonitor"){
   if(fromContent)return {error:"Extension interface only."};
   return DKNetworkMonitor.snapshot(data.networkMonitors,id);
+ }
+ if(msg.action==="getRequestAllowances"||msg.action==="allowMonitoredRequest"||
+    msg.action==="revokeMonitoredRequest"){
+  if(fromContent||!Number.isInteger(id)||id<0)
+   return {error:"Only the extension interface can change request allowances."};
+  let sourceHost;
+  try{const selected=await browser.tabs.get(id);sourceHost=host(selected?.url||"");}
+  catch(_){return {error:"Selected tab is no longer available."};}
+  if(!sourceHost||!DKManualRules.validHost(sourceHost))
+   return {error:"Choose a normal website tab."};
+  if(msg.action==="getRequestAllowances")
+   return DKRequestControls.list(data.requestControls,id,sourceHost);
+  if(msg.action==="allowMonitoredRequest"){
+   if(msg.confirm!==true||!data.ready||!activeTab(id,sourceHost))
+    return {error:"An explicit confirmation and active website protection are required."};
+   const session=data.networkMonitors.get(id);
+   if(!session?.active||session.siteHost!==sourceHost)
+    return {error:"Start network capture on the selected tab first."};
+   if(!session.rows.some(row=>row.status==="blocked"&&
+      row.host===msg.host&&row.type===msg.type))
+    return {error:"That exact hostname and request type were not recorded as blocked."};
+   const result=DKRequestControls.grant(data.requestControls,id,
+    sourceHost,msg.host,msg.type,msg.scope);
+   if(result.ok&&msg.scope==="remember")
+    await browser.storage.local.set({requestAllowances:data.requestControls.remember});
+   return result;
+  }
+  const removed=DKRequestControls.revoke(data.requestControls,id,
+   sourceHost,msg.host,msg.type,msg.scope);
+  if(!removed)return {error:"No matching exception for this website."};
+  if(msg.scope==="remember")
+   await browser.storage.local.set({requestAllowances:data.requestControls.remember});
+  return {ok:true};
  }
  if(msg.action==="stopNetworkMonitor"||msg.action==="clearNetworkMonitor"){
   if(fromContent)return {error:"Extension interface only."};
@@ -736,12 +777,13 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
 });
 async function boot(){
  try{
-  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload"]);
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload","requestAllowances"]);
   if(videoJob.state==="idle"){
    const previous=restoreVideoJob(stored.lastVideoDownload);
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
   }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  data.requestControls.remember=DKRequestControls.restore(stored.requestAllowances);
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
   const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);
   data.lists=built.lists;data.customLists=custom.lists;

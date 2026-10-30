@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.8 (Build 37).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.9 (Build 38).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,14 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 38: Website Access Inspector and individual request controls (0.3.9)
+
+The opt-in Network Monitor now identifies the exact Firefox-observed **resource type**, website-versus-third-party context, and a conservative **possible purpose** for each captured request. Advertising and analytics hints are identified as **Likely**, not presented as proof of spying or device access.
+
+Each blocked entry offers a user-confirmed exception scoped to the **current website, exact destination hostname and exact resource type**, with a choice of **10 minutes in this tab**, **the current browser session**, or **remember for this website**. All exceptions can be revoked. Blocking remains the default, source-site mismatches and invalid hosts/types are rejected, and the permanent exception list is bounded and validated at startup. An allowance is offered only when a currently running capture recorded that blocked host/type. It cannot override strict popup tabs, unrequested redirects or primary document navigation, and it does not allow a whole hostname unrestricted. **This is not a unique-URL allow rule:** repeated requests of the same host/type may pass, even if they have different URL paths. Do not enable unfamiliar trackers or scripts.
+
+All diagnostics remain in memory until the user explicitly exports; only user-chosen permanent exception descriptors (host/type/site, never complete URLs) are stored. No new Firefox permissions, telemetry, external dependencies or public release. Full offline and live Firefox acceptance remains pending.
 
 ## Bug Reporting & Support
 

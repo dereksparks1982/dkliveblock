@@ -83,3 +83,11 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 }
 .options .network-monitor-table th{position:sticky;top:0;background:#133e37}
 .popup #networkMonitor{width:100%}
+
+/* Build 38 activity inspector and scoped request allowances */
+#accessInspector select{padding:8px;border-radius:6px;background:#071b19;color:#e9faf6;border:1px solid #51776c}
+#allowList .log-row{display:flex;justify-content:space-between;gap:12px;align-items:center;padding:8px;border-bottom:1px solid #3a6059}
+#allowList .log-row span{overflow-wrap:anywhere}
+#monitorRows button{white-space:nowrap;font-size:11px;padding:6px}
+
+#monitorRows td label{display:inline-flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;cursor:pointer}

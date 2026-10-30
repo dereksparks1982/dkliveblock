@@ -33,3 +33,9 @@ When automatic YouTube compatibility checks are enabled, Firefox fetches a data-
 ## Voluntary support and bug reports (Build 37)
 
 Developer email: **elderredsoftworks@proton.me**. The Firefox extension does not transmit diagnostics, browsing logs, site URLs or any other data to this address automatically. Selecting **Report a Problem** opens a local form. The reporter must supply the description and optionally the issue category, reproduction steps and affected website. The draft includes the extension version and only the website's hostname, not its URL path or query parameters. It is displayed for review; pressing **Prepare email** opens a `mailto:` draft in the user's mail application, where they decide whether to send it. Alternatively, the report can be copied locally. The privacy practices of the user's chosen email service apply when they actually send an email.
+
+## Local Website Access Inspector and request allowances (Build 38)
+
+When the user starts the optional Network Monitor, DK Live Block keeps only bounded per-tab request **hostname**, resource type, request method, status and coarse reason information in memory. The Access Inspector uses these fields to generate tentative explanations and clearly labels guesses. It does not monitor local computer processes, read response bodies or inspect files.
+
+The user may explicitly allow a blocked source-site/destination-hostname/resource-type combination for ten minutes (one tab), the current browser session or across restarts. Only the last category is stored in Firefox local extension settings, with no full URL, path, query string, account token or response data. They can revoke it from the monitor. The extension does not contact the developer or any remote telemetry service.
