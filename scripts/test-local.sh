@@ -11,7 +11,7 @@ echo 'PHASE START: JavaScript syntax'
 for file in src/*.js tests/*.js; do node --check "$file"; done
 echo 'PHASE PASS: JavaScript syntax'
 echo 'PHASE START: Extension structure'
-node --test tests/manifest.test.js tests/dependency-catalog.test.js tests/video-library.test.js tests/video-quality.test.js tests/video-auto-memory.test.js tests/streaming-diagnostics.test.js
+node --test tests/manifest.test.js tests/dependency-catalog.test.js tests/video-library.test.js tests/video-quality.test.js tests/video-auto-memory.test.js tests/streaming-diagnostics.test.js tests/download-library.test.js
 echo 'PHASE PASS: Extension structure'
 echo 'PHASE START: Linux companion protocol regression'
 python3 scripts/test-companion.py
@@ -19,6 +19,7 @@ python3 scripts/test-verified-install.py
 python3 scripts/test-video-download.py
 python3 scripts/test-companion-package.py
 python3 scripts/test-download-jobs.py
+python3 scripts/test-download-library.py
 echo 'PHASE PASS: Linux companion protocol regression'
 echo 'PHASE START: Offline regression suite'
 node --test tests/ad-settings.test.js tests/ad-recognition.test.js tests/engine-reuse.test.js tests/ghostery-embedded.test.js tests/hybrid-engine.test.js tests/rules.test.js tests/public-suffix.test.js tests/psl-license.test.js tests/background.test.js tests/privacy.test.js tests/subscriptions.test.js tests/manual-rules.test.js tests/consent.test.js tests/procedural.test.js tests/anti-adblock.test.js tests/youtube-maintenance.test.js tests/youtube-background.test.js tests/video-assist.test.js tests/streaming-watch.test.js tests/video-dom.test.js tests/anti-adblock-dom.test.js tests/overlay-observer.test.js tests/overlay-recovery.test.js tests/popup-guard.test.js tests/auth-protection.test.js tests/auth-background.test.js tests/popup-refresh.test.js tests/paywall.test.js tests/paywall-dom.test.js tests/performance.test.js tests/cosmetic-performance.test.js tests/ui-recovery.test.js tests/support.test.js tests/network-recovery.test.js tests/network-background.test.js tests/proxy-probe.test.js tests/security.test.js tests/list-io.test.js tests/subscription-cache.test.js tests/settings.test.js tests/subscription-integration.test.js

@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.2 (Build 31).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.3 (Build 32).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 32: My Downloads local file inventory (0.3.3)
+
+The Firefox toolbar now links to **My Downloads**, a read-only list of media files saved under `~/.local/share/dk-live-block/downloads/`. A user clicks **Scan My Downloads** to request the optional Linux native-messaging permission and inspect up to 150 local media files. The companion returns only sanitized filenames, sizes and modified times, never reads media contents, never follows symlinks and never accepts file paths supplied by websites or the browser. Hidden, partial and non-media files are not listed. Nothing is executed or deleted.
+
+The optional native companion installers now bundle the read-only `download_library.py` module. Baseline ad blocking and the watch-later library remain entirely independent of the companion. **Unreleased, actual Firefox integration not yet verified.**
 
 ## Build 31: private streaming playback diagnostics (0.3.2)
 

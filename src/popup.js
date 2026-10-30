@@ -122,6 +122,7 @@ $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
 $("streamingDiagnostics").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#streaming-diagnostics")}));
 $("savedVideos").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("library.html")}));
+$("myDownloads").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("downloads.html")}));
 $("saveVideo").addEventListener("click",saveVideo);
 $("downloadVideo").addEventListener("click",downloadVideo);
 $("cancelVideo").addEventListener("click",async()=>{

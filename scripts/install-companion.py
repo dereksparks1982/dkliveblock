@@ -41,6 +41,12 @@ def install(home: Path, source: Path) -> tuple[Path, Path]:
     installed_jobs = companion.with_name("download_jobs.py")
     shutil.copyfile(jobs_module, installed_jobs)
     installed_jobs.chmod(0o600)
+    library_module = source.with_name("download_library.py")
+    if not library_module.is_file():
+        raise FileNotFoundError("Download inventory module missing")
+    installed_library = companion.with_name("download_library.py")
+    shutil.copyfile(library_module, installed_library)
+    installed_library.chmod(0o600)
     manifest = {
         "name": NAME,
         "description": "DK Live Block optional read-only tool detection",

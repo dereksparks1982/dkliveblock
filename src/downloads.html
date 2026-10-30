@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block Downloads</title><link rel="stylesheet" href="style.css"></head>
+<body class="options"><header><strong>DK LIVE BLOCK</strong><small>Optional local downloads</small></header>
+<main><h1>My Downloads</h1><p>Read-only list of video files in DK Live Block's local Downloads directory. This feature requires the optional Linux companion. No account or network uploads.</p>
+<p><button id="scanDownloads" type="button">Scan My Downloads</button>
+<button id="downloadDependencies" type="button">Dependency settings</button></p>
+<p id="downloadsPath">~/.local/share/dk-live-block/downloads/</p>
+<p id="downloadScanStatus" role="status">Click Scan My Downloads to check local media.</p>
+<div id="downloadRows" class="dependency-list"></div>
+<p>Only filenames, file sizes and modified dates are displayed. No media files are opened, executed, uploaded or deleted. Partial downloads are intentionally hidden.</p>
+</main><script src="downloads.js"></script></body></html>

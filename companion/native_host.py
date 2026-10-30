@@ -49,11 +49,17 @@ def handle(message: object) -> dict:
     if not isinstance(message, dict) or message.get("protocol") != PROTOCOL:
         return {"ok": False, "protocol": PROTOCOL, "error": "Invalid protocol"}
     action = message.get("action")
-    if action not in ("status", "ping", "installTool", "removeTool", "downloadVideo"):
+    if action not in ("status", "ping", "installTool", "removeTool", "downloadVideo", "listDownloads"):
         return {"ok": False, "protocol": PROTOCOL, "error": "Unsupported action"}
     base = dependency_path()
     if action == "ping":
         return {"ok": True, "protocol": PROTOCOL}
+    if action == "listDownloads":
+        try:
+            import download_library
+            return {"protocol": PROTOCOL, **download_library.list_downloads()}
+        except (OSError, ValueError, RuntimeError) as error:
+            return {"ok": False, "protocol": PROTOCOL, "error": str(error)[:160]}
     if action == "downloadVideo":
         if message.get("confirmation") != "explicit-user-action":
             return {"ok": False, "protocol": PROTOCOL, "error": "Missing explicit user consent"}

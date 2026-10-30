@@ -84,3 +84,9 @@ The `best` mode requires FFmpeg. The companion checks `~/.local/share/dk-live-bl
 Build 25 adds `download_jobs.py` to the optional companion and `.pyz` installer. The Firefox extension uses a **persistent** native port, enabling intermediate numeric progress and a Cancel Download action. The worker runs a single allowlisted yt-dlp command (no shell) and stops its Linux process group on cancellation or after 15 minutes. The progress display represents yt-dlp's download output and might not include subsequent FFmpeg merging time. No automatic history collection, no telemetry, and no downloads unless the user explicitly confirms.
 
 Any user with a previously installed Build 24 development companion must reinstall the updated companion source to obtain progress and cancel support. The directory chosen earlier remains unchanged. Cancellation can leave partial downloads that the user can remove manually. No real browser/streaming acceptance yet.
+
+## Build 32: My Downloads read-only inventory
+
+The companion supports the `listDownloads` command, which reads only the fixed DK downloads directory and returns at most 150 ordinary media-file names, sizes and last-modified times. It ignores symlinks, partial, hidden, non-media and directory entries, and caps scanning at 3000 directory entries. No arbitrary folder path is accepted. Nothing opens, deletes or executes a file.
+
+The extension's **My Downloads** page runs this command only after the user clicks **Scan My Downloads** and grants optional native messaging permission. The optional companion installer now includes `download_library.py`. Real browser testing and signature/packaging approval remain outstanding.

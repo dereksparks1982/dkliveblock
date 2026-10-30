@@ -48,3 +48,11 @@ test("Build 24 standalone library assets and popup scripts are packaged",()=>{
  assert.ok(m.permissions.includes("tabs"));
  assert.ok(m.optional_permissions.includes("nativeMessaging"));
 });
+
+test("Build 32 downloads inventory page is packaged with its local script",()=>{
+ const page=path.join(root,"src/downloads.html");
+ assert.ok(fs.existsSync(page));
+ const html=fs.readFileSync(page,"utf8");
+ assert.ok(html.includes('src="downloads.js"'));
+ assert.ok(fs.existsSync(path.join(root,"src/downloads.js")));
+});

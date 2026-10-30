@@ -161,3 +161,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 31: bounded local streaming-page blocked-request diagnostics for YouTube/Disney+, host-only disclosure, 30-minute TTL, settings inspection/clear and toolbar navigation.
 - [ ] Build 31 acceptance: full regression suite and real Firefox playback with user review of false-positive diagnostics.
+
+- [x] Build 32: My Downloads read-only inventory, explicit permission and scan, safe filename-only metadata, symlink/partial exclusion, 150-item cap, optional companion packaging and offline test source.
+- [ ] Build 32 acceptance: full repository suite and real Firefox native messaging and actual downloaded media listing.
