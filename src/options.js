@@ -85,6 +85,26 @@ function drawFilterLists(settings,states,regional=false){
  }
  if(!regional)$("filterListNotice").textContent="Five built-in lists. Individual changes save immediately; other Settings controls still use Save Settings.";
 }
+$("validateCustomRules").addEventListener("click",()=>{
+ const container=$("customRuleValidationRows");container.replaceChildren();
+ const report=DKRuleValidator.validate($("customRules").value);
+ if(!report.ok){$("customRuleValidationStatus").textContent=report.error;return;}
+ const c=report.counts;
+ $("customRuleValidationStatus").textContent=report.lines+" lines checked · "+
+  c.network+" network · "+c.cosmetic+" cosmetic · "+c.procedural+" procedural · "+
+  c.unsupported+" unsupported · "+c.duplicates+" duplicates. "+
+  "Read-only check: no rules saved or changed.";
+ for(const row of report.examples){
+  const line=document.createElement("div");line.className="log-row";
+  line.textContent="Line "+row.line+" · "+(row.kind==="duplicate"?"Duplicate rule":
+   row.kind==="too-long"?"Line exceeds 2,500 characters":"Unsupported rule syntax");
+  container.appendChild(line);
+ }
+ if(report.tooManyExamples){
+  const note=document.createElement("p");note.textContent="Only the first 30 diagnostics are shown.";
+  container.appendChild(note);
+ }
+});
 $("languageRecommend").addEventListener("click",async()=>{
  const button=$("languageRecommend"),recommended=DKLanguageLists.recommendations(navigator.languages||[]);
  if(!recommended.length){

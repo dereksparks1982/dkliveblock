@@ -122,7 +122,12 @@
 <div class="network-buttons"><button id="issueRefresh" type="button">Show recent failures</button><button id="issueClear" type="button">Clear failures</button><button id="netReload" type="button">Reload selected website</button></div>
 <div id="networkIssues"></div></section>
 <section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
-<textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea></section>
+<textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea>
+<div class="network-buttons"><button id="validateCustomRules" type="button">Check custom filter syntax</button></div>
+<p id="customRuleValidationStatus" role="status">Custom rules have not been checked. Checking is local and does not save or change any filters.</p>
+<div id="customRuleValidationRows"></div>
+<p>Syntax checking recognizes a supported subset of Adblock Plus filtering. Unsupported or duplicated rules are identified by line number, without uploading the rules or displaying their contents in diagnostics. Save Settings remains a separate, explicit action.</p>
+</section>
 <section id="allowedWebsites"><h2>Allowed Websites</h2>
 <p>Allowlist a website if you want DK Live Block to stop blocking there. An entry covers that hostname and its subdomains; every other website remains protected. No ads are allowed globally and there is no paid whitelist.</p>
 <label for="allowedSiteInput">Website to allowlist</label>
@@ -154,4 +159,4 @@
 <button id="openBugReport" type="button">Prepare a bug report</button>
 <p>You review the draft and decide whether to send it. Avoid passwords, cookies, private links and account details.</p></section>
 <footer>No accounts · No telemetry · No paid features<br><button id="patreonSupport" type="button" class="patreon-button" disabled>Patreon · Coming soon</button><p>Donations are optional. Every feature stays free for everyone.</p></footer>
-</main><script src="support.js"></script><script src="language-lists.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>
+</main><script src="support.js"></script><script src="language-lists.js"></script><script src="rules.js"></script><script src="rule-validator.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>

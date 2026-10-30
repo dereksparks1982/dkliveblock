@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.23 (Build 52).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.24 (Build 53).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 53: custom filter syntax inspector (0.3.24)
+
+The Custom Filters editor now includes a **Check custom filter syntax** button. It uses the project's own network/cosmetic/procedural parsers to identify supported rule types, duplicates and unsupported patterns before the user saves. The check is local, read-only, bounded and shows line numbers without echoing potentially sensitive filter contents. It does not upload anything, execute scriptlets, automatically edit filters, or replace the user-controlled Save Settings action. Results are advisory because full ABP syntax and browser behavior are not yet supported.
 
 ## Build 52: selective cosmetic rule exceptions and undo (0.3.23)
 

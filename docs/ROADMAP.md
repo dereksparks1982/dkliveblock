@@ -238,3 +238,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 52: reversible per-site cosmetic hiding exceptions from the debugger, strict live-tab/selector guards, persisted rules and bounded large-DOM outline scanning.
 - [ ] Build 52 acceptance: full Node/Python suite, real Firefox rule engine exception precedence, site switching, custom rule editor synchronization, DOM performance and accessibility.
+
+- [x] Build 53: local syntax/duplicate diagnosis for custom rules using the same filter parsers; bounded, content-sanitized status and explicit Save remains separate.
+- [ ] Build 53 acceptance: complete Node/Python suite, real Firefox editor and CSS filters, malformed imports, large-text performance, parser coverage compared with ABP.
