@@ -25,3 +25,7 @@ Firefox's proxy API is **not a kill switch** and may still allow a direct connec
 It does not upload browsing history, captured passwords, form data, private page text, or user-selected proxy credentials to DK LAB. It does not run scripts supplied by filter subscriptions.
 
 This disclosure must be reviewed and updated against a real candidate build and actual Mozilla Add-ons submission questions before publication.
+
+### YouTube maintenance updates
+
+When automatic YouTube compatibility checks are enabled, Firefox fetches a data-only cosmetic filter list from `raw.githubusercontent.com`. The CDN receives ordinary connection metadata. DK LAB does not receive browsing history, YouTube video URLs, playback state, account information or error reports. Users can disable this update channel, check manually, or roll back a bad filter pack.

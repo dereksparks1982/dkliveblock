@@ -8,13 +8,13 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
-function assemble(){const all=[SEED];for(const k of Object.keys(SOURCES)){if(data.settings.listEnabled[k]&&data.lists[k]?.text)all.push(data.lists[k].text);}for(const u of data.settings.customSubscriptions||[])if(data.customLists[u]?.text)all.push(data.customLists[u].text);if(data.settings.customRules)all.push(data.settings.customRules);return all.join("\n");}
-async function persist(){await browser.storage.local.set({settings:data.settings,lists:data.lists,customLists:data.customLists,listErrors:data.listErrors});}
+function assemble(){const all=[SEED];for(const k of Object.keys(SOURCES)){if(data.settings.listEnabled[k]&&data.lists[k]?.text)all.push(data.lists[k].text);}for(const u of data.settings.customSubscriptions||[])if(data.customLists[u]?.text)all.push(data.customLists[u].text);if(data.youtubeRules?.text)all.push(data.youtubeRules.text);if(data.settings.customRules)all.push(data.settings.customRules);return all.join("\n");}
+async function persist(){await browser.storage.local.set({settings:data.settings,lists:data.lists,customLists:data.customLists,listErrors:data.listErrors,youtubeRules:data.youtubeRules,youtubePrevious:data.youtubePrevious,youtubeHeldVersion:data.youtubeHeldVersion});}
 async function persistSettings(){await browser.storage.local.set({settings:data.settings});}
 function refreshTabs(){browser.tabs.query({}).then(t=>Promise.all(t.map(tab=>browser.tabs.sendMessage(tab.id,{action:"refresh"}).catch(()=>{})))).catch(()=>{});}
 function rebuild(){data.engine=new DKFilter.FilterEngine(assemble());for(const id of data.counts.keys())badge(id);refreshTabs();}
@@ -23,7 +23,7 @@ function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
- mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,popupHiddenCount:data.popupCounts.get(id)||0,tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
+ mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
 async function downloadList(url,followRedirects=true,previous=null){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
  try{
@@ -42,6 +42,35 @@ async function downloadList(url,followRedirects=true,previous=null){
   return unchanged?{unchanged,metadata}:{unchanged:false,text:await DKListIO.read(res),metadata};
  }finally{clearTimeout(timer);}
 }
+async function updateYouTubePack(){
+ if(data.youtubeJob)return data.youtubeJob;
+ data.youtubeJob=(async()=>{
+  const previous=data.youtubeRules;
+  const response=await downloadList(DKYouTubeMaintenance.SOURCE,false,previous);
+  if(response.unchanged){
+   if(!previous)throw Error("No cached YouTube pack for 304 response");
+   data.youtubeRules=DKSubscriptionCache.store(previous,response,Date.now());
+   await persist();
+   return {checked:true,changed:false,version:data.youtubeRules.version};
+  }
+  const decision=DKYouTubeMaintenance.transition(previous,response.text,data.youtubeHeldVersion);
+  if(decision.changed){
+   data.youtubePrevious=previous;
+   data.youtubeRules={...DKSubscriptionCache.store(null,{unchanged:false,text:decision.next.text,metadata:response.metadata},Date.now()),version:decision.next.version};
+   rebuild();
+  }else{
+   data.youtubeRules=DKSubscriptionCache.store(previous,{unchanged:true,metadata:response.metadata},Date.now());
+  }
+  delete data.listErrors.youtube;
+  await persist();
+  return {checked:true,changed:decision.changed,version:data.youtubeRules.version};
+ })().catch(async error=>{
+  data.listErrors.youtube=String(error.message||error).slice(0,150);
+  try{await persist();}catch(_){}
+  return {checked:false,changed:false,error:data.listErrors.youtube};
+ }).finally(()=>{data.youtubeJob=null;});
+ return data.youtubeJob;
+}
 function updateLists(){if(data.updateJob)return data.updateJob;
  data.updateJob=(async()=>{let updated=0,checked=0,errors=[];
   for(const [key,entry] of Object.entries(SOURCES)){if(!data.settings.listEnabled[key])continue;
@@ -50,6 +79,11 @@ function updateLists(){if(data.updateJob)return data.updateJob;
     data.lists[key]=DKSubscriptionCache.store(data.lists[key],result,Date.now());
     delete data.listErrors[key];checked++;if(!result.unchanged)updated++;
    }catch(e){data.listErrors[key]=String(e.message||e).slice(0,150);errors.push(entry.name+": "+data.listErrors[key]);}
+  }
+  if(data.settings.autoYouTubeRules){
+   const result=await updateYouTubePack();
+   if(result.checked)checked++;if(result.changed)updated++;
+   if(result.error)errors.push("YouTube compatibility: "+result.error);
   }
   for(const u of data.settings.customSubscriptions||[]){
    try{
@@ -182,7 +216,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
  if(msg.action==="status")return status(id,url);
- if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState};
+ if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
  if(msg.action==="reportPopupCleanup"){
   if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||
      !["antiAdblock","paywall"].includes(msg.kind))return {error:"Invalid popup report."};
@@ -259,6 +293,21 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   await persistSettings();refreshTabs();return {ok:true};
  }
  if(msg.action==="updateLists")return updateLists();
+ if(msg.action==="updateYouTubePack"){
+  if(fromContent)return {error:"Extension settings only."};
+  return updateYouTubePack();
+ }
+ if(msg.action==="rollbackYouTubePack"){
+  if(fromContent)return {error:"Extension settings only."};
+  if(data.youtubeJob||data.updateJob)return {error:"A rule update is running. Please try again."};
+  if(!data.youtubeRules)return {error:"No downloaded YouTube pack to roll back."};
+  data.youtubeHeldVersion=Math.max(data.youtubeHeldVersion,data.youtubeRules.version);
+  data.youtubeRules=data.youtubePrevious;
+  data.youtubePrevious=null;
+  delete data.listErrors.youtube;
+  await persist();rebuild();
+  return {ok:true,version:data.youtubeRules?.version||0,heldVersion:data.youtubeHeldVersion};
+ }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
@@ -324,6 +373,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    for(const u of Object.keys(data.customLists))if(!validated.urls.includes(u)){delete data.customLists[u];delete data.listErrors[u];}
   }
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
+  if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
   if(Array.isArray(s.mediaRecovery))
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&
@@ -340,7 +390,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
   await persist();rebuild();
   // Newly enabled subscriptions work immediately without waiting for tomorrow's alarm.
-  const needsDownload=Object.keys(SOURCES).some(k=>data.settings.listEnabled[k]&&!data.lists[k]?.text)||(data.settings.customSubscriptions||[]).some(u=>!data.customLists[u]?.text);
+  const needsDownload=(data.settings.autoYouTubeRules&&!data.youtubeRules?.text)||Object.keys(SOURCES).some(k=>data.settings.listEnabled[k]&&!data.lists[k]?.text)||(data.settings.customSubscriptions||[]).some(u=>!data.customLists[u]?.text);
   if(needsDownload)updateLists().catch(console.warn);
   return {ok:true};
  }
@@ -348,13 +398,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
 });
 async function boot(){
  try{
-  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors"]);
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion"]);
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
   const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);
   data.lists=built.lists;data.customLists=custom.lists;
-  const errors=DKSettings.restoreErrors(stored.listErrors,[...Object.keys(SOURCES),...data.settings.customSubscriptions]);
+  const errors=DKSettings.restoreErrors(stored.listErrors,[...Object.keys(SOURCES),...data.settings.customSubscriptions,"youtube"]);
   data.listErrors={...errors,...built.errors,...custom.errors};
+  data.youtubeRules=DKYouTubeMaintenance.restore(stored.youtubeRules);
+  data.youtubePrevious=DKYouTubeMaintenance.restore(stored.youtubePrevious);
+  data.youtubeHeldVersion=Number.isSafeInteger(stored.youtubeHeldVersion)&&stored.youtubeHeldVersion>=0?stored.youtubeHeldVersion:0;
+  if(!data.youtubeRules&&stored.youtubeRules)data.listErrors.youtube="Invalid cached YouTube compatibility pack ignored.";
+  if(data.youtubeRules&&data.youtubeRules.version===data.youtubeHeldVersion){
+   data.youtubeRules=null;data.listErrors.youtube="Rolled-back pack disabled until a newer version arrives.";
+  }
   rebuild();
   const tabs=await browser.tabs.query({});for(const t of tabs)if(t.url)data.hosts.set(t.id,host(t.url));
   data.ready=true;
@@ -363,7 +420,7 @@ async function boot(){
    data.settings.network.enabled=false;
   }
   await browser.alarms.create("refresh-rules",{periodInMinutes:1440});
-  const needsDownload=Object.keys(SOURCES).some(key=>data.settings.listEnabled[key]&&!data.lists[key]?.text)||
+  const needsDownload=(data.settings.autoYouTubeRules&&!data.youtubeRules?.text)||Object.keys(SOURCES).some(key=>data.settings.listEnabled[key]&&!data.lists[key]?.text)||
    data.settings.customSubscriptions.some(url=>!data.customLists[url]?.text);
   if(data.settings.autoUpdate&&(needsDownload||Date.now()-data.settings.lastUpdate>86400000))
    updateLists().catch(console.warn);

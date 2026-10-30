@@ -39,6 +39,7 @@
       "settings.js",
       "video-assist.js",
       "auth-protection.js",
+      "youtube-maintenance.js",
       "background.js"
     ],
     "persistent": true

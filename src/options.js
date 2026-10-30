@@ -1,7 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
-const flagKeys=["autoUpdate","youtubeSkip","cookieReject","antiAdblock","paywallPopups","stripTracking","requestLog"];
+const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","cookieReject","antiAdblock","paywallPopups","stripTracking","requestLog"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
@@ -17,6 +17,13 @@ async function load(){
  $("customRules").value=s.customRules||"";
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
+ const pack=data.youtubeRules||{};
+ $("youtubeRulesStatus").textContent=pack.version?
+  "YouTube pack v"+pack.version+(pack.previousVersion?" · previous v"+pack.previousVersion:"")+
+  (pack.heldVersion?" · rejected version v"+pack.heldVersion:"")+(pack.error?" · error: "+pack.error:""):
+  "Built-in YouTube fallback active."+(pack.heldVersion?" Rolled-back version v"+pack.heldVersion+" is blocked.":"")+
+  (pack.error?" Last update failed: "+pack.error:"");
+ $("youtubeRollback").disabled=!pack.version;
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
 }
 $("save").addEventListener("click",async()=>{
@@ -204,4 +211,25 @@ $("netTest").addEventListener("click",async()=>{
    ". Routing policy observed: "+(outcome.routePolicyObserved?"yes":"not confirmed")+
    ". This is not proof of a network kill switch or privacy.";
  }catch(e){$("netMessage").textContent=e.message;}finally{$("netTest").disabled=false;}
+});
+
+
+$("youtubeUpdate").addEventListener("click",async()=>{
+ const button=$("youtubeUpdate");button.disabled=true;
+ $("youtubeRulesStatus").textContent="Checking official DK YouTube rules…";
+ try{
+  const result=await browser.runtime.sendMessage({action:"updateYouTubePack"});
+  $("message").textContent=result.error||("YouTube rules checked: "+(result.changed?"new version installed":"no changes")+".");
+  await load();
+ }catch(error){$("message").textContent=error.message;}
+ finally{button.disabled=false;}
+});
+$("youtubeRollback").addEventListener("click",async()=>{
+ const button=$("youtubeRollback");button.disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"rollbackYouTubePack"});
+  $("message").textContent=result.error||("Rolled back YouTube pack. Version "+result.heldVersion+" won't be reinstalled.");
+  await load();
+ }catch(error){$("message").textContent=error.message;}
+ finally{button.disabled=false;}
 });

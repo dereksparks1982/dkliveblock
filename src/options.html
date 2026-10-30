@@ -10,6 +10,13 @@
 <label><input id="social" type="checkbox"> Fanboy Social: social widgets</label>
 <label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
 <p id="updated"></p><button id="update">Update enabled lists</button></section>
+<section id="youtube-maintenance"><h2>YouTube compatibility updates</h2>
+<p>Data-only YouTube rule packs can update without requiring a new extension version. Downloads come from the DK Live Block public GitHub repository. Firefox add-on updates remain necessary for changes to executable code.</p>
+<label><input id="autoYouTubeRules" type="checkbox"> Automatically check DK's YouTube compatibility pack when updating filters</label>
+<p id="youtubeRulesStatus" role="status">Built-in protection is active. No remote pack installed.</p>
+<button id="youtubeUpdate" type="button">Check YouTube rules now</button>
+<button id="youtubeRollback" type="button">Roll back YouTube rules</button>
+<p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
 <section><h2>Additional filter lists</h2><p>Up to five HTTPS subscription URLs, one per line. The list contents are parsed as filter rules, never executed as scripts.</p><textarea id="customSubscriptions" class="short" spellcheck="false" placeholder="https://filters.example.org/blocking.txt"></textarea></section>
 <section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
 <label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists</label>

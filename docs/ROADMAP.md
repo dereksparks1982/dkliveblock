@@ -98,3 +98,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 17 account compatibility: protect real Google/federated sign-in dialogs, explicitly recognized OAuth popup windows and narrow login-critical requests; retain unrelated ad blocking. Requires real Firefox login-flow verification.
 
 - [x] Account-safe cosmetic/procedural filtering: protect Google Identity Services login controls and picker UI without disabling normal advertising rules.
+
+- [x] Versioned, hosted data-only YouTube cosmetic pack, strict allowlist validation, daily/manual checks, conditional caching, previous-version rollback, rejected-version hold and maintenance documentation. Real streaming performance and ad-removal success remain unverified.
+
+- [x] Build 18 settings repair: independent YouTube update toggle saves correctly, status reflects it, and update errors survive restart. No hosted CI or mandatory build gates.
