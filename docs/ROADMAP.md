@@ -231,3 +231,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 50: browser-native Firefox website notification default deny via browserSettings, default-on with Settings toggle, conflict handling and extension-owned cleanup.
 - [x] Build 50: synchronize older hard-coded background test script lists with language filters, context menu and notification helper.
 - [ ] Build 50 acceptance: real Firefox permission disclosure, notification requests, per-site exceptions, conflicts and complete Node/Python regression suite.
+
+- [x] Build 51: separate per-site cookie-consent-rejection and newsletter/distraction cleanup controls without disabling ad/tracker filtering, subdomain behavior, persistent exception lists, and reversible Settings management.
+- [ ] Build 51 acceptance: local full Node/Python regression suite, real Firefox cookie-consent CMP tests, site-specific restore/reload behavior, cross-origin iframe checks, accessibility and saved preferences.
+- [ ] Next: actual acceptance coverage for stalled video, cookie/overlay false positives, complete ABP functionality and permission compatibility; do not claim parity until tested.

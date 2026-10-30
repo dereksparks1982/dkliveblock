@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.21 (Build 50).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.22 (Build 51).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 51: per-website cookie and distraction controls (0.3.22)
+
+The Firefox toolbar now offers independent, persistent **Disable cookie rejection here** and **Disable distraction cleanup here** controls. These are **not** complete site allowlisting: ad/tracker request blocking, security and custom filtering remain active. The Settings page lists every site-specific cleanup exception and provides individual removal controls. A parent hostname affects subdomains; resuming from a subdomain clears covering parent exceptions. The background checks the actual live HTTP(S) tab rather than trusting the caller's supplied URL. All new settings are validated and restored safely after Firefox restarts. This is source implementation, not completed live Firefox acceptance testing.
 
 ## Build 50: Firefox-native notification permission blocking (0.3.21)
 

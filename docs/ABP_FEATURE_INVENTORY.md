@@ -11,8 +11,8 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Basic distraction control | Partial (conservative overlay classifier) | Verify corner videos, install/shop prompts and legitimate UI |
 | Block push notification permission requests | Build 50: Firefox-owned notification default deny, reversible on disable; previous site grants remain effective | Test real Firefox permissions, other extensions and installation review |
 | Block social media icons/tracking | Implemented as social filter subscription | Test widgets and related request blocking |
-| Premium: cookie-consent popups | Partial (reject-only helper and filter subscription) | Validate against real consent platforms; no accidental acceptance |
-| Premium: enhanced distractions | Partial (newsletter, survey and floating-corner overlays) | Floating video without interrupting actively playing content |
+| Premium: cookie-consent popups | Build 51: default-on conservative reject-only helper, with a persistent per-site pause that does not disable network ad blocking | Validate actual consent outcomes on real consent platforms, no accidental acceptance |
+| Premium: enhanced distractions | Build 51: conservative newsletter, survey and floating-corner cleanup with independent per-site exceptions | Live Firefox false positives, floating videos and active playback compatibility |
 | Acceptable Ads enabled by default in ABP | **Different by design: none. No paid whitelist or automatic ad exception** | Check all rule paths and future updates |
 | Only allow Acceptable Ads without third-party tracking | **Different by design: no Acceptable Ads feature** | Not applicable |
 | Language filter: select default language | Missing verified regional-list catalog | Curate list licenses, languages, URLs, release versions |

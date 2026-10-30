@@ -26,6 +26,7 @@ async function load(){
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
  renderAllowedSites(s.paused||[]);
+ await renderCleanupExceptions();
  try{
   const control=await browser.runtime.sendMessage({action:"getNotificationControl"});
   $("notificationControlStatus").textContent=control?.error||(
@@ -141,6 +142,33 @@ function drawCustomLists(settings,states){
   line.append(details,controls);panel.appendChild(line);
  }
 }
+async function renderCleanupExceptions(){
+ const state=await browser.runtime.sendMessage({action:"getSiteFeatureExceptions"});
+ const map={cookieReject:["cookieRejectExceptions","Cookie-rejection pauses"],
+   distractionControl:["distractionExceptions","Distraction-cleanup pauses"]};
+ if(state?.error){$("cleanupExceptionsNotice").textContent=state.error;return;}
+ let count=0;
+ for(const [feature,[elementId,title]] of Object.entries(map)){
+  const panel=$(elementId);panel.replaceChildren();
+  const heading=document.createElement("h3");heading.textContent=title;panel.appendChild(heading);
+  for(const site of state[feature]||[]){
+   count++;const line=document.createElement("div");line.className="log-row";
+   const text=document.createElement("span");text.textContent=site+" (and its subdomains)";
+   const remove=document.createElement("button");remove.textContent="Remove";remove.type="button";
+   remove.addEventListener("click",async()=>{
+    remove.disabled=true;
+    try{
+     const result=await browser.runtime.sendMessage({action:"removeSiteFeatureException",feature,site});
+     if(!result?.ok)throw Error(result?.error||"Unable to remove exception.");
+     await renderCleanupExceptions();$("message").textContent="Removed cleanup exception for "+site+". Reload the page to apply.";
+    }catch(e){$("cleanupExceptionsNotice").textContent=String(e.message||e);remove.disabled=false;}
+   });
+   line.append(text,remove);panel.appendChild(line);
+  }
+ }
+ $("cleanupExceptionsNotice").textContent=count?count+" site-specific cleanup exceptions saved.":"No site cleanup exceptions. Default protections apply everywhere.";
+}
+$("cleanupExceptionsRefresh").addEventListener("click",()=>renderCleanupExceptions().catch(e=>$("cleanupExceptionsNotice").textContent=String(e.message||e)));
 function renderAllowedSites(sites){
  const rows=$("allowedSitesRows");rows.replaceChildren();
  $("allowedSitesStatus").textContent=sites.length?

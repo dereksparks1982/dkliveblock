@@ -33,6 +33,12 @@
 <section id="default-protections"><h2>Protection-first defaults</h2>
 <p>Advertising, tracking, cookie-notice, annoyance and social-widget filter lists are enabled for new installations. Explicit cookie rejection and conservative distraction protection are enabled too. <strong>There is no Acceptable Ads program or paid protection tier.</strong> You may turn individual protections off, and your saved choices are respected. A list only protects you once downloaded; use the status below to check downloads.</p>
 </section>
+<section id="siteCleanupExceptions"><h2>Website cleanup exceptions</h2>
+<p>Cookie rejection and newsletter/distraction cleanup can be turned off for individual websites without disabling advertisement or tracker blocking. The toolbar changes the current site; you can remove saved exceptions below. A parent hostname affects its subdomains.</p>
+<div class="network-buttons"><button id="cleanupExceptionsRefresh" type="button">Refresh site exceptions</button></div>
+<p id="cleanupExceptionsNotice" role="status">Loading site exceptions…</p>
+<div id="cookieRejectExceptions"></div><div id="distractionExceptions"></div>
+</section>
 <section id="notificationProtection"><h2>Website notification requests</h2>
 <label><input id="blockNotificationPrompts" type="checkbox"> Block new website notification permission prompts across Firefox</label>
 <p>On by default. This changes Firefox's browser-wide default notification permission to Deny, not just the current website. It does not override a website you explicitly allowed earlier. Turning it off releases DK Live Block's override without changing another extension's settings. Firefox may require permission for this browser-wide feature.</p>

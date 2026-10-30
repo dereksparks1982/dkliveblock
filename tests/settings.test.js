@@ -103,3 +103,14 @@ test("notification protection defaults on and stored off state is respected",()=
  assert.equal(Settings.restoreSettings({blockNotificationPrompts:false},protection,["easylist"]).blockNotificationPrompts,false);
  assert.equal(Settings.restoreSettings({blockNotificationPrompts:"false"},protection,["easylist"]).blockNotificationPrompts,true);
 });
+
+test("Build 51 restores only valid independent site cleanup exceptions",()=>{
+ const input={cookieRejectPaused:["news.example","news.example","bad..example",123,"shop.example"],
+  distractionPaused:["video.example","video.example","BAD.EXAMPLE",null,{}]};
+ const value=Settings.restoreSettings(input,defaults,["easylist"]);
+ assert.deepEqual(value.cookieRejectPaused,["news.example","shop.example"]);
+ assert.deepEqual(value.distractionPaused,["video.example"]);
+ const empty=Settings.restoreSettings({cookieRejectPaused:"off",distractionPaused:{}},defaults,["easylist"]);
+ assert.deepEqual(empty.cookieRejectPaused,[]);
+ assert.deepEqual(empty.distractionPaused,[]);
+});

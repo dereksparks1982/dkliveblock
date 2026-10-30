@@ -9,7 +9,7 @@ const SOURCES={
  ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,{name:item.name,url:item.url}]))
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
  ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
@@ -149,6 +149,8 @@ function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),allowlistMatch:DKSiteAllowlist.match(data.settings.paused,h),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
+ cookieRejectPaused:data.settings.cookieRejectPaused.some(x=>DKRules.sub(h,x)),
+ distractionPaused:data.settings.distractionPaused.some(x=>DKRules.sub(h,x)),
  mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).length:0,
  streamingAllowancesCount:DKStreamingRepair.list(data.streamingAllowances,id).length,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,
  strictPopupAvailable:DKPopupTrap.protectedHost(h),
@@ -812,7 +814,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {ok:true,siteHost:site,selectors};
  }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
-  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,distractionControl:data.settings.distractionControl,adRecognition:data.settings.adRecognition,
+  const cookieAllowed=!data.settings.cookieRejectPaused.some(x=>DKRules.sub(top,x));
+  const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
+  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
@@ -823,6 +827,47 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   data.notificationControl=await DKNotificationProtection.sync(browser,
    data.settings.enabled&&data.settings.blockNotificationPrompts);
   await persist();rebuild();return status(id,url);
+ }
+ const siteFeatureConfigs={
+  cookieReject:"cookieRejectPaused",
+  distractionControl:"distractionPaused"
+ };
+ if(msg.action==="getSiteFeatureExceptions"){
+  if(fromContent)return {error:"Extension settings only."};
+  return {cookieReject:data.settings.cookieRejectPaused.slice(),
+   distractionControl:data.settings.distractionPaused.slice()};
+ }
+ if(msg.action==="removeSiteFeatureException"){
+  if(fromContent||!Object.prototype.hasOwnProperty.call(siteFeatureConfigs,msg.feature)||
+    typeof msg.site!=="string"||!DKManualRules.validHost(msg.site))
+   return {error:"Invalid site protection exception."};
+  const key=siteFeatureConfigs[msg.feature];
+  const next=data.settings[key].filter(x=>x!==msg.site);
+  if(next.length===data.settings[key].length)return {error:"Site exception not found."};
+  data.settings[key]=next;
+  await persistSettings();refreshTabs();
+  return {ok:true,sites:next.slice()};
+ }
+ if(msg.action==="setSiteFeaturePaused"){
+  if(fromContent||!Number.isInteger(id)||id<0||
+   !Object.prototype.hasOwnProperty.call(siteFeatureConfigs,msg.feature)||
+   typeof msg.paused!=="boolean")
+   return {error:"Invalid site protection setting."};
+  let liveUrl="",site="";
+  try{liveUrl=(await browser.tabs.get(id))?.url||"";site=DKSiteAllowlist.host(liveUrl);}
+  catch(_){return {error:"Website tab is no longer available."};}
+  if(!site||!/^https?:\/\//i.test(liveUrl)||!DKManualRules.validHost(site))
+   return {error:"Only regular websites can have site protection exceptions."};
+  const key=siteFeatureConfigs[msg.feature],previous=data.settings[key]||[];
+  let next;
+  if(msg.paused){
+   if(previous.some(x=>DKRules.sub(site,x)))next=previous.slice();
+   else if(previous.length>=500)return {error:"Site exception limit reached (500)."};
+   else next=[...previous,site];
+  }else next=previous.filter(x=>!DKRules.sub(site,x));
+  data.settings[key]=next;
+  await persistSettings();refreshTabs();
+  return {ok:true,site,paused:next.some(x=>DKRules.sub(site,x)),sites:next.slice()};
  }
  if(msg.action==="toggleSitePopupProtection"){
   if(!h||!DKManualRules.validHost(h))return {error:"No valid website selected."};
@@ -926,6 +971,13 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
     DKVideoAssist.isStreamingHost(h)&&DKManualRules.validHost(h)))].slice(0,12);
   if(typeof s.cookieReject==="boolean")data.settings.cookieReject=s.cookieReject;
   if(typeof s.distractionControl==="boolean")data.settings.distractionControl=s.distractionControl;
+  for(const featureKey of ["cookieRejectPaused","distractionPaused"]){
+   if(Array.isArray(s[featureKey])){
+    if(s[featureKey].length>500||s[featureKey].some(h=>!DKManualRules.validHost(h)))
+     return {error:"Site protection exceptions require valid hostnames (up to 500)."};
+    data.settings[featureKey]=[...new Set(s[featureKey])];
+   }
+  }
   if(typeof s.antiAdblock==="boolean")data.settings.antiAdblock=s.antiAdblock;
   if(typeof s.paywallPopups==="boolean")data.settings.paywallPopups=s.paywallPopups;
   if(Array.isArray(s.popupProtectionPaused))

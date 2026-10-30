@@ -83,7 +83,11 @@ async function load(){
  $("mediaWarning").hidden=!current.mediaRecoveryAvailable;
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
  $("mediaRecovery").disabled=!current.siteActive;
- $("enabled").checked=current.enabled;$("site").textContent=current.host||"Browser page";
+ $("enabled").checked=current.enabled;
+ $("siteCookieReject").textContent=current.cookieRejectPaused?"Enable cookie rejection here":"Disable cookie rejection here";
+ $("siteDistraction").textContent=current.distractionPaused?"Enable distraction cleanup here":"Disable distraction cleanup here";
+ $("siteCookieReject").disabled=!current.siteActive||!current.settings?.cookieReject;
+ $("siteDistraction").disabled=!current.siteActive||!current.settings?.distractionControl;$("site").textContent=current.host||"Browser page";
  $("toggle").textContent=current.sitePaused?"Remove from allowlist":"Allowlist this website";
  $("allowlistNotice").textContent=current.sitePaused?
   "Protection is OFF for "+(current.allowlistMatch||current.host)+
@@ -136,6 +140,18 @@ $("popupProtection").addEventListener("click",async()=>{
   await browser.tabs.reload(tab.id);await load();
  }catch(e){$("info").textContent=e.message;}finally{$("popupProtection").disabled=false;}
 });
+async function toggleSiteFeature(feature,paused,button){
+ button.disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"setSiteFeaturePaused",tabId:tab.id,feature,paused});
+  if(!result?.ok)throw Error(result?.error||"Could not change site setting.");
+  await browser.tabs.reload(tab.id);await load();
+  $("siteProtectionInfo").textContent="This site's optional cleanup was changed. Network ad and tracker blocking remains on.";
+ }catch(error){$("siteProtectionInfo").textContent=String(error.message||error).slice(0,180);}
+ finally{button.disabled=false;}
+}
+$("siteCookieReject").addEventListener("click",()=>toggleSiteFeature("cookieReject",!current.cookieRejectPaused,$("siteCookieReject")));
+$("siteDistraction").addEventListener("click",()=>toggleSiteFeature("distractionControl",!current.distractionPaused,$("siteDistraction")));
 $("mediaRecovery").addEventListener("click",async()=>{
  if(!current?.mediaRecoveryAvailable)return;
  $("mediaRecovery").disabled=true;
