@@ -17,6 +17,7 @@ async function load(){
  $("customRules").value=s.customRules||"";
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
+ renderAllowedSites(s.paused||[]);
  const pack=data.youtubeRules||{};
  $("youtubeRulesStatus").textContent=pack.version?
   "YouTube pack v"+pack.version+(pack.previousVersion?" · previous v"+pack.previousVersion:"")+
@@ -26,6 +27,43 @@ async function load(){
  $("youtubeRollback").disabled=!pack.version;
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
 }
+function renderAllowedSites(sites){
+ const rows=$("allowedSitesRows");rows.replaceChildren();
+ $("allowedSitesStatus").textContent=sites.length?
+  sites.length+" website(s) allowlisted. Blocking remains active elsewhere.":
+  "No allowed websites. DK Live Block protects every website by default.";
+ for(const site of sites){
+  const line=document.createElement("div");line.className="log-row";
+  const label=document.createElement("span");label.textContent=site+" (and its subdomains)";
+  const revoke=document.createElement("button");
+  revoke.type="button";revoke.textContent="Remove";
+  revoke.addEventListener("click",async()=>{
+   revoke.disabled=true;
+   try{
+    const result=await browser.runtime.sendMessage({action:"removeAllowedSite",site});
+    if(!result?.ok)throw Error(result?.error||"Unable to remove website.");
+    $("paused").value=result.sites.join("\n");
+    renderAllowedSites(result.sites);
+    $("message").textContent="Removed "+site+" from Allowed Websites. Reload open pages to apply.";
+   }catch(error){$("message").textContent=String(error.message||error);revoke.disabled=false;}
+  });
+  line.append(label,revoke);rows.appendChild(line);
+ }
+}
+$("allowedSiteAdd").addEventListener("click",async()=>{
+ const input=$("allowedSiteInput"),button=$("allowedSiteAdd");
+ button.disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"addAllowedSite",site:input.value});
+  if(!result?.ok)throw Error(result?.error||"Unable to allowlist this website.");
+  $("paused").value=result.sites.join("\n");
+  renderAllowedSites(result.sites);
+  input.value="";
+  $("message").textContent=result.unchanged?"This website is already covered by an allowed hostname.":
+   "Website added. Reload it to apply the allowlist.";
+ }catch(error){$("message").textContent=String(error.message||error).slice(0,160);}
+ finally{button.disabled=false;}
+});
 $("showDevtoolsPanel").addEventListener("change",async()=>{
  const box=$("showDevtoolsPanel");
  if(box.checked){

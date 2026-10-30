@@ -84,7 +84,11 @@ async function load(){
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
  $("mediaRecovery").disabled=!current.siteActive;
  $("enabled").checked=current.enabled;$("site").textContent=current.host||"Browser page";
- $("toggle").textContent=current.sitePaused?"Resume on site":"Pause on site";
+ $("toggle").textContent=current.sitePaused?"Remove from allowlist":"Allowlist this website";
+ $("allowlistNotice").textContent=current.sitePaused?
+  "Protection is OFF for "+(current.allowlistMatch||current.host)+
+   " and its subdomains. Remove it to restore blocking.":
+  "Allowlisting this website turns off blocking for its hostname and subdomains. Other sites remain protected.";
  $("toggle").disabled=!current.host||!current.enabled;
  $("temporary").textContent=current.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("temporary").disabled=!current.host||!current.enabled||current.sitePaused;
@@ -96,7 +100,16 @@ async function load(){
  showVideoTools();
 }
 $("enabled").addEventListener("change",async()=>{await browser.runtime.sendMessage({action:"setGlobal",enabled:$("enabled").checked,tabId:tab.id,url:tab.url});await load();});
-$("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage({action:"toggleSite",url:tab.url,tabId:tab.id,disable:!current.sitePaused});await browser.tabs.reload(tab.id);await load();});
+$("toggle").addEventListener("click",async()=>{
+ $("toggle").disabled=true;
+ try{
+  const reply=await browser.runtime.sendMessage({action:"setSiteAllowed",tabId:tab.id,allowed:!current.sitePaused});
+  if(reply?.error){$("allowlistNotice").textContent=reply.error;return;}
+  await browser.tabs.reload(tab.id);
+  await load();
+ }catch(error){$("allowlistNotice").textContent=String(error.message||error).slice(0,160);}
+ finally{$("toggle").disabled=false;}
+});
 $("temporary").addEventListener("click",async()=>{
  await browser.runtime.sendMessage({action:"toggleTabPause",tabId:tab.id,url:tab.url,paused:!current.temporarilyPaused});
  await browser.tabs.reload(tab.id);await load();

@@ -102,7 +102,18 @@
 <div id="networkIssues"></div></section>
 <section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
 <textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea></section>
-<section><h2>Paused domains</h2><p>One hostname per line.</p><textarea id="paused" class="short" spellcheck="false"></textarea></section>
+<section id="allowedWebsites"><h2>Allowed Websites</h2>
+<p>Allowlist a website if you want DK Live Block to stop blocking there. An entry covers that hostname and its subdomains; every other website remains protected. No ads are allowed globally and there is no paid whitelist.</p>
+<label for="allowedSiteInput">Website to allowlist</label>
+<div class="network-buttons"><input id="allowedSiteInput" type="text" spellcheck="false" placeholder="example.org or https://example.org/page">
+<button type="button" id="allowedSiteAdd">Add website</button></div>
+<p id="allowedSitesStatus" role="status">Loading allowed websites…</p>
+<div id="allowedSitesRows"></div>
+<details><summary>Advanced: edit allowed hostnames manually</summary>
+<p>One hostname per line. Manual edits take effect after clicking Save Settings. No URLs or wildcards.</p>
+<textarea id="paused" class="short" spellcheck="false"></textarea>
+</details>
+</section>
 <section><h2>Website repair and exceptions</h2>
 <p>Review requests you allowed on an individual website and revoke only the permission causing a problem. Revocation restores the normal filtering rules without disabling the whole blocker.</p>
 <button id="siteExceptions" type="button">Show allowances for recent website</button>

@@ -35,7 +35,7 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
  const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextDecoder,
   fetch,setTimeout:timers,clearTimeout});
  for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js",
-  "manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js",
+  "manual-rules.js","site-allowlist.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js",
   "video-assist.js","streaming-diagnostics.js","playback-health.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","background.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,25));

@@ -30,7 +30,7 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Add list by URL | Implemented: up to five HTTPS custom subscriptions | Verification, errors, duplicate handling, scope and size checks |
 | Per-list gear/configuration and remove | Partial: built-in toggles, URL textarea and update control | Granular row-based controls for custom lists |
 | Custom filter editor and add filter | Implemented: text custom rule editor + element picker | Syntax validation, per-rule diagnosis, undo and safe preview |
-| Allowed/paused websites | Implemented: per-site pauses and scoped request exceptions | Firefox restore, expiry and cross-tab acceptance |
+| Allowed/paused websites | Build 46: explicit one-click website allowlisting, remembered hostname list, individual removal; separate scoped request exceptions | Live Firefox save/restart/subdomain/cross-tab acceptance |
 | General Settings / Advanced / Help navigation | Implemented as settings sections, not identical UI | Usability testing, keyboard access and searchable settings |
 | Premium login / upgrade banner | **Different by design: no login or payment tier** | No paywalled protections or promotional reminders |
 | Show toolbar count and network activity | Implemented: badge, monitor and access inspector | Browser-side counting accuracy and display cleanup |

@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.16 (Build 45).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.17 (Build 46).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 46: Allowed Websites / one-click allowlisting (0.3.17)
+
+The Firefox toolbar now offers **Allowlist this website** and **Remove from allowlist** for the current HTTP(S) site. Allowed websites are saved between restarts and shown in a dedicated **Allowed Websites** Settings section, where users can add a hostname or paste a website URL and revoke individual sites. A stored hostname applies to its subdomains; an unrelated website remains protected. DK Live Block stores **only the canonical hostname**, never private URL paths, passwords or tokens.
+
+This uses the pre-existing `paused` setting internally, so there is **one source of truth**, not competing whitelist systems. An advanced manual hostname editor remains available, along with individual host/type request exceptions in the Network Monitor. The toolbar clearly warns that a full-site allowance disables blocking for that site, whereas a request allowance is narrow. All allowances are user-initiated, reversible and free. There is no Acceptable Ads or paid whitelist program. Offline source checks are not a substitute for complete Firefox testing.
 
 ## Build 45: Advanced Firefox tools and no-promotions policy (0.3.16)
 

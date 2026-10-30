@@ -144,7 +144,7 @@ function badge(id){
  browser.browserAction.setBadgeTextColor?.({tabId:id,color:"#ffffff"})?.catch?.(()=>{});
 }
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persistSettings().catch(console.warn);},60000);}
-function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),temporarilyPaused:data.tempPaused.has(id),
+function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),allowlistMatch:DKSiteAllowlist.match(data.settings.paused,h),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
  mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).length:0,
@@ -778,7 +778,31 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(msg.paused)data.tempPaused.add(id);else data.tempPaused.delete(id);
   badge(id);refreshTabs();return status(id,url);
  }
- if(msg.action==="toggleSite"){if(!h)return {error:"No website"};data.settings.paused=data.settings.paused.filter(x=>x!==h);if(msg.disable)data.settings.paused.push(h);await persist();rebuild();badge(id);return status(id,url);}
+ if(msg.action==="getAllowedSites")return DKSiteAllowlist.normalize(data.settings.paused);
+ if(msg.action==="addAllowedSite"||msg.action==="removeAllowedSite"){
+  const result=msg.action==="addAllowedSite"?
+   DKSiteAllowlist.add(data.settings.paused,msg.site):
+   DKSiteAllowlist.remove(data.settings.paused,msg.site);
+  if(result.error)return result;
+  data.settings.paused=result.entries;
+  await persistSettings();rebuild();
+  return {ok:true,sites:result.entries,unchanged:!!result.unchanged};
+ }
+ if(msg.action==="setSiteAllowed"||msg.action==="toggleSite"){
+  if(!Number.isInteger(id)||id<0)return {error:"Choose a website tab."};
+  let liveUrl,site;
+  try{liveUrl=(await browser.tabs.get(id))?.url||"";site=DKSiteAllowlist.host(liveUrl);}
+  catch(_){return {error:"This website tab is no longer available."};}
+  if(!site||!DKManualRules.validHost(site))return {error:"Only HTTP(S) website tabs can be allowlisted."};
+  const wantAllowed=msg.action==="toggleSite"?msg.disable===true:msg.allowed===true;
+  const result=wantAllowed?
+   DKSiteAllowlist.add(data.settings.paused,site):
+   DKSiteAllowlist.resume(data.settings.paused,site);
+  if(result.error)return result;
+  data.settings.paused=result.entries;
+  await persistSettings();rebuild();
+  return {...status(id,liveUrl),ok:true,allowlistMatch:DKSiteAllowlist.match(result.entries,site)};
+ }
  if(msg.action==="allowHost"){
   const rule=DKManualRules.allowHostOnSite(h,msg.host);
   if(!rule)return {error:"Invalid site or blocked-request hostname."};
@@ -842,7 +866,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
   if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
-  if(Array.isArray(s.paused))data.settings.paused=s.paused.filter(x=>typeof x==="string"&&/^[a-z0-9.-]{1,253}$/.test(x)).slice(0,500);
+  if(Array.isArray(s.paused)){
+   if(s.paused.length>DKSiteAllowlist.LIMIT||
+      s.paused.some(x=>!DKManualRules.validHost(x)))
+    return {error:"Allowed websites require valid hostnames (maximum 500)."};
+   data.settings.paused=DKSiteAllowlist.normalize(s.paused);
+  }
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
   await persist();rebuild();
   // Newly enabled subscriptions work immediately without waiting for tomorrow's alarm.
