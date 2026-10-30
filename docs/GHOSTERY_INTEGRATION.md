@@ -1,16 +1,20 @@
-# DK Live Block: optional Ghostery engine
+# DK Live Block: Ghostery is included
 
-The GitHub source contains a hybrid adapter, with a no-op vendor placeholder. Ghostery is NOT bundled or active until locally compiled. To build the pinned standalone MPL-2.0 @ghostery/adblocker@2.20.3 package on Ubuntu:
+**End users install the finished Firefox extension once. No additional downloads, terminal commands, npm, Node.js, Ghostery installation, or online build service are required.**
 
-    npm install
-    npm run build:ghostery
+The compiled Ghostery 2.20.3 engine is checked in at `src/ghostery-vendor.js` (479,492 bytes). The manifest loads it before `hybrid-engine.js`. Every normal Firefox package assembled from `src/` includes that script, its interface code, and `src/LICENSE-GHOSTERY.txt`.
 
-This compiles a self-contained src/ghostery-vendor.js. No runtime remote code, new network requests, or standalone Ghostery WebExtension listener are installed. DK site exceptions, playback protections, sign-in safeguards, local rule data, and proxy rules remain under DK control. Only Ghostery network matching is consulted. Remote scriptlets, rewrite instructions, network redirects and DOM injections are NOT enabled by this adapter.
+SHA-256 for the committed engine:
+`ad116ca8d04d716bda3d02e19a35137428b71ae13c6c1f390600830cd8d7e0f9`
 
-MPL-2.0 license and upstream source: src/LICENSE-GHOSTERY.txt and https://github.com/ghostery/adblocker/tree/master/packages/adblocker . Include required source/notice information when distributing a binary. DK original code remains MIT. The source-only integration is not Firefox validated and not approved for public release.
+Ghostery operates as a supplementary network filtering engine; DK's existing local controls, site-scoped exceptions, privacy protections, video playback safeguards, and Google sign-in protections remain in charge. Ghostery remote executable code, scriptlets, external redirects and uncontrolled resource replacement are not loaded by this integration.
 
-No GitHub Actions or paid services. Building Ghostery is optional for development and does not block further coding.
+## Developer maintenance only
 
-## One-command Ubuntu installation
+Developers who intentionally want to regenerate the pinned engine bundle can use the optional script `bash scripts/install-ghostery.sh` on Ubuntu. The compiled result must be reviewed and committed like other source updates. This is **not** an end-user installation step and is not required for ordinary coding or Firefox packaging.
 
-From the local DK Live Block source directory run `bash scripts/install-ghostery.sh`. It downloads pinned npm dependencies and builds `src/ghostery-vendor.js`. If compilation fails, the previous bundle is retained. No GitHub Actions, passwords, Firefox installation, release ZIP or hosted service. To include the compiled engine in the GitHub repository, the local bundle must subsequently be committed, or shared here for an authenticated connector push.
+The standalone upstream `@ghostery/adblocker` library is MPL-2.0; keep copyright/source and license notices when distributing. Upstream: https://github.com/ghostery/adblocker . The host app's original code remains MIT-licensed. No npm `node_modules/` tree is bundled or tracked. The extension does not require remote executable code.
+
+## Validation status
+
+Compiled Ghostery library loaded successfully in a local Node.js VM. Offline network blocking and site-scoped exception smoke checks passed. A browser is **not** needed to download dependencies at runtime, but real Firefox playback and comprehensive extension testing are still pending. No public release has been authorized.

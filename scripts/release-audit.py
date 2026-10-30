@@ -53,7 +53,12 @@ def verify():
         if re.search(r'<script(?![^>]*\bsrc=)[^>]*>', data, re.I):
             issues.append("Inline extension script in " + page)
     if "ghostery-vendor.js" not in paths or "hybrid-engine.js" not in paths:
-        issues.append("Missing optional Ghostery vendor bridge scripts")
+        issues.append("Missing embedded Ghostery vendor bridge scripts")
+    embedded = SRC / "ghostery-vendor.js"
+    if not embedded.is_file() or embedded.stat().st_size < 100_000:
+        issues.append("Bundled Ghostery engine missing or placeholder")
+    if not (SRC / "LICENSE-GHOSTERY.txt").is_file():
+        issues.append("Missing Ghostery MPL-2.0 license")
     if "public-suffix.js" not in paths:
         issues.append("Missing Mozilla Public Suffix List asset")
     if not (SRC / "LICENSE-PSL.txt").is_file():

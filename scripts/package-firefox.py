@@ -23,6 +23,14 @@ def main():
     version = manifest["version"]
     target = ROOT / "dist" / ("dk-live-block-" + version + "-unsigned.zip")
     target.parent.mkdir(exist_ok=True)
+    # Verify a ready-to-run embedded engine before creating a candidate.
+    # This does not run during ordinary development or Git commits.
+    ghostery = SRC / "ghostery-vendor.js"
+    ghostery_license = SRC / "LICENSE-GHOSTERY.txt"
+    if (not ghostery.is_file() or ghostery.stat().st_size < 100_000
+            or not ghostery_license.is_file()
+            or b"root.DKGhosteryVendor=null" in ghostery.read_bytes()):
+        raise SystemExit("Packaging rejected: embedded Ghostery engine or license missing")
     files = sorted(p for p in SRC.rglob("*") if p.is_file())
     if not files or any(p.is_symlink() for p in SRC.rglob("*")):
         raise SystemExit("Packaging rejected: missing files or symlink")

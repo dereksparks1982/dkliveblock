@@ -4,11 +4,13 @@
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
-One main branch. Incremental tested development slices. No public release/download until the full feature and stability gates are met.
+One main branch, rapid source development and fixes as problems are found. No public release until the extension is ready.
 
-DK Live Block application code is MIT-licensed; the bundled Mozilla Public Suffix List source and generated dataset are MPL-2.0 (see `src/LICENSE-PSL.txt` and `vendor/public_suffix_list.dat`). External filter subscriptions have their own licenses. No ABP application code is copied.
+DK Live Block application code is MIT-licensed; the locally bundled Ghostery filtering engine and Mozilla Public Suffix List components are MPL-2.0 (see `src/LICENSE-PSL.txt` and `vendor/public_suffix_list.dat`). External filter subscriptions have their own licenses. No ABP application code is copied.
 
-Run offline checks with: bash scripts/test-local.sh
+The **Ghostery filtering engine is included in this repository and loads with the extension**. Firefox users will not need Node.js, npm, Ghostery installation, a second download, or a separate account. The current code remains unreleased pending real Firefox validation.
+
+Developers may run optional offline checks with: bash scripts/test-local.sh
 
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
@@ -164,9 +166,11 @@ DK Live Block can fetch a tightly restricted, version-numbered, data-only YouTub
 
 A Patreon button is included in the toolbar and settings footer, but it stays disabled with a **Coming soon** label until the official Patreon creator page is configured. Later, set the verified HTTPS page in `PATREON_URL` in `src/support.js` and ship a normal extension update. The extension does not request payments, contact Patreon automatically, or track supporters. Donations are optional and do not unlock features. Users, including businesses, may use DK Live Block free of charge. The requested no-resale/no-software-monetization policy is a future licensing decision; current source remains MIT-licensed and already-granted rights are unaffected.
 
-## Build 19: optional Ghostery engine integration
+## Build 19: embedded Ghostery engine
 
-An **optional** Ghostery MPL-2.0 filtering engine can be bundled locally from the pinned `@ghostery/adblocker@2.20.3` package. Run `npm install` then `npm run build:ghostery` on Ubuntu to generate the self-contained `src/ghostery-vendor.js`. The repository contains a harmless placeholder until this step runs. The extension loads no remote executable code. Our native filter engine still works without the optional bundle; with it, Ghostery augments network matching while DK's per-site pause, local exceptions, login protections, playback rescue, proxy restrictions and other defenses stay in charge. Extended cosmetics/scriptlets are **not** executed automatically from untrusted subscriptions. A locally built Ghostery bundle is not yet an approved release artifact; current source has not undergone complete live Firefox testing.
+The real **@ghostery/adblocker 2.20.3** JavaScript engine is **committed at `src/ghostery-vendor.js`** and loaded automatically by the Firefox extension. Its 479,492-byte bundled file comes from the local build and has SHA-256 `ad116ca8d04d716bda3d02e19a35137428b71ae13c6c1f390600830cd8d7e0f9`. It requires no npm, Node.js, package download, or build step on an end user's machine. The final Firefox extension package includes it by default alongside the other `src/` assets. DK's pause, exceptions, streaming/login safeguards, and filter list choices stay in control. New developer builds can optionally regenerate this checked-in file using the pinned local npm dependencies; regeneration is **not required** for Firefox users.
+
+MPL-2.0 applies to the embedded Ghostery code (`src/LICENSE-GHOSTERY.txt`). DK original application code remains MIT. The offline Ghostery network block/exception smoke check passed; full live Firefox, YouTube and Disney+ testing remains outstanding.
 
 ## Build 19: conservative on-page ad recognition
 
