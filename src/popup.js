@@ -54,3 +54,5 @@ $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendM
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 load().catch(e=>$("info").textContent=e.message);
+
+DKSupport.installButton($("patreonSupport"));

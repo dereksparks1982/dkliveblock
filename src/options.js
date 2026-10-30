@@ -233,3 +233,5 @@ $("youtubeRollback").addEventListener("click",async()=>{
  }catch(error){$("message").textContent=error.message;}
  finally{button.disabled=false;}
 });
+
+DKSupport.installButton($("patreonSupport"));

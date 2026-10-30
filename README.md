@@ -159,3 +159,7 @@ Authentication controls are also protected from matching cosmetic and procedural
 ## Rapid YouTube compatibility updates
 
 DK Live Block can fetch a tightly restricted, version-numbered, data-only YouTube cosmetic filter pack from the project's public repository. It validates the format, selectors and origin; preserves last-working rules on errors; supports manual checks and one-click rollback with a rejected-version hold. No downloaded executable code, no telemetry and no automatic release package. Maintainers follow [the YouTube maintenance playbook](docs/YOUTUBE_MAINTENANCE.md); real Firefox playback validation is required before changing the pack.
+
+## Voluntary Patreon support
+
+A Patreon button is included in the toolbar and settings footer, but it stays disabled with a **Coming soon** label until the official Patreon creator page is configured. Later, set the verified HTTPS page in `PATREON_URL` in `src/support.js` and ship a normal extension update. The extension does not request payments, contact Patreon automatically, or track supporters. Donations are optional and do not unlock features. Users, including businesses, may use DK Live Block free of charge. The requested no-resale/no-software-monetization policy is a future licensing decision; current source remains MIT-licensed and already-granted rights are unaffected.
