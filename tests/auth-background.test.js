@@ -28,7 +28,7 @@ test("real OAuth popups remain open and Google sign-in resources are not blocked
  };
  const timer=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
  const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,console,Date,AbortController,setTimeout:timer,clearTimeout,fetch:async()=>{throw Error("offline");}});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","streaming-diagnostics.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","auth-protection.js","youtube-maintenance.js","video-library.js","ghostery-vendor.js","hybrid-engine.js","background.js"])
+ for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","streaming-diagnostics.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","ghostery-vendor.js","hybrid-engine.js","background.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,25));
  const make=url=>({url,tabId:1,type:"script",documentUrl:"https://news.test/article"});

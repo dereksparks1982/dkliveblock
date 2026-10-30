@@ -100,3 +100,39 @@ test("a content script cannot grant a popup exception",async()=>{
   {tab:{id:1,url:"https://thepiratebay.org/"},url:"https://thepiratebay.org/"});
  assert.match(result.error,/extension interface/i);
 });
+
+test("blocked popunder history records only observed host and allows privacy clearing",async()=>{
+ const {callbacks,flush}=await environment();
+ callbacks.created({id:111,openerTabId:1,url:"about:blank"});
+ await flush();
+ let rows=await callbacks.message({action:"getPopupHistory",tabId:1});
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].destinationHost,"");
+ assert.match(rows[0].detail,/Destination not observed/);
+ await callbacks.navigation({sourceTabId:1,tabId:111,url:"https://rotating-ad.test/go?PRIVATE_TOKEN=1"});
+ rows=await callbacks.message({action:"getPopupHistory",tabId:1});
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].destinationHost,"rotating-ad.test");
+ assert.doesNotMatch(JSON.stringify(rows),/PRIVATE_TOKEN|\/go\?/);
+ const other=await callbacks.message({action:"getPopupHistory",tabId:2});
+ assert.equal(other.length,0);
+ const cleared=await callbacks.message({action:"clearPopupHistory",tabId:1});
+ assert.equal(cleared.ok,true);
+ assert.equal((await callbacks.message({action:"getPopupHistory",tabId:1})).length,0);
+});
+test("private request logging disabled prevents popup history recording",async()=>{
+ const {callbacks,flush}=await environment();
+ await callbacks.message({action:"saveSettings",settings:{requestLog:false}});
+ callbacks.created({id:112,openerTabId:3,url:"about:blank"});
+ await flush();
+ const rows=await callbacks.message({action:"getPopupHistory",tabId:3});
+ assert.deepEqual(Array.from(rows),[]);
+});
+test("content scripts cannot read or erase popup history",async()=>{
+ const {callbacks}=await environment();
+ const sender={tab:{id:1,url:"https://thepiratebay.org/"},url:"https://thepiratebay.org/"};
+ for(const action of ["getPopupHistory","clearPopupHistory"]){
+  const result=await callbacks.message({action,tabId:1},sender);
+  assert.match(result.error,/extension interface/i);
+ }
+});

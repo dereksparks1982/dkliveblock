@@ -116,7 +116,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -376,6 +376,8 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
  try{
   await browser.tabs.remove(newTabId);
   data.popupTrapCounts.set(sourceTabId,(data.popupTrapCounts.get(sourceTabId)||0)+1);
+  if(data.settings.requestLog)
+   DKPopupHistory.add(data.popupHistory,sourceTabId,sourceHost,newTabId,targetUrl,"strict");
   recordBlock(sourceTabId,typeof targetUrl==="string"?targetUrl:"","popup",{p:"Strict new-tab protection"});
  }catch(error){
   // Tab may have already closed; retain the short-lived claim to prevent
@@ -391,6 +393,8 @@ browser.tabs.onCreated?.addListener(tab=>{
 // Rule-based popup filters still cover ordinary sites.
 browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  if(!data.ready||!data.settings.enabled||event.tabId<0||event.sourceTabId<0)return;
+ if(data.settings.requestLog)
+  DKPopupHistory.enrich(data.popupHistory,event.sourceTabId,event.tabId,event.url||"");
  const strict=await interceptStrictPopup(event.tabId,event.sourceTabId,event.url||"");
  if(strict!=="not-applicable")return;
  if(!/^https?:/i.test(event.url)||DKAuthProtection.isAuthPopup(event.url))return;
@@ -401,6 +405,9 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
   const verdict=data.engine.checkRequest(event.url,"popup",originHost,data.engine.getPagePolicy(originUrl));
   if(!verdict.block)return;
   await browser.tabs.remove(event.tabId);
+  if(data.settings.requestLog)
+   DKPopupHistory.add(data.popupHistory,event.sourceTabId,originHost,
+    event.tabId,event.url,"filter");
   recordBlock(event.sourceTabId,event.url,"popup",verdict.rule);
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
@@ -408,6 +415,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
    DKRequestControls.dropTab(data.requestControls,id);
+   DKPopupHistory.clear(data.popupHistory,id);
    DKPopupTrap.revoke(data.popupTrapPermits,id);
    data.popupTrapCounts.delete(id);
   }
@@ -419,6 +427,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
+ DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
  DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
@@ -458,6 +467,16 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getNetworkMonitor"){
   if(fromContent)return {error:"Extension interface only."};
   return DKNetworkMonitor.snapshot(data.networkMonitors,id);
+ }
+ if(msg.action==="getPopupHistory"||msg.action==="clearPopupHistory"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let sourceHost;
+  try{sourceHost=host((await browser.tabs.get(id))?.url||"");}
+  catch(_){return {error:"Website tab no longer available."};}
+  if(!sourceHost)return {error:"Choose a website tab."};
+  if(msg.action==="clearPopupHistory"){DKPopupHistory.clear(data.popupHistory,id);return {ok:true};}
+  if(!data.settings.requestLog)return [];
+  return DKPopupHistory.getRecent(data.popupHistory,id,sourceHost);
  }
  if(msg.action==="getRequestAllowances"||msg.action==="allowMonitoredRequest"||
     msg.action==="revokeMonitoredRequest"){
@@ -662,7 +681,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getLog")return (data.logs.get(id)||[]).slice().reverse();
  if(msg.action==="clearLog"){data.logs.delete(id);data.streamingIssues.delete(id);return {ok:true};}
  if(msg.action==="resetStatistics"){
-  data.settings.blockedTotal=0;data.counts.clear();data.logs.clear();data.streamingIssues.clear();data.streamingAllowances.clear();
+  data.settings.blockedTotal=0;data.counts.clear();data.logs.clear();data.streamingIssues.clear();data.streamingAllowances.clear();data.popupHistory.clear();
   await persistSettings();refreshTabs();return {ok:true};
  }
  if(msg.action==="updateLists")return updateLists();
@@ -763,7 +782,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.streamingAllowances.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))data.settings.paused=s.paused.filter(x=>typeof x==="string"&&/^[a-z0-9.-]{1,253}$/.test(x)).slice(0,500);
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];

@@ -35,6 +35,15 @@
 <p id="allowStatus" role="status">No exceptions have been added.</p>
 <div id="allowList"></div>
 </section>
+<section id="popupActivity"><h2>Popup and popunder activity</h2>
+<p>Shows new tabs DK Live Block closed while private request logging was enabled. Some sites first create a blank tab, so Firefox may never reveal the intended destination. Unknown means unknown, not an assumed scam hostname.</p>
+<div class="network-monitor-controls">
+<button type="button" id="popupHistoryRefresh">Refresh popup history</button>
+<button type="button" id="popupHistoryClear">Clear popup history</button>
+</div>
+<p id="popupHistoryStatus" role="status">Popup history is kept only in Firefox memory.</p>
+<div id="popupHistoryRows"></div>
+</section>
 <p id="monitorCount" role="status">No requests captured.</p>
 <div class="network-monitor-table"><table><thead><tr><th>Time</th><th>Decision</th><th>Hostname</th><th>Type</th><th>Method</th><th>HTTP</th><th>Details</th><th>Possible purpose</th><th>Control</th></tr></thead><tbody id="monitorRows"></tbody></table></div>
 <p><button id="monitorMore" type="button" hidden>Show more requests</button></p>

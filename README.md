@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.9 (Build 38).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.10 (Build 39).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 39: popup and popunder activity history (0.3.10)
+
+The Network Monitor now includes **Popup and popunder activity** for the selected tab. With private request logging enabled, each popup DK Live Block **successfully closes** is recorded in a bounded local, memory-only history (up to 100 per tab, two-hour expiry). Entries distinguish strict popunder protections from filter-rule closures and store only the observed **destination hostname**. For blank-first popunders the destination may be **unknown**; a later Firefox navigation-target event can fill it in when available. No raw URL paths, query strings, cookies, developer uploads, new permissions or external dependencies. The user can refresh or clear history.
+
+This records observed closed tabs, **not every attempted popup**, and does not reveal OS-wide computer activity. Full offline regression and live Firefox acceptance remain pending.
 
 ## Build 38: Website Access Inspector and individual request controls (0.3.9)
 

@@ -1,6 +1,6 @@
 "use strict";
 const $=id=>document.getElementById(id);
-let tabId=null,lastSnapshot=null,displayLimit=250,polling=false,allowances=[];
+let tabId=null,lastSnapshot=null,displayLimit=250,polling=false,allowances=[],popupEvents=[];
 const MONITOR_STATES=new Set(["blocked","allowed","failed","redirected","pending"]);
 const safeTabId=value=>/^[0-9]{1,10}$/.test(String(value||""))?Number(value):null;
 function csvField(value){const s=String(value??"");return '"'+s.replace(/"/g,'""')+'"';}
@@ -92,6 +92,22 @@ function render(){
   snapshot.seen?"Capture stopped for "+snapshot.siteHost+". Results remain in memory.":
   "Capture not running. Click Start capture to see new network requests.";
 }
+function renderPopupHistory(){
+ const panel=$("popupHistoryRows");panel.replaceChildren();
+ $("popupHistoryStatus").textContent=popupEvents.length?
+  popupEvents.length+" recent blocked popup or popunder event(s) on this tab.":
+  "No recorded popup closures for this tab. Private request logging may be disabled.";
+ for(const item of popupEvents){
+  const line=document.createElement("div");line.className="log-row";
+  const desc=document.createElement("span");
+  const destination=item.destinationHost||"Destination unknown";
+  desc.textContent=new Date(item.when).toLocaleTimeString()+" · "+destination+
+   " · "+(item.reason==="strict"?"Strict popup protection":"Popup filter rule")+
+   " · Blocked";
+  desc.title=String(item.detail||"").slice(0,130);
+  line.appendChild(desc);panel.appendChild(line);
+ }
+}
 function renderAllowances(){
  const panel=$("allowList");panel.replaceChildren();
  if(!allowances.length){panel.textContent="No currently active request allowances for this website.";return;}
@@ -156,16 +172,18 @@ async function update(){
  polling=true;
  const queried=tabId;
  try{
-  const [response,permitted]=await Promise.all([
+  const [response,permitted,popups]=await Promise.all([
    browser.runtime.sendMessage({action:"getNetworkMonitor",tabId:queried}),
-   browser.runtime.sendMessage({action:"getRequestAllowances",tabId:queried})
+   browser.runtime.sendMessage({action:"getRequestAllowances",tabId:queried}),
+   browser.runtime.sendMessage({action:"getPopupHistory",tabId:queried})
   ]);
   if(queried!==tabId)return;
   if(!response||!Array.isArray(response.rows))throw Error(response?.error||"Monitor unavailable");
   if(response.rows.length>1500)throw Error("Invalid monitor response");
   lastSnapshot=response;
   allowances=Array.isArray(permitted)?permitted:[];
-  render();renderAllowances();
+  popupEvents=Array.isArray(popups)?popups:[];
+  render();renderAllowances();renderPopupHistory();
  }catch(error){$("monitorState").textContent="Unable to inspect traffic: "+String(error.message||error).slice(0,160);}
  finally{polling=false;}
 }
@@ -178,12 +196,22 @@ async function action(name){
 $("monitorRefreshTabs").addEventListener("click",()=>tabs().then(update).catch(e=>$("monitorState").textContent=e.message));
 $("monitorTab").addEventListener("change",()=>{
  tabId=safeTabId($("monitorTab").value);
- lastSnapshot=null;allowances=[];displayLimit=250;update();
+ lastSnapshot=null;allowances=[];popupEvents=[];displayLimit=250;update();
 });
 $("monitorStart").addEventListener("click",()=>action("startNetworkMonitor").catch(e=>$("monitorState").textContent=e.message));
 $("monitorStop").addEventListener("click",()=>action("stopNetworkMonitor").catch(e=>$("monitorState").textContent=e.message));
 $("monitorClear").addEventListener("click",()=>action("clearNetworkMonitor").catch(e=>$("monitorState").textContent=e.message));
 $("monitorMore").addEventListener("click",()=>{displayLimit+=250;render();});
+$("popupHistoryRefresh").addEventListener("click",()=>update().catch(e=>$("popupHistoryStatus").textContent=e.message));
+$("popupHistoryClear").addEventListener("click",async()=>{
+ if(tabId===null)return;
+ try{
+  const result=await browser.runtime.sendMessage({action:"clearPopupHistory",tabId});
+  if(!result?.ok)throw Error(result?.error||"Could not clear popup history");
+  popupEvents=[];renderPopupHistory();
+  $("popupHistoryStatus").textContent="Local popup history cleared.";
+ }catch(error){$("popupHistoryStatus").textContent=error.message;}
+});
 for(const id of ["monitorStatus","monitorType","monitorSearch"])
  $(id).addEventListener(id==="monitorSearch"?"input":"change",()=>{displayLimit=250;render();});
 $("monitorExport").addEventListener("click",()=>{

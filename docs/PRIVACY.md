@@ -39,3 +39,7 @@ Developer email: **elderredsoftworks@proton.me**. The Firefox extension does not
 When the user starts the optional Network Monitor, DK Live Block keeps only bounded per-tab request **hostname**, resource type, request method, status and coarse reason information in memory. The Access Inspector uses these fields to generate tentative explanations and clearly labels guesses. It does not monitor local computer processes, read response bodies or inspect files.
 
 The user may explicitly allow a blocked source-site/destination-hostname/resource-type combination for ten minutes (one tab), the current browser session or across restarts. Only the last category is stored in Firefox local extension settings, with no full URL, path, query string, account token or response data. They can revoke it from the monitor. The extension does not contact the developer or any remote telemetry service.
+
+## Popup activity history (Build 39)
+
+When private request logging is enabled, DK Live Block retains at most 100 recently **closed** popup/tab records per source tab in Firefox memory, for up to two hours. Only the source site hostname, optional destination hostname, event time and reason category are recorded. A blank tab can leave the destination unknown. Full URLs with paths, query strings or credentials are not saved. The user can clear records or disable private request logging to stop collection and clear them. No developer upload is performed.

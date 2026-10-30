@@ -184,3 +184,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 38: request-level Network Monitor controls (exact source site + destination hostname + Firefox resource type), ten-minute tab / browser-session / remembered exceptions, on-screen revocation, opt-in evidence and confirmation gates, and conservative Access Inspector with observed vs. likely classifications.
 - [ ] Build 38 acceptance: full local test suite, Firefox real-site filter behavior, allowed/blocked UI lifecycle and persisted exception tests, sensitive URL and proxy compatibility review.
+
+- [x] Build 39: bounded private popup/popunder closure history, later destination hostname enrichment, strict vs. filter reasons, two-hour expiry, local refresh and clear controls.
+- [ ] Build 39 acceptance: complete offline test suite and live Firefox navigation-target/blank-first/permission tests.
