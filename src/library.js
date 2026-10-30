@@ -57,6 +57,9 @@ async function load(){
  if(!Array.isArray(result))throw Error("Could not load local video library.");
  libraryItems=DKVideoLibrary.list(result);
  render();
+ const privacy=await browser.runtime.sendMessage({action:"videoPrivacyStatus"});
+ $("rememberPrivacyState").textContent="Automatic remembering: "+(privacy?.autoRemembering?"ON":"OFF")+
+  " · Saved locally: "+libraryItems.length+" · No DK server sync.";
 }
 $("refreshLibrary").addEventListener("click",()=>load().catch(e=>$("libraryNotice").textContent=e.message));
 $("videoSearch").addEventListener("input",render);
@@ -86,8 +89,14 @@ $("importLibrary").addEventListener("change",async event=>{
  finally{event.target.value="";}
 });
 $("clearLibrary").addEventListener("click",async()=>{
- if(!window.confirm("Permanently remove ALL saved videos from this local library? This does not delete downloaded files."))return;
- const result=await browser.runtime.sendMessage({action:"clearSavedVideos"});
- if(result.ok)await load();else $("libraryNotice").textContent=result.error||"Clear failed.";
+ if(!window.confirm("Erase ALL locally saved videos and last download status, and switch OFF automatic YouTube remembering? This cannot be undone. Downloaded video files will NOT be deleted."))return;
+ $("clearLibrary").disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"eraseVideoHistory"});
+  if(!result.ok)throw Error(result.error||"Erase failed");
+  await load();
+  $("libraryNotice").textContent="Saved-video history erased and automatic remembering turned OFF.";
+ }catch(error){$("libraryNotice").textContent="Erase failed: "+error.message;}
+ finally{$("clearLibrary").disabled=false;}
 });
 load().catch(error=>$("libraryNotice").textContent=error.message);

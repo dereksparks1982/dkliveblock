@@ -369,7 +369,24 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="updateSavedVideoMetadata"){
   return libraryUpdate(items=>DKVideoLibrary.updateMetadata(items,msg.videoId,msg.changes));
  }
- if(msg.action==="clearSavedVideos")return libraryUpdate(()=>[]);
+ if(msg.action==="clearSavedVideos")return {error:"Use the explicit Erase saved-video history control."};
+ if(msg.action==="videoPrivacyStatus")
+  return {autoRemembering:!!data.settings.rememberVideos};
+ if(msg.action==="eraseVideoHistory"){
+  if(videoJob.state==="running"||videoJob.state==="cancelling")
+   return {error:"Finish or cancel the active download before erasing viewing history."};
+  const task=videoLibraryQueue.catch(()=>{}).then(async()=>{
+   if(videoJob.state==="running"||videoJob.state==="cancelling")
+    return {error:"A download started. Cancel it before erasing history."};
+   data.settings.rememberVideos=false;autoVideoTimes.clear();
+   await videoPersistQueue.catch(()=>{});
+   await browser.storage.local.set({settings:data.settings,savedVideos:[],lastVideoDownload:null});
+   videoJob={id:"",state:"idle",progress:0,quality:"compatible",phase:"",error:""};
+   refreshTabs();
+   return {ok:true};
+  });
+  videoLibraryQueue=task;return task;
+ }
  if(msg.action==="importSavedVideos"){
   const imported=DKVideoLibrary.importBackup(msg.backup);
   if(!imported)return {error:"Invalid or oversized local video library backup."};

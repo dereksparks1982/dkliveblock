@@ -10,10 +10,11 @@
 <button id="refreshLibrary" type="button">Refresh library</button>
 <button id="exportLibrary" type="button">Export JSON backup</button>
 <label class="import">Import saved videos <input id="importLibrary" type="file" accept="application/json,.json"></label>
-<button id="clearLibrary" type="button">Clear library</button>
+<button id="clearLibrary" type="button">Erase saved-video history</button>
 <button id="openSettings" type="button">Dependencies &amp; settings</button>
 </div>
 <p class="library-privacy">Backups stay on your computer unless you share them. Import merges with existing videos, removes duplicates, and keeps the newest 300 entries.</p>
+<p id="rememberPrivacyState" class="library-privacy" role="status">Checking privacy settings…</p>
 <p id="libraryNotice" role="status">Loading saved videos…</p><div id="libraryRows" class="dependency-list"></div>
 <p>Save a video from the DK Live Block toolbar while watching it. Resume links return to the last position you explicitly saved.</p></main>
 <script src="video-library.js"></script><script src="library.js"></script></body></html>

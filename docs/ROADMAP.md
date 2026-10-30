@@ -155,3 +155,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 29: local favorites, watched/unwatched markers, private notes, collection filters and metadata retention across automatic/manual video position updates, with regression coverage.
 - [ ] Build 29 acceptance: test Firefox library controls and metadata backup, full source suite and live video playback.
+
+- [x] Build 30: explicit viewing-history erase + auto-remember off, clear last coarse download status, reject erase while active native job, serialized storage cleanup and visible privacy status.
+- [ ] Build 30 acceptance: complete local suite, actual Firefox storage restoration and download-vs-erase race tests.

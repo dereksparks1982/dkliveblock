@@ -111,3 +111,18 @@ test("Build 29 favorites, watched state, notes and filters remain local and boun
  assert.equal(renewed.note,modified[0].note);
  assert.equal(DK.importBackup(DK.exportBackup([renewed]))[0].watched,true);
 });
+
+test("Build 30 privacy erase disables auto-remember and clears both local data stores",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const root=path.join(__dirname,"../src");
+ const ui=fs.readFileSync(path.join(root,"library.js"),"utf8");
+ const background=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ const html=fs.readFileSync(path.join(root,"library.html"),"utf8");
+ assert.match(ui,/action:"eraseVideoHistory"/);
+ assert.match(ui,/window\.confirm/);
+ assert.match(ui,/autoRemembering/);
+ assert.match(background,/data\.settings\.rememberVideos=false;autoVideoTimes\.clear\(\)/);
+ assert.match(background,/savedVideos:\[\],lastVideoDownload:null/);
+ assert.match(background,/videoJob\.state==="running"/);
+ assert.match(html,/Erase saved-video history/);
+});
