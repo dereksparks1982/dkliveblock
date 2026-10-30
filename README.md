@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.2.4 (Build 23).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.2.5 (Build 24).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,18 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 24: local video library and optional direct downloads (0.2.5, unreleased)
+
+The Firefox toolbar now offers **Save for Later**, **Download This Video** and **My Saved Videos** on YouTube video tabs. Saving a video works entirely within Firefox, stores a bounded local-only list of up to 300 entries, and remembers the playback position when the player exposes it. Saved entries can be resumed or removed without a DK account.
+
+Optional video downloading uses a pinned, checksum-verified local yt-dlp binary via the separately installed Linux companion. Downloads are explicitly confirmed by the user, accept only validated YouTube video IDs, run in a single background job, and save under `~/.local/share/dk-live-block/downloads/`. Initial format choice prefers a single MP4 or another single stream, without FFmpeg merging. This does not bypass DRM or grant rights to download protected content. Real YouTube downloading, Firefox playback and ABP parity **remain unverified**. See `docs/BUILD_24.md`.
+
+Developers can generate an unsigned, self-contained Python zipapp companion installer from local source using `python3 scripts/make-companion-installer.py --candidate`. It provides a graphical setup when Tkinter is installed, but the resulting companion is still optional and requires separate user approval. This is **not** a public release.
+
+## Build 23: pinned yt-dlp integration (0.2.4)
+
+Build 23 introduced a pinned official yt-dlp download and removal operation with explicit approval, SHA-256 checking and no-clobber safety. It remained developer source only.
 
 ## Build 22: optional Dependencies & Applications Manager (0.2.3)
 

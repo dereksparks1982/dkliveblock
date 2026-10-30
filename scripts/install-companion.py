@@ -29,6 +29,12 @@ def install(home: Path, source: Path) -> tuple[Path, Path]:
     copied = companion.with_name("verified_install.py")
     shutil.copyfile(module, copied)
     copied.chmod(0o600)
+    downloader = source.with_name("video_download.py")
+    if not downloader.is_file():
+        raise FileNotFoundError("Video download module missing")
+    downloaded = companion.with_name("video_download.py")
+    shutil.copyfile(downloader, downloaded)
+    downloaded.chmod(0o600)
     manifest = {
         "name": NAME,
         "description": "DK Live Block optional read-only tool detection",

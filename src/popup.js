@@ -1,6 +1,48 @@
 "use strict";
 const $=id=>document.getElementById(id);
-let tab=null,current=null;
+let tab=null,current=null,videoContext=null;
+function videoMessage(message){$("videoDownloadStatus").textContent=message;}
+async function refreshDownloadStatus(){
+ if(!videoContext)return;
+ try{
+  const job=await browser.runtime.sendMessage({action:"videoDownloadStatus"});
+  if(job?.id===videoContext.id&&job.state==="running")videoMessage("Downloading in the background. Reopen DK Live Block to check status.");
+  else if(job?.id===videoContext.id&&job.state==="complete")videoMessage("Download complete. Saved to ~/.local/share/dk-live-block/downloads/");
+  else if(job?.id===videoContext.id&&job.state==="failed")videoMessage("Download failed: "+(job.error||"See dependency settings."));
+ }catch(_){}
+}
+function showVideoTools(){
+ videoContext=DKVideoLibrary.parseVideo(tab?.url);
+ $("videoTools").hidden=!videoContext;
+ if(!videoContext)return;
+ $("videoTitle").textContent=DKVideoLibrary.safeTitle(tab.title||"YouTube video");
+ refreshDownloadStatus().catch(()=>{});
+}
+async function saveVideo(){
+ if(!videoContext)return;
+ $("saveVideo").disabled=true;
+ try{
+  let position=0;
+  try{const reply=await browser.tabs.sendMessage(tab.id,{action:"getVideoPosition"});position=reply?.position||0;}catch(_){}
+  const result=await browser.runtime.sendMessage({action:"saveVideo",tabId:tab.id,videoId:videoContext.id,
+   title:tab.title,position});
+  videoMessage(result?.ok?"Saved to My Saved Videos at "+Math.floor(position/60)+"m "+Math.floor(position%60)+"s.":result?.error||"Could not save video.");
+ }catch(error){videoMessage(error.message);}
+ finally{$("saveVideo").disabled=false;}
+}
+async function downloadVideo(){
+ if(!videoContext)return;
+ if(!window.confirm("Download this YouTube video using verified local yt-dlp? It will save to ~/.local/share/dk-live-block/downloads/. Only download videos you are authorized to save."))return;
+ $("downloadVideo").disabled=true;
+ try{
+  if(!browser.permissions?.request||!await browser.permissions.request({permissions:["nativeMessaging"]})){
+   videoMessage("Native companion permission is required for downloading.");return;
+  }
+  const result=await browser.runtime.sendMessage({action:"startVideoDownload",tabId:tab.id,videoId:videoContext.id});
+  videoMessage(result?.ok?"Download requested. Open this menu again to check progress.":result?.error||"Could not start download.");
+ }catch(error){videoMessage("Download unavailable: "+error.message);}
+ finally{$("downloadVideo").disabled=false;}
+}
 async function load(){
  [tab]=await browser.tabs.query({active:true,currentWindow:true});
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
@@ -21,6 +63,7 @@ async function load(){
  $("popupProtection").disabled=!current.siteActive;
  $("popupProtection").textContent=current.popupProtectionPaused?"Resume popup cleanup":"Disable popup cleanup here";
  $("info").textContent=(current.networkRules||0).toLocaleString()+" network rules · "+(current.cosmeticRules||0).toLocaleString()+" cosmetic filters";
+ showVideoTools();
 }
 $("enabled").addEventListener("change",async()=>{await browser.runtime.sendMessage({action:"setGlobal",enabled:$("enabled").checked,tabId:tab.id,url:tab.url});await load();});
 $("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage({action:"toggleSite",url:tab.url,tabId:tab.id,disable:!current.sitePaused});await browser.tabs.reload(tab.id);await load();});
@@ -54,6 +97,9 @@ $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendM
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
+$("savedVideos").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("library.html")}));
+$("saveVideo").addEventListener("click",saveVideo);
+$("downloadVideo").addEventListener("click",downloadVideo);
 load().catch(e=>$("info").textContent=e.message);
 
 DKSupport.installButton($("patreonSupport"));

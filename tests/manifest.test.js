@@ -12,6 +12,7 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(m.background.scripts.indexOf("public-suffix.js")>=0);
  assert.ok(m.background.scripts.indexOf("auth-protection.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("public-suffix.js")<m.background.scripts.indexOf("rules.js"));
+ assert.ok(m.background.scripts.indexOf("video-library.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(fs.existsSync(path.join(root,"src/LICENSE-PSL.txt")));
  const contentScripts=m.content_scripts[0].js;
  assert.ok(contentScripts.indexOf("video-assist.js")<contentScripts.indexOf("streaming-watch.js"));
@@ -33,4 +34,16 @@ test("No GitHub Actions and no remote executable scripts",()=>{
  const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
  assert.equal(m.content_security_policy?.includes("unsafe-eval")||false,false);
  assert.equal(m.content_security_policy?.includes("https://")||false,false);
+});
+
+test("Build 24 standalone library assets and popup scripts are packaged",()=>{
+ const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ const popup=fs.readFileSync(path.join(root,"src/popup.html"),"utf8");
+ const library=fs.readFileSync(path.join(root,"src/library.html"),"utf8");
+ assert.ok(popup.includes('id="videoTools"'));
+ assert.ok(popup.includes('src="video-library.js"'));
+ assert.ok(fs.existsSync(path.join(root,"src/library.js")));
+ assert.ok(library.includes('src="video-library.js"'));
+ assert.ok(m.permissions.includes("tabs"));
+ assert.ok(m.optional_permissions.includes("nativeMessaging"));
 });

@@ -32,3 +32,11 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 .options .dependency-actions{display:flex;flex-direction:column;gap:7px;min-width:156px}
 .options .dependency-actions button{font-size:12px;padding:8px}
 @media(max-width:580px){.options .dependency-actions{flex-direction:row;flex-wrap:wrap}}
+
+/* Build 24: video controls for toolbar. */
+.popup .video-tools{margin:12px 0;padding:12px;border:1px solid #4c8277;border-radius:8px;background:#0c302c}
+.popup .video-tools p{font-size:12px;margin:8px 0;overflow-wrap:anywhere}
+.popup .video-tools strong{font-size:13px}
+.popup .video-actions{display:flex;flex-wrap:wrap;gap:8px}
+.popup .video-actions button{flex:1 1 110px;font-size:12px}
+.popup #videoDownloadStatus{font-size:11px}

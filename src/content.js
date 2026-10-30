@@ -231,6 +231,13 @@
  browser.runtime.onMessage.addListener(msg=>{
   if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
+  // Read only on an explicit toolbar request; never collect passive watch history.
+  if(msg.action==="getVideoPosition"){
+   if(!/^(www\.|m\.|music\.)?youtube\.com$/.test(host)||window!==window.top)return Promise.resolve({position:0});
+   const video=document.querySelector("video");
+   const seconds=Number.isFinite(video?.currentTime)?Math.min(86400,Math.max(0,Math.floor(video.currentTime))):0;
+   return Promise.resolve({position:seconds});
+  }
  });
  refresh();
  // YouTube single-page navigation does not necessarily reload the document.

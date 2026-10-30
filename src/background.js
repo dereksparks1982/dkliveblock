@@ -10,6 +10,47 @@ const SOURCES={
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
+let videoLibraryQueue=Promise.resolve();
+let videoJob={id:"",state:"idle",error:""};
+function libraryUpdate(operation){
+ const run=videoLibraryQueue.catch(()=>{}).then(async()=>{
+  const stored=await browser.storage.local.get("savedVideos");
+  const current=DKVideoLibrary.list(stored.savedVideos);
+  const next=operation(current);
+  if(!next)return {error:"Invalid video entry."};
+  await browser.storage.local.set({savedVideos:next});
+  return {ok:true,count:next.length};
+ });
+ videoLibraryQueue=run;return run;
+}
+async function verifiedActiveVideo(msg){
+ if(!Number.isInteger(msg.tabId)||msg.tabId<0)return null;
+ try{
+  const tab=await browser.tabs.get(msg.tabId);
+  const video=DKVideoLibrary.parseVideo(tab?.url);
+  if(!video||video.id!==msg.videoId)return null;
+  return {video,tab};
+ }catch(_){return null;}
+}
+function jobStatus(){return {...videoJob};}
+async function startVideoDownload(msg){
+ const active=await verifiedActiveVideo(msg);
+ if(!active)return {error:"Select an open YouTube video first."};
+ if(videoJob.state==="running")return {error:"Another DK video download is already running."};
+ if(!browser.runtime.sendNativeMessage||!browser.permissions?.contains||
+   !await browser.permissions.contains({permissions:["nativeMessaging"]}))
+  return {error:"Install the optional DK Linux companion and allow native messaging first."};
+ // A second request might have arrived while the permission check was pending.
+ if(videoJob.state==="running")return {error:"Another DK video download is already running."};
+ videoJob={id:active.video.id,state:"running",error:""};
+ Promise.resolve().then(()=>browser.runtime.sendNativeMessage("dk_live_block_companion",{
+  protocol:1,action:"downloadVideo",videoId:active.video.id,confirmation:"explicit-user-action"
+ })).then(reply=>{
+  if(reply?.ok&&reply?.state==="complete")videoJob={id:active.video.id,state:"complete",error:""};
+  else videoJob={id:active.video.id,state:"failed",error:String(reply?.error||"Companion rejected download").slice(0,180)};
+ }).catch(error=>{videoJob={id:active.video.id,state:"failed",error:String(error.message||error).slice(0,180)};});
+ return {ok:true,id:active.video.id,state:"running"};
+}
 const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
@@ -228,6 +269,21 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
  if(msg.action==="status")return status(id,url);
+ if(msg.action==="getSavedVideos"){
+  return DKVideoLibrary.list((await browser.storage.local.get("savedVideos")).savedVideos);
+ }
+ if(msg.action==="saveVideo"){
+  const active=await verifiedActiveVideo(msg);
+  if(!active)return {error:"Video no longer matches the open browser tab."};
+  return libraryUpdate(items=>DKVideoLibrary.save(items,{
+   id:active.video.id,url:active.video.url,title:msg.title,position:msg.position
+  }));
+ }
+ if(msg.action==="removeSavedVideo"){
+  return libraryUpdate(items=>DKVideoLibrary.remove(items,msg.videoId));
+ }
+ if(msg.action==="videoDownloadStatus")return jobStatus();
+ if(msg.action==="startVideoDownload")return startVideoDownload(msg);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
  if(msg.action==="reportPopupCleanup"){
   if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||

@@ -48,11 +48,19 @@ def handle(message: object) -> dict:
     if not isinstance(message, dict) or message.get("protocol") != PROTOCOL:
         return {"ok": False, "protocol": PROTOCOL, "error": "Invalid protocol"}
     action = message.get("action")
-    if action not in ("status", "ping", "installTool", "removeTool"):
+    if action not in ("status", "ping", "installTool", "removeTool", "downloadVideo"):
         return {"ok": False, "protocol": PROTOCOL, "error": "Unsupported action"}
     base = dependency_path()
     if action == "ping":
         return {"ok": True, "protocol": PROTOCOL}
+    if action == "downloadVideo":
+        if message.get("confirmation") != "explicit-user-action":
+            return {"ok": False, "protocol": PROTOCOL, "error": "Missing explicit user consent"}
+        try:
+            import video_download
+            return {"protocol": PROTOCOL, **video_download.download(message.get("videoId"))}
+        except (OSError, ValueError, RuntimeError) as error:
+            return {"ok": False, "protocol": PROTOCOL, "error": str(error)[:160]}
     if action in ("installTool", "removeTool"):
         # No browser-provided URL, hash, command, filename or alternate tool.
         if message.get("toolId") != "yt-dlp" or message.get("confirmation") != "explicit-user-action":

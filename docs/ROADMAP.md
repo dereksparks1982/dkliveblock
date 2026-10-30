@@ -132,3 +132,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 23: opt-in managed yt-dlp pinned Linux x86_64 install/removal with GitHub release hash verification, restricted redirects, no overwrite, no arbitrary URLs/commands, local offline regression tests and separate UI controls.
 - [ ] Build 23 acceptance: full repository tests and live Ubuntu Firefox native messaging installation, constrained browser-packaging checks and network download test; no public release.
 - [ ] Future: signed companion installer for ordinary users, automatic verified updates, FFmpeg integration, actual yt-dlp video downloading and save-for-later library.
+
+- [x] Build 24: YouTube Save for Later toolbar, playback timestamp, local library, remove/resume, bounded entries and explicit-only saving.
+- [x] Build 24: optional background download with pinned yt-dlp, validated video IDs, strict output location, no browser cookies, no shell and no arbitrary URLs.
+- [x] Build 24: generator for a standalone unsigned Python zipapp Linux companion installer and offline tests.
+- [ ] Build 24 release gate: full regression suite, live Firefox playback/resume, native install, actual video download, packaged GUI validation and publisher signing.
+- [ ] Next: cancel/progress, FFmpeg-quality options, user-friendly verified companion distribution, continued YouTube/Disney+ real testing.

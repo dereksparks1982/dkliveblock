@@ -66,3 +66,11 @@ The development companion now implements `installTool` and `removeTool` **only f
 To update an existing Build 22 developer companion to Build 23, run the same local installer again against the current source checkout. It copies both `native_host.py` and `verified_install.py`, without touching installed third-party tools.
 
 Offline tests: `python3 scripts/test-companion.py`, `python3 scripts/test-verified-install.py`. Real GitHub download, Firefox native messaging, browser compatibility, yt-dlp functionality and streaming video remain unverified.
+
+## Build 24: video download capability and one-file installer source
+
+Video saving and timestamp resume now work inside Firefox without the companion. Downloading uses an optional yt-dlp executable in the approved dependencies folder. The browser sends a single YouTube video ID plus an explicit approval marker; the Python companion constructs the URL itself, verifies the managed binary's pinned SHA-256 and runs yt-dlp with no shell, no playlists, no cookies and no caller-supplied URL or output path.
+
+Files are saved under `~/.local/share/dk-live-block/downloads/`. The browser background tracks one job per session, up to 15 minutes, with coarse running/done/failed status. Exiting Firefox or missing native messaging support can interrupt a download. Quality choices, FFmpeg merging, cancellation and detailed progress are not yet implemented.
+
+The optional source-only packaging tool `python3 scripts/make-companion-installer.py --candidate` creates `dist/dk-live-block-companion-linux.pyz`. It bundles the DK native host and modules (not yt-dlp or other third-party programs) and offers a Tkinter install window where available. A manual Python command may be necessary when no graphical Python/Tkinter or desktop file association is present. Not signed or released.
