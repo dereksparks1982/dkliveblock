@@ -2,7 +2,7 @@
    No media manipulation, playback telemetry, remote code, or subscription bypass. */
 (function(root){"use strict";
 const PLAYER=".html5-video-player, #movie_player, .ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
-const SKIP=".ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
+const SKIP=".ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container, button[aria-label='Skip Ad' i], button[aria-label='Skip Ads' i], button[aria-label='Skip Advertisement' i], button[aria-label='Skip Commercial' i], button[aria-label='Skip Commercials' i], button[aria-label='Skip Advertisements' i]";
 function elementRelated(node){
  if(!node||node.nodeType!==1)return false;
  try{return !!(node.matches?.(PLAYER+", "+SKIP)||node.closest?.(PLAYER)||node.querySelector?.(SKIP));}
@@ -15,7 +15,10 @@ function relevant(records){
   if(elementRelated(record.target))return true;
   if(record.type==="childList"){
    // Only examine a bounded number of inserted nodes, never the full page.
-   for(const node of Array.from(record.addedNodes||[]).slice(0,12))if(elementRelated(node))return true;
+   const added=record.addedNodes;
+   // A large NodeList must NOT be copied just to inspect its first 12 nodes.
+   const count=Math.min(12,Number.isSafeInteger(added?.length)?added.length:0);
+   for(let i=0;i<count;i++)if(elementRelated(added[i]))return true;
   }
  }
  return false;

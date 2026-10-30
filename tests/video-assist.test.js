@@ -105,3 +105,41 @@ test("cosmetic filtering does not hide the player Skip Ad buttons",()=>{
  for(const selector of [".ytp-ad-skip-button",".ytp-ad-skip-button-slot",".ytp-skip-ad-button",".ytp-ad-skip-button-container"])
   assert.equal(V.protectSelector(selector),true,selector);
 });
+
+test("a recycled skip button is not allowed to click unrelated controls",()=>{
+ for(const label of ["Learn more","Report ad","Continue","Cancel","Next","Go to sponsor"]){
+  const x=btn({cls:"ytp-ad-skip-button",label,ad:true});
+  assert.equal(V.isAdSkip(x.button),false,label);
+  assert.equal(V.createController().scan({querySelectorAll:()=>[x.button]}).clicked,false,label);
+  assert.equal(x.clicks(),0);
+ }
+});
+test("compact Skip-only label needs dedicated class AND genuine ad context",()=>{
+ const ordinary=btn({cls:"",label:"Skip",ad:true});
+ const detached=btn({cls:"ytp-ad-skip-button",label:"Skip",ad:false});
+ const adSkip=btn({cls:"ytp-ad-skip-button",label:"Skip",ad:true});
+ assert.equal(V.isAdSkip(ordinary.button),false);
+ assert.equal(V.isAdSkip(detached.button),false);
+ assert.equal(V.isAdSkip(adSkip.button),true);
+});
+test("computed-style hidden and disabled-ancestor buttons are ignored",()=>{
+ for(const property of [
+  {display:"block",visibility:"hidden",opacity:"1",pointerEvents:"auto"},
+  {display:"block",visibility:"visible",opacity:"0",pointerEvents:"auto"},
+  {display:"block",visibility:"visible",opacity:"1",pointerEvents:"none"},
+  {display:"none",visibility:"visible",opacity:"1",pointerEvents:"auto"}
+ ]){
+  const x=btn();
+  x.button.ownerDocument={defaultView:{getComputedStyle:()=>property}};
+  assert.equal(V.isAdSkip(x.button),false,JSON.stringify(property));
+ }
+ const x=btn();
+ x.button.closest=selector=>selector.includes("[aria-disabled='true']")?{}:null;
+ assert.equal(V.isAdSkip(x.button),false);
+});
+test("expanded accessible ad labels remain recognized in ad context",()=>{
+ for(const label of ["Skip Advertisement","Skip Advertisements","Skip Commercial","Skip Ads"]){
+  const x=btn({cls:"",label,ad:true});
+  assert.equal(V.isAdSkip(x.button),true,label);
+ }
+});

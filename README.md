@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.11 (Build 40).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.12 (Build 41).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,14 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 41: YouTube skip safety, observer performance and regression gates (0.3.12)
+
+The opt-in-compatible YouTube skip assistant is more careful about **which control it clicks**. A dedicated ad-skip CSS class is no longer enough by itself to click arbitrary recycled buttons such as "Learn more", "Next", "Report ad" or "Continue"; a known skip-ad label is required, or a short/empty label together with an actual ad-skip context. The skip assistant also checks computed visibility, zero opacity, pointer-event state and disabled ancestors, as well as existing disabled/hidden checks. Known English-language accessible labels have broader coverage without allowing generic "Skip intro" or "Skip recap" controls.
+
+The YouTube-specific mutation observer now recognizes accessible Skip Ad buttons as relevant even before expected CSS classes appear. Its inserted-node inspection examines at most 12 items by index instead of calling `Array.from` on an arbitrarily large NodeList. The existing low-frequency page-side playback checks already provide a fallback, so no new timer, polling dependency or permission was added.
+
+**Regression review:** 26 YouTube skip-assistant/observer tests plus six local compatibility-pack validator tests passed in a focused JavaScript test harness. This is **not** the complete Node.js/Python suite and **not** live Firefox, YouTube playback, or server-inserted-ad validation. The extension remains unreleased.
 
 ## Build 40: conservative automatic ad recognition improvements (0.3.11)
 

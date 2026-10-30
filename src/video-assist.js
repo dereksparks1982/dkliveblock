@@ -10,11 +10,16 @@ const SKIP_SELECTORS=[
  ".ytp-ad-skip-button-container button",
  ".ytp-ad-skip-button-modern button",
  "button.ytp-ad-skip-button",
- "button[aria-label='Skip Ad']",
- "button[aria-label='Skip Ads']"
+ "button[aria-label='Skip Ad' i]",
+ "button[aria-label='Skip Ads' i]",
+ "button[aria-label='Skip Advertisement' i]",
+ "button[aria-label='Skip Advertisements' i]",
+ "button[aria-label='Skip Commercial' i]"
 ];
 const AD_SKIP_CLASS=/\b(?:ytp-ad-skip-button(?:-modern)?|ytp-skip-ad-button)\b/;
 const AD_LABEL=/^\s*(?:skip\s+ads?|skip\s+advertisements?|skip\s+commercials?)\s*$/i;
+const SHORT_SKIP=/^\s*skip\s*$/i;
+const AD_CONTEXT=".ad-showing, #movie_player.ad-showing, .ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
 // A recycled ad-skip container must never turn an ordinary playback control into an ad action.
 const NON_AD_SKIP=/^\s*(?:skip\s+(?:intro|recap|opening|credits|preview|tutorial|to\s+next)|next\s+(?:video|episode)|play\s+next)\b/i;
 const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display|\.ytp-ad-skip-button(?:-modern|-slot|-container)?|\.ytp-skip-ad-button)(?=$|[,\s>+~[:.)])/i;
@@ -47,17 +52,30 @@ function hasAdSkipClass(button){
  return AD_SKIP_CLASS.test(s)||!!button?.closest?.(".ytp-ad-skip-button-slot, .ytp-ad-skip-button-container");
 }
 function isVisible(button){
- if(!button||button.isConnected===false||button.disabled||button.getAttribute?.("aria-disabled")==="true"||button.getAttribute?.("aria-hidden")==="true")return false;
+ if(!button||button.isConnected===false||button.disabled||
+    button.getAttribute?.("aria-disabled")==="true"||
+    button.getAttribute?.("aria-hidden")==="true")return false;
  if(typeof button.click!=="function"||typeof button.getClientRects!=="function"||!button.getClientRects().length)return false;
- try{if(button.closest?.("[inert], [hidden], [aria-hidden='true']"))return false;}catch(_){return false;}
+ try{
+  if(button.closest?.("[inert], [hidden], [aria-hidden='true'], [aria-disabled='true']"))return false;
+  // Rectangles can still exist for invisible or non-interactive controls.
+  const view=button.ownerDocument?.defaultView;
+  const style=view?.getComputedStyle?.(button);
+  if(style&&(style.display==="none"||style.visibility==="hidden"||style.visibility==="collapse"||
+     style.pointerEvents==="none"||Number(style.opacity)===0))return false;
+ }catch(_){return false;}
  return true;
 }
 function isAdSkip(button){
- if(!isVisible(button)||NON_AD_SKIP.test(labelOf(button)))return false;
+ if(!isVisible(button))return false;
+ const label=labelOf(button);
+ if(NON_AD_SKIP.test(label))return false;
  const dedicated=hasAdSkipClass(button);
- if(dedicated)return true;
- if(!AD_LABEL.test(labelOf(button)))return false;
- try{return !!button.closest?.(".ad-showing, .ytp-ad-module, #movie_player.ad-showing");}
+ // Dedicated skip wrappers may be recycled between SPA views, so never click
+ // arbitrary "Learn more", "Next video" or unrelated controls in them.
+ if(!AD_LABEL.test(label)&&!(dedicated&&(!label||SHORT_SKIP.test(label))))return false;
+ if(dedicated&&AD_LABEL.test(label))return true;
+ try{return !!button.closest?.(AD_CONTEXT);}
  catch(_){return false;}
 }
 function createController(cooldownMs=5000){

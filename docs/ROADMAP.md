@@ -190,3 +190,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 40: additional high-confidence DOM advertising signatures, article/player/identity ancestor safeguards, fair bounded scanning across long pages, restoration and negative-case regression checks.
 - [ ] Build 40 acceptance: full offline suite and real Firefox live ad detection with manual false-positive review, especially videos and authentication.
+
+- [x] Build 41: verified 32 focused YouTube controller/watcher/pack-validator regression cases, reject recycled unrelated ad-slot buttons, stronger CSS visibility and accessible-label detection, bounded NodeList mutation inspection.
+- [ ] Build 41 acceptance: full offline Node/Python suite, real Firefox YouTube desktop/mobile SPA/preroll/midroll tests, skip-control accessibility and sign-in/playback false-positive audit.

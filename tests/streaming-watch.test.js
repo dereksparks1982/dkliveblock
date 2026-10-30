@@ -52,3 +52,35 @@ test("unavailable observer and malformed mutations fail without disrupting playb
  assert.equal(W.relevant([{type:"childList",target:null}]),false);
  assert.equal(W.elementRelated({nodeType:3}),false);
 });
+
+test("skip button appearing via its accessible label triggers a scan",()=>{
+ const f=fixture();f.w.start();f.flush();
+ let selectors="";
+ const labelled={nodeType:1,matches:selector=>{selectors=selector;return selector.includes("button[aria-label='Skip Ad' i]");},
+ closest:()=>null,querySelector:()=>null};
+ f.emit({type:"attributes",attributeName:"aria-label",target:labelled});
+ assert.match(selectors,/Skip Ad/);
+ assert.equal(f.pending,1);
+ f.flush();assert.equal(f.clicks,2);
+});
+
+test("huge DOM insertion lists are inspected without materializing all nodes",()=>{
+ let reads=0;
+ const first={nodeType:1,matches:()=>false,closest:()=>null,querySelector:()=>null};
+ const entries=new Proxy({length:1000000}, {
+  get(target,key){
+   if(key===Symbol.iterator)throw Error("Do not materialize NodeList");
+   if(/^\\d+$/.test(String(key))){reads++;return first;}
+   return target[key];
+  }
+ });
+ assert.equal(W.relevant([{type:"childList",target:first,addedNodes:entries}]),false);
+ assert.ok(reads<=12,"Do not inspect more than 12 child nodes");
+});
+test("skip-ad text detection stays limited to known player-related selectors",()=>{
+ let selector="";
+ const labelled={nodeType:1,matches:s=>{selector=s;return s.includes("Skip Advertisement");},
+  closest:()=>null,querySelector:()=>null};
+ assert.equal(W.elementRelated(labelled),true);
+ assert.match(selector,/Skip Advertisement/);
+});

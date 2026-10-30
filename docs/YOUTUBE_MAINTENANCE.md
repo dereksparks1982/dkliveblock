@@ -21,3 +21,11 @@ This project is unreleased. Remote YouTube compatibility updates are limited to 
 | Browser or extension API changes | Update the extension code and review permissions/MV2 compatibility; Mozilla signs the extension update. |
 
 **Privacy:** DK does not collect viewing history or report video failures to a server. Raw GitHub hosts do receive ordinary connection metadata during list downloads. Downloaded text is treated as untrusted data and filtered by an explicit allowlist.
+
+## Build 41 playback-control regression guidance (0.3.12)
+
+The built-in YouTube assistant is **not** a video-stream rewriting system and does not guarantee server-inserted ad removal. It may click only an eligible, visible Skip Ad control. It rejects recycled controls with non-ad labels, button states that are disabled or hidden by CSS, and unrelated Skip Intro/Next Episode controls. The watcher observes recognized skip controls and uses a bounded list of DOM mutations. Page-side periodic fallback already exists; do not add a second repeating poll.
+
+When testing in Firefox, record the extension version, browser version, selected YouTube host (www, mobile or nocookie), playback/ad type (preroll, midroll, short/non-skippable), whether the Skip Ad button became enabled, whether it was clicked, whether playback continued normally and whether sign-in/controls remained functional. Inspect the Network Monitor only with user consent; do not attach sensitive YouTube URLs or account tokens to a bug report. Report reproducible issues through [SUPPORT.md](../SUPPORT.md).
+
+This is a manual validation checklist, not a claim of completed live YouTube testing.
