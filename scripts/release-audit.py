@@ -52,6 +52,8 @@ def verify():
             paths.append(value)
         if re.search(r'<script(?![^>]*\bsrc=)[^>]*>', data, re.I):
             issues.append("Inline extension script in " + page)
+    if "ghostery-vendor.js" not in paths or "hybrid-engine.js" not in paths:
+        issues.append("Missing optional Ghostery vendor bridge scripts")
     if "public-suffix.js" not in paths:
         issues.append("Missing Mozilla Public Suffix List asset")
     if not (SRC / "LICENSE-PSL.txt").is_file():

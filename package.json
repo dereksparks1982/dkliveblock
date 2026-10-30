@@ -1,0 +1,15 @@
+{
+  "name": "dk-live-block",
+  "private": true,
+  "version": "0.2.0",
+  "scripts": {
+    "build:ghostery": "node scripts/build-ghostery.mjs",
+    "test:local": "bash scripts/test-local.sh"
+  },
+  "dependencies": {
+    "@ghostery/adblocker": "2.20.3"
+  },
+  "devDependencies": {
+    "esbuild": "0.25.12"
+  }
+}

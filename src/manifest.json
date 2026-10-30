@@ -40,6 +40,8 @@
       "video-assist.js",
       "auth-protection.js",
       "youtube-maintenance.js",
+      "ghostery-vendor.js",
+      "hybrid-engine.js",
       "background.js"
     ],
     "persistent": true
