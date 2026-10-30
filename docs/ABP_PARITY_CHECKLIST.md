@@ -39,3 +39,7 @@ The iOS-only Premium feature *ad blocking in apps* is **not** a capability of th
 ## Build 44 update
 
 Fresh installations now default to EasyPrivacy, Fanboy Annoyances, social and cookie-list protection, explicit reject-only cookie handling and conservative newsletter/survey/floating-corner-ad cleanup. User choices may disable these. This raises implementation coverage of both free and Premium-style ABP categories but **does not prove equivalent blocking rates**, cookie-consent compliance, live floating-video behavior, notification-prompt control or full Firefox compatibility. Language-aware labels have expanded; automatic selection of verified regional list URLs and browser-native push-permission handling remain future work.
+
+## User-supplied ABP 4.49.0 Advanced screenshots
+
+The screenshots also expose user-selectable toolbar counts, right-click element blocking, a Developer Tools panel, cosmetic-filter debugging, list-level status/updates, custom filters, language subscriptions and an **enabled** `Allow Adblock Plus to show occasional promotional messages` option. DK Live Block intentionally has **no promotions system at all**. Its new Build 45 source covers toolbar counts, right-click picking and an optional DevTools panel, but independent Firefox testing is still outstanding. The detailed feature-by-feature status is in [ABP_FEATURE_INVENTORY.md](ABP_FEATURE_INVENTORY.md). There is no parity claim.

@@ -208,3 +208,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 44 acceptance: end-to-end Firefox cookie choices on diverse consent-management tools, real floating-video discrimination, newsletter/survey false positives, filter-list download status and full Node/Python suite.
 - [ ] Later: vetted browser-language filter subscription selection with explicit privacy/performance review; don't silently install unverified regional lists.
 - [ ] Later: investigate Firefox notification-permission controls, since a content-script overlay detector cannot suppress browser-owned native permission UI.
+
+- [x] Build 45: first Advanced parity controls: user-selectable toolbar badge, right-click visual element picker, optional developer inspection panel with local capture.
+- [x] Build 45: transcribe all supplied ABP 4.49.0 General and Advanced settings into docs/ABP_FEATURE_INVENTORY.md, recording source-implemented/partial/missing/different-by-design status.
+- [x] Permanent product requirement: no promotional messages, sponsor placements, Acceptable Ads program, paid whitelist or premium upgrade nags; default-on ad/tracker protection.
+- [ ] Build 45 acceptance: real Firefox context menu and optional DevTools verification, permission disclosure and complete Node/Python suite.
+- [ ] Next: non-destructive cosmetic hiding-debug overlay, more granular filter list management, language subscriptions and notifications permission research.

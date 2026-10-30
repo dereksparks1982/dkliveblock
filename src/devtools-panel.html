@@ -1,0 +1,14 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block Network Inspection</title><link rel="stylesheet" href="style.css"></head>
+<body><main><h2>DK Live Block · Developer inspection</h2>
+<p>Inspect the active Firefox Developer Tools tab. This is an opt-in, local-only network request history, not a recording of browser content or every process on your computer.</p>
+<div class="network-buttons"><button id="start" type="button">Start capture</button>
+<button id="stop" type="button">Stop capture</button>
+<button id="refresh" type="button">Refresh</button>
+<button id="clear" type="button">Clear captured requests</button></div>
+<p id="summary" role="status">No capture started.</p>
+<div class="network-scroll"><table><thead><tr>
+<th>Hostname</th><th>Resource</th><th>Decision</th><th>Reason</th>
+</tr></thead><tbody id="rows"></tbody></table></div>
+<p>Network URLs are reduced to hostnames. For advanced per-request allowances, use DK Live Block's full Network Monitor in the extension toolbar.</p></main>
+<script src="devtools-panel.js"></script></body></html>

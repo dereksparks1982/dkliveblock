@@ -1,7 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
-const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites"];
+const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
@@ -26,6 +26,20 @@ async function load(){
  $("youtubeRollback").disabled=!pack.version;
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
 }
+$("showDevtoolsPanel").addEventListener("change",async()=>{
+ const box=$("showDevtoolsPanel");
+ if(box.checked){
+  try{
+   const permission=await browser.permissions?.request?.({permissions:["devtools"]});
+   if(permission!==true){box.checked=false;$("message").textContent="Developer Tools permission was not granted.";return;}
+   $("message").textContent="Permission granted. Save Settings, then reopen Developer Tools.";
+  }catch(error){box.checked=false;$("message").textContent="Unable to enable the developer panel: "+String(error?.message||error).slice(0,90);}
+ }else{
+  try{await browser.permissions?.remove?.({permissions:["devtools"]});}
+  catch(_){}
+  $("message").textContent="Developer Tools panel disabled. Save Settings to remember this preference.";
+ }
+});
 $("save").addEventListener("click",async()=>{
  const s=collect();
  if(s.paused.some(h=>!/^[a-z0-9.-]{1,253}$/.test(h))){$("message").textContent="Invalid hostname in paused list.";return;}

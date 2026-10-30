@@ -8,7 +8,7 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -139,7 +139,7 @@ function rebuild(){
 function badge(id){
  const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";
  // Persistent per-tab badge, independent of optional traffic capture.
- browser.browserAction.setBadgeText({tabId:id,text:activeTab(id,h)&&n?(n>9999?"9999+":String(n)):""}).catch(()=>{});
+ browser.browserAction.setBadgeText({tabId:id,text:data.settings.showBadge&&activeTab(id,h)&&n?(n>9999?"9999+":String(n)):""}).catch(()=>{});
  browser.browserAction.setBadgeBackgroundColor?.({tabId:id,color:"#c13f3f"})?.catch?.(()=>{});
  browser.browserAction.setBadgeTextColor?.({tabId:id,color:"#ffffff"})?.catch?.(()=>{});
 }
@@ -812,6 +812,15 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    data.settings.customSubscriptions=validated.urls;
    for(const u of Object.keys(data.customLists))if(!validated.urls.includes(u)){delete data.customLists[u];delete data.listErrors[u];}
   }
+  if(typeof s.showDevtoolsPanel==="boolean")data.settings.showDevtoolsPanel=s.showDevtoolsPanel;
+  if(typeof s.showBadge==="boolean"){
+   data.settings.showBadge=s.showBadge;
+   for(const tabId of data.counts.keys())badge(tabId);
+  }
+  if(typeof s.showContextMenu==="boolean"){
+   data.settings.showContextMenu=s.showContextMenu;
+   await DKContextMenu.sync(browser,data.settings.showContextMenu);
+  }
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
   if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
@@ -851,6 +860,7 @@ async function boot(){
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
   }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  await DKContextMenu.sync(browser,data.settings.showContextMenu);
   data.requestControls.remember=DKRequestControls.restore(stored.requestAllowances);
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
   const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);
@@ -878,4 +888,6 @@ async function boot(){
    updateLists().catch(console.warn);
  }catch(e){console.error("DK Live Block startup:",e);data.ready=true;}
 }
+DKContextMenu.install(browser,()=>data.ready&&data.settings.showContextMenu===true,
+ tab=>activeTab(tab.id,host(tab.url)));
 boot();

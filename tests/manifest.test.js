@@ -7,6 +7,11 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.equal(m.name,"DK Live Block");
  assert.equal(m.manifest_version,2);
  assert.ok(m.permissions.includes("webRequestBlocking"));
+ assert.ok(m.permissions.includes("contextMenus"));
+ assert.equal(m.devtools_page,"devtools.html");
+ assert.ok(m.optional_permissions.includes("devtools"));
+ assert.ok(!m.permissions.includes("devtools"));
+ assert.ok(m.background.scripts.indexOf("context-menu.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.optional_permissions.includes("nativeMessaging"));
  assert.ok(!m.permissions.includes("nativeMessaging"));
  assert.ok(m.background.scripts.indexOf("public-suffix.js")>=0);
