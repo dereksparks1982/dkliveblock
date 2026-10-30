@@ -86,3 +86,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 17A shared overlay lifecycle: reversible hide/re-hide, bounded tracking and adjacent backdrop handling with player/article controls excluded. Browser-level acceptance pending.
 
 - [x] Build 17B per-modal article-body evidence and localized subscription wording, with regression tests against non-article dialogs.
+
+- [x] Build 17C optional site-only popup cleanup pause: preserved ad/tracker blocking, cross-frame host binding, persistent preferences, toolbar toggle and settings backup.

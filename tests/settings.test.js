@@ -55,3 +55,11 @@ test("saved Playback Rescue restores only authorized streaming hostnames",()=>{
  const bad=Settings.restoreSettings({mediaRecovery:"yes"},defaults,["easylist"]);
  assert.deepEqual(bad.mediaRecovery,[]);
 });
+
+test("site popup cleanup exceptions restore only validated hostnames",()=>{
+ const v=Settings.restoreSettings({
+  popupProtectionPaused:["www.youtube.com","www.youtube.com","news.example","router.local","bad..host",{},123]
+ },defaults,["easylist"]);
+ assert.deepEqual(v.popupProtectionPaused,["www.youtube.com","news.example","router.local"]);
+ assert.deepEqual(Settings.restoreSettings({popupProtectionPaused:"yes"},defaults,["easylist"]).popupProtectionPaused,[]);
+});

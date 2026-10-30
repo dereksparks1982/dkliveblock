@@ -64,7 +64,7 @@ $("resetStats").addEventListener("click",async()=>{
  $("log").replaceChildren();$("message").textContent="All local counts and logs cleared.";
 });
 $("export").addEventListener("click",()=>{
- const data={format:"DK-Live-Block-settings",version:1,settings:{...collect(),mediaRecovery:lastSettings?.mediaRecovery||[]}};
+ const data={format:"DK-Live-Block-settings",version:1,settings:{...collect(),mediaRecovery:lastSettings?.mediaRecovery||[],popupProtectionPaused:lastSettings?.popupProtectionPaused||[]}};
  const blob=new Blob([JSON.stringify(data,null,2)],{type:"application/json"});
  const url=URL.createObjectURL(blob),a=document.createElement("a");
  a.href=url;a.download="dk-live-block-settings.json";a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);

@@ -28,3 +28,16 @@ test("Playback Rescue is available only as an explicit toolbar action",()=>{
  assert.match(js,/toggleMediaRecovery/);
  assert.match(bg,/mediaRecoveryAllowed/);
 });
+
+test("popup cleanup can be paused per site without disabling the blocker",()=>{
+ const html=fs.readFileSync(path.join(root,"popup.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"popup.js"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ const options=fs.readFileSync(path.join(root,"options.js"),"utf8");
+ assert.match(html,/id="popupProtection"/);
+ assert.match(html,/id="popupProtectionRow"/);
+ assert.match(js,/toggleSitePopupProtection/);
+ assert.match(js,/popupProtectionPaused/);
+ assert.match(bg,/popupAllowed/);
+ assert.match(options,/popupProtectionPaused/);
+});

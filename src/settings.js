@@ -3,7 +3,7 @@
 const BOOLEAN=["enabled","autoUpdate","youtubeSkip","cookieReject","antiAdblock","paywallPopups","stripTracking","requestLog"];
 function object(x){return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}
 function restoreSettings(raw,defaults,keys){
- const src=object(raw),value={...defaults,listEnabled:{...defaults.listEnabled},paused:[],mediaRecovery:[]};
+ const src=object(raw),value={...defaults,listEnabled:{...defaults.listEnabled},paused:[],mediaRecovery:[],popupProtectionPaused:[]};
  for(const name of BOOLEAN)if(typeof src[name]==="boolean")value[name]=src[name];
  const known=object(src.listEnabled);
  for(const key of keys)if(typeof known[key]==="boolean")value.listEnabled[key]=known[key];
@@ -11,6 +11,8 @@ function restoreSettings(raw,defaults,keys){
   value.paused=[...new Set(src.paused.filter(h=>DKManualRules.validHost(h)))].slice(0,500);
  if(Array.isArray(src.mediaRecovery))
   value.mediaRecovery=[...new Set(src.mediaRecovery.filter(h=>typeof h==="string"&&DKVideoAssist.isStreamingHost(h)&&DKManualRules.validHost(h)))].slice(0,12);
+ if(Array.isArray(src.popupProtectionPaused))
+  value.popupProtectionPaused=[...new Set(src.popupProtectionPaused.filter(h=>DKManualRules.validHost(h)))].slice(0,500);
  value.customRules=typeof src.customRules==="string"&&src.customRules.length<=1000000?src.customRules:"";
  const subs=DKSubscriptions.validate(src.customSubscriptions??[]);
  value.customSubscriptions=subs.urls||[];

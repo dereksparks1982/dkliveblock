@@ -20,7 +20,7 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,20));
  const frame={tab:{id:1,url:"https://site.example/"},url:"https://site.example/article"};
- for(const action of ["getSettings","status","saveSettings","saveNetwork","networkStatus","dnsLookup","toggleSite","setGlobal","getLog","getNetworkIssues","updateLists","clearLog","resetStatistics","toggleTabPause","undoElementRule","toggleMediaRecovery","allowHost"]){
+ for(const action of ["getSettings","status","saveSettings","saveNetwork","networkStatus","dnsLookup","toggleSite","setGlobal","getLog","getNetworkIssues","updateLists","clearLog","resetStatistics","toggleTabPause","undoElementRule","toggleMediaRecovery","toggleSitePopupProtection","allowHost"]){
   const response=await handles.message({action,url:"https://other.example",tabId:100,enabled:false,settings:{enabled:false}},frame);
   assert.match(response.error,/extension interface/,action);
  }

@@ -143,4 +143,27 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   url:"https://www.youtube.com/watch?v=test",tabId:30,enabled:false});
  assert.equal(disabledMedia.mediaRecoveryEnabled,false);
  assert.equal(listeners.network(mediaRequest).cancel,true);
+ // Popup cleanup can be paused without disabling network advertisements or cosmetics.
+ const page="https://www.youtube.com/watch?v=abc";
+ const first=await listeners.message({action:"getStyle",url:page},{tab:{id:30,url:page},url:page});
+ assert.equal(first.antiAdblock,false); // global anti-adblock previously disabled in this test
+ const enabled=await listeners.message({action:"saveSettings",settings:{antiAdblock:true,paywallPopups:true}});
+ assert.equal(enabled.ok,true);
+ const popupOff=await listeners.message({action:"toggleSitePopupProtection",url:page,tabId:30,pause:true});
+ assert.equal(popupOff.popupProtectionPaused,true);
+ const pausedStyle=await listeners.message({action:"getStyle",url:page},{tab:{id:30,url:page},url:page});
+ assert.equal(pausedStyle.active,true);
+ assert.equal(pausedStyle.antiAdblock,false);
+ assert.equal(pausedStyle.paywallPopups,false);
+ assert.match(pausedStyle.css,/\.adsbygoogle/); // cosmetic filtering continues
+ assert.equal(listeners.network({url:"https://doubleclick.net/pixel",type:"image",tabId:30,documentUrl:page}).cancel,true);
+ const other=await listeners.message({action:"getStyle",url:"https://news.example/",tabId:60},
+  {tab:{id:60,url:"https://news.example/"},url:"https://news.example/"});
+ assert.equal(other.antiAdblock,true);
+ assert.equal(other.paywallPopups,true);
+ const resumed=await listeners.message({action:"toggleSitePopupProtection",url:page,tabId:30,pause:false});
+ assert.equal(resumed.popupProtectionPaused,false);
+ const activeStyle=await listeners.message({action:"getStyle",url:page},{tab:{id:30,url:page},url:page});
+ assert.equal(activeStyle.antiAdblock,true);
+ assert.equal(activeStyle.paywallPopups,true);
 });
