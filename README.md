@@ -171,3 +171,5 @@ An **optional** Ghostery MPL-2.0 filtering engine can be bundled locally from th
 ## Build 19: conservative on-page ad recognition
 
 DK Live Block now recognizes strongly identifiable ad slots (Google display slots, GPT containers and explicitly advertising-labeled elements) even when downloaded list selectors lag behind. Checks are bounded and local-only, avoid normal sponsored articles, login/payment forms, videos and player controls, and can restore every hidden slot when blocking is paused. This is an additional, conservative heuristic, not guaranteed automatic detection of every ad or every YouTube video insertion.
+
+The new automatic ad-container recognition can be disabled independently in Settings > Video and cookies. Turning it off restores the containers hidden by this heuristic without disabling other ad blocking, sign-in or media protection.

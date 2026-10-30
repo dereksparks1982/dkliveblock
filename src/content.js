@@ -1,14 +1,14 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  const videoController=DKVideoAssist.createController();
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
  function inspectAdSlots(){
-  if(!active||picking||!adRecognizer)return;
+  if(!active||!adRecognition||picking||!adRecognizer)return;
   lastAdScan=Date.now();adRecognizer.scan();
  }
  function applyCSS(){
@@ -28,8 +28,8 @@
    // Do not flash already-hidden notices on ordinary navigation or rule refresh.
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
    if(!nextActive||proceduralChanged)restoreHidden();
-   if(!nextActive)adRecognizer?.restore();
-   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;
+   if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
+   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
    applyCSS();queueOverlayScan();inspectAdSlots();
   }catch(_){/* A broken extension must not break the page. */}
