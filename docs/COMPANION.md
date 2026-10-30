@@ -50,3 +50,19 @@ Detected executables must have execute permission. The companion checks those ex
 ## Next steps
 
 Signed per-user Linux installer with transparent verification and uninstall, safe explicit installs with integrity checks, version detection and optional yt-dlp commands, video library and save-for-later UI. None are implemented in Build 22.
+
+## Build 23: user-confirmed managed yt-dlp download (unreleased)
+
+The development companion now implements `installTool` and `removeTool` **only for the identifier `yt-dlp`** and only when the message carries an explicit consent marker. The extension presents a browser confirmation dialog before sending either request. The allowed URL, exact file size and SHA-256 digest are hardcoded in the shipped Python source, not supplied by websites or settings.
+
+- Pinned release: **2026.10.26**, official Linux x86_64 asset `yt-dlp_linux`.
+- Expected size: **41,166,968 bytes**; expected SHA-256: `767ba9dce7052aa196f8b12652f433d76de128ba168966fa84b6394d5e6c6795`.
+- Only `github.com` and `release-assets.githubusercontent.com` are permitted as HTTPS download endpoints, including redirects; final response URL is checked.
+- Downloads are bounded and written to a temporary file. Exact size, hash and ELF architecture are checked before no-clobber installation at `~/.local/share/dk-live-block/dependencies/yt-dlp/yt-dlp`.
+- An existing nonmatching binary is never overwritten. Removal refuses user-modified files and symlinks.
+- These checks pin a reviewed release; they are **not** independent publisher signature verification. No executable is launched, and no user-provided URLs or commands can be run.
+- All other dependencies remain links and detection only. The companion still requires separate installation via the developer script; no automatic installation is possible through Firefox alone.
+
+To update an existing Build 22 developer companion to Build 23, run the same local installer again against the current source checkout. It copies both `native_host.py` and `verified_install.py`, without touching installed third-party tools.
+
+Offline tests: `python3 scripts/test-companion.py`, `python3 scripts/test-verified-install.py`. Real GitHub download, Firefox native messaging, browser compatibility, yt-dlp functionality and streaming video remain unverified.

@@ -38,3 +38,18 @@ test("dependencies UI uses explicit user activation and no file downloads/execut
  assert.doesNotMatch(js,/innerHTML|eval\(|fetch\(|downloads\.download|executeScript/);
  assert.match(js,/\.local\/share\/dk-live-block\/dependencies/);
 });
+
+
+test("Build 23 requires checked companion and explicit user consent for pinned install",()=>{
+ const js=read("dependencies.js");
+ assert.match(js,/installYtDlp/);
+ assert.match(js,/removeYtDlp/);
+ assert.match(js,/window\.confirm\(prompt\)/);
+ assert.match(js,/PINNED_YT_DLP="2026\.10\.26"/);
+ assert.match(js,/confirmation:"explicit-user-action"/);
+ assert.match(js,/action,protocol:catalog\.PROTOCOL,toolId:"yt-dlp"/);
+ assert.doesNotMatch(js,/innerHTML|eval\(|fetch\(|downloads\.download|executeScript/);
+ const html=read("options.html");
+ assert.match(html,/yt-dlp for Linux x86_64/);
+ assert.match(html,/official links only/);
+});

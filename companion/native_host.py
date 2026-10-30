@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
-"""DK Live Block native messaging companion v1: read-only local detection.
-Never downloads, executes, updates, deletes, or accepts arbitrary paths from Firefox.
+"""DK Live Block optional Linux companion v2. No arbitrary browser paths or commands.
+A user-confirmed action installs only a pinned, verified yt-dlp release.
 """
 from __future__ import annotations
 
@@ -47,11 +47,23 @@ def inspect_tools(folder: Path) -> dict:
 def handle(message: object) -> dict:
     if not isinstance(message, dict) or message.get("protocol") != PROTOCOL:
         return {"ok": False, "protocol": PROTOCOL, "error": "Invalid protocol"}
-    if message.get("action") not in ("status", "ping"):
+    action = message.get("action")
+    if action not in ("status", "ping", "installTool", "removeTool"):
         return {"ok": False, "protocol": PROTOCOL, "error": "Unsupported action"}
     base = dependency_path()
-    if message["action"] == "ping":
+    if action == "ping":
         return {"ok": True, "protocol": PROTOCOL}
+    if action in ("installTool", "removeTool"):
+        # No browser-provided URL, hash, command, filename or alternate tool.
+        if message.get("toolId") != "yt-dlp" or message.get("confirmation") != "explicit-user-action":
+            return {"ok": False, "protocol": PROTOCOL, "error": "Unsupported tool or missing consent"}
+        try:
+            import verified_install
+            result = (verified_install.install_yt_dlp(base) if action == "installTool"
+                      else verified_install.remove_yt_dlp(base))
+            return {"protocol": PROTOCOL, **result}
+        except (OSError, ValueError, RuntimeError) as error:
+            return {"ok": False, "protocol": PROTOCOL, "error": str(error)[:160]}
     return {
         "ok": True,
         "protocol": PROTOCOL,

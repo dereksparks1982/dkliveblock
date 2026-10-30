@@ -23,6 +23,12 @@ def install(home: Path, source: Path) -> tuple[Path, Path]:
     registry.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(source, companion)
     companion.chmod(0o700)
+    module = source.with_name("verified_install.py")
+    if not module.is_file():
+        raise FileNotFoundError("Pinned dependency installer module missing")
+    copied = companion.with_name("verified_install.py")
+    shutil.copyfile(module, copied)
+    copied.chmod(0o600)
     manifest = {
         "name": NAME,
         "description": "DK Live Block optional read-only tool detection",
