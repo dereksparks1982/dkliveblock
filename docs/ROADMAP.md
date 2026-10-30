@@ -179,3 +179,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 37: developer Proton support address, explicit email-draft bug reporting UI, categories, bounded user-controlled report fields, optional hostname-only website context and no automatic telemetry.
 - [ ] Build 37 acceptance: Firefox support page/mailto handling, test clipboard fallback and final Mozilla Add-ons support listing configuration at release.
+
+- [x] Repository support documentation: prominent README **Bug Reporting & Support** section, root SUPPORT.md, mailto contact and reporting guidance using elderredsoftworks@proton.me.

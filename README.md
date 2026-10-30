@@ -16,6 +16,18 @@ Developer loading, once all extension files are present: Firefox about:debugging
 
 See docs/ROADMAP.md for the acceptance checklist.
 
+## Bug Reporting & Support
+
+Found an advertisement DK Live Block missed, an unwanted popup, a website that stopped working, or another problem? **Please report it directly to the developer.**
+
+**Email:** [elderredsoftworks@proton.me](mailto:elderredsoftworks@proton.me)
+
+When reporting a problem, include the **DK Live Block version**, **Firefox version**, **affected website hostname**, a short description of what happened, and steps to reproduce it if possible. Feature requests and suggestions are welcome too.
+
+You can also open **DK Live Block → Report a Problem** in the Firefox toolbar or **Settings → Help and bug reports** to prepare an email draft. The report is **never sent automatically**; you review it and send it yourself. Do not include passwords, authentication tokens, cookies, or private links.
+
+For more details, see [SUPPORT.md](SUPPORT.md). DK Live Block is still under development, so the support inbox does not imply the extension has been publicly released.
+
 ## Build 37: official bug reporting and support contact (0.3.8)
 
 DK Live Block's official developer-support inbox is **elderredsoftworks@proton.me**. Firefox toolbar and Settings now link to an opt-in **Report a Problem** page, with categories for bugs, missed ads, broken websites, unwanted popups/redirects, feature requests and other feedback. It prepares a local, reviewable email draft including only user-entered text, an optional sanitized **hostname** (never the full URL or its private tokens) and DK Live Block's version. No report is sent automatically, no diagnostic log is attached, and there is no tracking, account or new permission. Users can copy the draft instead of opening an email application. The official Mozilla Add-ons support field should use the same address **only when the extension is approved for public release**.

@@ -9,3 +9,7 @@ Adds an in-extension report page linked from the toolbar and Settings, with stru
 No report, site data, network diagnostics, cookies or browsing history is transmitted automatically. Preview is required before preparing an email through the user's own application, and the reporter must still send that email personally. A local copy option supports users without a configured email handler. No new Firefox permissions, paid features, telemetry, GitHub Actions or public release.
 
 **Acceptance not yet completed:** live Firefox interaction/mailto test; offline complete suite; public Mozilla listing and support page (after release authorization); YouTube/Disney+ ad and streaming compatibility.
+
+## Repository reporting instructions
+
+The repository root now has a prominent **Bug Reporting & Support** README section and a standalone `SUPPORT.md` file with the official Proton address, suggested report fields, safety guidance and how to use the in-extension report form. This is a documentation-only follow-up; the extension remains version 0.3.8 and unreleased.
