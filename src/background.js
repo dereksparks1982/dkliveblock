@@ -366,6 +366,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="removeSavedVideo"){
   return libraryUpdate(items=>DKVideoLibrary.remove(items,msg.videoId));
  }
+ if(msg.action==="updateSavedVideoMetadata"){
+  return libraryUpdate(items=>DKVideoLibrary.updateMetadata(items,msg.videoId,msg.changes));
+ }
  if(msg.action==="clearSavedVideos")return libraryUpdate(()=>[]);
  if(msg.action==="importSavedVideos"){
   const imported=DKVideoLibrary.importBackup(msg.backup);

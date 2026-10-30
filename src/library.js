@@ -9,6 +9,10 @@ function makeRow(entry){
  const detail=document.createElement("p");
  detail.textContent="Position: "+Math.floor(entry.position/60)+"m "+(entry.position%60)+"s · Saved "+new Date(entry.savedAt).toLocaleString();
  desc.append(name,detail);
+ if(entry.note){
+  const note=document.createElement("p");note.className="saved-video-note";
+  note.textContent=entry.note;desc.appendChild(note);
+ }
  const buttons=document.createElement("div");buttons.className="dependency-actions";
  const resume=document.createElement("button");resume.textContent="Resume";
  resume.addEventListener("click",async()=>{const url=DKVideoLibrary.resumeUrl(entry);if(url)await browser.tabs.create({url});});
@@ -19,10 +23,30 @@ function makeRow(entry){
    if(result.ok)await load();else $("libraryNotice").textContent=result.error||"Unable to remove video.";
   }catch(error){$("libraryNotice").textContent=error.message;remove.disabled=false;}
  });
- buttons.append(resume,remove);row.append(desc,buttons);return row;
+ const favorite=document.createElement("button");
+ favorite.textContent=entry.favorite?"★ Unfavorite":"☆ Favorite";
+ favorite.setAttribute("aria-pressed",String(entry.favorite));
+ favorite.addEventListener("click",()=>changeMetadata(entry.id,{favorite:!entry.favorite}));
+ const watched=document.createElement("button");
+ watched.textContent=entry.watched?"Mark Unwatched":"Mark Watched";
+ watched.setAttribute("aria-pressed",String(entry.watched));
+ watched.addEventListener("click",()=>changeMetadata(entry.id,{watched:!entry.watched}));
+ const notes=document.createElement("button");notes.textContent="Edit Note";
+ notes.addEventListener("click",()=>{
+  const note=window.prompt("Private note about this video (max 500 characters):",entry.note);
+  if(note!==null)changeMetadata(entry.id,{note:DKVideoLibrary.safeNote(note)});
+ });
+ buttons.append(resume,favorite,watched,notes,remove);row.append(desc,buttons);return row;
+}
+async function changeMetadata(videoId,changes){
+ try{
+  const result=await browser.runtime.sendMessage({action:"updateSavedVideoMetadata",videoId,changes});
+  if(!result.ok)throw Error(result.error||"Update rejected");
+  await load();
+ }catch(error){$("libraryNotice").textContent="Could not update video: "+error.message;}
 }
 function render(){
- const items=DKVideoLibrary.search(libraryItems,$("videoSearch").value,$("videoSort").value);
+ const items=DKVideoLibrary.search(libraryItems,$("videoSearch").value,$("videoSort").value,$("videoFilter").value);
  const box=$("libraryRows");box.replaceChildren();
  $("libraryNotice").textContent=libraryItems.length+" saved · "+items.length+" shown.";
  for(const entry of items)box.appendChild(makeRow(entry));
@@ -37,6 +61,7 @@ async function load(){
 $("refreshLibrary").addEventListener("click",()=>load().catch(e=>$("libraryNotice").textContent=e.message));
 $("videoSearch").addEventListener("input",render);
 $("videoSort").addEventListener("change",render);
+$("videoFilter").addEventListener("change",render);
 $("openSettings").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
 $("exportLibrary").addEventListener("click",()=>{
  const backup=DKVideoLibrary.exportBackup(libraryItems);

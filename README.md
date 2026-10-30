@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.2.9 (Build 28).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.0 (Build 29).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 29: organized video library with favorites and notes (0.3.0)
+
+The local video library now supports **Favorites**, **Watched/Unwatched**, short private video notes (500 characters), and filters for unfinished/watched/favorite videos. Search also covers notes. Normal local saves and opt-in automatic memory updates preserve your labels and notes rather than resetting them. JSON backups include this metadata with the existing strict validation and 300-entry cap. No telemetry, accounts, or new Firefox permissions.
+
+This is an unreleased source development milestone. Full Firefox and streaming acceptance remain outstanding.
 
 ## Build 28: optional automatic remembrance of unfinished YouTube videos (0.2.9)
 

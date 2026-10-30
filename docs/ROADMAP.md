@@ -152,3 +152,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 28: explicit, default-off automatic watch-later capture after ≥60 seconds of regular YouTube video playback, local tab/video validation, per-tab throttling, playback-ad exclusion, and privacy-first settings.
 - [ ] Build 28 acceptance: live YouTube navigation, video ads, Firefox restart, stored-history privacy and full local regression suite.
+
+- [x] Build 29: local favorites, watched/unwatched markers, private notes, collection filters and metadata retention across automatic/manual video position updates, with regression coverage.
+- [ ] Build 29 acceptance: test Firefox library controls and metadata backup, full source suite and live video playback.

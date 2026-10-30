@@ -90,3 +90,24 @@ test("Build 28 auto-memory is off by default, opt-in only, and guards sender/vid
  assert.match(content,/player\.currentTime<60/);
  assert.match(content,/html5-video-player\.ad-showing/);
 });
+
+test("Build 29 favorites, watched state, notes and filters remain local and bounded",()=>{
+ const original=DK.save([],{id:ID,url:URL,title:"First documentary",position:100})[0];
+ assert.equal(original.favorite,false);
+ assert.equal(original.watched,false);
+ assert.equal(original.note,"");
+ const modified=DK.updateMetadata([original],ID,{favorite:true,watched:true,note:"Important note!\nKeep watching."});
+ assert.equal(modified[0].favorite,true);
+ assert.equal(modified[0].watched,true);
+ assert.equal(modified[0].note,"Important note!\nKeep watching.");
+ assert.equal(DK.search(modified,"important","newest","favorites").length,1);
+ assert.equal(DK.search(modified,"","newest","unfinished").length,0);
+ assert.equal(DK.search(modified,"","newest","watched").length,1);
+ assert.equal(DK.updateMetadata(modified,ID,{favorite:"yes"}),null);
+ assert.equal(DK.updateMetadata(modified,ID,{note:"x".repeat(6000)}),null);
+ assert.equal(DK.updateMetadata(modified,"bad",{favorite:true}),null);
+ const renewed=DK.save(modified,{id:ID,url:URL,title:"New title",position:200})[0];
+ assert.equal(renewed.favorite,true);
+ assert.equal(renewed.note,modified[0].note);
+ assert.equal(DK.importBackup(DK.exportBackup([renewed]))[0].watched,true);
+});

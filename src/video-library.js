@@ -16,12 +16,15 @@ function parseVideo(url){
  }catch(_){return null;}
 }
 function safeTitle(s){return typeof s==="string"?(s.replace(/[\u0000-\u001f\u007f]/g," ").trim().slice(0,180)||"YouTube video"):"YouTube video";}
+function safeNote(s){return typeof s==="string"?s.replace(/[\u0000-\u0008\u000b-\u001f\u007f]/g,"").trim().slice(0,500):"";}
 function seconds(n){return Number.isFinite(n)?Math.min(86400,Math.max(0,Math.floor(n))):0;}
 function normalize(record){
  if(!record||typeof record!=="object")return null;
  const v=parseVideo(record.url);
  if(!v||record.id!==v.id)return null;
- return {id:v.id,url:v.url,title:safeTitle(record.title),position:seconds(record.position),savedAt:Number.isFinite(record.savedAt)?Math.min(Date.now(),Math.max(0,Math.floor(record.savedAt))):Date.now()};
+ return {id:v.id,url:v.url,title:safeTitle(record.title),position:seconds(record.position),
+  savedAt:Number.isFinite(record.savedAt)?Math.min(Date.now(),Math.max(0,Math.floor(record.savedAt))):Date.now(),
+  note:safeNote(record.note),favorite:record.favorite===true,watched:record.watched===true};
 }
 function list(raw){
  if(!Array.isArray(raw))return [];
@@ -36,9 +39,23 @@ function list(raw){
 function save(raw,record){
  const value=normalize({...record,savedAt:Date.now()});
  if(!value)return null;
+ const existing=list(raw).find(v=>v.id===value.id);
+ if(existing){value.note=existing.note;value.favorite=existing.favorite;value.watched=existing.watched;}
  return [value,...list(raw).filter(v=>v.id!==value.id)].slice(0,MAX);
 }
 function remove(raw,id){return VIDEO_ID.test(id||"")?list(raw).filter(v=>v.id!==id):null;}
+function updateMetadata(raw,id,changes){
+ if(!VIDEO_ID.test(id||"")||!changes||typeof changes!=="object"||Array.isArray(changes))return null;
+ const existing=list(raw);
+ const original=existing.find(v=>v.id===id);
+ if(!original)return null;
+ const edits={};
+ if("note" in changes){if(typeof changes.note!=="string"||changes.note.length>5000)return null;edits.note=safeNote(changes.note);}
+ if("favorite" in changes){if(typeof changes.favorite!=="boolean")return null;edits.favorite=changes.favorite;}
+ if("watched" in changes){if(typeof changes.watched!=="boolean")return null;edits.watched=changes.watched;}
+ if(!Object.keys(edits).length)return null;
+ return existing.map(v=>v.id===id?{...v,...edits}:v);
+}
 const BACKUP_FORMAT="DK-Live-Block-video-library";
 function exportBackup(raw){
  return {format:BACKUP_FORMAT,version:1,exportedAt:new Date().toISOString(),videos:list(raw)};
@@ -56,15 +73,18 @@ function merge(raw,additional){
  const safe=list(additional);
  return list([...safe,...existing]);
 }
-function search(raw,term,order="newest"){
+function search(raw,term,order="newest",filter="all"){
  const query=String(term||"").trim().toLocaleLowerCase().slice(0,150);
- const items=list(raw).filter(x=>!query||x.title.toLocaleLowerCase().includes(query)||x.id.includes(query));
+ const items=list(raw).filter(x=>(filter==="favorites"?x.favorite:
+  filter==="unfinished"?!x.watched:filter==="watched"?x.watched:true)&&
+  (!query||x.title.toLocaleLowerCase().includes(query)||x.id.includes(query)||
+   x.note.toLocaleLowerCase().includes(query)));
  if(order==="oldest")return items.sort((a,b)=>a.savedAt-b.savedAt);
  if(order==="title")return items.sort((a,b)=>a.title.localeCompare(b.title));
  return items;
 }
 function resumeUrl(entry){const value=normalize(entry);return value?value.url+(value.position?"&t="+value.position+"s":""):null;}
-const API=Object.freeze({parseVideo,safeTitle,seconds,normalize,list,save,remove,resumeUrl,MAX,exportBackup,importBackup,merge,search,BACKUP_FORMAT});
+const API=Object.freeze({parseVideo,safeTitle,safeNote,seconds,normalize,list,save,remove,updateMetadata,resumeUrl,MAX,exportBackup,importBackup,merge,search,BACKUP_FORMAT});
 root.DKVideoLibrary=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
