@@ -16,6 +16,10 @@ Developer loading, once all extension files are present: Firefox about:debugging
 
 See docs/ROADMAP.md for the acceptance checklist.
 
+## Build 21: responsive YouTube skip checks, safer streaming playback
+
+Internal version 0.2.2 adds bounded, event-driven YouTube preroll/midroll skip-button detection (with the existing periodic safety fallback). It protects recycled Skip Intro and Next controls, observes YouTube-nocookie embeds, and prevents procedural hides of streaming player wrappers. Disney+ playback remains untouched by the YouTube assistant. Six focused observer regressions passed in isolation; the complete repository suite and **live Firefox streaming acceptance are still outstanding**. The extension remains unreleased. See `docs/BUILD_21.md`.
+
 ## Build 20B: versioned YouTube advertising rules
 
 The data-only YouTube pack advances to version 2 with additional narrowly targeted ad-labeled desktop and mobile containers. The extension remains self-contained, with Ghostery already bundled. These rules are not proof of successful preroll or midroll video-ad removal in Firefox.

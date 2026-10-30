@@ -4,8 +4,10 @@
  let active=false,css="",youtubeSkip=true,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
- const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
+ const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const videoController=DKVideoAssist.createController();
+ const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
+ function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
  function inspectAdSlots(){
   if(!active||!adRecognition||picking||!adRecognizer)return;
@@ -31,7 +33,7 @@
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
-   applyCSS();queueOverlayScan();inspectAdSlots();
+   applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -45,7 +47,8 @@
    let count=0;
    for(const el of elements){if(++count>200)break;
     if(el===document.body||el===document.documentElement||!DKProcedural.matches(el,rule)||
-      DKAuthProtection.isIdentityUI(el,String(el.textContent||"").slice(0,180)))continue;
+      DKAuthProtection.isIdentityUI(el,String(el.textContent||"").slice(0,180))||
+      DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(el))continue;
     if(!hidden.has(el))hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
     el.style.setProperty("display","none","important");if(hidden.size>800)break;
    }
@@ -200,6 +203,7 @@
   picking=false;
   if(selected){selected.style.outline="";selected=null;}banner?.remove();banner=null;
   document.removeEventListener("mouseover",hover,true);document.removeEventListener("click",choose,true);document.removeEventListener("keydown",keys,true);
+  syncVideoWatcher();
  }
  function hover(event){
   if(!picking||event.target===banner||banner?.contains(event.target))return;
@@ -218,7 +222,7 @@
  function keys(e){if(e.key==="Escape"){e.preventDefault();endPicker();}}
  function startPicker(){
   if(!active||picking||!document.body)return false;
-  picking=true;banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
+  picking=true;syncVideoWatcher();banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
   banner.setAttribute("style","position:fixed!important;z-index:2147483647!important;right:12px!important;top:12px!important;padding:12px!important;background:#073934!important;color:white!important;border:2px solid #14b8a6!important;font:14px sans-serif!important");
   document.documentElement.appendChild(banner);
   document.addEventListener("mouseover",hover,true);document.addEventListener("click",choose,true);document.addEventListener("keydown",keys,true);
@@ -231,13 +235,13 @@
  refresh();
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){
-  window.addEventListener("yt-navigate-finish",()=>refresh(),false);
-  window.addEventListener("popstate",()=>refresh(),false);
+  window.addEventListener("yt-navigate-finish",()=>{refresh();videoWatcher?.poke();},false);
+  window.addEventListener("popstate",()=>{refresh();videoWatcher?.poke();},false);
  }
  if(!document.documentElement){
   try{
    const watcher=new MutationObserver(()=>{
-    if(document.documentElement){watcher.disconnect();applyCSS();observePopupChanges();queueOverlayScan();}
+    if(document.documentElement){watcher.disconnect();applyCSS();observePopupChanges();queueOverlayScan();syncVideoWatcher();}
    });
    watcher.observe(document,{childList:true,subtree:true});
   }catch(_){}

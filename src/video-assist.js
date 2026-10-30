@@ -15,6 +15,8 @@ const SKIP_SELECTORS=[
 ];
 const AD_SKIP_CLASS=/\b(?:ytp-ad-skip-button(?:-modern)?|ytp-skip-ad-button)\b/;
 const AD_LABEL=/^\s*(?:skip\s+ads?|skip\s+advertisements?|skip\s+commercials?)\s*$/i;
+// A recycled ad-skip container must never turn an ordinary playback control into an ad action.
+const NON_AD_SKIP=/^\s*(?:skip\s+(?:intro|recap|opening|credits|preview|tutorial|to\s+next)|next\s+(?:video|episode)|play\s+next)\b/i;
 const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display|\.ytp-ad-skip-button(?:-modern|-slot|-container)?|\.ytp-skip-ad-button)(?=$|[,\s>+~[:.)])/i;
 const streamingDomains=["youtube.com","youtube-nocookie.com","youtu.be","disneyplus.com"];
 function hostnameMatches(host,base){return host===base||host.endsWith("."+base);}
@@ -51,7 +53,7 @@ function isVisible(button){
  return true;
 }
 function isAdSkip(button){
- if(!isVisible(button))return false;
+ if(!isVisible(button)||NON_AD_SKIP.test(labelOf(button)))return false;
  const dedicated=hasAdSkipClass(button);
  if(dedicated)return true;
  if(!AD_LABEL.test(labelOf(button)))return false;

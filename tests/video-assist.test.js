@@ -92,6 +92,15 @@ test("a skip control in a hidden or inert ancestor is not clicked",()=>{
  assert.equal(V.isAdSkip(x.button),false);
  assert.equal(x.clicks(),0);
 });
+test("a recycled ad-skip wrapper cannot click Skip Intro or Next Episode",()=>{
+ const controller=V.createController();
+ for(const label of ["Skip Intro","Skip Recap","Next Episode","Play Next","Skip Credits"]){
+  const x=btn({cls:"ytp-ad-skip-button",label});
+  assert.equal(V.isAdSkip(x.button),false,label);
+  assert.equal(controller.scan({querySelectorAll:()=>[x.button]}).clicked,false,label);
+  assert.equal(x.clicks(),0,label);
+ }
+});
 test("cosmetic filtering does not hide the player Skip Ad buttons",()=>{
  for(const selector of [".ytp-ad-skip-button",".ytp-ad-skip-button-slot",".ytp-skip-ad-button",".ytp-ad-skip-button-container"])
   assert.equal(V.protectSelector(selector),true,selector);
