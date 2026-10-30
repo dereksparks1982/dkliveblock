@@ -218,3 +218,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 46: one-click toolbar website allowlist, saved Allowed Websites Settings manager, hostname-only URL sanitization, per-site removal and same persisted list as legacy Pause on site.
 - [ ] Build 46 acceptance: complete local Node/Python regression, live Firefox saved-site UI, subdomain scope, page reload, persisted migration and child-frame behavior.
 - [ ] After Build 46: continue one feature at a time: (1) per-filter-list management, (2) language filters, (3) cosmetic debug inspector, (4) native notification prompt research, then remaining ABP free/Premium parity testing and streaming acceptance.
+
+- [x] Build 47: each bundled list gets an independent enable/disable and update control; custom HTTPS lists have Refresh/Remove; last-good cache preserved after failed download.
+- [ ] Build 47 acceptance: full Node/Python test suite and Firefox per-list toggles, cache/network errors, settings synchronization.

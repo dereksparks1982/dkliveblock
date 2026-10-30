@@ -33,14 +33,12 @@
 <section id="default-protections"><h2>Protection-first defaults</h2>
 <p>Advertising, tracking, cookie-notice, annoyance and social-widget filter lists are enabled for new installations. Explicit cookie rejection and conservative distraction protection are enabled too. <strong>There is no Acceptable Ads program or paid protection tier.</strong> You may turn individual protections off, and your saved choices are respected. A list only protects you once downloaded; use the status below to check downloads.</p>
 </section>
-<section><h2>Filter subscriptions</h2>
-<label><input id="easylist" type="checkbox"> EasyList: advertisements</label>
-<label><input id="easyprivacy" type="checkbox"> EasyPrivacy: tracking</label>
-<label><input id="cookies" type="checkbox"> EasyList Cookie: cookie notices</label>
-<label><input id="annoyances" type="checkbox"> Fanboy Annoyances: overlays and distractions</label>
-<label><input id="social" type="checkbox"> Fanboy Social: social widgets</label>
+<section id="filterListManager"><h2>Filter subscriptions</h2>
+<p>Every list can be turned on or off and updated individually. Existing downloaded rules remain cached if an update fails. Never let a failed list turn advertising protection off silently.</p>
+<div id="filterListRows"></div>
+<p id="filterListNotice" role="status">Loading built-in filter lists…</p>
 <label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
-<p id="updated"></p><button id="update">Update enabled lists</button></section>
+<p id="updated"></p><button id="update" type="button">Update all enabled lists</button></section>
 <section id="youtube-maintenance"><h2>YouTube compatibility updates</h2>
 <p>Data-only YouTube rule packs can update without requiring a new extension version. Downloads come from the DK Live Block public GitHub repository. Firefox add-on updates remain necessary for changes to executable code.</p>
 <label><input id="autoYouTubeRules" type="checkbox"> Automatically check DK's YouTube compatibility pack when updating filters</label>
@@ -48,7 +46,12 @@
 <button id="youtubeUpdate" type="button">Check YouTube rules now</button>
 <button id="youtubeRollback" type="button">Roll back YouTube rules</button>
 <p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
-<section><h2>Additional filter lists</h2><p>Up to five HTTPS subscription URLs, one per line. The list contents are parsed as filter rules, never executed as scripts.</p><textarea id="customSubscriptions" class="short" spellcheck="false" placeholder="https://filters.example.org/blocking.txt"></textarea></section>
+<section id="customListManager"><h2>Additional filter lists</h2>
+<p>Up to five HTTPS subscription URLs. Add with the field below and Save Settings, or manage each saved list with its Refresh and Remove controls. Filter rules are data, never executable scripts.</p>
+<div id="customListRows"></div>
+<label for="customSubscriptions">Custom list URLs (advanced editor)</label>
+<textarea id="customSubscriptions" class="short" spellcheck="false" placeholder="https://filters.example.org/blocking.txt"></textarea>
+<p id="customListNotice" role="status">No additional lists installed.</p></section>
 <section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
 <label><input id="rememberVideos" type="checkbox"> Remember unfinished YouTube videos automatically (local only, off by default)</label>
 <p>When enabled, DK Live Block saves your position in ordinary YouTube videos after you've watched at least one minute, and periodically updates it while you watch. It never syncs your viewing history or contacts DK servers. Turn it off to stop new automatic saves; already saved videos remain in your library until you remove them. The library's Erase saved-video history action clears the saved list and last download status, and switches automatic remembering off.</p>

@@ -732,6 +732,47 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   await persistSettings();refreshTabs();return {ok:true};
  }
  if(msg.action==="updateLists")return updateLists();
+ if(msg.action==="setBuiltInListEnabled"){
+  if(fromContent||!Object.prototype.hasOwnProperty.call(SOURCES,msg.key)||
+      typeof msg.enabled!=="boolean")return {error:"Invalid built-in filter list change."};
+  if(data.updateJob)return {error:"Filter updates are running. Try again after they finish."};
+  data.settings.listEnabled[msg.key]=msg.enabled;
+  await persistSettings();rebuild();
+  return {ok:true,enabled:msg.enabled,needsDownload:msg.enabled&&!data.lists[msg.key]?.text};
+ }
+ if(msg.action==="updateFilterList"){
+  if(fromContent||data.updateJob)return {error:"An update is already running or access is denied."};
+  const builtIn=typeof msg.key==="string"&&Object.prototype.hasOwnProperty.call(SOURCES,msg.key);
+  const custom=typeof msg.url==="string"&&data.settings.customSubscriptions.includes(msg.url);
+  if((builtIn?1:0)+(custom?1:0)!==1)return {error:"Choose a subscribed filter list."};
+  const source=builtIn?SOURCES[msg.key].url:msg.url,prev=builtIn?data.lists[msg.key]:data.customLists[msg.url];
+  data.updateJob=(async()=>{
+   try{
+    const result=await downloadList(source,builtIn,prev);
+    const cache=DKSubscriptionCache.store(prev,result,Date.now());
+    if(builtIn){data.lists[msg.key]=cache;delete data.listErrors[msg.key];}
+    else{data.customLists[msg.url]=cache;delete data.listErrors[msg.url];}
+    data.settings.lastUpdate=Date.now();
+    await persist();if(!result.unchanged)rebuild();
+    return {ok:true,updated:!result.unchanged,checked:cache.checked,wasCached:!!cache.text};
+   }catch(error){
+    const problem=String(error?.message||error).slice(0,150);
+    data.listErrors[builtIn?msg.key:msg.url]=problem;
+    await persist();
+    return {error:problem,retainedLastGood:!!prev?.text};
+   }
+  })().finally(()=>{data.updateJob=null;});
+  return data.updateJob;
+ }
+ if(msg.action==="removeCustomFilterList"){
+  if(fromContent||data.updateJob||typeof msg.url!=="string"||
+    !data.settings.customSubscriptions.includes(msg.url))
+    return {error:"Unknown custom list or an update is running."};
+  data.settings.customSubscriptions=data.settings.customSubscriptions.filter(x=>x!==msg.url);
+  delete data.customLists[msg.url];delete data.listErrors[msg.url];
+  await persist();rebuild();
+  return {ok:true,urls:data.settings.customSubscriptions.slice()};
+ }
  if(msg.action==="updateYouTubePack"){
   if(fromContent)return {error:"Extension settings only."};
   return updateYouTubePack();

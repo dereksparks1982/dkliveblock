@@ -1,6 +1,9 @@
 "use strict";
 const $=id=>document.getElementById(id);
 const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
+const listNames={easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
+ cookies:"EasyList Cookie: cookie notices",annoyances:"Fanboy Annoyances: distractions",
+ social:"Fanboy Social: social widgets"};
 const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel"];
 let lastSettings=null;
 function collect(){
@@ -12,6 +15,8 @@ function collect(){
 async function load(){
  const data=await browser.runtime.sendMessage({action:"getSettings"});
  const s=data.settings;lastSettings=s;
+ drawFilterLists(s,data.listState||{});
+ drawCustomLists(s,data.listState||{});
  for(const key of listKeys)$(key).checked=!!s.listEnabled[key];
  for(const key of flagKeys)$(key).checked=!!s[key];
  $("customRules").value=s.customRules||"";
@@ -26,6 +31,81 @@ async function load(){
   (pack.error?" Last update failed: "+pack.error:"");
  $("youtubeRollback").disabled=!pack.version;
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
+}
+function makeLine(){const row=document.createElement("div");row.className="log-row";return row;}
+function listStatus(record){
+ if(!record?.updated)return "Not downloaded yet"+(record?.error?" · Last error: "+record.error:"");
+ return "Updated "+new Date(record.updated).toLocaleString()+
+  (record.error?" · Latest update failed: "+record.error:"");
+}
+function drawFilterLists(settings,states){
+ const panel=$("filterListRows");panel.replaceChildren();
+ for(const key of listKeys){
+  const line=makeLine(),box=document.createElement("input");box.id=key;box.type="checkbox";
+  box.checked=settings.listEnabled?.[key]===true;
+  const label=document.createElement("label");label.append(box,document.createTextNode(" "+listNames[key]));
+  const status=document.createElement("small");status.textContent=listStatus(states[key]);
+  const update=document.createElement("button");update.type="button";update.textContent="Update list";
+  box.addEventListener("change",async()=>{
+   box.disabled=true;
+   try{
+    const reply=await browser.runtime.sendMessage({action:"setBuiltInListEnabled",key,enabled:box.checked});
+    if(!reply?.ok)throw Error(reply?.error||"Could not update list");
+    if(lastSettings)lastSettings.listEnabled[key]=box.checked;
+    $("filterListNotice").textContent=reply.needsDownload?
+     listNames[key]+" enabled but not downloaded yet. Select Update list to fetch its rules.":
+     listNames[key]+(box.checked?" enabled.":" disabled.")+" Other filter lists are unchanged.";
+   }catch(error){box.checked=!box.checked;$("filterListNotice").textContent=String(error.message||error);}
+   finally{box.disabled=false;}
+  });
+  update.addEventListener("click",async()=>{
+   update.disabled=true;status.textContent="Checking…";
+   try{
+    const reply=await browser.runtime.sendMessage({action:"updateFilterList",key});
+    if(!reply?.ok)throw Error(reply?.error||"Could not update list");
+    status.textContent=reply.updated?"Downloaded a new version.":"List checked; cached version unchanged.";
+   }catch(error){status.textContent="Update failed: "+String(error.message||error)+". Last-good version is retained when available.";}
+   finally{update.disabled=false;}
+  });
+  const info=document.createElement("div");info.append(label,status);
+  line.append(info,update);panel.appendChild(line);
+ }
+ $("filterListNotice").textContent="Five built-in lists. Individual changes save immediately; the other Settings controls still use Save Settings.";
+}
+function drawCustomLists(settings,states){
+ const panel=$("customListRows");panel.replaceChildren();
+ const urls=settings.customSubscriptions||[];
+ $("customListNotice").textContent=urls.length?urls.length+" of five custom subscriptions saved.":
+  "No custom filter subscriptions saved.";
+ for(let i=0;i<urls.length;i++){
+  const url=urls[i],line=makeLine(),details=document.createElement("div");
+  const label=document.createElement("strong");label.textContent=url;
+  const state=document.createElement("small");state.textContent=listStatus(states["custom"+i]);
+  details.append(label,state);
+  const update=document.createElement("button");update.type="button";update.textContent="Refresh";
+  update.addEventListener("click",async()=>{
+   update.disabled=true;
+   try{
+    const r=await browser.runtime.sendMessage({action:"updateFilterList",url});
+    if(!r?.ok)throw Error(r?.error||"Update failed");
+    state.textContent=r.updated?"New version downloaded.":"List checked; version unchanged.";
+   }catch(e){state.textContent="Update failed: "+String(e.message||e)+". Existing rules retained if cached.";}
+   finally{update.disabled=false;}
+  });
+  const remove=document.createElement("button");remove.type="button";remove.textContent="Remove";
+  remove.addEventListener("click",async()=>{
+   remove.disabled=true;
+   try{
+    const r=await browser.runtime.sendMessage({action:"removeCustomFilterList",url});
+    if(!r?.ok)throw Error(r?.error||"Remove failed");
+    $("customSubscriptions").value=r.urls.join("\n");
+    await load();
+    $("message").textContent="Custom filter list removed; other lists remain unchanged.";
+   }catch(e){$("customListNotice").textContent=String(e.message||e);remove.disabled=false;}
+  });
+  const controls=document.createElement("div");controls.append(update,remove);
+  line.append(details,controls);panel.appendChild(line);
+ }
 }
 function renderAllowedSites(sites){
  const rows=$("allowedSitesRows");rows.replaceChildren();

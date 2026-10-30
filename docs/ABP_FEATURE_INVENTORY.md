@@ -28,7 +28,7 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Update all lists | Implemented: update enabled lists | Interrupt/resume tests and offline fallback |
 | Add built-in filter list | Partial: five built-in lists have checkboxes, no wider curated catalog | Add verified eligible official lists |
 | Add list by URL | Implemented: up to five HTTPS custom subscriptions | Verification, errors, duplicate handling, scope and size checks |
-| Per-list gear/configuration and remove | Partial: built-in toggles, URL textarea and update control | Granular row-based controls for custom lists |
+| Per-list gear/configuration and remove | Build 47: individual built-in controls plus custom list status, Refresh and Remove | Full Firefox regression, automatic retry and detailed list editor |
 | Custom filter editor and add filter | Implemented: text custom rule editor + element picker | Syntax validation, per-rule diagnosis, undo and safe preview |
 | Allowed/paused websites | Build 46: explicit one-click website allowlisting, remembered hostname list, individual removal; separate scoped request exceptions | Live Firefox save/restart/subdomain/cross-tab acceptance |
 | General Settings / Advanced / Help navigation | Implemented as settings sections, not identical UI | Usability testing, keyboard access and searchable settings |
