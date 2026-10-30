@@ -8,15 +8,15 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
  });
  let stored={settings:{autoUpdate:false}},mode="v1",requests=[];
  const pack=fs.readFileSync(path.join(__dirname,"../filters/youtube.txt"),"utf8");
- const version=(n,extra="")=>pack.replace("! DKLB-YouTube-Pack: 1","! DKLB-YouTube-Pack: "+n)+extra;
+ const version=(n,extra="")=>pack.replace("! DKLB-YouTube-Pack: 2","! DKLB-YouTube-Pack: "+n)+extra;
  const fetch=async(url,opts)=>{
   requests.push({url,options:opts});
   if(mode==="offline")throw Error("simulated offline");
   if(mode==="bad")return {ok:true,status:200,url,headers:{get:()=>null},
-   text:async()=>version(3,"youtube.com##video\n")};
+   text:async()=>version(4,"youtube.com##video\n")};
   if(mode==="304")return {ok:false,status:304,url,headers:{get:()=>null}};
-  const text=mode==="v1"?pack:mode==="v2"?version(2,"youtube.com##.ytp-sponsored-display\n"):
-   version(3,"youtube.com##.ytp-sponsored-display\n");
+  const text=mode==="v1"?pack:mode==="v2"?version(3,"youtube.com##.ytp-sponsored-display\n"):
+   version(4,"youtube.com##.ytp-sponsored-display\n");
   return {ok:true,status:200,url,headers:{get:key=>key==="etag"?'"pack-'+mode+'"':null},text:async()=>text};
  };
  const browser={
@@ -43,39 +43,39 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
  const result1=await listeners.message({action:"updateYouTubePack"});
  assert.equal(result1.changed,true);
  assert.equal(stored.settings.autoYouTubeRules,true);
- assert.equal(result1.version,1);
+ assert.equal(result1.version,2);
  assert.equal(requests.at(-1).url,"https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/filters/youtube.txt");
- assert.equal(stored.youtubeRules.version,1);
+ assert.equal(stored.youtubeRules.version,2);
  mode="304";
  const unchanged=await listeners.message({action:"updateYouTubePack"});
  assert.equal(unchanged.changed,false);
  assert.equal(unchanged.checked,true);
- assert.equal(stored.youtubeRules.version,1);
+ assert.equal(stored.youtubeRules.version,2);
  assert.equal(requests.at(-1).options.headers["If-None-Match"],'"pack-v1"');
  mode="v2";
  const updated=await listeners.message({action:"updateYouTubePack"});
- assert.equal(updated.version,2);
- assert.equal(stored.youtubePrevious.version,1);
+ assert.equal(updated.version,3);
+ assert.equal(stored.youtubePrevious.version,2);
  const style=await listeners.message({action:"getStyle",url:"https://www.youtube.com/watch?v=123"},
   {tab:{id:1,url:"https://www.youtube.com/watch?v=123"},url:"https://www.youtube.com/watch?v=123"});
  assert.match(style.css,/ytp-sponsored-display/);
  mode="bad";
  const bad=await listeners.message({action:"updateYouTubePack"});
  assert.match(bad.error,/Unsafe|unsupported/);
- assert.equal(stored.youtubeRules.version,2);
+ assert.equal(stored.youtubeRules.version,3);
  mode="offline";
  const failed=await listeners.message({action:"updateYouTubePack"});
  assert.match(failed.error,/offline/);
- assert.equal(stored.youtubeRules.version,2);
+ assert.equal(stored.youtubeRules.version,3);
  const revoked=await listeners.message({action:"rollbackYouTubePack"});
  assert.equal(revoked.ok,true);
- assert.equal(revoked.version,1);
- assert.equal(revoked.heldVersion,2);
- assert.equal(stored.youtubeRules.version,1);
+ assert.equal(revoked.version,2);
+ assert.equal(revoked.heldVersion,3);
+ assert.equal(stored.youtubeRules.version,2);
  mode="v2";
  const reject=await listeners.message({action:"updateYouTubePack"});
  assert.match(reject.error,/rolled back/);
- assert.equal(stored.youtubeRules.version,1);
+ assert.equal(stored.youtubeRules.version,2);
  // Disable automatic YouTube updates independently of other filter subscriptions.
  const change=await listeners.message({action:"saveSettings",settings:{autoYouTubeRules:false}});
  assert.equal(change.ok,true);
@@ -83,7 +83,7 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
  assert.equal((await listeners.message({action:"getSettings"})).youtubeRules.remoteEnabled,false);
  mode="v3";
  const newVersion=await listeners.message({action:"updateYouTubePack"});
- assert.equal(newVersion.version,3);
+ assert.equal(newVersion.version,4);
  const contentFrame={tab:{id:1,url:"https://www.youtube.com/"},url:"https://www.youtube.com/"};
  for(const action of ["updateYouTubePack","rollbackYouTubePack"]){
   const response=await listeners.message({action},contentFrame);

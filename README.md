@@ -16,6 +16,10 @@ Developer loading, once all extension files are present: Firefox about:debugging
 
 See docs/ROADMAP.md for the acceptance checklist.
 
+## Build 20B: versioned YouTube advertising rules
+
+The data-only YouTube pack advances to version 2 with additional narrowly targeted ad-labeled desktop and mobile containers. The extension remains self-contained, with Ghostery already bundled. These rules are not proof of successful preroll or midroll video-ad removal in Firefox.
+
 ## Build 20: Ghostery arbitration and YouTube playback safeguards
 
 The bundled Ghostery engine supplements the native matcher while respecting native blocks, scoped exceptions, page-wide exclusions and explicit popup-only rules. An ad network match cannot, by itself, close a new browser tab. A stale YouTube skip button no longer blocks a newly appeared control, and skip controls are protected from cosmetic hiding. These improvements are source-tested; **live YouTube and Disney+ playback remain unverified**. No public release is authorized.

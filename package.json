@@ -1,7 +1,7 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.2.0",
+  "version": "0.2.1",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
     "test:local": "bash scripts/test-local.sh"

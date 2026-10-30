@@ -117,3 +117,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Source-integrated Ghostery 2.20.3: bundled 479,492-byte engine committed to GitHub with MPL-2.0 notice; Firefox end users never install npm or separate dependencies. Real Firefox streaming tests still pending.
 
 - [x] Build 20A: avoid redundant Ghostery decisions, enforce popup-only provenance, respect page exceptions; protect YouTube Skip Ad controls and stale-control cooldown; test with no hosted CI.
+
+- [x] Build 20B: YouTube data-only compatibility pack v2, additional mobile/desktop ad containers, internal development version 0.2.1. Firefox playback remains unverified.
