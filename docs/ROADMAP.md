@@ -187,3 +187,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 39: bounded private popup/popunder closure history, later destination hostname enrichment, strict vs. filter reasons, two-hour expiry, local refresh and clear controls.
 - [ ] Build 39 acceptance: complete offline test suite and live Firefox navigation-target/blank-first/permission tests.
+
+- [x] Build 40: additional high-confidence DOM advertising signatures, article/player/identity ancestor safeguards, fair bounded scanning across long pages, restoration and negative-case regression checks.
+- [ ] Build 40 acceptance: full offline suite and real Firefox live ad detection with manual false-positive review, especially videos and authentication.

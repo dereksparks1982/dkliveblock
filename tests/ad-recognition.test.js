@@ -73,3 +73,36 @@ test("never hide the root body or an invalid detached element",()=>{
  item.isConnected=false;
  assert.equal(A.safe(item,doc),false);
 });
+
+test("recognizes explicit ad unit pairs, labelled test ads and standard Google ad frames",()=>{
+ for(const node of [
+  ad({tag:"div",cls:"",attrs:[["data-ad-unit","leaderboard"],["data-ad-slot","header"]]}),
+  ad({tag:"div",cls:"",attrs:[["data-testid","advertisement"]]}),
+  ad({tag:"iframe",cls:"",id:"google_ads_iframe_123"})
+ ])assert.equal(A.hasStrongSignal(node),true);
+ for(const node of [
+  ad({tag:"div",cls:"",attrs:[["data-ad-unit","hero"]]}),
+  ad({tag:"div",cls:"",attrs:[["data-testid","sponsored-article"]]}),
+  ad({tag:"iframe",cls:"",id:"video_iframe_123"})
+ ])assert.equal(A.hasStrongSignal(node),false);
+});
+test("long candidate lists are fairly examined without hiding generic content",()=>{
+ const nodes=Array.from({length:125},()=>ad({tag:"div",cls:"normal-content"}));
+ const advertisement=ad({tag:"ins",cls:"adsbygoogle"});nodes.push(advertisement);
+ const doc=documentFor(nodes),scanner=A.create(doc,{},6);
+ assert.equal(scanner.scan(),0);
+ assert.equal(scanner.scan(),1);
+ assert.equal(advertisement.style.getPropertyValue("display"),"none");
+ scanner.restore();
+ assert.equal(advertisement.style.getPropertyValue("display"),"");
+});
+test("recognizer will not hide labelled ads nested in protected article or player contexts",()=>{
+ for(const node of [
+  ad({tag:"div",aria:"Advertisement",closest:true}),
+  ad({tag:"iframe",id:"google_ads_iframe_123",excluded:true})
+ ]){
+  const doc=documentFor([node]);
+  assert.equal(A.safe(node,doc),false);
+  assert.equal(A.create(doc,{}).scan(),0);
+ }
+});

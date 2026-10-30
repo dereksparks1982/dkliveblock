@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.10 (Build 39).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.11 (Build 40).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 40: conservative automatic ad recognition improvements (0.3.11)
+
+The optional DOM ad recognizer now covers additional **strongly identified ad slots**, including paired ad-unit/ad-slot attributes, explicit advertisement test IDs and standard Google advertising iframe identifiers. It does **not** hide arbitrary `sponsored` articles or page sections based solely on generic words. Additional ancestor protection keeps candidate elements inside articles, sign-in dialogs, player controls and navigation out of this heuristic. The work stays local, reversible, opt-out friendly and does not add browser permissions.
+
+The recognizer now rotates its scan start across large lists of candidate elements, so dynamically inserted advertising lower in the page is not indefinitely missed because the first 120 nodes were scanned repeatedly. Each scan remains bounded to 120 candidates, six newly hidden elements and a maximum of 100 retained hidden entries. This is not a claim that all advertising is automatically recognized; YouTube and Disney+ playback, the complete offline suite, and full ABP parity require separate validation.
 
 ## Build 39: popup and popunder activity history (0.3.10)
 
