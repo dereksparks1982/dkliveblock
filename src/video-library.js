@@ -39,8 +39,32 @@ function save(raw,record){
  return [value,...list(raw).filter(v=>v.id!==value.id)].slice(0,MAX);
 }
 function remove(raw,id){return VIDEO_ID.test(id||"")?list(raw).filter(v=>v.id!==id):null;}
+const BACKUP_FORMAT="DK-Live-Block-video-library";
+function exportBackup(raw){
+ return {format:BACKUP_FORMAT,version:1,exportedAt:new Date().toISOString(),videos:list(raw)};
+}
+function importBackup(value){
+ if(!value||typeof value!=="object"||value.format!==BACKUP_FORMAT||value.version!==1||
+    !Array.isArray(value.videos)||value.videos.length>MAX*2)return null;
+ // Reject malformed records rather than silently importing a deceptive partial backup.
+ for(const item of value.videos)if(!normalize(item))return null;
+ return list(value.videos);
+}
+function merge(raw,additional){
+ if(!Array.isArray(additional)||additional.length>MAX*2)return null;
+ const existing=list(raw);
+ const safe=list(additional);
+ return list([...safe,...existing]);
+}
+function search(raw,term,order="newest"){
+ const query=String(term||"").trim().toLocaleLowerCase().slice(0,150);
+ const items=list(raw).filter(x=>!query||x.title.toLocaleLowerCase().includes(query)||x.id.includes(query));
+ if(order==="oldest")return items.sort((a,b)=>a.savedAt-b.savedAt);
+ if(order==="title")return items.sort((a,b)=>a.title.localeCompare(b.title));
+ return items;
+}
 function resumeUrl(entry){const value=normalize(entry);return value?value.url+(value.position?"&t="+value.position+"s":""):null;}
-const API=Object.freeze({parseVideo,safeTitle,seconds,normalize,list,save,remove,resumeUrl,MAX});
+const API=Object.freeze({parseVideo,safeTitle,seconds,normalize,list,save,remove,resumeUrl,MAX,exportBackup,importBackup,merge,search,BACKUP_FORMAT});
 root.DKVideoLibrary=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

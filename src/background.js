@@ -324,6 +324,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="removeSavedVideo"){
   return libraryUpdate(items=>DKVideoLibrary.remove(items,msg.videoId));
  }
+ if(msg.action==="clearSavedVideos")return libraryUpdate(()=>[]);
+ if(msg.action==="importSavedVideos"){
+  const imported=DKVideoLibrary.importBackup(msg.backup);
+  if(!imported)return {error:"Invalid or oversized local video library backup."};
+  return libraryUpdate(items=>DKVideoLibrary.merge(items,imported));
+ }
  if(msg.action==="videoDownloadStatus")return jobStatus();
  if(msg.action==="startVideoDownload")return startVideoDownload(msg);
  if(msg.action==="cancelVideoDownload")return cancelVideoDownload(msg);

@@ -1,7 +1,18 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Video Library</title><link rel="stylesheet" href="style.css"></head><body class="options">
 <header><strong>DK LIVE BLOCK</strong><small>Local video library</small></header>
 <main><h1>Saved videos</h1><p>Your private YouTube watch-later list. Videos are not downloaded by saving them. Nothing is synced or sent to DK servers.</p>
-<p><button id="refreshLibrary">Refresh library</button> <button id="openSettings">Dependencies &amp; settings</button></p>
+<div class="library-toolbar">
+<label>Search videos <input id="videoSearch" type="search" maxlength="150" autocomplete="off" placeholder="Find a saved title…"></label>
+<label>Sort <select id="videoSort"><option value="newest">Recently saved</option><option value="oldest">Oldest first</option><option value="title">Title A–Z</option></select></label>
+</div>
+<div class="library-toolbar">
+<button id="refreshLibrary" type="button">Refresh library</button>
+<button id="exportLibrary" type="button">Export JSON backup</button>
+<label class="import">Import saved videos <input id="importLibrary" type="file" accept="application/json,.json"></label>
+<button id="clearLibrary" type="button">Clear library</button>
+<button id="openSettings" type="button">Dependencies &amp; settings</button>
+</div>
+<p class="library-privacy">Backups stay on your computer unless you share them. Import merges with existing videos, removes duplicates, and keeps the newest 300 entries.</p>
 <p id="libraryNotice" role="status">Loading saved videos…</p><div id="libraryRows" class="dependency-list"></div>
 <p>Save a video from the DK Live Block toolbar while watching it. Resume links return to the last position you explicitly saved.</p></main>
 <script src="video-library.js"></script><script src="library.js"></script></body></html>

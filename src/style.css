@@ -46,3 +46,10 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 .popup #videoQuality{display:block;width:100%;margin-top:5px;padding:8px;border-radius:6px;color:#e9faf6;background:#071b19;border:1px solid #51776c}
 .popup #videoProgress{width:100%;height:14px;accent-color:#13ad98;margin-top:8px}
 .popup #cancelVideo{background:#bcb38c;color:#071b19}
+
+/* Build 26: searchable local watch-later list and explicit backup controls. */
+.options .library-toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end;margin:12px 0}
+.options .library-toolbar label{margin:0;font-size:13px}
+.options #videoSearch,.options #videoSort{display:block;box-sizing:border-box;padding:9px;border:1px solid #51776c;border-radius:6px;background:#071b19;color:#e9faf6;max-width:100%}
+.options #videoSearch{min-width:240px}
+.options .library-privacy{font-size:13px}

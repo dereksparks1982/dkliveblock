@@ -143,3 +143,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 25: persistent Firefox native messaging port for bounded progress and explicit cancellation, with native process-group termination, 15-minute deadline and local-only progress state.
 - [x] Build 25: added offline format, progress and cancellation regression source; no hosted Actions, and no new mandatory browser permissions.
 - [ ] Build 25 acceptance: run complete local suite, test Linux Firefox native port and cancellation, verify actual yt-dlp/FFmpeg playback and data paths, and perform YouTube preroll/midroll and Disney+ browser checks.
+
+- [x] Build 26: manual saved-video search and sorting, secure bounded backup import/export, duplicate handling, bulk clear with confirmation, offline regressions.
+- [ ] Build 26 acceptance: full repository test suite and real Firefox UI/storage session test.

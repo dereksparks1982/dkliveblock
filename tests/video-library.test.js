@@ -46,3 +46,30 @@ test("no passive tracking, native permissions stay optional and library page has
  assert.match(background,/verifiedActiveVideo/);
  assert.match(background,/videoJob\.state==="running"/);
 });
+
+test("Build 26 private backup validates all records and merges without duplicate IDs",()=>{
+ const entry=DK.save([],{id:ID,url:URL,title:"A test video",position:123})[0];
+ const backup=DK.exportBackup([entry]);
+ assert.equal(backup.format,"DK-Live-Block-video-library");
+ assert.equal(backup.version,1);
+ assert.equal(DK.importBackup(backup).length,1);
+ assert.equal(DK.importBackup({...backup,version:99}),null);
+ assert.equal(DK.importBackup({...backup,videos:[entry,{id:"malicious",url:URL}]}),null);
+ assert.equal(DK.importBackup({...backup,videos:Array(700).fill(entry)}),null);
+ assert.equal(DK.merge([entry],[entry]).length,1);
+ assert.deepEqual(DK.search([entry],"test").map(x=>x.id),[ID]);
+ assert.deepEqual(DK.search([entry],"not here"),[]);
+});
+test("Build 26 library UI exposes search, sorting and local-only backup",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const html=fs.readFileSync(path.join(__dirname,"../src/library.html"),"utf8");
+ const js=fs.readFileSync(path.join(__dirname,"../src/library.js"),"utf8");
+ const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ for(const id of ["videoSearch","videoSort","exportLibrary","importLibrary","clearLibrary"])
+  assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(js,/DKVideoLibrary\.exportBackup/);
+ assert.match(js,/DKVideoLibrary\.importBackup/);
+ assert.match(js,/window\.confirm/);
+ assert.match(bg,/importSavedVideos/);
+ assert.match(bg,/clearSavedVideos/);
+});
