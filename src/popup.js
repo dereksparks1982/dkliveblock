@@ -53,6 +53,7 @@ $("update").addEventListener("click",async()=>{$("update").disabled=true;try{con
 $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendMessage({action:"undoElementRule",url:tab.url,tabId:tab.id});$("info").textContent=r.ok?"Last hidden element restored. Reload this tab.":r.error;});
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
+$("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
 load().catch(e=>$("info").textContent=e.message);
 
 DKSupport.installButton($("patreonSupport"));

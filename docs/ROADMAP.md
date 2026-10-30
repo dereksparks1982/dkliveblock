@@ -124,3 +124,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 21: player-specific mutation watcher, debounced ad-skip checks with periodic fallback, YouTube-nocookie embeds, recycled Skip Intro protection, player-safe procedural cosmetics and focused watcher tests.
 - [ ] Build 21 acceptance: run full repository regression suite, then real Firefox YouTube preroll/midroll and Disney+ playback tests. No release before those gates.
+
+- [x] Build 22: static official-link dependency catalog, separate recommended-applications section, optional native messaging permission, read-only Linux companion protocol and safe per-user installer; no automatic third-party tool installs.
+- [ ] Build 22 acceptance: complete offline suite, actual Firefox optional permission and native companion checks, and a user-friendly signed Linux companion distribution.
+- [ ] Future: verified tool downloads and updates with explicit consent, provenance/signature verification, yt-dlp video downloads, local save-for-later video library.

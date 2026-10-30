@@ -16,6 +16,10 @@ Developer loading, once all extension files are present: Firefox about:debugging
 
 See docs/ROADMAP.md for the acceptance checklist.
 
+## Build 22: optional Dependencies & Applications Manager (0.2.3)
+
+The Firefox settings page now includes optional tools (yt-dlp, FFmpeg, Deno, Node.js, yt-dlp-ejs) and separately identified recommended editors (Sublime Text, Kate, Geany, VSCodium). The built-in static catalog links only to official HTTPS sites. Users may check tool presence with an **explicitly installed**, optional, read-only Linux native companion, whose installer creates `~/.local/share/dk-live-block/dependencies/` automatically and only registers a Firefox native messaging host for DK Live Block. Basic blocking continues without any native tools or extra permissions. **No third-party dependencies are installed automatically, and video downloading is not implemented.** See `docs/COMPANION.md` and `docs/BUILD_22.md`. All Firefox live playback gates remain open.
+
 ## Build 21: responsive YouTube skip checks, safer streaming playback
 
 Internal version 0.2.2 adds bounded, event-driven YouTube preroll/midroll skip-button detection (with the existing periodic safety fallback). It protects recycled Skip Intro and Next controls, observes YouTube-nocookie embeds, and prevents procedural hides of streaming player wrappers. Disney+ playback remains untouched by the YouTube assistant. Six focused observer regressions passed in isolation; the complete repository suite and **live Firefox streaming acceptance are still outstanding**. The extension remains unreleased. See `docs/BUILD_21.md`.

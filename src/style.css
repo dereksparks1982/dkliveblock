@@ -16,3 +16,15 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 .options #network-recovery select,.options #network-recovery input[type=text],.options #network-recovery input[type=number]{display:block;box-sizing:border-box;max-width:100%;width:360px;margin:6px 0;padding:9px;border:1px solid #51776c;border-radius:6px;background:#071b19;color:white}.options #network-recovery label{line-height:1.5}.options #network-recovery .network-buttons{display:flex;flex-wrap:wrap;gap:10px}.options #networkIssues{max-height:300px;overflow:auto;overflow-wrap:anywhere}.options #netMessage,.options #dnsResult{overflow-wrap:anywhere}
 
 .patreon-button{margin-top:10px;background:#f96854;color:#fff;max-width:100%;font-size:12px}.patreon-button:disabled{opacity:.68;cursor:default}
+
+/* Build 22: responsive dependency catalog, keyboard- and screen-reader-friendly. */
+.options #dependencies code{display:inline-block;max-width:100%;overflow-wrap:anywhere;background:#071b19;padding:5px;border-radius:5px}
+.options #dependencies .network-buttons{display:flex;flex-wrap:wrap;align-items:center;gap:12px}
+.options .dependency-list{display:grid;grid-template-columns:1fr;gap:10px}
+.options .dependency-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:12px;background:#0c2b27;border:1px solid #3b625a;border-radius:8px}
+.options .dependency-description{min-width:0;flex:1}
+.options .dependency-description p{font-size:13px;margin:5px 0;line-height:1.4}
+.options .dependency-state{display:block;font-size:12px;color:#c5eed8}
+.options .dependency-link{display:inline-block;flex-shrink:0;max-width:170px;padding:8px 12px;border:1px solid #55baa6;border-radius:7px;color:#b6fff1;text-align:center;font-size:13px;text-decoration:none}
+.options .dependency-link:hover,.options .dependency-link:focus-visible{background:#20584e;outline:2px solid #aef9e8}
+@media(max-width:580px){.options .dependency-row{flex-direction:column;align-items:flex-start}.options .dependency-link{max-width:100%}}
