@@ -13,6 +13,7 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(!m.permissions.includes("devtools"));
  assert.ok(m.background.scripts.indexOf("context-menu.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("site-allowlist.js")<m.background.scripts.indexOf("background.js"));
+ assert.ok(m.background.scripts.indexOf("language-lists.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.optional_permissions.includes("nativeMessaging"));
  assert.ok(!m.permissions.includes("nativeMessaging"));
  assert.ok(m.background.scripts.indexOf("public-suffix.js")>=0);

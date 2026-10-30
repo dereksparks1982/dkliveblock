@@ -46,6 +46,13 @@
 <button id="youtubeUpdate" type="button">Check YouTube rules now</button>
 <button id="youtubeRollback" type="button">Roll back YouTube rules</button>
 <p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
+<section id="languageFilterLists"><h2>Language-specific filter lists</h2>
+<p>Supplementary filters for websites in other languages. None are downloaded until you enable them. Clicking the recommendation button reads your Firefox language preferences locally.</p>
+<button id="languageRecommend" type="button">Enable lists matching my Firefox languages</button>
+<p id="languageNotice" role="status">All language lists are initially off. Extra subscriptions consume memory and can slow browsing.</p>
+<div id="languageListRows"></div>
+<p>Arabic Liste AR supplements Liste FR and EasyList. Enable the French list alongside Arabic. Language-list sources are documented in the regional catalog.</p>
+</section>
 <section id="customListManager"><h2>Additional filter lists</h2>
 <p>Up to five HTTPS subscription URLs. Add with the field below and Save Settings, or manage each saved list with its Refresh and Remove controls. Filter rules are data, never executable scripts.</p>
 <div id="customListRows"></div>
@@ -136,4 +143,4 @@
 <button id="openBugReport" type="button">Prepare a bug report</button>
 <p>You review the draft and decide whether to send it. Avoid passwords, cookies, private links and account details.</p></section>
 <footer>No accounts · No telemetry · No paid features<br><button id="patreonSupport" type="button" class="patreon-button" disabled>Patreon · Coming soon</button><p>Donations are optional. Every feature stays free for everyone.</p></footer>
-</main><script src="support.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>
+</main><script src="support.js"></script><script src="language-lists.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>

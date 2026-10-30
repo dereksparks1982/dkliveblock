@@ -221,3 +221,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 47: each bundled list gets an independent enable/disable and update control; custom HTTPS lists have Refresh/Remove; last-good cache preserved after failed download.
 - [ ] Build 47 acceptance: full Node/Python test suite and Firefox per-list toggles, cache/network errors, settings synchronization.
+
+- [x] Build 48: six curated optional language filter lists; manual selection or click-to-recommend from Firefox languages; individual update/status and caching through existing subscription engine.
+- [ ] Build 48 acceptance: download and verify each regional source, filter-list licenses and multi-language performance in real Firefox; no claim of full ABP language parity yet.

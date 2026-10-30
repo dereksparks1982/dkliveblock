@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.18 (Build 47).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.19 (Build 48).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 48: optional regional language filters (0.3.19)
+
+Six supplemental regional subscriptions now cover Arabic, Turkish, Russian, French, German and Chinese-language sites. All six remain **off by default**. The Firefox-language recommendation button reads local preferences only after a click, enables up to four matching lists and requests updates. Arabic suggestions also include the required French supplement. A list requires a successful download before it contributes protection. See [source catalog](docs/REGIONAL_FILTERS.md). Live Firefox testing and complete license checks remain pending.
 
 ## Build 47: individual filter-list management (0.3.18)
 

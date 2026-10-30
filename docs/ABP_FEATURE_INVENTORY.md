@@ -16,7 +16,7 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Acceptable Ads enabled by default in ABP | **Different by design: none. No paid whitelist or automatic ad exception** | Check all rule paths and future updates |
 | Only allow Acceptable Ads without third-party tracking | **Different by design: no Acceptable Ads feature** | Not applicable |
 | Language filter: select default language | Missing verified regional-list catalog | Curate list licenses, languages, URLs, release versions |
-| Language filter: add/remove additional languages | Missing dedicated selection UI | Preserve explicit opt-in and performance notices |
+| Language filter: add/remove additional languages | Build 48: six optional regional subscriptions and a click-to-recommend button | Verify live URLs, licenses, browser performance and additional languages |
 | Notify about new language filter lists | Missing | Opt-in local announcement only |
 | Advanced: badge number blocked | Implemented; Build 45 adds a user preference | Test per-tab updates and reset behavior in Firefox |
 | Advanced: right-click Block Element | Implemented in Build 45 (uses existing picker) | Test context menu on pages, iframe targets, restricted Firefox pages |

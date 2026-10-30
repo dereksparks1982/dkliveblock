@@ -1,7 +1,9 @@
 "use strict";
 const $=id=>document.getElementById(id);
-const listKeys=["easylist","easyprivacy","cookies","annoyances","social"];
-const listNames={easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
+const primaryKeys=["easylist","easyprivacy","cookies","annoyances","social"];
+const regionKeys=DKLanguageLists.catalog.map(item=>item.key);
+const listKeys=[...primaryKeys,...regionKeys];
+const listNames={...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,item.name])),easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
  cookies:"EasyList Cookie: cookie notices",annoyances:"Fanboy Annoyances: distractions",
  social:"Fanboy Social: social widgets"};
 const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel"];
@@ -16,6 +18,7 @@ async function load(){
  const data=await browser.runtime.sendMessage({action:"getSettings"});
  const s=data.settings;lastSettings=s;
  drawFilterLists(s,data.listState||{});
+ drawFilterLists(s,data.listState||{},true);
  drawCustomLists(s,data.listState||{});
  for(const key of listKeys)$(key).checked=!!s.listEnabled[key];
  for(const key of flagKeys)$(key).checked=!!s[key];
@@ -38,9 +41,9 @@ function listStatus(record){
  return "Updated "+new Date(record.updated).toLocaleString()+
   (record.error?" · Latest update failed: "+record.error:"");
 }
-function drawFilterLists(settings,states){
- const panel=$("filterListRows");panel.replaceChildren();
- for(const key of listKeys){
+function drawFilterLists(settings,states,regional=false){
+ const panel=$(regional?"languageListRows":"filterListRows");panel.replaceChildren();
+ for(const key of (regional?regionKeys:primaryKeys)){
   const line=makeLine(),box=document.createElement("input");box.id=key;box.type="checkbox";
   box.checked=settings.listEnabled?.[key]===true;
   const label=document.createElement("label");label.append(box,document.createTextNode(" "+listNames[key]));
@@ -52,10 +55,10 @@ function drawFilterLists(settings,states){
     const reply=await browser.runtime.sendMessage({action:"setBuiltInListEnabled",key,enabled:box.checked});
     if(!reply?.ok)throw Error(reply?.error||"Could not update list");
     if(lastSettings)lastSettings.listEnabled[key]=box.checked;
-    $("filterListNotice").textContent=reply.needsDownload?
+    $(regional?"languageNotice":"filterListNotice").textContent=reply.needsDownload?
      listNames[key]+" enabled but not downloaded yet. Select Update list to fetch its rules.":
      listNames[key]+(box.checked?" enabled.":" disabled.")+" Other filter lists are unchanged.";
-   }catch(error){box.checked=!box.checked;$("filterListNotice").textContent=String(error.message||error);}
+   }catch(error){box.checked=!box.checked;$(regional?"languageNotice":"filterListNotice").textContent=String(error.message||error);}
    finally{box.disabled=false;}
   });
   update.addEventListener("click",async()=>{
@@ -70,8 +73,30 @@ function drawFilterLists(settings,states){
   const info=document.createElement("div");info.append(label,status);
   line.append(info,update);panel.appendChild(line);
  }
- $("filterListNotice").textContent="Five built-in lists. Individual changes save immediately; the other Settings controls still use Save Settings.";
+ if(!regional)$("filterListNotice").textContent="Five built-in lists. Individual changes save immediately; other Settings controls still use Save Settings.";
 }
+$("languageRecommend").addEventListener("click",async()=>{
+ const button=$("languageRecommend"),recommended=DKLanguageLists.recommendations(navigator.languages||[]);
+ if(!recommended.length){
+  $("languageNotice").textContent="No matching curated regional list found for your Firefox languages. You can still choose manually.";return;
+ }
+ button.disabled=true;
+ let enabled=0,downloaded=0,errors=[];
+ try{
+  for(const key of recommended){
+   const state=await browser.runtime.sendMessage({action:"setBuiltInListEnabled",key,enabled:true});
+   if(!state?.ok){errors.push(key+": "+(state?.error||"enable failed"));continue;}
+   enabled++;
+   const checked=await browser.runtime.sendMessage({action:"updateFilterList",key});
+   if(checked?.ok)downloaded++;
+   else errors.push(key+": "+(checked?.error||"download failed"));
+  }
+  await load();
+  $("languageNotice").textContent=enabled+" suggested list(s) enabled; "+downloaded+
+   " downloaded or checked."+(errors.length?" Issues: "+errors.join("; "):"");
+ }catch(error){$("languageNotice").textContent=String(error.message||error);}
+ finally{button.disabled=false;}
+});
 function drawCustomLists(settings,states){
  const panel=$("customListRows");panel.replaceChildren();
  const urls=settings.customSubscriptions||[];
