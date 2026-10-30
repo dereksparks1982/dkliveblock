@@ -173,3 +173,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 35: opt-in per-tab Firefox network request capture, full per-request blocked/allowed/failed/redirected/pending state, bounded in-memory storage, filters, local CSV export, and blocked-request icon badge styling.
 - [ ] Build 35 acceptance: full repository regression suite, Firefox live request capture, badge count and navigation resets, export privacy checks, and YouTube/Disney+ real playback verification.
+
+- [x] Build 36: strict default-on Pirate Bay/1337x opener-tab and navigation-target closure, about:blank interception, duplicate-event suppression, per-source badge count, 15-second one-time new-tab permit, global opt-out and unit checks.
+- [ ] Build 36 acceptance: full offline regression suite, Firefox real-world popup/popunder tests on supported domain variants, magnetic URI and Ctrl-click behavior, late opener races and window popups.

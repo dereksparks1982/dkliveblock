@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.6 (Build 35).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.7 (Build 36).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 36: aggressive unsolicited new-tab/popunder defense (0.3.7)
+
+Strict popunder protection is **on by default** for The Pirate Bay and 1337x-style hostnames. It closes all newly created tabs/windows attributed to these source sites by Firefox's tab-opener and navigation-target events, even when they begin as `about:blank` or use unpredictable ad-server domains. The existing blocking-request badge counts successful closures as blocked attempts. Browser `webRequest` cancels main-frame loading in identified unwanted tabs while the tab closes.
+
+There is one explicit exception: **Allow next new tab (15 seconds)** from the DK Live Block toolbar. It permits a single new tab from the current protected site and expires automatically; otherwise deliberate Ctrl-click or `target=_blank` navigation from those sites may be blocked along with popunders. Normal same-tab navigation and `magnet:` external-handler links are not targeted. Settings can disable strict mode while retaining ordinary rule-based popup filtering. No blanket whitelisting, external dependencies or new permissions. **Live Firefox tests remain outstanding, so no absolute 100% guarantee is claimed.**
 
 ## Build 35: private network traffic monitor and blocked-request badge (0.3.6)
 

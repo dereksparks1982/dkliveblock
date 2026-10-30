@@ -70,6 +70,12 @@ async function load(){
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
  $("issues").textContent=String(current.networkIssueCount||0);
  $("popups").textContent=String(current.popupHiddenCount||0);
+ $("strictPopupRow").hidden=!current.strictPopupAvailable||!current.strictPopupEnabled;
+ $("strictPopupBlocked").textContent=String(current.strictPopupBlocked||0);
+ $("permitNextPopup").disabled=!current.strictPopupEnabled;
+ $("strictPopupMessage").textContent=current.popupPermitActive?
+  "One new tab is temporarily allowed. This permission expires within 15 seconds.":
+  "Unrequested new tabs from this site are blocked.";
  $("mediaRecoveryRow").hidden=!current.mediaRecoveryAvailable;
  $("streamingDiagnosticsRow").hidden=!current.mediaRecoveryAvailable;
  $("streamingIssueCount").textContent=String(current.streamingIssueCount||0);
@@ -94,6 +100,17 @@ $("toggle").addEventListener("click",async()=>{await browser.runtime.sendMessage
 $("temporary").addEventListener("click",async()=>{
  await browser.runtime.sendMessage({action:"toggleTabPause",tabId:tab.id,url:tab.url,paused:!current.temporarilyPaused});
  await browser.tabs.reload(tab.id);await load();
+});
+$("permitNextPopup").addEventListener("click",async()=>{
+ if(!current?.strictPopupEnabled)return;
+ $("permitNextPopup").disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"permitNextPopupTab",tabId:tab.id});
+  $("strictPopupMessage").textContent=result.ok?
+   "You have 15 seconds to open one new tab. A site-generated ad tab could use this allowance first.":
+   result.error||"Unable to allow a new tab.";
+ }catch(error){$("strictPopupMessage").textContent=error.message;}
+ finally{$("permitNextPopup").disabled=false;}
 });
 $("popupProtection").addEventListener("click",async()=>{
  if(!current?.popupProtectionAvailable)return;

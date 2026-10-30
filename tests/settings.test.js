@@ -63,3 +63,15 @@ test("site popup cleanup exceptions restore only validated hostnames",()=>{
  assert.deepEqual(v.popupProtectionPaused,["www.youtube.com","news.example","router.local"]);
  assert.deepEqual(Settings.restoreSettings({popupProtectionPaused:"yes"},defaults,["easylist"]).popupProtectionPaused,[]);
 });
+
+test("Build 36 strict popup protection is default enabled and can be disabled",()=>{
+ const yes=Settings.restoreSettings({strictPopupSites:true},
+  {...defaults,strictPopupSites:true},["easylist"]);
+ const no=Settings.restoreSettings({strictPopupSites:false},
+  {...defaults,strictPopupSites:true},["easylist"]);
+ const invalid=Settings.restoreSettings({strictPopupSites:"false"},
+  {...defaults,strictPopupSites:true},["easylist"]);
+ assert.equal(yes.strictPopupSites,true);
+ assert.equal(no.strictPopupSites,false);
+ assert.equal(invalid.strictPopupSites,true);
+});

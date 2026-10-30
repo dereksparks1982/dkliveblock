@@ -79,3 +79,18 @@ test("Build 33 temporary repair always requires explicit consent and supports re
  assert.match(options,/clearTemporaryStreamingAllowances/);
  assert.match(page,/id="streamRepairRevoke"/);
 });
+
+test("Build 36 strict piracy-site tab protection has a visible override and blocked count",()=>{
+ const html=fs.readFileSync(path.join(root,"popup.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"popup.js"),"utf8");
+ const opts=fs.readFileSync(path.join(root,"options.html"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ for(const id of ["strictPopupRow","strictPopupBlocked","permitNextPopup","strictPopupMessage"])
+  assert.match(html,new RegExp('id="'+id+'"'));
+ assert.match(js,/action:"permitNextPopupTab"/);
+ assert.match(opts,/id="strictPopupSites"/);
+ assert.match(bg,/browser\.tabs\.onCreated\?\.addListener/);
+ assert.match(bg,/browser\.webNavigation\?\.onCreatedNavigationTarget\?\.addListener/);
+ assert.match(bg,/popupTrapClaimActive\(d\.tabId\)/);
+ assert.match(bg,/recordBlock\(sourceTabId/);
+});

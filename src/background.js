@@ -8,7 +8,7 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -116,7 +116,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -148,7 +148,12 @@ function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
  mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).length:0,
- streamingAllowancesCount:DKStreamingRepair.list(data.streamingAllowances,id).length,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,filterBackend:data.engine.backend,filterDiagnostic:data.engine.diagnostic,filterRevision,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
+ streamingAllowancesCount:DKStreamingRepair.list(data.streamingAllowances,id).length,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,
+ strictPopupAvailable:DKPopupTrap.protectedHost(h),
+ strictPopupEnabled:DKPopupTrap.shouldBlock(h,data.settings.strictPopupSites,activeTab(id,h)),
+ strictPopupBlocked:data.popupTrapCounts.get(id)||0,
+ popupPermitActive:(data.popupTrapPermits.get(id)||0)>Date.now(),
+ tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,filterBackend:data.engine.backend,filterDiagnostic:data.engine.diagnostic,filterRevision,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
 async function downloadList(url,followRedirects=true,previous=null){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
  try{
@@ -300,6 +305,8 @@ function recordBlock(tabId,url,type,rule){
 }
 browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!/^https?:/i.test(d.url))return {};
+ // A newly created popunder tab may attempt a navigation before it can close.
+ if(d.type==="main_frame"&&popupTrapClaimActive(d.tabId))return {cancel:true};
  // Only user-started tab captures are recorded; never store raw URLs, headers or payloads.
  DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
  if(!data.ready||!data.settings.enabled)return {};
@@ -327,10 +334,60 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  recordBlock(d.tabId,d.url,d.type,result.rule);
  return {cancel:true};
 },{urls:["<all_urls>"]},["blocking"]);
-// Only explicit $popup filters can close a newly opened advertising tab.
+function popupTrapClaimActive(tabId){
+ const claim=data.popupTrapClaims.get(tabId);
+ if(!claim)return false;
+ if(Date.now()-claim.when<=DKPopupTrap.CLAIM_MS)return true;
+ data.popupTrapClaims.delete(tabId);return false;
+}
+// Strict mode closes unwanted new tabs from selected aggressive popunder sites
+// even when they first open about:blank or lead to an ever-changing ad domain.
+// The one-time exception is granted by an explicit extension toolbar click.
+async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
+ if(!data.ready||!Number.isInteger(sourceTabId)||sourceTabId<0||
+   !Number.isInteger(newTabId)||newTabId<0||newTabId===sourceTabId)return "not-applicable";
+ const now=Date.now();
+ const approvedUntil=data.popupTrapAllowed.get(newTabId);
+ if(approvedUntil&&approvedUntil>now)return "allowed";
+ if(popupTrapClaimActive(newTabId))return "blocked";
+ let sourceHost=data.hosts.get(sourceTabId)||"";
+ if(!DKPopupTrap.protectedHost(sourceHost)){
+  try{sourceHost=host((await browser.tabs.get(sourceTabId))?.url||"");}
+  catch(_){return "not-applicable";}
+ }
+ if(!DKPopupTrap.shouldBlock(sourceHost,data.settings.strictPopupSites,activeTab(sourceTabId,sourceHost)))
+  return "not-applicable";
+ // Re-check after possible asynchronous source-tab lookup.
+ if(popupTrapClaimActive(newTabId))return "blocked";
+ if((data.popupTrapAllowed.get(newTabId)||0)>Date.now())return "allowed";
+ if(DKPopupTrap.consumeOnce(data.popupTrapPermits,sourceTabId)){
+  data.popupTrapAllowed.set(newTabId,Date.now()+DKPopupTrap.CLAIM_MS);
+  if(data.popupTrapAllowed.size>DKPopupTrap.MAX_CLAIMS)
+   data.popupTrapAllowed.delete(data.popupTrapAllowed.keys().next().value);
+  return "allowed";
+ }
+ if(!DKPopupTrap.claim(data.popupTrapClaims,newTabId,sourceTabId))return "blocked";
+ try{
+  await browser.tabs.remove(newTabId);
+  data.popupTrapCounts.set(sourceTabId,(data.popupTrapCounts.get(sourceTabId)||0)+1);
+  recordBlock(sourceTabId,typeof targetUrl==="string"?targetUrl:"","popup",{p:"Strict new-tab protection"});
+ }catch(error){
+  // Tab may have already closed; retain the short-lived claim to prevent
+  // a second event from counting the same attempt twice.
+  console.warn("DK Live Block new-tab removal:",String(error?.message||error).slice(0,100));
+ }
+ return "blocked";
+}
+browser.tabs.onCreated?.addListener(tab=>{
+ if(Number.isInteger(tab?.openerTabId)&&tab.openerTabId>=0)
+  interceptStrictPopup(tab.id,tab.openerTabId,tab.url||"").catch(()=>{});
+});
+// Rule-based popup filters still cover ordinary sites.
 browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
- if(!data.ready||!data.settings.enabled||event.tabId<0||event.sourceTabId<0||!/^https?:/i.test(event.url))return;
- if(DKAuthProtection.isAuthPopup(event.url))return; // OAuth windows are not ad popups.
+ if(!data.ready||!data.settings.enabled||event.tabId<0||event.sourceTabId<0)return;
+ const strict=await interceptStrictPopup(event.tabId,event.sourceTabId,event.url||"");
+ if(strict!=="not-applicable")return;
+ if(!/^https?:/i.test(event.url)||DKAuthProtection.isAuthPopup(event.url))return;
  try{
   const origin=await browser.tabs.get(event.sourceTabId);
   const originUrl=origin?.url||"",originHost=host(originUrl);
@@ -343,13 +400,20 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){
+  if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
+   DKPopupTrap.revoke(data.popupTrapPermits,id);
+   data.popupTrapCounts.delete(id);
+  }
   // A capture belongs to one site only. Retain it across reloads, remove on new-site navigation.
   const session=data.networkMonitors.get(id);
   if(info.url&&session&&host(info.url)!==session.siteHost)DKNetworkMonitor.remove(data.networkMonitors,id);
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
+  if(info.status==="loading")data.popupTrapCounts.delete(id);
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
-browser.tabs.onRemoved.addListener(id=>{DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
+browser.tabs.onRemoved.addListener(id=>{
+ DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
+ DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -363,6 +427,17 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
  if(msg.action==="status")return status(id,url);
+ if(msg.action==="permitNextPopupTab"){
+  if(fromContent||id<0)return {error:"Extension toolbar only."};
+  try{
+   const selected=await browser.tabs.get(id);
+   const source=host(selected?.url||"");
+   if(!DKPopupTrap.shouldBlock(source,data.settings.strictPopupSites,activeTab(id,source)))
+    return {error:"Strict new-tab protection is not active for this site."};
+   DKPopupTrap.grantOnce(data.popupTrapPermits,id);
+   return {ok:true,expiresInSeconds:15};
+  }catch(_){return {error:"The original website tab is no longer available."};}
+ }
  if(msg.action==="startNetworkMonitor"){
   if(fromContent)return {error:"Extension interface only."};
   try{
@@ -633,6 +708,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
   if(typeof s.rememberVideos==="boolean")data.settings.rememberVideos=s.rememberVideos;
+  if(typeof s.strictPopupSites==="boolean"){
+   data.settings.strictPopupSites=s.strictPopupSites;
+   if(!s.strictPopupSites)data.popupTrapPermits.clear();
+  }
   if(typeof s.adRecognition==="boolean")data.settings.adRecognition=s.adRecognition;
   if(Array.isArray(s.mediaRecovery))
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&
