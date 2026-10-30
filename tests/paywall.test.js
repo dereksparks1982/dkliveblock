@@ -22,3 +22,27 @@ test("article evidence requires actual paragraphs rather than a teaser",()=>{
  assert.equal(hasLoadedArticle({querySelectorAll:q=>q==="article"?[teaser]:[]}),false);
  assert.equal(hasLoadedArticle(null),false);
 });
+
+test("localized subscription demands require full article evidence",()=>{
+ for(const msg of [
+  "Continue reading with a subscription",
+  "You have reached your monthly free article limit",
+  "You have read all your free articles this month",
+  "Abonnez-vous pour continuer à lire",
+  "Suscríbete para seguir leyendo",
+  "Abonnieren Sie, um weiterzulesen"
+ ])assert.equal(isSubscriptionWall(msg),true,msg);
+ for(const msg of ["Donate to our journalism", "Subscribe to our newsletter",
+  "You can read all our free articles this month", "Accept cookies to continue reading"])
+  assert.equal(isSubscriptionWall(msg),false,msg);
+});
+test("dialog paragraphs cannot count as a full article",()=>{
+ const paragraphs=Array.from({length:5},()=>({textContent:"An article-like paragraph deliberately placed inside the subscription overlay. ".repeat(3)}));
+ const candidate={contains:node=>paragraphs.includes(node)};
+ const article={querySelectorAll:selector=>selector==="p"?paragraphs:[]};
+ const doc={querySelectorAll:selector=>selector==="article"?[article]:[]};
+ assert.equal(hasLoadedArticle(doc),true);
+ assert.equal(hasLoadedArticle(doc,candidate),false);
+ const outside={querySelectorAll:selector=>selector==="p"?[...paragraphs,{textContent:"Real article paragraphs outside the modal. ".repeat(20)}]:[]};
+ assert.equal(hasLoadedArticle({querySelectorAll:q=>q==="article"?[outside]:[]},candidate),false);
+});

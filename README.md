@@ -133,3 +133,7 @@ Build 16 now includes mocked content-script tests covering YouTube ad-skip click
 ## Build 17: reversible popup protection
 
 A shared overlay-recovery module now saves the original inline styling of verified anti-adblock and subscription dialogs, removes only explicit adjacent backdrops, and temporarily unlocks page scrolling. If a website re-displays the *same* notice, DK Live Block can re-hide it without losing the original style, then restore the user's page when protection is paused. Player, article, navigation, and password-entry containers are excluded. This is client-side cosmetic cleanup, not a server-side paywall unlock.
+
+## Subscription gate evidence
+
+A subscription notice is hidden only when a substantive article body is present **outside the notice itself**. Dialog paragraphs are excluded from the article-evidence calculation. This reduces the chance of suppressing a legitimate subscription or sign-in screen when a website never provided the complete article. Additional English, French, Spanish and German wording is recognized, but effectiveness on named publishers still requires Firefox testing.

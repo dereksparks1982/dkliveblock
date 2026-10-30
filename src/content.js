@@ -72,8 +72,7 @@
  }
  function suppressSubscriptionModals(){
   if(!active||!paywallPopups||picking||!document.body||document.fullscreenElement)return;
-  // Never guess that withheld or server-side content can be recovered.
-  if(!DKPaywall.hasLoadedArticle(document))return;
+  // Check substantive article evidence per candidate, excluding the modal itself.
   const candidates=[
    "dialog[open]","[role='dialog']","[aria-modal='true']",
    "[class*='paywall' i]","[id*='paywall' i]",
@@ -97,7 +96,9 @@
    const explicitDialog=el.localName==="dialog"||el.getAttribute?.("role")==="dialog"||el.getAttribute?.("aria-modal")==="true";
    const positioned=style.position==="fixed"||style.position==="sticky"||style.position==="absolute";
    const overlay=explicitDialog||positioned&&/(?:dialog|modal|paywall|overlay|subscribe|gateway)/i.test(label);
-   if(!DKPaywall.shouldHide({text,visible,overlay,articleLoaded:true,containsPlayer:false,rootElement:false}))continue;
+   if(!visible||!overlay)continue;
+   const articleLoaded=DKPaywall.hasLoadedArticle(document,el);
+   if(!DKPaywall.shouldHide({text,visible,overlay,articleLoaded,containsPlayer:false,rootElement:false}))continue;
    if(!overlayRecovery.hide(el))continue;
    hiddenCount++;
    overlayRecovery.hideBackdropAround(el);

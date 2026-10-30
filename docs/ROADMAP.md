@@ -84,3 +84,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Additional Build 16 content-script DOM regressions for ad-skip throttling, site/feature guards and SPA refresh, plus media-wrapper picker protection. Browser/streaming acceptance remains open.
 
 - [x] Build 17A shared overlay lifecycle: reversible hide/re-hide, bounded tracking and adjacent backdrop handling with player/article controls excluded. Browser-level acceptance pending.
+
+- [x] Build 17B per-modal article-body evidence and localized subscription wording, with regression tests against non-article dialogs.

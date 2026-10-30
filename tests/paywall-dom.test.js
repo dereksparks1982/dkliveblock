@@ -1,7 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-function setup({loaded=true,text="Subscribe to continue reading",paywallPopups=true,active=true,inline=false,player=false}={}){
+function setup({loaded=true,text="Subscribe to continue reading",paywallPopups=true,active=true,inline=false,player=false,articleWithinPopup=false}={}){
  let listener,interval;
  class Style{
   constructor(){this.properties=new Map();}
@@ -22,7 +22,9 @@ function setup({loaded=true,text="Subscribe to continue reading",paywallPopups=t
  const backdrop=new Element("","backdrop","backdrop");
  modal.nextElementSibling=backdrop;backdrop.previousElementSibling=modal;
  const paragraphText="A previously downloaded article paragraph containing complete editorial writing for the reader. ";
- const article={querySelectorAll:selector=>selector==="p"?Array.from({length:6},()=>({textContent:paragraphText.repeat(2)})):[]};
+ const paragraphs=Array.from({length:6},()=>({textContent:paragraphText.repeat(2)}));
+ const article={querySelectorAll:selector=>selector==="p"?paragraphs:[]};
+ modal.contains=node=>articleWithinPopup&&paragraphs.includes(node);
  const root={style:new Style(),scrollHeight:1600,isConnected:true},body={style:new Style(),isConnected:true};
  const preferences={active,paywallPopups};
  const browser={runtime:{
@@ -80,4 +82,12 @@ test("respect feature switches and never remove a video player",async()=>{
  assert.equal(playback.modal.style.getPropertyValue("display"),"");
  const paused=setup({active:false});await paused.refresh();paused.tick();
  assert.equal(paused.modal.style.getPropertyValue("display"),"");
+});
+
+test("never count the paywall's own paragraphs as a delivered article",async()=>{
+ const x=setup({articleWithinPopup:true});
+ await x.refresh();x.tick();
+ assert.equal(x.modal.style.getPropertyValue("display"),"");
+ assert.equal(x.backdrop.style.getPropertyValue("display"),"");
+ assert.equal(x.root.style.getPropertyValue("overflow-y"),"");
 });
