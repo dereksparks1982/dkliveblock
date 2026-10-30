@@ -169,7 +169,7 @@
     sensitive=DKPopupGuard.protectedDialog(el,text);
     hasPlayer=!!el.querySelector?.("video, audio, [id='movie_player'], .html5-video-player");
     hasFrame=!!el.querySelector?.("iframe, object, embed");
-    if(sensitive||hasPlayer||hasFrame)continue;
+    if(sensitive||hasPlayer||hasFrame||DKDistractions.userEngaged(el,document.activeElement))continue;
     const style=window.getComputedStyle(el);
     const visible=el.isConnected&&el.getClientRects().length>0&&
       style.display!=="none"&&style.visibility!=="hidden";
@@ -245,12 +245,20 @@
      if(clickedRejectButtons.has(button))continue;
      const style=window.getComputedStyle?.(button);
      const visible=!!button.isConnected&&!!button.getClientRects?.().length&&
-       style?.display!=="none"&&style?.visibility!=="hidden";
+       style?.display!=="none"&&style?.visibility!=="hidden"&&
+       style?.visibility!=="collapse"&&style?.pointerEvents!=="none"&&
+       Number(style?.opacity??1)>0;
+     const form=button.closest?.("form");
      if(!DKConsent.shouldReject({context:info,text:button.textContent,
        ariaLabel:button.getAttribute?.("aria-label")||"",
+       title:button.getAttribute?.("title")||"",
        visible,disabled:!!button.disabled||
         button.getAttribute?.("aria-disabled")==="true",
-       protectedUI:!!button.closest?.("[inert], [hidden], [aria-hidden='true']")}))continue;
+       protectedUI:!!button.closest?.("[inert], [hidden], [aria-hidden='true'], [aria-disabled='true']"),
+       isLink:!!button.getAttribute?.("href"),
+       isSubmit:!!form&&(button.type==="submit"||button.getAttribute?.("type")==="submit"),
+       isToggle:button.getAttribute?.("aria-pressed")!=null}))continue;
+     if(typeof button.click!=="function")continue;
      clickedRejectButtons.add(button);
      button.click();return;
     }

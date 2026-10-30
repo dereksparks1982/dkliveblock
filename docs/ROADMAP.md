@@ -241,3 +241,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 53: local syntax/duplicate diagnosis for custom rules using the same filter parsers; bounded, content-sanitized status and explicit Save remains separate.
 - [ ] Build 53 acceptance: complete Node/Python suite, real Firefox editor and CSS filters, malformed imports, large-text performance, parser coverage compared with ABP.
+
+- [x] Build 54: conservative cookie-consent action validation across visible, accessibility and title labels; rejects navigational/form submit/toggle controls and hidden buttons.
+- [x] Build 54: preserve user-edited newsletter and survey dialog fields from automatic hiding; add explicit consent/distraction regression cases.
+- [ ] Build 54 acceptance: full local Node/Python test suite, Firefox consent CMPs in multiple languages, never accept cookies inadvertently, preserve user-initiated overlays and accessibility.

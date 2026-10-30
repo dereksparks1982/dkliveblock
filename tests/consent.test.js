@@ -38,3 +38,22 @@ test("Build 44 consent clicks need context, visibility, safe UI and no conflicti
  assert.equal(C.shouldReject({...base,text:"Continue"}),false);
  assert.equal(C.shouldReject({...base,text:"",ariaLabel:"Only Necessary"}),true);
 });
+
+test("Build 54 rejects conflicting labels and navigation, form or toggle actions",()=>{
+ const C=require("../src/consent.js");
+ const base={context:"Manage your cookie preferences",text:"Reject all",visible:true};
+ for(const change of [
+  {ariaLabel:"Continue"},{ariaLabel:"Delete account"},{title:"Accept all"},
+  {title:"View privacy policy"},{isLink:true},{isSubmit:true},
+  {isToggle:true},{disabled:true},{protectedUI:true},{visible:false}
+ ])assert.equal(C.shouldReject({...base,...change}),false,JSON.stringify(change));
+ assert.equal(C.shouldReject({...base,ariaLabel:"Reject all",title:"Reject all"}),true);
+ for(const text of ["Reject all cookies","Only essential cookies","Reject non-essential cookies"])
+  assert.equal(C.shouldReject({...base,text}),true,text);
+});
+test("Build 54 ambiguous cookie-dialog controls are never clicked",()=>{
+ const C=require("../src/consent.js");
+ const base={context:"This site uses cookies",visible:true};
+ for(const text of ["Save preferences","Continue","Close","Manage settings","Necessary cookies","Do not sell or share my information"])
+  assert.equal(C.shouldReject({...base,text}),false,text);
+});

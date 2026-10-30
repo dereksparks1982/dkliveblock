@@ -33,3 +33,15 @@ test("sensitive, embedded-media and non-overlays remain untouched",()=>{
  assert.equal(D.classify({...visible,text:"",labelText:"floating-player",
   host:"news.example"}),"");
 });
+
+test("Build 54 leaves a newsletter or survey visible while the user edits it",()=>{
+ const D=require("../src/distractions.js");
+ const input={localName:"input"},textarea={localName:"textarea"};
+ const dialog={contains:node=>node===input||node===textarea};
+ assert.equal(D.userEngaged(dialog,input),true);
+ assert.equal(D.userEngaged(dialog,textarea),true);
+ assert.equal(D.userEngaged(dialog,{localName:"button"}),false);
+ assert.equal(D.userEngaged(null,input),false);
+ const editor={localName:"div",isContentEditable:true};
+ assert.equal(D.userEngaged({contains:n=>n===editor},editor),true);
+});
