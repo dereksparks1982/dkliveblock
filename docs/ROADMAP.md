@@ -167,3 +167,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 33: explicit user-approved, ten-minute per-tab per-host/type streaming diagnostic repair; source evidence required, expiration and revocation, opt-in only, safety UI and tests.
 - [ ] Build 33 acceptance: live Firefox YouTube/Disney+ playback repair test, log/exception behavior, full offline suite and security acceptance.
+
+- [x] Build 34: conservative site-scoped `:has-text`, `:-abp-has-text` and `:has` procedural aliases mapped to existing no-script predicates, with exception/malformed-payload regression tests.
+- [ ] Build 34 acceptance: full local suite, real Firefox element hiding/restore tests and streaming player safeguards.

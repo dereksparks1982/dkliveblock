@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.4 (Build 33).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.5 (Build 34).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 34: conservative site-scoped cosmetic filter aliases (0.3.5)
+
+The procedural filter parser recognizes **`:has-text(...)`**, **`:-abp-has-text(...)`**, and **`:has(...)`** aliases alongside the existing `:-abp-contains(...)` and `:-abp-has(...)` forms, **only for explicitly site-scoped `#?#` rules**. These map to the existing bounded, non-executable text and descendant predicates, with site-specific exceptions and player/auth safeguards unchanged. Malformed script-like or multi-action expressions remain rejected. Focused regression tests were added.
+
+This is limited cosmetic compatibility work, not scriptlet support or full Adblock Plus parity. No remote executable code, new permissions or public releases.
 
 ## Build 33: user-confirmed temporary streaming repair (0.3.4)
 

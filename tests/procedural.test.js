@@ -14,3 +14,15 @@ test("invalid selectors and unsupported actions fail closed",()=>{
  assert.equal(matches({textContent:"Sponsored"},{mode:"script",selector:"div",text:"Sponsored"}),false);
  assert.equal(matches(null,{mode:"text",selector:"div",text:"Sponsored"}),false);
 });
+
+test("Build 34 normalized aliases cannot run code and preserve matching semantics",()=>{
+ const {procedural}=require("../src/rules.js");
+ const text=procedural("page.test#?#article:has-text(Sponsored)");
+ const child=procedural("page.test#?#article:has(.sponsored)");
+ assert.equal(text.mode,"text");
+ assert.equal(child.mode,"has");
+ assert.equal(matches({textContent:"Sponsored post"},text),true);
+ assert.equal(matches({textContent:"Independent article"},text),false);
+ assert.equal(matches({querySelector:selector=>selector===".sponsored"?{}:null},child),true);
+ assert.equal(matches({querySelector:()=>null},child),false);
+});

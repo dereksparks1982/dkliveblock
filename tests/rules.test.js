@@ -229,3 +229,27 @@ test("separately hosted web pages count as distinct first parties",()=>{
  assert.equal(f.shouldBlock("https://alice.github.io/ad.js","script","bob.github.io"),true);
  assert.equal(f.shouldBlock("https://alice.github.io/ad.js","script","docs.alice.github.io"),false);
 });
+
+test("Build 34 safe site-scoped has-text aliases reuse text predicate",()=>{
+ const rules="page.test#?#div.offer:has-text(Sponsored)\n"+
+  "page.test#?#div.offer:-abp-has-text(Promoted)";
+ const f=new FilterEngine(rules);
+ assert.deepEqual(f.getProcedural("page.test"),[
+  {selector:"div.offer",mode:"text",text:"Sponsored"},
+  {selector:"div.offer",mode:"text",text:"Promoted"}
+ ]);
+ assert.deepEqual(f.getProcedural("unrelated.test"),[]);
+ assert.equal(R.procedural("page.test#?#div:has-text(alert(1))"),null);
+ assert.equal(R.procedural("page.test#?#div:has-text(foo;body)"),null);
+});
+test("Build 34 safe descendant has alias remains site-scoped and reversible",()=>{
+ const f=new FilterEngine("page.test#?#div.card:has(.sponsored)\n"+
+  "page.test#@?#div.card:has(.sponsored)\n"+
+  "page.test#?#div.card:has(.advertisement)");
+ assert.deepEqual(f.getProcedural("page.test"),[
+  {selector:"div.card",mode:"has",target:".advertisement"}
+ ]);
+ assert.deepEqual(f.getProcedural("unrelated.test"),[]);
+ assert.equal(R.procedural("page.test#?#div:has(+js(evil))"),null);
+ assert.equal(R.procedural("page.test#?#div:has(.ad;body)"),null);
+});
