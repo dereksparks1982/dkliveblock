@@ -62,3 +62,8 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 /* Build 31: private playback troubleshooting rows, without raw URL displays. */
 .options #streaming-diagnostics .network-buttons{display:flex;flex-wrap:wrap;gap:8px}
 .options #streamIssuesRows{max-height:350px;overflow-y:auto;overflow-wrap:anywhere}
+
+/* Build 33: explicit temporary playback repair, never automatic. */
+.options #streamRepairRows{max-height:210px;overflow:auto}
+.options #streaming-diagnostics button{max-width:100%}
+.popup #streamingRepairNotice{font-size:12px;border-left:3px solid #ecc56e;padding:6px;background:#51452e}

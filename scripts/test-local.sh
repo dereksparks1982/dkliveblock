@@ -11,7 +11,7 @@ echo 'PHASE START: JavaScript syntax'
 for file in src/*.js tests/*.js; do node --check "$file"; done
 echo 'PHASE PASS: JavaScript syntax'
 echo 'PHASE START: Extension structure'
-node --test tests/manifest.test.js tests/dependency-catalog.test.js tests/video-library.test.js tests/video-quality.test.js tests/video-auto-memory.test.js tests/streaming-diagnostics.test.js tests/download-library.test.js
+node --test tests/manifest.test.js tests/dependency-catalog.test.js tests/video-library.test.js tests/video-quality.test.js tests/video-auto-memory.test.js tests/streaming-diagnostics.test.js tests/streaming-repair.test.js tests/download-library.test.js
 echo 'PHASE PASS: Extension structure'
 echo 'PHASE START: Linux companion protocol regression'
 python3 scripts/test-companion.py

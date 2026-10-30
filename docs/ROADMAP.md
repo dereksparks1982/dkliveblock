@@ -164,3 +164,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 32: My Downloads read-only inventory, explicit permission and scan, safe filename-only metadata, symlink/partial exclusion, 150-item cap, optional companion packaging and offline test source.
 - [ ] Build 32 acceptance: full repository suite and real Firefox native messaging and actual downloaded media listing.
+
+- [x] Build 33: explicit user-approved, ten-minute per-tab per-host/type streaming diagnostic repair; source evidence required, expiration and revocation, opt-in only, safety UI and tests.
+- [ ] Build 33 acceptance: live Firefox YouTube/Disney+ playback repair test, log/exception behavior, full offline suite and security acceptance.

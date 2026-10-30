@@ -66,3 +66,16 @@ test("Build 31 streaming diagnostics are local and do not turn off blocking auto
  assert.match(bg,/DKStreamingDiagnostics\.record/);
  assert.match(bg,/streamingIssues\.clear\(\)/);
 });
+
+test("Build 33 temporary repair always requires explicit consent and supports revocation",()=>{
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ const options=fs.readFileSync(path.join(root,"options.js"),"utf8");
+ const page=fs.readFileSync(path.join(root,"options.html"),"utf8");
+ assert.match(bg,/temporarilyAllowStreamingHost/);
+ assert.match(bg,/msg\.confirm!==true/);
+ assert.match(bg,/evidence\.some/);
+ assert.match(bg,/DKStreamingRepair\.matches/);
+ assert.match(options,/window\.confirm/);
+ assert.match(options,/clearTemporaryStreamingAllowances/);
+ assert.match(page,/id="streamRepairRevoke"/);
+});

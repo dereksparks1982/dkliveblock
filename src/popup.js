@@ -73,6 +73,7 @@ async function load(){
  $("mediaRecoveryRow").hidden=!current.mediaRecoveryAvailable;
  $("streamingDiagnosticsRow").hidden=!current.mediaRecoveryAvailable;
  $("streamingIssueCount").textContent=String(current.streamingIssueCount||0);
+ $("streamingRepairNotice").hidden=!(current.streamingAllowancesCount>0);
  $("mediaWarning").hidden=!current.mediaRecoveryAvailable;
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
  $("mediaRecovery").disabled=!current.siteActive;

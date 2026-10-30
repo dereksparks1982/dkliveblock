@@ -47,7 +47,12 @@
 <div class="network-buttons"><button id="streamIssuesShow" type="button">Show recent streaming-page blocks</button>
 <button id="streamIssuesClear" type="button">Clear streaming diagnostics</button></div>
 <p id="streamIssuesStatus" role="status">Not inspected yet.</p><div id="streamIssuesRows"></div>
-<p>If playback fails, inspect the hostnames and use Website repair and exceptions only if you independently verify a request is necessary. Allowing a host may also permit advertisements.</p>
+<h3>Temporary streaming playback repair</h3>
+<p>After inspecting a blocked request, you can choose to allow <strong>that exact hostname and request type</strong> in the current tab for 10 minutes. This may also allow ads. Nothing is allowed automatically, and it does not affect other tabs or all requests to the site.</p>
+<button id="streamRepairRevoke" type="button">Revoke temporary streaming allowances</button>
+<p id="streamRepairStatus" role="status">No temporary allowances inspected yet.</p>
+<div id="streamRepairRows"></div>
+<p>If playback fails, inspect the hostnames and verify that a blocked request is necessary before using a repair allowance. Requests to advertising hosts should generally stay blocked.</p>
 </section>
 <section id="network-recovery"><h2>DK Network Recovery / Open Access</h2>
 <p>Optional proxy routing for restricted websites and failing images. <strong>Off by default.</strong> DK Live Block provides no proxy server, VPN or Tor service. A proxy you configure can see network metadata. Nothing is routed automatically without opting in.</p>

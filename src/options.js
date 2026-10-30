@@ -252,8 +252,25 @@ async function renderStreamingIssues(){
   const summary=document.createElement("span");
   summary.textContent=new Date(row.when).toLocaleTimeString()+" · "+row.type+" · "+row.host+
    " · "+row.count+" blocked request(s)";
-  line.appendChild(summary);panel.appendChild(line);
+  const allow=document.createElement("button");
+  allow.textContent="Try allow host/type (10 min)";
+  allow.addEventListener("click",async()=>{
+   if(!window.confirm("Temporarily allow "+row.type+" requests to "+row.host+
+    " on this streaming tab for ten minutes? This can let video ads through."))return;
+   allow.disabled=true;
+   try{
+    const result=await browser.runtime.sendMessage({action:"temporarilyAllowStreamingHost",
+     tabId:tab.id,host:row.host,type:row.type,confirm:true});
+    if(!result.ok)throw Error(result.error||"Temporary allowance rejected");
+    $("streamIssuesStatus").textContent="Temporary allowance set for "+row.host+
+     " ("+row.type+") in this tab for ten minutes. Reloading video to test…";
+    await renderStreamingAllowances(tab.id);
+    await browser.tabs.reload(tab.id);
+   }catch(error){$("streamIssuesStatus").textContent=error.message;allow.disabled=false;}
+  });
+  line.append(summary,allow);panel.appendChild(line);
  }
+ await renderStreamingAllowances(tab.id);
 }
 $("streamIssuesShow").addEventListener("click",()=>renderStreamingIssues().catch(e=>$("streamIssuesStatus").textContent=e.message));
 $("streamIssuesClear").addEventListener("click",async()=>{
@@ -261,4 +278,28 @@ $("streamIssuesClear").addEventListener("click",async()=>{
  const result=await browser.runtime.sendMessage({action:"clearStreamingIssues",tabId:tab.id});
  $("streamIssuesRows").replaceChildren();
  $("streamIssuesStatus").textContent=result?.ok?"Local streaming diagnostics cleared.":result?.error||"Unable to clear.";
+});
+
+async function renderStreamingAllowances(tabId){
+ const result=await browser.runtime.sendMessage({action:"getStreamingAllowances",tabId});
+ const panel=$("streamRepairRows");panel.replaceChildren();
+ if(!Array.isArray(result)){$("streamRepairStatus").textContent=result.error||"Unavailable.";return;}
+ $("streamRepairStatus").textContent=result.length?
+  result.length+" temporary allowances for this tab. They expire automatically within ten minutes.":
+  "No temporary playback allowances for this tab.";
+ for(const item of result){
+  const row=document.createElement("div");row.className="log-row";
+  const text=document.createElement("span");text.textContent=item.type+" · "+item.host+
+   " · Expires "+new Date(item.expires).toLocaleTimeString();
+  row.appendChild(text);panel.appendChild(row);
+ }
+}
+$("streamRepairRevoke").addEventListener("click",async()=>{
+ const tab=await networkTab();
+ if(!tab){$("streamRepairStatus").textContent="No streaming tab selected.";return;}
+ const result=await browser.runtime.sendMessage({action:"clearTemporaryStreamingAllowances",tabId:tab.id});
+ if(result?.ok){
+  await renderStreamingAllowances(tab.id);
+  $("streamRepairStatus").textContent="Temporary repair revoked. Reload the video to restore normal blocking.";
+ }else $("streamRepairStatus").textContent=result?.error||"Could not revoke.";
 });
