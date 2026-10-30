@@ -61,6 +61,7 @@
         "anti-adblock.js",
         "paywall.js",
         "video-assist.js",
+        "overlay-recovery.js",
         "content.js"
       ],
       "run_at": "document_start",

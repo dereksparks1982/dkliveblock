@@ -3,7 +3,7 @@
 (function(){
  let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,overlayTimer=null,overlayObserver=null;
  const clickedRejectButtons=new WeakSet();
- const hidden=new Map(),antiHidden=new Map(),scrollUnlocks=new Map();
+ const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  const videoController=DKVideoAssist.createController();
  function applyCSS(){
@@ -35,35 +35,8 @@
   }
   for(const el of hidden.keys())if(!el.isConnected)hidden.delete(el);
  }
- function restoreAntiHidden(){
-  for(const [el,prior] of antiHidden){
-   try{
-    if(!el.isConnected)continue;
-    if(prior.value)el.style.setProperty("display",prior.value,prior.priority);
-    else el.style.removeProperty("display");
-   }catch(_){}
-  }
-  antiHidden.clear();
-  for(const [el,prior] of scrollUnlocks){
-   try{
-    if(!el.isConnected)continue;
-    if(prior.value)el.style.setProperty("overflow-y",prior.value,prior.priority);
-    else el.style.removeProperty("overflow-y");
-   }catch(_){}
-  }
-  scrollUnlocks.clear();
- }
- function unlockScrollAfterNotice(){
-  if(document.fullscreenElement||!document.documentElement)return;
-  if(document.documentElement.scrollHeight<=window.innerHeight+80)return;
-  for(const el of [document.documentElement,document.body]){
-   if(!el||scrollUnlocks.has(el))continue;
-   const overflow=window.getComputedStyle(el).overflowY;
-   if(overflow!=="hidden"&&overflow!=="clip")continue;
-   scrollUnlocks.set(el,{value:el.style.getPropertyValue("overflow-y"),priority:el.style.getPropertyPriority("overflow-y")});
-   el.style.setProperty("overflow-y","auto","important");
-  }
- }
+ function restoreAntiHidden(){overlayRecovery.restore();}
+ function unlockScrollAfterNotice(){overlayRecovery.unlockScroll();}
  function suppressAntiAdblockNotices(){
   if(!active||!antiAdblock||picking||!document.body)return;
   const selector=[
@@ -79,7 +52,7 @@
   let inspected=0,removed=0;
   for(const el of candidates){
    if(++inspected>120||removed>=6)break;
-   if(antiHidden.has(el)||el===document.documentElement||el===document.body||el===banner)continue;
+   if(el===document.documentElement||el===document.body||el===banner)continue;
    if((player&&el.contains(player))||el.querySelector("video, audio"))continue;
    const info=(el.textContent||"").trim();
    if(info.length<12||info.length>1800)continue;
@@ -90,19 +63,12 @@
     el.getAttribute?.("role")==="dialog"||el.getAttribute?.("aria-modal")==="true"||
     computed.position==="fixed"||computed.position==="sticky";
    if(!DKAntiAdblock.shouldHide({text:info,visible,overlay,containsPlayer:false,rootElement:false}))continue;
-   antiHidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
-   el.style.setProperty("display","none","important");
+   if(!overlayRecovery.hide(el))continue;
    removed++;
-   // Remove only an adjacent modal backdrop, and only after confirming the notice.
-   for(const sibling of [el.previousElementSibling,el.nextElementSibling]){
-    if(!sibling||antiHidden.has(sibling)||!sibling.matches?.('[class*="backdrop" i]'))continue;
-    if(player&&sibling.contains(player))continue;
-    antiHidden.set(sibling,{value:sibling.style.getPropertyValue("display"),priority:sibling.style.getPropertyPriority("display")});
-    sibling.style.setProperty("display","none","important");
-   }
+   overlayRecovery.hideBackdropAround(el);
   }
   if(removed)unlockScrollAfterNotice();
-  for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
+  overlayRecovery.prune();
  }
  function suppressSubscriptionModals(){
   if(!active||!paywallPopups||picking||!document.body||document.fullscreenElement)return;
@@ -120,7 +86,7 @@
   let visited=0,hiddenCount=0;
   for(const el of nodes){
    if(++visited>100||hiddenCount>=4)break;
-   if(antiHidden.has(el)||el===document.body||el===document.documentElement||el===banner)continue;
+   if(el===document.body||el===document.documentElement||el===banner)continue;
    // A modal may contain a purchase button, but never hide actual readable articles or players.
    if((video&&el.contains(video))||el.querySelector("video, audio, article, [itemprop='articleBody']"))continue;
    const text=(el.textContent||"").trim();
@@ -132,18 +98,12 @@
    const positioned=style.position==="fixed"||style.position==="sticky"||style.position==="absolute";
    const overlay=explicitDialog||positioned&&/(?:dialog|modal|paywall|overlay|subscribe|gateway)/i.test(label);
    if(!DKPaywall.shouldHide({text,visible,overlay,articleLoaded:true,containsPlayer:false,rootElement:false}))continue;
-   antiHidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
-   el.style.setProperty("display","none","important");
+   if(!overlayRecovery.hide(el))continue;
    hiddenCount++;
-   for(const sibling of [el.previousElementSibling,el.nextElementSibling]){
-    if(!sibling||antiHidden.has(sibling)||!sibling.matches?.('[class*="backdrop" i], [class*="scrim" i]'))continue;
-    if(video&&sibling.contains(video))continue;
-    antiHidden.set(sibling,{value:sibling.style.getPropertyValue("display"),priority:sibling.style.getPropertyPriority("display")});
-    sibling.style.setProperty("display","none","important");
-   }
+   overlayRecovery.hideBackdropAround(el);
   }
   if(hiddenCount)unlockScrollAfterNotice();
-  for(const el of antiHidden.keys())if(!el.isConnected)antiHidden.delete(el);
+  overlayRecovery.prune();
  }
 
  function scanDynamicOverlays(){
@@ -167,7 +127,10 @@
     // Ignore attribute mutations caused by our own hiding changes.
     for(const item of records.slice(0,40)){
      if(item.addedNodes?.length||
-        item.type==="attributes"&&item.target&&!antiHidden.has(item.target)){
+        item.type==="attributes"&&item.target&&
+        (!overlayRecovery.wasHidden(item.target)||
+          item.target.style?.getPropertyValue("display")!=="none"||
+          item.target.style?.getPropertyPriority("display")!=="important")){
       queueOverlayScan();break;
      }
     }

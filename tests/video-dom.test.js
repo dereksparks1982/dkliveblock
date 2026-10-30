@@ -23,7 +23,7 @@ function create({host="www.youtube.com",active=true,skip=true,label="Skip Ad",cl
   DKConsent:{},DKProcedural:{},DKPaywall:{},DKAntiAdblock:{},
   setInterval:fn=>{interval=fn;return 1;}
  });
- for(const file of ["video-assist.js","content.js"])
+ for(const file of ["video-assist.js","overlay-recovery.js","content.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",file),"utf8"),context,{filename:file});
  return {state,button,events,step:()=>interval?.(),skips:()=>skips,refreshCalls:()=>refreshCalls,
   ready:async()=>{await new Promise(resolve=>setTimeout(resolve,0));},
