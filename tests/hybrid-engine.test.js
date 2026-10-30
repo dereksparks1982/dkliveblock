@@ -49,3 +49,20 @@ test("Ghostery allow rules cannot override a normal native block",()=>{
  const engine=Hybrid.create("||legacy.example^",override);
  assert.equal(engine.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
 });
+
+test("Ghostery network rules cannot close newly opened tabs",()=>{
+ const e=Hybrid.create("||generic-ads.example^$script",vendor);
+ assert.equal(e.checkRequest("https://ghostery-only.example/a.js","popup","site.example").block,false);
+ assert.equal(e.checkRequest("https://generic-ads.example/a.js","popup","site.example").block,false);
+});
+test("page generic-block policy stops supplementary matching",()=>{
+ const e=Hybrid.create("",vendor);
+ assert.equal(e.checkRequest("https://ghostery-only.example/a.js","script","site.example",{genericblock:true}).block,false);
+});
+test("already-blocked requests never invoke the additional vendor matcher",()=>{
+ let calls=0;
+ const spy={...vendor,FiltersEngine:{parse:()=>({match:()=>{calls++;return {match:false};}})}};
+ const e=Hybrid.create("||legacy.example^",spy);
+ assert.equal(e.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
+ assert.equal(calls,0);
+});

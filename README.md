@@ -16,6 +16,10 @@ Developer loading, once all extension files are present: Firefox about:debugging
 
 See docs/ROADMAP.md for the acceptance checklist.
 
+## Build 20: Ghostery arbitration and YouTube playback safeguards
+
+The bundled Ghostery engine supplements the native matcher while respecting native blocks, scoped exceptions, page-wide exclusions and explicit popup-only rules. An ad network match cannot, by itself, close a new browser tab. A stale YouTube skip button no longer blocks a newly appeared control, and skip controls are protected from cosmetic hiding. These improvements are source-tested; **live YouTube and Disney+ playback remain unverified**. No public release is authorized.
+
 ## Present development implementation
 
 - Firefox Manifest V2 with a synchronous blocking webRequest listener.

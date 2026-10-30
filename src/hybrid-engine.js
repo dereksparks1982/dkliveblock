@@ -1,4 +1,4 @@
-/* DK Live Block hybrid engine. Optional locally bundled Ghostery MPL-2.0. */
+/* DK Live Block hybrid engine with locally embedded Ghostery MPL-2.0. */
 (function(root){"use strict";
 function create(text,vendorApi=root.DKGhosteryVendor){
  const native=new DKFilter.FilterEngine(text);
@@ -15,7 +15,12 @@ function create(text,vendorApi=root.DKGhosteryVendor){
   checkRequest(url,type,origin,policy={}){
    const own=native.checkRequest(url,type,origin,policy);
    // Preserve all existing user/site exception behavior.
-   if(own.rule?.exception||policy.document||!this.vendor)return own;
+   // Preserve native blocks, site/page allows and generic-block exclusions.
+   // Avoid expensive duplicate vendor matching on already decided requests.
+   if(own.block||own.rule?.exception||policy?.document||policy?.genericblock||!this.vendor)return own;
+   // Only DK's explicit $popup filters are allowed to close newly opened tabs.
+   // Ordinary network matches from Ghostery do not establish popup intent.
+   if(type==="popup"||type==="main_frame"||type==="document")return own;
    if(typeof url!=="string"||url.length>16384||!/^https?:\/\//i.test(url))return own;
    try{
     const sourceUrl=/^https?:\/\//i.test(origin||"")?origin:

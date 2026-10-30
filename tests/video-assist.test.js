@@ -79,3 +79,20 @@ test("the element picker refuses parent wrappers containing active media",()=>{
  const unrelated={matches:()=>false,closest:()=>null,querySelector:()=>null};
  assert.equal(V.playerElement(unrelated),false);
 });
+
+test("stale button cooldown cannot hide the next available Skip Ad control",()=>{
+ const first=btn(),second=btn(),controller=V.createController(5000);
+ assert.equal(controller.scan({querySelectorAll:()=>[first.button]},1000).clicked,true);
+ assert.equal(controller.scan({querySelectorAll:()=>[first.button,second.button]},2000).clicked,true);
+ assert.equal(first.clicks(),1);assert.equal(second.clicks(),1);
+});
+test("a skip control in a hidden or inert ancestor is not clicked",()=>{
+ const x=btn(),original=x.button.closest;
+ x.button.closest=selector=>selector.includes("[inert]")?{}:original(selector);
+ assert.equal(V.isAdSkip(x.button),false);
+ assert.equal(x.clicks(),0);
+});
+test("cosmetic filtering does not hide the player Skip Ad buttons",()=>{
+ for(const selector of [".ytp-ad-skip-button",".ytp-ad-skip-button-slot",".ytp-skip-ad-button",".ytp-ad-skip-button-container"])
+  assert.equal(V.protectSelector(selector),true,selector);
+});

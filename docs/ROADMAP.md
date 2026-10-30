@@ -115,3 +115,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 19D reuses compiled filter engines when subscription rules have not changed; works with native and optional Ghostery engines, with regression coverage.
 
 - [x] Source-integrated Ghostery 2.20.3: bundled 479,492-byte engine committed to GitHub with MPL-2.0 notice; Firefox end users never install npm or separate dependencies. Real Firefox streaming tests still pending.
+
+- [x] Build 20A: avoid redundant Ghostery decisions, enforce popup-only provenance, respect page exceptions; protect YouTube Skip Ad controls and stale-control cooldown; test with no hosted CI.

@@ -8,12 +8,14 @@ const SKIP_SELECTORS=[
  ".ytp-skip-ad-button",
  ".ytp-ad-skip-button-slot button",
  ".ytp-ad-skip-button-container button",
+ ".ytp-ad-skip-button-modern button",
+ "button.ytp-ad-skip-button",
  "button[aria-label='Skip Ad']",
  "button[aria-label='Skip Ads']"
 ];
 const AD_SKIP_CLASS=/\b(?:ytp-ad-skip-button(?:-modern)?|ytp-skip-ad-button)\b/;
 const AD_LABEL=/^\s*(?:skip\s+ads?|skip\s+advertisements?|skip\s+commercials?)\s*$/i;
-const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display)(?=$|[,\s>+~[:.)])/i;
+const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display|\.ytp-ad-skip-button(?:-modern|-slot|-container)?|\.ytp-skip-ad-button)(?=$|[,\s>+~[:.)])/i;
 const streamingDomains=["youtube.com","youtube-nocookie.com","youtu.be","disneyplus.com"];
 function hostnameMatches(host,base){return host===base||host.endsWith("."+base);}
 function isStreamingHost(host){return typeof host==="string"&&streamingDomains.some(base=>hostnameMatches(host.toLowerCase(),base));}
@@ -45,6 +47,7 @@ function hasAdSkipClass(button){
 function isVisible(button){
  if(!button||button.isConnected===false||button.disabled||button.getAttribute?.("aria-disabled")==="true"||button.getAttribute?.("aria-hidden")==="true")return false;
  if(typeof button.click!=="function"||typeof button.getClientRects!=="function"||!button.getClientRects().length)return false;
+ try{if(button.closest?.("[inert], [hidden], [aria-hidden='true']"))return false;}catch(_){return false;}
  return true;
 }
 function isAdSkip(button){
@@ -61,15 +64,16 @@ function createController(cooldownMs=5000){
   if(!document||!Number.isFinite(now))return {clicked:false,reason:"unavailable"};
   let candidates=[];
   try{candidates=document.querySelectorAll(SKIP_SELECTORS.join(","));}catch(_){return {clicked:false,reason:"unavailable"};}
-  let seen=0;
+  let seen=0,cooling=false;
   for(const button of candidates){
    if(++seen>35)break;
    if(!isAdSkip(button))continue;
-   if(pressed.has(button)&&now-pressed.get(button)<cooldownMs)return {clicked:false,reason:"cooldown"};
+   // A stale control from an earlier SPA view must not block a new skip button.
+   if(pressed.has(button)&&now-pressed.get(button)<cooldownMs){cooling=true;continue;}
    try{pressed.set(button,now);button.click();return {clicked:true,reason:"skipped"};}
    catch(_){return {clicked:false,reason:"unavailable"};}
   }
-  return {clicked:false,reason:"no-button"};
+  return {clicked:false,reason:cooling?"cooldown":"no-button"};
  }
  return {scan};
 }
