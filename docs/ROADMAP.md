@@ -149,3 +149,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 27: native partial-file resume on explicit retry, persisted coarse per-video download status, interrupted-state recovery after Firefox restart, fixed safe processing-phase messages and offline tests.
 - [ ] Build 27 acceptance: prove resume with real yt-dlp and Firefox native messaging on Linux, plus full regression suite.
+
+- [x] Build 28: explicit, default-off automatic watch-later capture after ≥60 seconds of regular YouTube video playback, local tab/video validation, per-tab throttling, playback-ad exclusion, and privacy-first settings.
+- [ ] Build 28 acceptance: live YouTube navigation, video ads, Firefox restart, stored-history privacy and full local regression suite.

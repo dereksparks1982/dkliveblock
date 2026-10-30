@@ -73,3 +73,20 @@ test("Build 26 library UI exposes search, sorting and local-only backup",()=>{
  assert.match(bg,/importSavedVideos/);
  assert.match(bg,/clearSavedVideos/);
 });
+
+test("Build 28 auto-memory is off by default, opt-in only, and guards sender/video",()=>{
+ const fs=require("node:fs"),path=require("node:path"),root=path.join(__dirname,"../src");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ const content=fs.readFileSync(path.join(root,"content.js"),"utf8");
+ const opts=fs.readFileSync(path.join(root,"options.html"),"utf8");
+ const settings=fs.readFileSync(path.join(root,"settings.js"),"utf8");
+ assert.match(bg,/rememberVideos:false/);
+ assert.match(bg,/sender\.frameId!==0/);
+ assert.match(bg,/rememberVideoProgress/);
+ assert.match(bg,/presented\.id!==actual\.id/);
+ assert.match(settings,/rememberVideos/);
+ assert.match(opts,/id="rememberVideos"/);
+ assert.match(content,/lastRememberAt<30000/);
+ assert.match(content,/player\.currentTime<60/);
+ assert.match(content,/html5-video-player\.ad-showing/);
+});

@@ -1,6 +1,6 @@
 /* DK Live Block: defensive restoration of local settings and cached filter data. */
 (function(root){"use strict";
-const BOOLEAN=["enabled","autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","antiAdblock","paywallPopups","stripTracking","requestLog"];
+const BOOLEAN=["enabled","autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos"];
 function object(x){return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}
 function restoreSettings(raw,defaults,keys){
  const src=object(raw),value={...defaults,listEnabled:{...defaults.listEnabled},paused:[],mediaRecovery:[],popupProtectionPaused:[]};

@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
@@ -31,7 +31,7 @@
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
    if(!nextActive||proceduralChanged)restoreHidden();
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
-   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
+   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){/* A broken extension must not break the page. */}
@@ -220,6 +220,22 @@
   if(selector&&selector.length<=600){try{await browser.runtime.sendMessage({action:"addElementRule",selector});}catch(_){}}
  }
  function keys(e){if(e.key==="Escape"){e.preventDefault();endPicker();}}
+ async function maybeRememberVideo(){
+  // Explicitly opt-in only. Never send a video to the background until the
+  // HTML5 player has played at least one minute outside an advertising break.
+  if(!rememberVideos||!isYouTube||window!==window.top||Date.now()-lastRememberAt<30000)return;
+  const player=document.querySelector("video");
+  if(!player||player.paused||player.ended||player.seeking||!Number.isFinite(player.currentTime)||
+    !Number.isFinite(player.duration)||player.duration<90||
+    player.currentTime<60||player.currentTime>=player.duration-15||
+    document.querySelector(".html5-video-player.ad-showing"))return;
+  const videoId=new URL(location.href).searchParams.get("v");
+  if(!/^[A-Za-z0-9_-]{11}$/.test(videoId||""))return;
+  lastRememberAt=Date.now();
+  try{await browser.runtime.sendMessage({action:"rememberVideoProgress",videoId,
+   position:Math.floor(player.currentTime),duration:Math.floor(player.duration),
+   title:String(document.title||"YouTube video").slice(0,180)});}catch(_){}
+ }
  function startPicker(){
   if(!active||picking||!document.body)return false;
   picking=true;syncVideoWatcher();banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
@@ -257,6 +273,7 @@
  // and at a low-frequency fallback for pages that modify existing nodes in place.
  setInterval(()=>{
   skipVideo();rejectCookies();
+  if(rememberVideos&&isYouTube)maybeRememberVideo().catch(()=>{});
   if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}
   if(Date.now()-lastAdScan>3500)inspectAdSlots();
   if(Date.now()-lastOverlayScan>15000)scanDynamicOverlays();

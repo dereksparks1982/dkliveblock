@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.2.8 (Build 27).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.2.9 (Build 28).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 28: optional automatic remembrance of unfinished YouTube videos (0.2.9)
+
+Settings → Video and cookies now offers **Remember unfinished YouTube videos automatically**, **OFF by default**. When explicitly enabled, the top-level YouTube content script can report a regular video after at least 60 seconds of actual HTML5 playback, not during ad breaks, and rate limits updates to once per 30 seconds. The background independently verifies the tab and sender's YouTube video ID, frame, position and duration before storing it in the existing private 300-video library. Nothing is synced or sent to DK servers. Turning the option off stops new automatic saves; saved entries are controlled separately in My Saved Videos.
+
+Baseline ad blocking, yt-dlp installation, and download quality controls remain unchanged. The project is unreleased; real Firefox YouTube and Disney+ tests are still mandatory.
 
 ## Build 27: interrupted download recovery and processing phases (0.2.8)
 

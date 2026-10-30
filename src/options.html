@@ -33,6 +33,8 @@
 <p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
 <section><h2>Additional filter lists</h2><p>Up to five HTTPS subscription URLs, one per line. The list contents are parsed as filter rules, never executed as scripts.</p><textarea id="customSubscriptions" class="short" spellcheck="false" placeholder="https://filters.example.org/blocking.txt"></textarea></section>
 <section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
+<label><input id="rememberVideos" type="checkbox"> Remember unfinished YouTube videos automatically (local only, off by default)</label>
+<p>When enabled, DK Live Block saves your position in ordinary YouTube videos after you've watched at least one minute, and periodically updates it while you watch. It never syncs your viewing history or contacts DK servers. Turn it off to stop new automatic saves; already saved videos remain in your library until you remove them.</p>
 <label><input id="adRecognition" type="checkbox"> Automatically hide clearly identified advertising containers (reversible, conservative)</label>
 <label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists</label>
 <label><input id="antiAdblock" type="checkbox"> Hide popups asking me to disable DK Live Block (includes YouTube notices where possible)</label>

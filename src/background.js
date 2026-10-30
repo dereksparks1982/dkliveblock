@@ -8,9 +8,10 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
+const autoVideoTimes=new Map();
 let videoJob={id:"",state:"idle",progress:0,quality:"compatible",phase:"",error:""};
 let videoPort=null,videoPersistQueue=Promise.resolve();
 function rememberVideoJob(){
@@ -317,9 +318,9 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
- if(info.url||info.status==="loading"){data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);badge(id);}
+ if(info.url||info.status==="loading"){autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
-browser.tabs.onRemoved.addListener(id=>{data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
+browser.tabs.onRemoved.addListener(id=>{autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -327,7 +328,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  // and submit a user-initiated element-picker rule for their own frame.
  // Never trust tabId or URL supplied by page-originated messages.
  const fromContent=!!sender.tab;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
@@ -335,6 +336,25 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="status")return status(id,url);
  if(msg.action==="getSavedVideos"){
   return DKVideoLibrary.list((await browser.storage.local.get("savedVideos")).savedVideos);
+ }
+ if(msg.action==="rememberVideoProgress"){
+  // Only the top-level extension content script may report a real, visible
+  // YouTube player. Validate both sender and current tab to defeat stale SPA reports.
+  if(!fromContent||sender.frameId!==0||!data.settings.rememberVideos)
+   return {error:"Automatic remembering is not enabled for this page."};
+  const presented=DKVideoLibrary.parseVideo(sender.url||"");
+  const actual=DKVideoLibrary.parseVideo(sender.tab?.url||"");
+  const position=msg.position,duration=msg.duration;
+  if(!presented||!actual||presented.id!==actual.id||actual.id!==msg.videoId||
+     !Number.isFinite(position)||!Number.isFinite(duration)||
+     duration<90||duration>86400||position<60||position>86400||position>=duration-15)
+   return {error:"Not an eligible unfinished YouTube video."};
+  const now=Date.now(),prior=autoVideoTimes.get(id);
+  if(prior&&prior.videoId===actual.id&&now-prior.when<30000)return {ok:true,skipped:true};
+  autoVideoTimes.set(id,{videoId:actual.id,when:now});
+  return libraryUpdate(items=>DKVideoLibrary.save(items,{
+   id:actual.id,url:actual.url,title:msg.title,position
+  }));
  }
  if(msg.action==="saveVideo"){
   const active=await verifiedActiveVideo(msg);
@@ -448,7 +468,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {ok:true,version:data.youtubeRules?.version||0,heldVersion:data.youtubeHeldVersion};
  }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
-  return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,adRecognition:data.settings.adRecognition,
+  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,adRecognition:data.settings.adRecognition,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
@@ -514,6 +534,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
   if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
+  if(typeof s.rememberVideos==="boolean")data.settings.rememberVideos=s.rememberVideos;
   if(typeof s.adRecognition==="boolean")data.settings.adRecognition=s.adRecognition;
   if(Array.isArray(s.mediaRecovery))
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&
