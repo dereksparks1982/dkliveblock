@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
@@ -32,18 +32,18 @@
   try{
    const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
    if(sequence!==refreshSequence)return; // Ignore stale replies after rapid SPA navigation.
-   const nextActive=!!s.active,nextAnti=!!s.antiAdblock,nextPaywall=!!s.paywallPopups;
+   const nextActive=!!s.active,nextAnti=!!s.antiAdblock,nextPaywall=!!s.paywallPopups,nextDistractions=!!s.distractionControl;
    const nextProcedural=Array.isArray(s.procedural)?s.procedural:[];
    const proceduralChanged=JSON.stringify(nextProcedural)!==JSON.stringify(procedural);
    // Do not flash already-hidden notices on ordinary navigation or rule refresh.
-   if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
+   if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall||distractionControl&&!nextDistractions)restoreAntiHidden();
    if(!nextActive||proceduralChanged)restoreHidden();
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
    const nextHealth=!!s.playbackHealthEnabled;
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
-   antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
+   antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){/* A broken extension must not break the page. */}
  }
@@ -147,14 +147,58 @@
   overlayRecovery.prune();
  }
 
+ function suppressDistractions(){
+  if(!active||!distractionControl||picking||!document.body||document.fullscreenElement)return;
+  const selector=[
+   "dialog[open]","[role='dialog']","[aria-modal='true']",
+   "[class*='newsletter' i]","[id*='newsletter' i]",
+   "[class*='survey' i]","[id*='survey' i]",
+   "[class*='mailing-list' i]","[class*='floating-ad' i]",
+   "[class*='corner-ad' i]","[data-testid*='newsletter' i]"
+  ].join(",");
+  let nodes;try{nodes=document.querySelectorAll(selector);}catch(_){return;}
+  let inspected=0,removed=0;
+  for(const el of nodes){
+   if(++inspected>100||removed>=4)break;
+   if(el===document.body||el===document.documentElement||el===banner)continue;
+   let text="",marker="",sensitive=false,hasPlayer=false,hasFrame=false;
+   try{
+    text=String(el.textContent||"").trim().slice(0,1200);
+    marker=[el.id||"",typeof el.className==="string"?el.className:""].join(" ").slice(0,250);
+    sensitive=DKPopupGuard.protectedDialog(el,text);
+    hasPlayer=!!el.querySelector?.("video, audio, [id='movie_player'], .html5-video-player");
+    hasFrame=!!el.querySelector?.("iframe, object, embed");
+    if(sensitive||hasPlayer||hasFrame)continue;
+    const style=window.getComputedStyle(el);
+    const visible=el.isConnected&&el.getClientRects().length>0&&
+      style.display!=="none"&&style.visibility!=="hidden";
+    const explicit=el.localName==="dialog"||el.getAttribute?.("role")==="dialog"||
+      el.getAttribute?.("aria-modal")==="true";
+    const positioned=style.position==="fixed"||style.position==="sticky";
+    const overlay=explicit||positioned&&
+      /(?:popup|modal|overlay|newsletter|survey|floating|corner-ad)/i.test(marker);
+    const category=DKDistractions.classify({text,labelText:marker,
+      overlay,visible,hasPlayer,hasMediaFrame:hasFrame,hasSensitive:sensitive,
+      fullscreen:!!document.fullscreenElement,host});
+    if(!category||!overlayRecovery.hide(el))continue;
+    removed++;overlayRecovery.hideBackdropAround(el);
+   }catch(_){/* Unknown DOM: never interrupt the page. */}
+  }
+  if(removed){
+   unlockScrollAfterNotice();
+   try{browser.runtime.sendMessage({action:"reportPopupCleanup",kind:"distraction",count:removed}).catch(()=>{});}catch(_){}
+  }
+  overlayRecovery.prune();
+ }
  function scanDynamicOverlays(){
-  if(!active||picking||!document.body||(!antiAdblock&&!paywallPopups))return;
+  if(!active||picking||!document.body||(!antiAdblock&&!paywallPopups&&!distractionControl))return;
   lastOverlayScan=Date.now();
   if(antiAdblock){lastAnti=lastOverlayScan;suppressAntiAdblockNotices();}
   if(paywallPopups){lastPaywall=lastOverlayScan;suppressSubscriptionModals();}
+  if(distractionControl)suppressDistractions();
  }
  function queueOverlayScan(){
-  if(overlayTimer!==null||!active||(!antiAdblock&&!paywallPopups)||typeof setTimeout!=="function")return;
+  if(overlayTimer!==null||!active||(!antiAdblock&&!paywallPopups&&!distractionControl)||typeof setTimeout!=="function")return;
   const delay=Math.max(220,800-(Date.now()-lastOverlayScan));
   overlayTimer=setTimeout(()=>{
    overlayTimer=null;scanDynamicOverlays();
@@ -184,17 +228,32 @@
  }
  function rejectCookies(){
   if(!active||!cookieReject)return;
-  const selectors=["[role='dialog']","[aria-modal='true']","#onetrust-banner-sdk","#CybotCookiebotDialog",".qc-cmp2-container"];
-  for(const root of document.querySelectorAll(selectors.join(","))){
-   const info=(root.textContent||"").slice(0,1500);
-   if(!DKConsent.cookieContext(info))continue;
-   const buttons=root.querySelectorAll("button,[role='button']");
-   for(const button of buttons){const label=button.textContent||button.getAttribute("aria-label")||"";
-    if(!clickedRejectButtons.has(button)&&DKConsent.rejectLabel(label)&&button.getClientRects().length){
-      clickedRejectButtons.add(button);
-      button.click();return;
+  const selectors=["[role='dialog']","[aria-modal='true']","#onetrust-banner-sdk",
+  "#onetrust-consent-sdk","#CybotCookiebotDialog",".qc-cmp2-container",
+  "#didomi-host",".osano-cm-dialog","[class*='cookie-banner' i]"];
+  let roots;try{roots=document.querySelectorAll(selectors.join(","));}catch(_){return;}
+  let checked=0;
+  for(const root of roots){
+   if(++checked>20)break;
+   try{
+    const info=String(root.textContent||"").slice(0,1500);
+    if(!DKConsent.cookieContext(info)||DKPopupGuard.protectedDialog(root,info))continue;
+    let inspected=0;
+    for(const button of root.querySelectorAll("button,[role='button']")){
+     if(++inspected>35)break;
+     if(clickedRejectButtons.has(button))continue;
+     const style=window.getComputedStyle?.(button);
+     const visible=!!button.isConnected&&!!button.getClientRects?.().length&&
+       style?.display!=="none"&&style?.visibility!=="hidden";
+     if(!DKConsent.shouldReject({context:info,text:button.textContent,
+       ariaLabel:button.getAttribute?.("aria-label")||"",
+       visible,disabled:!!button.disabled||
+        button.getAttribute?.("aria-disabled")==="true",
+       protectedUI:!!button.closest?.("[inert], [hidden], [aria-hidden='true']")}))continue;
+     clickedRejectButtons.add(button);
+     button.click();return;
     }
-   }
+   }catch(_){/* Page widgets can change during scans. */}
   }
  }
  function cleanSelector(el){

@@ -67,3 +67,18 @@ test("Build 32 downloads inventory page is packaged with its local script",()=>{
  assert.ok(html.includes('src="downloads.js"'));
  assert.ok(fs.existsSync(path.join(root,"src/downloads.js")));
 });
+
+test("Build 44 loads distraction classifier before content and retains no Acceptable Ads toggle",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const root=path.resolve(__dirname,"..");
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ const scripts=manifest.content_scripts[0].js;
+ assert.ok(scripts.indexOf("distractions.js")>=0);
+ assert.ok(scripts.indexOf("distractions.js")<scripts.indexOf("content.js"));
+ const bg=fs.readFileSync(path.join(root,"src/background.js"),"utf8");
+ assert.match(bg,/cookies:true,annoyances:true,social:true/);
+ assert.match(bg,/cookieReject:true,distractionControl:true/);
+ const html=fs.readFileSync(path.join(root,"src/options.html"),"utf8");
+ assert.match(html,/id="distractionControl"/);
+ assert.doesNotMatch(html,/id="acceptableAds"/i);
+});

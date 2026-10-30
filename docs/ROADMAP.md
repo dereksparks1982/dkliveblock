@@ -201,3 +201,10 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 43: ABP Premium desktop feature checklist separated from independent functional/browser validation; no parity claims.
 - [ ] Build 43 acceptance: full offline Node/Python suite, independent Firefox Disney+ logged-in playback and ad-tier test (if legitimately available), YouTube preroll/midroll, DRM compatibility observations and video-player false-positive review.
 - [ ] Public release gate: close outstanding ABP free and Premium Firefox feature parity tests including cookie consent, distraction removal and automatic filtering on real websites, privacy/security review and signed Firefox AMO acceptance.
+
+- [x] Build 44: default-on cookie, annoyance, social and tracking/ad filter lists on fresh installs; explicit opt-out preserved in stored settings; no paid or Acceptable Ads allowlist.
+- [x] Build 44: enhanced conservative reject-only multilingual cookie handling (English/Turkish/Arabic/Russian/Chinese/Welsh and existing labels); ignore sensitive, invisible or disabled controls.
+- [x] Build 44: bounded reversible newsletter/survey/floating corner-ad overlay cleanup, video/iframe/player and authentication/payment protection, direct setting and regression checks.
+- [ ] Build 44 acceptance: end-to-end Firefox cookie choices on diverse consent-management tools, real floating-video discrimination, newsletter/survey false positives, filter-list download status and full Node/Python suite.
+- [ ] Later: vetted browser-language filter subscription selection with explicit privacy/performance review; don't silently install unverified regional lists.
+- [ ] Later: investigate Firefox notification-permission controls, since a content-script overlay detector cannot suppress browser-owned native permission UI.

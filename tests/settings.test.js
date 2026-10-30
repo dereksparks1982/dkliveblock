@@ -75,3 +75,24 @@ test("Build 36 strict popup protection is default enabled and can be disabled",(
  assert.equal(no.strictPopupSites,false);
  assert.equal(invalid.strictPopupSites,true);
 });
+
+test("Build 44 default protection flags are on unless users explicitly disable them",()=>{
+ const protect={...defaults,listEnabled:{easylist:true,easyprivacy:true,
+  cookies:true,annoyances:true,social:true},cookieReject:true,distractionControl:true};
+ const fresh=Settings.restoreSettings(null,protect,Object.keys(protect.listEnabled));
+ for(const key of ["easylist","easyprivacy","cookies","annoyances","social"])
+  assert.equal(fresh.listEnabled[key],true,key);
+ assert.equal(fresh.cookieReject,true);
+ assert.equal(fresh.distractionControl,true);
+ const saved=Settings.restoreSettings({cookieReject:false,distractionControl:false,
+  listEnabled:{cookies:false,annoyances:false,social:false}},protect,Object.keys(protect.listEnabled));
+ assert.equal(saved.cookieReject,false);
+ assert.equal(saved.distractionControl,false);
+ for(const key of ["cookies","annoyances","social"])
+  assert.equal(saved.listEnabled[key],false,key);
+ const malformed=Settings.restoreSettings({cookieReject:"false",distractionControl:null,
+  listEnabled:{cookies:"false"}},protect,Object.keys(protect.listEnabled));
+ assert.equal(malformed.cookieReject,true);
+ assert.equal(malformed.distractionControl,true);
+ assert.equal(malformed.listEnabled.cookies,true);
+});

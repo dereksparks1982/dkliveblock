@@ -35,3 +35,7 @@ The iOS-only Premium feature *ad blocking in apps* is **not** a capability of th
 - **Report outcomes:** Store reproducible pass/fail evidence in the repository's manual QA tracker, not in the user's personal browsing history. Any regression or gap blocks a public parity claim.
 
 **Release gate:** all mandatory cases pass with versioned evidence and documented issues addressed. This checklist is a plan, not completed test evidence.
+
+## Build 44 update
+
+Fresh installations now default to EasyPrivacy, Fanboy Annoyances, social and cookie-list protection, explicit reject-only cookie handling and conservative newsletter/survey/floating-corner-ad cleanup. User choices may disable these. This raises implementation coverage of both free and Premium-style ABP categories but **does not prove equivalent blocking rates**, cookie-consent compliance, live floating-video behavior, notification-prompt control or full Firefox compatibility. Language-aware labels have expanded; automatic selection of verified regional list URLs and browser-native push-permission handling remain future work.

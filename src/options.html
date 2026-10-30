@@ -21,6 +21,9 @@
 <div id="recommendedApplications" class="dependency-list"></div>
 <p><strong>Privacy:</strong> Checking tools requests optional native-messaging permission. The read-only companion detects selected executable locations; it does not launch third-party programs, install packages, or send results to a server.</p>
 </section>
+<section id="default-protections"><h2>Protection-first defaults</h2>
+<p>Advertising, tracking, cookie-notice, annoyance and social-widget filter lists are enabled for new installations. Explicit cookie rejection and conservative distraction protection are enabled too. <strong>There is no Acceptable Ads program or paid protection tier.</strong> You may turn individual protections off, and your saved choices are respected. A list only protects you once downloaded; use the status below to check downloads.</p>
+</section>
 <section><h2>Filter subscriptions</h2>
 <label><input id="easylist" type="checkbox"> EasyList: advertisements</label>
 <label><input id="easyprivacy" type="checkbox"> EasyPrivacy: tracking</label>
@@ -41,7 +44,8 @@
 <label><input id="rememberVideos" type="checkbox"> Remember unfinished YouTube videos automatically (local only, off by default)</label>
 <p>When enabled, DK Live Block saves your position in ordinary YouTube videos after you've watched at least one minute, and periodically updates it while you watch. It never syncs your viewing history or contacts DK servers. Turn it off to stop new automatic saves; already saved videos remain in your library until you remove them. The library's Erase saved-video history action clears the saved list and last download status, and switches automatic remembering off.</p>
 <label><input id="adRecognition" type="checkbox"> Automatically hide clearly identified advertising containers (reversible, conservative)</label>
-<label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists</label>
+<label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists (on by default)</label>
+<label><input id="distractionControl" type="checkbox"> Hide confidently identified newsletter, survey and floating corner-ad overlays (on by default; never hide active video players)</label>
 <label><input id="antiAdblock" type="checkbox"> Hide popups asking me to disable DK Live Block (includes YouTube notices where possible)</label>
 <label><input id="paywallPopups" type="checkbox"> Hide subscription popups covering already-loaded articles (Wall Street Journal, BBC and other sites where possible)</label>
 <p>This does not create access to missing articles or unlock server-side subscriptions. Turn this off per preference, or pause DK Live Block on an affected site.</p>

@@ -8,7 +8,7 @@ const SOURCES={
  social:{name:"Fanboy Social",url:"https://easylist.to/easylist/fanboy-social.txt"}
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -583,8 +583,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
  if(msg.action==="reportPopupCleanup"){
   if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||
-     !["antiAdblock","paywall"].includes(msg.kind))return {error:"Invalid popup report."};
+     !["antiAdblock","paywall","distraction"].includes(msg.kind))return {error:"Invalid popup report."};
   const site=data.hosts.get(id)||host(sender.tab?.url)||h;
+  if(msg.kind==="distraction"&&!data.settings.distractionControl)
+    return {error:"Distraction protection is disabled."};
   if(!data.ready||!activeTab(id,site)||
     data.settings.popupProtectionPaused.some(x=>DKRules.sub(site,x)))return {error:"Popup protection is not active."};
   const total=Math.min(1000,(data.popupCounts.get(id)||0)+msg.count);
@@ -746,7 +748,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {ok:true,version:data.youtubeRules?.version||0,heldVersion:data.youtubeHeldVersion};
  }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
-  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,adRecognition:data.settings.adRecognition,
+  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,distractionControl:data.settings.distractionControl,adRecognition:data.settings.adRecognition,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
@@ -823,6 +825,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&
     DKVideoAssist.isStreamingHost(h)&&DKManualRules.validHost(h)))].slice(0,12);
   if(typeof s.cookieReject==="boolean")data.settings.cookieReject=s.cookieReject;
+  if(typeof s.distractionControl==="boolean")data.settings.distractionControl=s.distractionControl;
   if(typeof s.antiAdblock==="boolean")data.settings.antiAdblock=s.antiAdblock;
   if(typeof s.paywallPopups==="boolean")data.settings.paywallPopups=s.paywallPopups;
   if(Array.isArray(s.popupProtectionPaused))

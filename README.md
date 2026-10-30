@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.14 (Build 43).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.15 (Build 44).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,16 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 44: protection-first defaults and conservative distraction removal (0.3.15)
+
+New installations now enable **EasyList advertising, EasyPrivacy tracking, EasyList Cookie, Fanboy Annoyances and Fanboy Social** filtering, plus explicit multilingual **Reject optional cookies** and safe **Newsletter / survey / floating corner-ad overlay protection**. All of these remain free. **There is no Acceptable Ads program, paid allowlist or Premium tier.** Previously saved disabled flags and list choices are preserved. Third-party filter lists still require a successful normal update before their rules apply; if offline, only built-in/local rules provide protection.
+
+Cookie handling never automatically accepts consent. It clicks only a clearly identified reject/necessary-only button inside a verified cookie notice, avoiding hidden, disabled, conflicting-label and sensitive dialogs. The enhanced multilingual labels add conservative Russian, Chinese, Arabic and Welsh support alongside existing English, Turkish and European examples. A selector or translation is not proof that every language/cookie framework is fully supported.
+
+The new automatic distraction detector works only on clearly identified newsletter forms, survey dialogs and floating advertising **containers**. It excludes sensitive security/payment/authentication dialogs, real videos/audio/embedded players, fullscreen content and unrelated in-page text; CSS hiding is reversible. **This is not a general floating-video player suppressor**: videos and their frames are deliberately left alone to avoid breaking legitimate playback. It also cannot disable Firefox's native notification-permission prompt via page DOM handling. Those cases require separate Firefox-specific review.
+
+All core protection starts without an extra install or paid account. Users can turn off individual protections in Settings. No extra runtime dependencies, permissions, telemetry, GitHub Actions or public package were added. Offline full Node/Python and live Firefox validation remain pending.
 
 ## Build 43: Disney+ playback compatibility and granular repair (0.3.14)
 
