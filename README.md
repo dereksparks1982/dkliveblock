@@ -177,3 +177,7 @@ The new automatic ad-container recognition can be disabled independently in Sett
 ## Efficient filter-engine rebuilds
 
 Changing site pauses, recognition, logging, cookie choices, popup protections, or other unrelated settings no longer recompiles large filter lists. DK Live Block retains the current parsed engine until the combined filter text actually changes. Both the native engine and the optional bundled Ghostery integration benefit from this avoidance of unnecessary work.
+
+### Local Ghostery library installation
+
+From the DK Live Block source directory on Ubuntu run `bash scripts/install-ghostery.sh`. It installs the pinned npm dependencies, compiles a self-contained local `src/ghostery-vendor.js`, and checks basic blocking and scoped exceptions before replacing the placeholder. The script does not open Firefox, prompt for credentials, publish an extension, or create a ZIP. The cloud coding environment cannot reach the npm registry; actual package compilation must occur on an Ubuntu computer with npm access.

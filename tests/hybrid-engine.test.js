@@ -36,3 +36,16 @@ test("ignore vendor redirect and rewrite responses",()=>{
  const unsafe={...vendor,FiltersEngine:{parse:()=>({match:()=>({match:true,redirect:{filename:"script.js"}})})}};
  assert.equal(Hybrid.create("",unsafe).checkRequest("https://any.example/a","script","site.example").block,false);
 });
+
+test("Ghostery allow rules cannot override a native important block",()=>{
+ const override={FiltersEngine:{parse:()=>({match:()=>({match:false,exception:{}})})},
+  Request:{fromRawDetails:x=>x}};
+ const engine=Hybrid.create("||ads.example^$important",override);
+ assert.equal(engine.checkRequest("https://ads.example/a.js","script","site.example").block,true);
+});
+test("Ghostery allow rules cannot override a normal native block",()=>{
+ const override={FiltersEngine:{parse:()=>({match:()=>({match:false,exception:{}})})},
+  Request:{fromRawDetails:x=>x}};
+ const engine=Hybrid.create("||legacy.example^",override);
+ assert.equal(engine.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
+});

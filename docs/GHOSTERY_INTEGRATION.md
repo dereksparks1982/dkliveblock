@@ -10,3 +10,7 @@ This compiles a self-contained src/ghostery-vendor.js. No runtime remote code, n
 MPL-2.0 license and upstream source: src/LICENSE-GHOSTERY.txt and https://github.com/ghostery/adblocker/tree/master/packages/adblocker . Include required source/notice information when distributing a binary. DK original code remains MIT. The source-only integration is not Firefox validated and not approved for public release.
 
 No GitHub Actions or paid services. Building Ghostery is optional for development and does not block further coding.
+
+## One-command Ubuntu installation
+
+From the local DK Live Block source directory run `bash scripts/install-ghostery.sh`. It downloads pinned npm dependencies and builds `src/ghostery-vendor.js`. If compilation fails, the previous bundle is retained. No GitHub Actions, passwords, Firefox installation, release ZIP or hosted service. To include the compiled engine in the GitHub repository, the local bundle must subsequently be committed, or shared here for an authenticated connector push.

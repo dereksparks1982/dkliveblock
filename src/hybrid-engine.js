@@ -22,7 +22,7 @@ function create(text,vendorApi=root.DKGhosteryVendor){
       DKRules.validDomains(origin||"")&&!(origin||"").includes("|")?"https://"+origin+"/":"";
     const request=vendorApi.Request.fromRawDetails({url,type:type||"other",sourceUrl});
     const verdict=this.vendor.match(request);
-    if(verdict?.exception)return {block:false,rule:{p:"[Ghostery exception]"}};
+    if(verdict?.exception)return own; // Never override DK rules with third-party allows.
     // Do not apply remote scriptlets, replacements or URL rewrites.
     if(verdict?.match===true&&!verdict.redirect&&!verdict.rewrite)
      return {block:true,rule:{p:"[Ghostery network filter]"}};
