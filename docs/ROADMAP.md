@@ -146,3 +146,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 26: manual saved-video search and sorting, secure bounded backup import/export, duplicate handling, bulk clear with confirmation, offline regressions.
 - [ ] Build 26 acceptance: full repository test suite and real Firefox UI/storage session test.
+
+- [x] Build 27: native partial-file resume on explicit retry, persisted coarse per-video download status, interrupted-state recovery after Firefox restart, fixed safe processing-phase messages and offline tests.
+- [ ] Build 27 acceptance: prove resume with real yt-dlp and Firefox native messaging on Linux, plus full regression suite.

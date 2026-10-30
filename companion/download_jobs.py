@@ -65,7 +65,7 @@ def make_command(video_id: str, mode: str, base=None):
         "audio": "bestaudio[ext=m4a]/bestaudio",
     }
     args = [str(binary), "--ignore-config", "--no-playlist",
-            "--no-overwrites", "--no-continue", "--no-call-home", "--no-cache-dir",
+            "--no-overwrites", "--continue", "--no-call-home", "--no-cache-dir",
             "--restrict-filenames", "--newline", "--max-filesize", "750M",
             "--socket-timeout", "20", "--retries", "2", "--fragment-retries", "2",
             "--progress-template", "download:DK_PROGRESS:%(progress._percent_str)s",
@@ -85,6 +85,17 @@ def parse_progress(line):
         return None
     value = float(match.group(1))
     return min(100, max(0, round(value, 1))) if value <= 100 else None
+
+
+def classify_phase(line):
+    """Return only fixed job phases; never forward yt-dlp filenames or output."""
+    if not isinstance(line, str):
+        return None
+    if line.startswith("[Merger] ") or line.startswith("[VideoRemuxer] "):
+        return "merging"
+    if line.startswith("[ExtractAudio] ") or line.startswith("[Fixup"):
+        return "processing"
+    return None
 
 
 def stop_process(process):
@@ -132,10 +143,14 @@ def run(video_id, mode, emit, cancel, *, popen=subprocess.Popen, clock=time.mono
                     pending = (pending + chunk)[-8192:]
                     while b"\n" in pending:
                         line, pending = pending.split(b"\n", 1)
-                        percent = parse_progress(line.decode("utf-8", errors="replace"))
+                        output_line = line.decode("utf-8", errors="replace")
+                        percent = parse_progress(output_line)
                         if percent is not None and percent > last_progress:
                             last_progress = percent
                             emit({"type": "progress", "videoId": video_id, "percent": percent})
+                        phase = classify_phase(output_line)
+                        if phase is not None:
+                            emit({"type": "phase", "videoId": video_id, "phase": phase})
                 elif process.poll() is not None:
                     break
             elif process.poll() is not None:

@@ -81,5 +81,22 @@ class StreamingJobsTest(unittest.TestCase):
             finally:
                 timer.cancel()
 
+
+    def test_retry_is_explicit_and_phase_markers_do_not_leak_filename(self):
+        import download_jobs as J
+        self.assertEqual(J.classify_phase('[Merger] Merging formats into "/private/path"'),"merging")
+        self.assertEqual(J.classify_phase('[ExtractAudio] Destination: song.m4a'),"processing")
+        self.assertIsNone(J.classify_phase('[download] Destination: hidden-url'))
+        self.assertIsNone(J.classify_phase('noise'))
+        with tempfile.TemporaryDirectory() as tmp:
+            with patch.object(J.verified_install,"compatible_platform",return_value=True), \
+                 patch.object(J.verified_install,"already_installed",return_value=True), \
+                 patch.object(J.video_download,"download_folder",return_value=Path(tmp)/"downloads"), \
+                 patch.object(J,"find_ffmpeg",return_value=None):
+                argv,_=J.make_command("dQw4w9WgXcQ","compatible",Path(tmp)/"dependencies")
+                self.assertIn("--continue",argv)
+                self.assertNotIn("--no-continue",argv)
+                self.assertIn("--no-overwrites",argv)
+
 if __name__=="__main__":
     unittest.main()

@@ -11,8 +11,24 @@ const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.c
 const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
-let videoJob={id:"",state:"idle",progress:0,quality:"compatible",error:""};
-let videoPort=null;
+let videoJob={id:"",state:"idle",progress:0,quality:"compatible",phase:"",error:""};
+let videoPort=null,videoPersistQueue=Promise.resolve();
+function rememberVideoJob(){
+ const state={id:videoJob.id,state:videoJob.state,progress:videoJob.progress,
+  quality:videoJob.quality,phase:videoJob.phase,error:videoJob.error,
+  updatedAt:Date.now()};
+ videoPersistQueue=videoPersistQueue.catch(()=>{}).then(()=>
+  browser.storage.local.set({lastVideoDownload:state})).catch(()=>{});
+}
+function restoreVideoJob(entry){
+ if(!entry||typeof entry!=="object"||!DKVideoLibrary.parseVideo("https://www.youtube.com/watch?v="+entry.id))return null;
+ const states=new Set(["running","cancelling","complete","cancelled","failed","interrupted"]);
+ const qualities=new Set(["compatible","best","audio"]);
+ if(!states.has(entry.state)||!qualities.has(entry.quality))return null;
+ const progress=Number.isFinite(entry.progress)?Math.min(100,Math.max(0,entry.progress)):0;
+ return {id:entry.id,state:["running","cancelling"].includes(entry.state)?"interrupted":entry.state,
+  progress,quality:entry.quality,phase:"",error:typeof entry.error==="string"?entry.error.slice(0,180):""};
+}
 function libraryUpdate(operation){
  const run=videoLibraryQueue.catch(()=>{}).then(async()=>{
   const stored=await browser.storage.local.get("savedVideos");
@@ -51,18 +67,22 @@ async function startVideoDownload(msg){
  try{port=browser.runtime.connectNative("dk_live_block_companion");}
  catch(error){return {error:"Could not connect to the optional Linux companion: "+String(error.message||error).slice(0,100)};}
  videoPort=port;
- videoJob={id:active.video.id,state:"running",progress:0,quality,error:""};
+ videoJob={id:active.video.id,state:"running",progress:0,quality,phase:"downloading",error:""};
+ rememberVideoJob();
  port.onMessage.addListener(message=>{
   if(videoPort!==port||!message||message.protocol!==1||message.videoId!==active.video.id)return;
   if(message.type==="progress"&&videoJob.state==="running"){
    if(Number.isFinite(message.percent)&&message.percent>=0&&message.percent<=100)
     videoJob.progress=Math.max(videoJob.progress,Math.round(message.percent));
+  }else if(message.type==="phase"&&["merging","processing"].includes(message.phase)){
+   videoJob.phase=message.phase;rememberVideoJob();
   }else if(message.type==="cancelling"){
-   videoJob.state="cancelling";
+   videoJob.state="cancelling";rememberVideoJob();
   }else if(message.type==="finished"&&["complete","cancelled","failed"].includes(message.state)){
    videoJob.state=message.state;
    videoJob.progress=message.state==="complete"?100:videoJob.progress;
    videoJob.error=message.state==="failed"?String(message.error||"yt-dlp download failed").slice(0,180):"";
+   videoJob.phase="";rememberVideoJob();
    videoPort=null;
    try{port.disconnect();}catch(_){}
   }
@@ -73,6 +93,7 @@ async function startVideoDownload(msg){
   if(videoJob.state==="running"||videoJob.state==="cancelling"){
    videoJob.state="failed";
    videoJob.error="Native companion disconnected before the download finished.";
+   rememberVideoJob();
   }
  });
  try{
@@ -80,6 +101,7 @@ async function startVideoDownload(msg){
    videoId:active.video.id,quality,confirmation:"explicit-user-action"});
  }catch(error){
   videoPort=null;videoJob.state="failed";videoJob.error=String(error.message||error).slice(0,180);
+  rememberVideoJob();
   try{port.disconnect();}catch(_){}
   return {error:videoJob.error};
  }
@@ -90,7 +112,7 @@ function cancelVideoDownload(msg){
   return {error:"No matching active download to cancel."};
  try{videoPort.postMessage({protocol:1,action:"cancelVideoDownload",videoId:videoJob.id});}
  catch(error){return {error:"Cancellation request could not be delivered."};}
- videoJob.state="cancelling";
+ videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
 const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
@@ -516,7 +538,11 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
 });
 async function boot(){
  try{
-  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion"]);
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload"]);
+  if(videoJob.state==="idle"){
+   const previous=restoreVideoJob(stored.lastVideoDownload);
+   if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
+  }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
   const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);

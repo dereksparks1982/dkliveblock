@@ -73,3 +73,13 @@ test("native port handles progress, cancellation and format guards without start
  assert.equal(disconnected,1);
  assert.match((await handlers.startVideoDownload({...input,quality:"$(curl evil)"})).error,/quality/i);
 });
+
+test("Build 27 supports local interrupted-download recovery and fixed processing phases",()=>{
+ const bg=read("background.js"),ui=read("popup.js");
+ assert.match(bg,/lastVideoDownload/);
+ assert.match(bg,/restoreVideoJob/);
+ assert.match(bg,/interrupted/);
+ assert.match(bg,/message\.type==="phase"/);
+ assert.match(ui,/Merging video and audio with FFmpeg/);
+ assert.match(ui,/Retry Download/);
+});

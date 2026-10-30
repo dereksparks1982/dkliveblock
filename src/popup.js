@@ -14,14 +14,19 @@ async function refreshDownloadStatus(){
   $("cancelVideo").hidden=!(same&&running);
   $("cancelVideo").disabled=job?.state==="cancelling";
   $("downloadVideo").disabled=running;
-  if(same&&job.state==="running")videoMessage($("videoProgress").value>=100?
-   "Download data received. Finishing or merging media…":
+  if(same&&job.state==="running")videoMessage(job.phase==="merging"?"Merging video and audio with FFmpeg…":
+   job.phase==="processing"?"Processing downloaded media…":
+   $("videoProgress").value>=100?"Finishing media transfer…":
    "Downloading: "+$("videoProgress").value+"%. Closing the popup will not cancel the job.");
   else if(same&&job.state==="cancelling")videoMessage("Cancelling download…");
   else if(same&&job.state==="complete")videoMessage("Download complete. Saved to ~/.local/share/dk-live-block/downloads/");
-  else if(same&&job.state==="cancelled")videoMessage("Download cancelled. Partial files may remain in the downloads folder.");
+  else if(same&&job.state==="cancelled")videoMessage("Download cancelled. Partial files are preserved for a manual retry.");
+  else if(same&&job.state==="interrupted")videoMessage("Previous Firefox session ended during this download. Choose Download This Video to retry and resume available partial data.");
   else if(same&&job.state==="failed")videoMessage("Download failed: "+(job.error||"See dependency settings."));
   else if(running)videoMessage("A different video is currently downloading.");
+  if(same&&["interrupted","cancelled","failed"].includes(job.state))
+   $("downloadVideo").textContent="Retry Download";
+  else $("downloadVideo").textContent="Download This Video";
  }catch(_){}
 }
 function showVideoTools(){
