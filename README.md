@@ -106,7 +106,7 @@ The subscription updater rejects insecure final destinations after redirects, re
 
 ## Improved third-party classification
 
-The hostname classifier now recognizes more commonly used multi-level country domains and separately operated hosting domains (for example, GitHub Pages and Pages.dev). This improves first/third-party rule matching without remote lookups. It remains a **curated approximation**, not the full Mozilla Public Suffix List, and requires a complete PSL before Adblock Plus parity can be claimed.
+The hostname classifier now recognizes more commonly used multi-level country domains and separately operated hosting domains (for example, GitHub Pages and Pages.dev). This improves first/third-party rule matching without remote lookups. The complete Public Suffix List was subsequently integrated in Build 15, as described below.
 
 ## Complete Public Suffix List
 
@@ -145,3 +145,13 @@ The Firefox toolbar can exclude **only anti-adblock and subscription-popup clean
 ## In-memory popup cleanup count
 
 The toolbar shows how many anti-adblock and subscription overlays DK Live Block has hidden or re-hidden on the current tab. Only a capped numeric total (up to 1,000) is kept in memory, reset on navigation or tab closure. No popup text, full URLs, user data, or telemetry is recorded by this counter. The private count is deliberately not a claim that a paywall or video restriction was bypassed.
+
+## Popup Protection 3.0: hardened recovery
+
+Build 17 adds a local popup safety guard: password, one-time-code, payment, CAPTCHA, and high-risk verification dialogs are never suppressed by the notice cleanup engine. The DOM observer examines only plausible new or changed popup elements instead of rescanning on every unrelated style mutation; a periodic fallback still checks for unrecognized overlays. Repeated settings refreshes avoid unnecessarily revealing already-suppressed popups and ignore stale asynchronous replies. Focus inside a suppressed dialog is blurred to avoid trapping keyboard navigation on an invisible control, without changing video state or site tabindex settings. No content or form values are collected or transmitted.
+
+## Federated sign-in compatibility (Build 17)
+
+Legitimate Google sign-in and federated-account dialogs are protected from overlay cleanup. Explicit ad-popup rules do not close narrowly recognized HTTPS authentication windows from Google, Microsoft, Apple, GitHub and other configured identity-provider origins. Requests for specific Google Sign-In/OAuth resources are spared when necessary for authentication, while unrelated Google ads and tracking hosts remain subject to filtering. This is not a general exemption for every Google-owned website or an assurance that every third-party login works without live browser testing. User passwords, tokens and form values are never read.
+
+Authentication controls are also protected from matching cosmetic and procedural hiding rules, including Google Identity Services sign-in buttons and credential picker containers. Only narrowly identified controls are excluded; ordinary advertisement and tracker selectors continue to work.

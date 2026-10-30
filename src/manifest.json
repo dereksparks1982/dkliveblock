@@ -38,6 +38,7 @@
       "subscription-cache.js",
       "settings.js",
       "video-assist.js",
+      "auth-protection.js",
       "background.js"
     ],
     "persistent": true
@@ -62,6 +63,8 @@
         "paywall.js",
         "video-assist.js",
         "overlay-recovery.js",
+        "auth-protection.js",
+        "popup-guard.js",
         "content.js"
       ],
       "run_at": "document_start",

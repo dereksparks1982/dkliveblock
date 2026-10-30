@@ -16,7 +16,7 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
  };
  const setTimeoutSafe=(f,n)=>{const t=setTimeout(f,n);if(n>=60000)t.unref();return t;};
  const ctx=vm.createContext({browser,URL,console,AbortController,Date,fetch:async()=>{throw Error("Offline")},setTimeout:setTimeoutSafe,clearTimeout});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","background.js"])
+ for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","background.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,20));
  const frame={tab:{id:1,url:"https://site.example/"},url:"https://site.example/article"};

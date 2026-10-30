@@ -1,7 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-function setup({text="Ad blocker detected. Please disable your ad blocker.",hasVideo=false,active=true,antiAdblock=true,inline=false}={}){
+function setup({text="Ad blocker detected. Please disable your ad blocker.",hasVideo=false,active=true,antiAdblock=true,inline=false,sensitive=false}={}){
  let listener,interval;
  class Style {
   constructor(){this.map=new Map();}
@@ -13,7 +13,7 @@ function setup({text="Ad blocker detected. Please disable your ad blocker.",hasV
  class Element{
   constructor(label){this.textContent=label;this.style=new Style();this.isConnected=true;this.localName="div";this.id=inline?"adblock-article":"adblock-modal";this.className=inline?"article":"modal";this.previousElementSibling=null;this.nextElementSibling=null;}
   getClientRects(){return [1];}contains(){return false;}
-  querySelector(){return hasVideo?{}:null;}
+  querySelector(query){return hasVideo||sensitive&&query.includes('password')?{}:null;}
   getAttribute(){return null;}
  }
  const modal=new Element(text);
@@ -24,7 +24,7 @@ function setup({text="Ad blocker detected. Please disable your ad blocker.",hasV
  const window={innerHeight:700,getComputedStyle:el=>({visibility:"visible",display:"block",position:inline?"static":"fixed",overflowY:el===modal?"visible":"hidden"})};
  const location={hostname:"youtube.com",href:"https://www.youtube.com/watch?v=test"};
  const context=vm.createContext({browser,document,window,location,Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},DKConsent:{cookieContext:()=>false},DKProcedural:{matches:()=>false}});
- for(const name of ["anti-adblock.js","video-assist.js","overlay-recovery.js","content.js"]){
+ for(const name of ["anti-adblock.js","video-assist.js","overlay-recovery.js","auth-protection.js","popup-guard.js","content.js"]){
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  return {state,modal,root,body,tick:()=>interval(),refresh:async()=>{await listener({action:"refresh"});await new Promise(resolve=>setTimeout(resolve,0));}};
@@ -59,4 +59,11 @@ test("recognize AP's disable-ad-blocker request only when shown as an overlay",a
  const story=setup({text:"Please read our article about ad blockers and their impact."});
  await story.refresh();story.tick();
  assert.equal(story.modal.style.getPropertyValue("display"),"");
+});
+
+test("do not hide login and authentication dialogs that mention adblock",async()=>{
+ const login=setup({sensitive:true});
+ await login.refresh();login.tick();
+ assert.equal(login.modal.style.getPropertyValue("display"),"");
+ assert.equal(login.root.style.getPropertyValue("overflow-y"),"");
 });

@@ -8,8 +8,14 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.equal(m.manifest_version,2);
  assert.ok(m.permissions.includes("webRequestBlocking"));
  assert.ok(m.background.scripts.indexOf("public-suffix.js")>=0);
+ assert.ok(m.background.scripts.indexOf("auth-protection.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("public-suffix.js")<m.background.scripts.indexOf("rules.js"));
  assert.ok(fs.existsSync(path.join(root,"src/LICENSE-PSL.txt")));
+ const contentScripts=m.content_scripts[0].js;
+ assert.ok(contentScripts.indexOf("auth-protection.js")>=0);
+ assert.ok(contentScripts.indexOf("auth-protection.js")<contentScripts.indexOf("popup-guard.js"));
+ assert.ok(contentScripts.indexOf("popup-guard.js")>=0);
+ assert.ok(contentScripts.indexOf("popup-guard.js")<contentScripts.indexOf("content.js"));
  const assets=[...m.background.scripts,...m.content_scripts.flatMap(c=>c.js),m.browser_action.default_popup,m.options_ui.page];
  for(const file of assets)assert.ok(fs.existsSync(path.join(root,"src",file)),"Missing "+file);
  for(const file of [m.browser_action.default_popup,m.options_ui.page]){

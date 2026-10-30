@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,overlayTimer=null,overlayObserver=null;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
@@ -13,8 +13,19 @@
   if(style.textContent!==css)style.textContent=css;
  }
  async function refresh(){
-  try{const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
-   active=!!s.active;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;antiAdblock=!!s.antiAdblock;paywallPopups=!!s.paywallPopups;procedural=Array.isArray(s.procedural)?s.procedural:[];restoreHidden();restoreAntiHidden();applyCSS();queueOverlayScan();
+  const sequence=++refreshSequence;
+  try{
+   const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
+   if(sequence!==refreshSequence)return; // Ignore stale replies after rapid SPA navigation.
+   const nextActive=!!s.active,nextAnti=!!s.antiAdblock,nextPaywall=!!s.paywallPopups;
+   const nextProcedural=Array.isArray(s.procedural)?s.procedural:[];
+   const proceduralChanged=JSON.stringify(nextProcedural)!==JSON.stringify(procedural);
+   // Do not flash already-hidden notices on ordinary navigation or rule refresh.
+   if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
+   if(!nextActive||proceduralChanged)restoreHidden();
+   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;
+   antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
+   applyCSS();queueOverlayScan();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -27,7 +38,8 @@
    let elements;try{elements=document.querySelectorAll(rule.selector);}catch(_){continue;}
    let count=0;
    for(const el of elements){if(++count>200)break;
-    if(el===document.body||el===document.documentElement||!DKProcedural.matches(el,rule))continue;
+    if(el===document.body||el===document.documentElement||!DKProcedural.matches(el,rule)||
+      DKAuthProtection.isIdentityUI(el,String(el.textContent||"").slice(0,180)))continue;
     if(!hidden.has(el))hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
     el.style.setProperty("display","none","important");if(hidden.size>800)break;
    }
@@ -55,6 +67,7 @@
    if(el===document.documentElement||el===document.body||el===banner)continue;
    if((player&&el.contains(player))||el.querySelector("video, audio"))continue;
    const info=(el.textContent||"").trim();
+   if(DKPopupGuard.protectedDialog(el,info))continue;
    if(info.length<12||info.length>1800)continue;
    const computed=window.getComputedStyle(el);
    const visible=Boolean(el.isConnected&&el.getClientRects().length)&&computed.visibility!=="hidden"&&computed.display!=="none";
@@ -92,6 +105,7 @@
    // A modal may contain a purchase button, but never hide actual readable articles or players.
    if((video&&el.contains(video))||el.querySelector("video, audio, article, [itemprop='articleBody']"))continue;
    const text=(el.textContent||"").trim();
+   if(DKPopupGuard.protectedDialog(el,text))continue;
    if(text.length>1600||text.length<17)continue;
    const style=window.getComputedStyle(el);
    const visible=Boolean(el.isConnected&&el.getClientRects().length)&&style.visibility!=="hidden"&&style.display!=="none";
@@ -133,11 +147,7 @@
     // Detect late dialogs and existing overlays changing visibility.
     // Ignore attribute mutations caused by our own hiding changes.
     for(const item of records.slice(0,40)){
-     if(item.addedNodes?.length||
-        item.type==="attributes"&&item.target&&
-        (!overlayRecovery.wasHidden(item.target)||
-          item.target.style?.getPropertyValue("display")!=="none"||
-          item.target.style?.getPropertyPriority("display")!=="important")){
+     if(DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el))){
       queueOverlayScan();break;
      }
     }

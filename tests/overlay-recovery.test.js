@@ -93,3 +93,27 @@ test("tracking remains bounded and detached elements are pruned",()=>{
  assert.equal(engine.hiddenCount,1);
  assert.equal(engine.hide(c),true);
 });
+
+test("never hide verification, one-time-code, CAPTCHA or payment controls",()=>{
+ const {engine}=setup();
+ for(const marker of ["password","one-time-code","cc-number","captcha"]){
+  const x=element();
+  x.querySelector=selector=>selector.includes(marker)?{}:null;
+  assert.equal(engine.hide(x),false,marker);
+ }
+});
+
+test("move keyboard focus out of a hidden notice without touching unrelated controls",()=>{
+ const {engine,doc}=setup(),popup=element();
+ let blurs=0;
+ const inside={blur(){blurs++;}},outside={blur(){blurs+=10;}};
+ popup.contains=node=>node===inside;
+ doc.activeElement=inside;
+ assert.equal(engine.hide(popup),true);
+ assert.equal(blurs,1);
+ doc.activeElement=outside;
+ popup.style.setProperty("display","block"); // site made the gate visible again
+ assert.equal(engine.hide(popup),true);
+ assert.equal(blurs,1,"Unrelated focused controls must not be touched");
+ engine.restore();
+});

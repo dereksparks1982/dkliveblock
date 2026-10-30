@@ -90,3 +90,11 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 17C optional site-only popup cleanup pause: preserved ad/tracker blocking, cross-frame host binding, persistent preferences, toolbar toggle and settings backup.
 
 - [x] Build 17D in-memory, capped popup-cleanup counter with content-script-only message validation and tab lifecycle resets; no popup text or URLs stored.
+
+- [x] Build 17E hardened popup safety: account/password/payment/CAPTCHA exclusions, mutation triage and stale-refresh protection, with offline regression cases. Live Firefox acceptance still required.
+
+- [x] Build 17E keyboard focus release for hidden overlays, 29 targeted popup regression checks, and a more realistic DOM mutation simulation. The complete local suite and actual Firefox browsing remain release gates.
+
+- [x] Build 17 account compatibility: protect real Google/federated sign-in dialogs, explicitly recognized OAuth popup windows and narrow login-critical requests; retain unrelated ad blocking. Requires real Firefox login-flow verification.
+
+- [x] Account-safe cosmetic/procedural filtering: protect Google Identity Services login controls and picker UI without disabling normal advertising rules.

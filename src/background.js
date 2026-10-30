@@ -142,6 +142,8 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  // Opt-in rescue: only media requests on the specifically selected streaming site.
  // No script, XHR, tracking, or navigation requests are exempted.
  if(DKVideoAssist.mediaRecoveryAllowed(top,d.type,data.settings.mediaRecovery))return {};
+ // Allow narrowly identified sign-in assets, never unrelated Google trackers.
+ if(DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||""))return {};
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
@@ -152,6 +154,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
 // Only explicit $popup filters can close a newly opened advertising tab.
 browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  if(!data.ready||!data.settings.enabled||event.tabId<0||event.sourceTabId<0||!/^https?:/i.test(event.url))return;
+ if(DKAuthProtection.isAuthPopup(event.url))return; // OAuth windows are not ad popups.
  try{
   const origin=await browser.tabs.get(event.sourceTabId);
   const originUrl=origin?.url||"",originHost=host(originUrl);
@@ -259,7 +262,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,cookieReject:data.settings.cookieReject,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
-   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
+   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
   const previous=data.settings.enabled;
   data.settings.enabled=!!msg.enabled;

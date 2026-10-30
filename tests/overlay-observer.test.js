@@ -5,9 +5,9 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  const callbacks={};let scheduled=[],interval=null,visible=[];
  class Style {
   constructor(){this.props=new Map();}
-  getPropertyValue(k){return this.props.get(k)||"";}
-  getPropertyPriority(){return "";}
-  setProperty(k,v){this.props.set(k,v);}
+  getPropertyValue(k){return this.props.get(k)?.value||"";}
+  getPropertyPriority(k){return this.props.get(k)?.priority||"";}
+  setProperty(k,v,priority=""){this.props.set(k,{value:v,priority});}
   removeProperty(k){this.props.delete(k);}
  }
  class Element{
@@ -29,7 +29,7 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  }
  const context=vm.createContext({document:doc,window:win,location:{hostname:"news.example",href:"https://news.example/"},
   Element,MutationObserver:Observer,browser:fakeBrowser,CSS:{},console,Date,
-  DKConsent:{},DKOverlayRecovery:require("../src/overlay-recovery.js"),DKVideoAssist:require("../src/video-assist.js"),DKPaywall:{hasLoadedArticle:()=>false},DKProcedural:{},DKAntiAdblock:require("../src/anti-adblock.js"),
+  DKConsent:{},DKAuthProtection:require("../src/auth-protection.js"),DKPopupGuard:require("../src/popup-guard.js"),DKOverlayRecovery:require("../src/overlay-recovery.js"),DKVideoAssist:require("../src/video-assist.js"),DKPaywall:{hasLoadedArticle:()=>false},DKProcedural:{},DKAntiAdblock:require("../src/anti-adblock.js"),
   setTimeout:fn=>{scheduled.push(fn);return scheduled.length;},setInterval:fn=>{interval=fn;}});
  vm.runInContext(fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8"),context);
  await new Promise(resolve=>setTimeout(resolve,0));
@@ -49,9 +49,11 @@ test("new modal inserted after load triggers one debounced scan",async()=>{
  assert.equal(popup.style.getPropertyValue("display"),"none");
  callbacks.mutation([{type:"attributes",target:popup}]);
  assert.equal(scheduled.length,0,"Our own style change should not rescan");
- callbacks.mutation([{type:"attributes",target:{}}]);
+ callbacks.mutation([{type:"attributes",target:new Element("Please disable your ad blocker.")}]);
  assert.equal(scheduled.length,1,"External style changes should trigger one scan");
  scheduled.shift()();
  assert.equal(popup.style.getPropertyValue("display"),"none");
  assert.equal(typeof interval,"function");
+ callbacks.mutation([{type:"attributes",target:{localName:"div",id:"clock",className:"clock"}}]);
+ assert.equal(scheduled.length,0,"Unrelated attribute changes must not rescan page");
 });

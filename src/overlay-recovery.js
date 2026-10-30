@@ -2,7 +2,7 @@
    Keep this script isolated from site scripts and media playback state. */
 (function(root){"use strict";
 const BACKDROP_SELECTOR='[class*="backdrop" i], [class*="scrim" i], [class*="modal-mask" i], [class*="overlay-mask" i], [data-testid*="backdrop" i]';
-const UNSAFE_CONTAINERS='video, audio, article, [itemprop="articleBody"], main, nav, header, footer, input[type="password"], [role="main"], [role="navigation"]';
+const UNSAFE_CONTAINERS='video, audio, article, [itemprop="articleBody"], main, nav, header, footer, input[type="password"], [role="main"], [role="navigation"], input[autocomplete="one-time-code"], input[autocomplete="cc-number"], [data-sitekey], [class*="captcha" i], [id*="captcha" i]';
 function create(document,window,limit=24){
  const hidden=new Map(),locks=new Map(),maximum=Math.max(1,Math.min(100,limit));
  function unsafe(el,allowArticle=false){
@@ -15,6 +15,17 @@ function create(document,window,limit=24){
   }catch(_){return true;}
   return false;
  }
+ function releaseTrappedFocus(el){
+  try{
+   const focused=document.activeElement;
+   if(!focused||focused===document.body)return;
+   if(focused===el||el.contains?.(focused)){
+    // A focused control in a suppressed dialog traps keyboard users.
+    // Blur it rather than modifying the site's tabindex or selecting a new control.
+    focused.blur?.();
+   }
+  }catch(_){/* Never let accessibility recovery interrupt page activity. */}
+ }
  function hide(el){
   if(!el||!el.isConnected||unsafe(el))return false;
   if(!el.style?.setProperty||!el.style?.getPropertyValue||!el.style?.getPropertyPriority)return false;
@@ -24,6 +35,7 @@ function create(document,window,limit=24){
    // Keep our prior value, rather than recording a site-written "display" as baseline.
    if(el.style.getPropertyValue("display")==="none"&&
       el.style.getPropertyPriority("display")==="important")return false;
+   releaseTrappedFocus(el);
    el.style.setProperty("display","none","important");
    return true;
   }
@@ -31,6 +43,7 @@ function create(document,window,limit=24){
   const prior={value:el.style.getPropertyValue("display"),
     priority:el.style.getPropertyPriority("display")};
   hidden.set(el,prior);
+  releaseTrappedFocus(el);
   el.style.setProperty("display","none","important");
   return true;
  }
