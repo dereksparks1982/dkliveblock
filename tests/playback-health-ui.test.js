@@ -30,3 +30,15 @@ test("backend validates real YouTube tab and never auto-unblocks media",()=>{
    bg.indexOf('if(msg.action==="getStreamingIssues")'));
  assert.doesNotMatch(snippet,/DKStreamingRepair\.allow|DKRequestControls\.grant|return \{cancel:false\}/);
 });
+
+test("streaming diagnostics discover the active YouTube or Disney+ tab safely",()=>{
+ const options=fs.readFileSync(path.join(dir,"options.js"),"utf8");
+ const html=fs.readFileSync(path.join(dir,"options.html"),"utf8");
+ assert.match(options,/function streamingHostname\(url\)/);
+ assert.match(options,/function streamingTab\(\)/);
+ assert.match(options,/disneyplus\\\.com/);
+ assert.match(options,/revokeStreamingHost/);
+ assert.match(html,/Streaming player health/);
+ assert.match(html,/Disney\+/);
+ assert.match(html,/Revoke all temporary streaming allowances/);
+});

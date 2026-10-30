@@ -5,8 +5,9 @@
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
+ const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
  const videoController=DKVideoAssist.createController();
- const healthProbe=isYouTube&&typeof DKPlaybackHealth!=="undefined"?DKPlaybackHealth.createProbe():null;
+ const healthProbe=isHealthSite?DKPlaybackHealth.createProbe():null;
  function samplePlaybackHealth(){
   if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
   const player=document.querySelector("video.html5-main-video, #movie_player video, video");

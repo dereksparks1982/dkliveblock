@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.13 (Build 42).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.14 (Build 43).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,14 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 43: Disney+ playback compatibility and granular repair (0.3.14)
+
+The **local-only streaming player-health probe** now recognizes real YouTube and Disney+ hostnames. On visible, active streaming pages, it can record coarse HTML5 buffering or media-error events alongside nearby blocked **media-type** requests. It does not capture video names, playback positions, URL paths, license requests, accounts or response bodies. It does **not** access DRM keys or remove server-inserted advertisements. The Settings interface now selects an actual streaming tab rather than whichever ordinary page was used most recently.
+
+When troubleshooting a player, users can examine a blocked hostname and resource type and apply the existing **explicitly confirmed, 10-minute, one-tab exception**, or revoke just that single exception without turning off the blocker. The background independently verifies the live tab hostname and rejects stale evidence from a different streaming website; recorded blocked-request groups now carry their **source site hostname** for isolation. No automatic unblocking, bypassing account/license restrictions, external dependencies, telemetry, additional Firefox permissions or public release.
+
+For the status of premium-equivalent features and the remaining release requirements, see [ABP parity checklist](docs/ABP_PARITY_CHECKLIST.md). **Disney+ playback is not yet verified in live Firefox**, and HTML5 health events may not cover every protected streaming player.
 
 ## Build 42: YouTube playback-health diagnostics and evidence-based repair (0.3.13)
 

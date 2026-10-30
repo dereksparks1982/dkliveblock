@@ -196,3 +196,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 42: private YouTube player-health probe (buffering and HTML5 media errors), top-frame/host verification, local-only bounded event history, correlation labels for nearby blocked media and explicit clear/read UI with no automated allowances.
 - [ ] Build 42 acceptance: full local Node/Python suite, live Firefox preroll/midroll/long-playing YouTube video tests, background/content origin guard audit, actual playback-repair effectiveness and Disney+ compatibility.
+
+- [x] Build 43: local YouTube + Disney+ HTML5 playback diagnostics, strict live-tab and source-website evidence matching, streaming-tab-aware Settings selection, individual temporary repair revocation and cross-site spoofing tests.
+- [x] Build 43: ABP Premium desktop feature checklist separated from independent functional/browser validation; no parity claims.
+- [ ] Build 43 acceptance: full offline Node/Python suite, independent Firefox Disney+ logged-in playback and ad-tier test (if legitimately available), YouTube preroll/midroll, DRM compatibility observations and video-player false-positive review.
+- [ ] Public release gate: close outstanding ABP free and Premium Firefox feature parity tests including cookie consent, distraction removal and automatic filtering on real websites, privacy/security review and signed Firefox AMO acceptance.

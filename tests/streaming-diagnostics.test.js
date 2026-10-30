@@ -34,3 +34,16 @@ test("diagnostics are opt-in through existing temporary request log preference",
  assert.match(popup,/streamingIssueCount/);
  assert.match(options,/id="streaming-diagnostics"/);
 });
+
+test("streaming diagnostics keep the source site separated across services",()=>{
+ const map=new Map();
+ assert.equal(DK.record(map,1,"www.youtube.com","cdn.example.org","media",1000),true);
+ assert.equal(DK.record(map,1,"www.disneyplus.com","cdn.example.org","media",1001),true);
+ const records=DK.recent(map,1,2000);
+ assert.equal(records.length,2);
+ assert.equal(records[0].pageHost,"www.youtube.com");
+ assert.equal(records[1].pageHost,"www.disneyplus.com");
+ assert.equal(records[0].count,1);
+ assert.equal(records[1].count,1);
+ assert.doesNotMatch(JSON.stringify(records),/https:|\/play\/|token=/);
+});

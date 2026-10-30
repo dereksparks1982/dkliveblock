@@ -34,3 +34,16 @@ test("Repair requires explicit user decision and never bypasses whole site",()=>
  assert.match(bg,/clearTemporaryStreamingAllowances/);
  assert.match(html,/streamRepairRevoke/);
 });
+
+test("single streaming host/type exception can be revoked without clearing other repairs",()=>{
+ const table=new Map();
+ assert.equal(Repair.allow(table,2,"www.disneyplus.com","cdn1.example.net","media",1000),true);
+ assert.equal(Repair.allow(table,2,"www.disneyplus.com","cdn2.example.net","xmlhttprequest",1000),true);
+ assert.equal(Repair.revoke(table,2,"www.disneyplus.com","cdn1.example.net","media",1500),true);
+ assert.equal(Repair.matches(table,2,"www.disneyplus.com","cdn1.example.net","media",1600),false);
+ assert.equal(Repair.matches(table,2,"www.disneyplus.com","cdn2.example.net","xmlhttprequest",1600),true);
+ assert.equal(Repair.revoke(table,2,"www.disneyplus.com","cdn1.example.net","media",1600),false);
+ assert.equal(Repair.revoke(table,2,"www.youtube.com","cdn2.example.net","xmlhttprequest",1600),false);
+ assert.equal(Repair.revoke(table,3,"www.disneyplus.com","cdn2.example.net","xmlhttprequest",1600),false);
+ assert.equal(Repair.revoke(table,2,"www.disneyplus.com","cdn2.example.net","script",1600),false);
+});

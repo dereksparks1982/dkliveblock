@@ -52,16 +52,16 @@
 <div class="network-buttons"><button id="streamIssuesShow" type="button">Show recent streaming-page blocks</button>
 <button id="streamIssuesClear" type="button">Clear streaming diagnostics</button></div>
 <p id="streamIssuesStatus" role="status">Not inspected yet.</p><div id="streamIssuesRows"></div>
-<h3>YouTube player health (local)</h3>
-<p>When this page's private request logging is enabled, DK Live Block also records coarse YouTube video-player signals such as sustained buffering (at least five seconds) or media errors. These do not prove that blocking caused the problem. A nearby blocked media request is shown only as a clue, not a confirmed cause. No video title, watch history, timestamps within the video, URL or page contents are collected.</p>
+<h3>Streaming player health (local)</h3>
+<p>When private request logging is enabled, DK Live Block also records coarse YouTube and Disney+ HTML5 video-player signals such as sustained buffering (at least five seconds) or media errors. These do not prove that blocking caused the problem. A nearby blocked media request is shown only as a clue, not a confirmed cause. No video title, watch history, timestamps within the video, URL or page contents are collected.</p>
 <div class="network-buttons">
-<button id="playbackHealthShow" type="button">Show YouTube playback signals</button>
+<button id="playbackHealthShow" type="button">Show streaming playback signals</button>
 <button id="playbackHealthClear" type="button">Clear playback signals</button>
 </div>
 <p id="playbackHealthStatus" role="status">Not inspected yet.</p><div id="playbackHealthRows"></div>
 <h3>Temporary streaming playback repair</h3>
 <p>After inspecting a blocked request, you can choose to allow <strong>that exact hostname and request type</strong> in the current tab for 10 minutes. This may also allow ads. Nothing is allowed automatically, and it does not affect other tabs or all requests to the site.</p>
-<button id="streamRepairRevoke" type="button">Revoke temporary streaming allowances</button>
+<button id="streamRepairRevoke" type="button">Revoke all temporary streaming allowances</button>
 <p id="streamRepairStatus" role="status">No temporary allowances inspected yet.</p>
 <div id="streamRepairRows"></div>
 <p>If playback fails, inspect the hostnames and verify that a blocked request is necessary before using a repair allowance. Requests to advertising hosts should generally stay blocked.</p>

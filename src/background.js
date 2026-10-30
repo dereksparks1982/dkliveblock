@@ -607,14 +607,15 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(!fromContent||!data.ready||!data.settings.requestLog||!data.settings.enabled||
      sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
   const pageHost=host(sender.url||"");
-  if(!DKPlaybackHealth.isYouTube(pageHost)||
+  if(!DKPlaybackHealth.supportsHost(pageHost)||
      pageHost!==host(sender.tab?.url||"")||
      data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
   try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
   catch(_){return {ok:false};}
   if(msg.kind!=="buffering"&&msg.kind!=="media-error")return {ok:false};
   const now=Date.now(),nearby=DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
-   .some(row=>row.type==="media"&&now-row.when>=0&&now-row.when<=120000);
+   .some(row=>row.pageHost===pageHost&&row.type==="media"&&
+     now-row.when>=0&&now-row.when<=120000);
   return {ok:DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now)};
  }
  if(msg.action==="getPlaybackHealth"||msg.action==="clearPlaybackHealth"){
@@ -622,15 +623,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   let pageHost;
   try{pageHost=host((await browser.tabs.get(id))?.url||"");}
   catch(_){return {error:"Choose an open website tab."};}
-  if(!DKPlaybackHealth.isYouTube(pageHost))return [];
+  if(!DKPlaybackHealth.supportsHost(pageHost))return [];
   if(msg.action==="clearPlaybackHealth"){DKPlaybackHealth.clear(data.playbackHealth,id);return {ok:true};}
   if(!data.settings.requestLog)return [];
   return DKPlaybackHealth.recent(data.playbackHealth,id,pageHost);
  }
  if(msg.action==="getStreamingIssues"){
-  if(sender?.tab)return {error:"Extension settings only."};
-  if(!data.settings.requestLog||!DKStreamingDiagnostics.streaming(data.hosts.get(id)||""))return [];
-  return DKStreamingDiagnostics.recent(data.streamingIssues,id).slice().reverse();
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension settings only."};
+  let currentHost;
+  try{currentHost=host((await browser.tabs.get(id))?.url||"");}
+  catch(_){return [];}
+  if(!data.settings.requestLog||!DKStreamingDiagnostics.streaming(currentHost)||
+    data.hosts.get(id)!==currentHost)return [];
+  return DKStreamingDiagnostics.recent(data.streamingIssues,id)
+   .filter(row=>row.pageHost===currentHost).reverse();
  }
  if(msg.action==="clearStreamingIssues"){
   if(sender?.tab)return {error:"Extension settings only."};
@@ -644,13 +650,27 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(sender?.tab||msg.confirm!==true||!data.settings.requestLog||!data.ready||id<0)
    return {error:"Explicit permission and active diagnostics are required."};
   const pageHost=data.hosts.get(id)||"";
+  let currentHost;
+  try{currentHost=host((await browser.tabs.get(id))?.url||"");}
+  catch(_){return {error:"The streaming tab is no longer available."};}
   const evidence=DKStreamingDiagnostics.recent(data.streamingIssues,id);
-  if(!DKStreamingRepair.isStreamingHost(pageHost)||
-     !evidence.some(row=>row.host===msg.host&&row.type===msg.type))
+  if(!DKStreamingRepair.isStreamingHost(pageHost)||currentHost!==pageHost||
+     !activeTab(id,pageHost)||
+     !evidence.some(row=>row.pageHost===pageHost&&
+       row.host===msg.host&&row.type===msg.type))
    return {error:"This exact host and request type were not observed as blocked on this tab."};
   if(!DKStreamingRepair.allow(data.streamingAllowances,id,pageHost,msg.host,msg.type))
    return {error:"Invalid host/type or the temporary allowance limit was reached."};
   return {ok:true,expiresInMinutes:10};
+ }
+ if(msg.action==="revokeStreamingHost"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension settings only."};
+  let pageHost;
+  try{pageHost=host((await browser.tabs.get(id))?.url||"");}
+  catch(_){return {error:"Streaming tab is no longer available."};}
+  if(!DKStreamingRepair.isStreamingHost(pageHost))return {error:"Select a streaming tab."};
+  return DKStreamingRepair.revoke(data.streamingAllowances,id,
+   pageHost,msg.host,msg.type)?{ok:true}:{error:"No matching temporary repair."};
  }
  if(msg.action==="clearTemporaryStreamingAllowances"){
   if(sender?.tab)return {error:"Extension settings only."};
@@ -727,7 +747,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,adRecognition:data.settings.adRecognition,
-   playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.isYouTube(h)&&sender.frameId===0,
+   playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){

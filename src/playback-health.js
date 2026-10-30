@@ -1,4 +1,4 @@
-/* DK Live Block Build 42: local YouTube playback health probe.
+/* DK Live Block Build 43: local YouTube and Disney+ playback health probe.
    Only coarse buffering/error observations. No URLs, titles, media progress,
    response payloads, or automatic request allowances. */
 (function(root){"use strict";
@@ -7,6 +7,12 @@ const KINDS=new Set(["buffering","media-error"]);
 function isYouTube(host){
  return typeof host==="string"&&/^(?:(?:[a-z0-9-]+\.)*)(?:youtube\.com|youtube-nocookie\.com)$/.test(host);
 }
+function platform(host){
+ if(isYouTube(host))return "YouTube";
+ if(typeof host==="string"&&/^(?:[a-z0-9-]+\.)*disneyplus\.com$/.test(host))return "Disney+";
+ return "";
+}
+function supportsHost(host){return !!platform(host);}
 function createProbe(){
  let bufferingSince=null,lastReport=-Infinity,lastError=0,trackedVideo=null;
  function scan(video,document,now=Date.now()){
@@ -38,7 +44,7 @@ function createProbe(){
  return {scan,reset};
 }
 function record(store,tab,siteHost,kind,blockedMediaNearby=false,now=Date.now()){
- if(!Number.isInteger(tab)||tab<0||!isYouTube(siteHost)||!KINDS.has(kind)||!Number.isFinite(now))return false;
+ if(!Number.isInteger(tab)||tab<0||!supportsHost(siteHost)||!KINDS.has(kind)||!Number.isFinite(now))return false;
  const previous=store.get(tab);
  const s=previous?.siteHost===siteHost?previous:{siteHost,rows:[]};
  s.rows=s.rows.filter(row=>now-row.when>=0&&now-row.when<TTL_MS);
@@ -49,14 +55,14 @@ function record(store,tab,siteHost,kind,blockedMediaNearby=false,now=Date.now())
  store.set(tab,s);return true;
 }
 function recent(store,tab,siteHost,now=Date.now()){
- if(!isYouTube(siteHost)||!Number.isInteger(tab)||tab<0)return [];
+ if(!supportsHost(siteHost)||!Number.isInteger(tab)||tab<0)return [];
  const s=store.get(tab);if(!s||s.siteHost!==siteHost)return [];
  s.rows=s.rows.filter(row=>now-row.when>=0&&now-row.when<TTL_MS);
  if(!s.rows.length){store.delete(tab);return [];}
  return s.rows.slice().reverse().map(x=>({...x}));
 }
 function clear(store,tab){store.delete(tab);}
-const api=Object.freeze({BUFFER_MS,REPORT_INTERVAL,TTL_MS,MAX,isYouTube,
+const api=Object.freeze({BUFFER_MS,REPORT_INTERVAL,TTL_MS,MAX,isYouTube,platform,supportsHost,
  createProbe,record,recent,clear});
 root.DKPlaybackHealth=api;
 if(typeof module!=="undefined")module.exports=api;

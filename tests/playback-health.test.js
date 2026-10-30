@@ -48,7 +48,7 @@ test("bounded, expiry-aware tab history includes only coarse metadata",()=>{
 });
 test("no spoofed streaming page, invalid kind or huge backlog",()=>{
  const table=new Map();
- for(const host of ["youtube.com.evil.test","notyoutube.com","disneyplus.com",""])
+ for(const host of ["youtube.com.evil.test","notyoutube.com","disneyplus.com.evil.test","fakedisneyplus.com",""])
   assert.equal(H.record(table,1,host,"buffering",false,1),false);
  assert.equal(H.record(table,1,"youtube.com","nonsense",false,1),false);
  for(let i=0;i<H.MAX+6;i++)H.record(table,1,"youtube.com",
@@ -75,4 +75,32 @@ test("media failures remain visible after playback stops, but not during seeking
  assert.equal(p.scan(v,doc,11000),null);
  v.seeking=false;v.ended=true;
  assert.equal(p.scan(v,doc,12000),null);
+});
+
+test("Disney+ playback health is supported without accepting lookalike hostnames",()=>{
+ const H=require("../src/playback-health.js");
+ const store=new Map();
+ for(const host of ["disneyplus.com","www.disneyplus.com","playback.disneyplus.com"]){
+  assert.equal(H.platform(host),"Disney+");
+  assert.equal(H.record(store,23,host,"buffering",true,1000),true);
+  assert.equal(H.recent(store,23,host,1001).length,1);
+  H.clear(store,23);
+ }
+ for(const host of ["disneyplus.com.attacker.net","disneyplus.co","notdisneyplus.com","disneypluscom"]){
+  assert.equal(H.supportsHost(host),false,host);
+  assert.equal(H.record(store,23,host,"buffering",true,1000),false);
+ }
+ assert.equal(H.platform("www.youtube.com"),"YouTube");
+ assert.equal(H.platform("www.youtube-nocookie.com"),"YouTube");
+ assert.equal(H.platform("notreal.example"),"");
+});
+test("Disney+ DRM or HTML5 failures remain only coarse events",()=>{
+ const H=require("../src/playback-health.js"),store=new Map();
+ const v=video(0),probe=H.createProbe();
+ v.error={code:4,message:"DRM license query: https://secret.example/?account=PRIVATE"};
+ assert.equal(probe.scan(v,doc,10000),"media-error");
+ assert.equal(H.record(store,10,"www.disneyplus.com","media-error",false,10000),true);
+ const rows=H.recent(store,10,"www.disneyplus.com",11000);
+ assert.deepEqual(rows,[{kind:"media-error",when:10000,blockedMediaNearby:false}]);
+ assert.doesNotMatch(JSON.stringify(rows),/PRIVATE|DRM|license|account|secret|url/);
 });

@@ -7,7 +7,8 @@ async function setup(){
  const hooks={},on=name=>({addListener:fn=>hooks[name]=fn,removeListener:()=>{}});
  let stored={settings:{autoUpdate:false,requestLog:true}},tabs=new Map([
   [1,"https://www.youtube.com/watch?v=test-video"],
-  [2,"https://news.example.org/article"]]);
+  [2,"https://news.example.org/article"],
+  [3,"https://www.disneyplus.com/play/abcdef"]]);
  const browser={
   webRequest:{onBeforeRequest:on("before"),onErrorOccurred:on("error"),
    onCompleted:on("completed"),onBeforeRedirect:on("redirect")},
@@ -34,6 +35,8 @@ async function setup(){
 }
 const youtube={url:"https://www.youtube.com/watch?v=test-video",
  tab:{id:1,url:"https://www.youtube.com/watch?v=test-video"},frameId:0};
+const disney={url:"https://www.disneyplus.com/play/abcdef",
+ tab:{id:3,url:"https://www.disneyplus.com/play/abcdef"},frameId:0};
 test("YouTube health is local, read-only and correlates observed blocked media",async()=>{
  const {hooks}=await setup();
  assert.equal(hooks.before({requestId:"blocked-media-1",url:"https://doubleclick.net/ad.mp4?private=yes",
@@ -95,4 +98,37 @@ test("getStyle enables monitoring only for active top-level YouTube frame",async
  const unrelated=await hooks.message({action:"getStyle"},{
   url:"https://news.example.org/article",tab:{id:2,url:"https://news.example.org/article"},frameId:0});
  assert.equal(unrelated.playbackHealthEnabled,false);
+});
+
+test("Disney+ main-frame health observes nearby blocked media but never automatically unblocks",async()=>{
+ const {hooks}=await setup();
+ const style=await hooks.message({action:"getStyle"},disney);
+ assert.equal(style.playbackHealthEnabled,true);
+ const blocked=hooks.before({requestId:"disney-media-1",tabId:3,
+  url:"https://doubleclick.net/ad-media.mp4?PRIVATE_TOKEN=yes",type:"media",
+  documentUrl:disney.url});
+ assert.equal(blocked.cancel,true);
+ assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"buffering"},disney)).ok,true);
+ const rows=await hooks.message({action:"getPlaybackHealth",tabId:3});
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].kind,"buffering");
+ assert.equal(rows[0].blockedMediaNearby,true);
+ assert.doesNotMatch(JSON.stringify(rows),/abcdef|PRIVATE_TOKEN|doubleclick|ad-media/);
+ // The same traffic remains blocked after reporting.
+ assert.equal(hooks.before({requestId:"disney-media-2",tabId:3,
+  url:"https://doubleclick.net/other-video.mp4",type:"media",
+  documentUrl:disney.url}).cancel,true);
+});
+test("Disney+ sibling frames and domain lookalikes cannot forge playback reports",async()=>{
+ const {hooks}=await setup();
+ for(const sender of [
+  {...disney,frameId:1},
+  {...disney,url:"https://notdisneyplus.com/"},
+  {...disney,tab:{id:3,url:"https://disneyplus.com.attacker.net/"}},
+  {...disney,url:"https://youtube.com/",frameId:0}
+ ]){
+  const result=await hooks.message({action:"reportPlaybackHealth",kind:"media-error"},sender);
+  assert.equal(result.ok,false);
+ }
+ assert.equal((await hooks.message({action:"getPlaybackHealth",tabId:3})).length,0);
 });

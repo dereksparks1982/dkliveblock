@@ -22,9 +22,9 @@ function record(map,tabId,pageHost,requestHost,type,now=Date.now()){
  if(!domain||!Number.isFinite(now))return false;
  const rows=recent(map,tabId,now);
  const last=rows[rows.length-1];
- if(last&&last.host===domain&&last.type===type&&now-last.when<60000){
+ if(last&&last.pageHost===pageHost&&last.host===domain&&last.type===type&&now-last.when<60000){
   last.count=Math.min(999,(last.count||1)+1);last.when=now;
- }else rows.push({host:domain,type,count:1,when:now});
+ }else rows.push({pageHost,host:domain,type,count:1,when:now});
  map.set(tabId,rows.slice(-MAX));
  return true;
 }

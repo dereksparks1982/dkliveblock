@@ -237,10 +237,24 @@ $("youtubeRollback").addEventListener("click",async()=>{
 DKSupport.installButton($("patreonSupport"));
 
 /* Build 31: manually requested private streaming playback diagnostics. */
+function streamingHostname(url){
+ try{
+  const parsed=new URL(url);
+  return ["http:","https:"].includes(parsed.protocol)&&
+   /^(?:[a-z0-9-]+\.)*(?:youtube(?:-nocookie)?\.com|disneyplus\.com)$/.test(parsed.hostname.toLowerCase())?
+   parsed.hostname.toLowerCase():"";
+ }catch(_){return "";}
+}
+async function streamingTab(){
+ const tabs=await browser.tabs.query({currentWindow:true});
+ return tabs.filter(tab=>streamingHostname(tab.url||""))
+  .sort((a,b)=>Number(!!b.active)-Number(!!a.active)||
+    (b.lastAccessed||0)-(a.lastAccessed||0))[0]||null;
+}
 async function renderPlaybackHealth(){
- const tab=await networkTab(),panel=$("playbackHealthRows");panel.replaceChildren();
- if(!tab||!/^https?:\/\/[^/]*youtube(?:-nocookie)?\.com(?:[/:]|$)/i.test(tab.url||"")){
-  $("playbackHealthStatus").textContent="Open a YouTube tab first. Disney+ playback signals are not included in this build.";return;
+ const tab=await streamingTab(),panel=$("playbackHealthRows");panel.replaceChildren();
+ if(!tab){
+  $("playbackHealthStatus").textContent="Open a YouTube or Disney+ tab first.";return;
  }
  const rows=await browser.runtime.sendMessage({action:"getPlaybackHealth",tabId:tab.id});
  if(!Array.isArray(rows)){ $("playbackHealthStatus").textContent=rows?.error||"Unable to read health signals.";return; }
@@ -259,7 +273,7 @@ async function renderPlaybackHealth(){
 $("playbackHealthShow").addEventListener("click",()=>
  renderPlaybackHealth().catch(e=>$("playbackHealthStatus").textContent=e.message));
 $("playbackHealthClear").addEventListener("click",async()=>{
- const tab=await networkTab();if(!tab)return;
+ const tab=await streamingTab();if(!tab)return;
  try{
   const result=await browser.runtime.sendMessage({action:"clearPlaybackHealth",tabId:tab.id});
   if(!result?.ok)throw Error(result?.error||"Select a YouTube tab.");
@@ -269,7 +283,7 @@ $("playbackHealthClear").addEventListener("click",async()=>{
 });
 async function renderStreamingIssues(){
  const panel=$("streamIssuesRows");panel.replaceChildren();
- const tab=await networkTab();
+ const tab=await streamingTab();
  if(!tab){$("streamIssuesStatus").textContent="Open YouTube or Disney+ in another tab first.";return;}
  const rows=await browser.runtime.sendMessage({action:"getStreamingIssues",tabId:tab.id});
  if(!Array.isArray(rows)){
@@ -304,7 +318,7 @@ async function renderStreamingIssues(){
 }
 $("streamIssuesShow").addEventListener("click",()=>renderStreamingIssues().catch(e=>$("streamIssuesStatus").textContent=e.message));
 $("streamIssuesClear").addEventListener("click",async()=>{
- const tab=await networkTab();if(!tab)return;
+ const tab=await streamingTab();if(!tab)return;
  const result=await browser.runtime.sendMessage({action:"clearStreamingIssues",tabId:tab.id});
  $("streamIssuesRows").replaceChildren();
  $("streamIssuesStatus").textContent=result?.ok?"Local streaming diagnostics cleared.":result?.error||"Unable to clear.";
@@ -321,11 +335,25 @@ async function renderStreamingAllowances(tabId){
   const row=document.createElement("div");row.className="log-row";
   const text=document.createElement("span");text.textContent=item.type+" · "+item.host+
    " · Expires "+new Date(item.expires).toLocaleTimeString();
-  row.appendChild(text);panel.appendChild(row);
+  const remove=document.createElement("button");remove.type="button";
+  remove.textContent="Revoke this allowance";
+  remove.addEventListener("click",async()=>{
+   remove.disabled=true;
+   try{
+    const reply=await browser.runtime.sendMessage({action:"revokeStreamingHost",
+     tabId,host:item.host,type:item.type});
+    if(!reply?.ok)throw Error(reply?.error||"Could not revoke allowance.");
+    await renderStreamingAllowances(tabId);
+    $("streamRepairStatus").textContent="Removed the selected "+item.type+
+      " exception for "+item.host+". Reload the player to retest default blocking.";
+   }catch(error){$("streamRepairStatus").textContent=error.message;
+    remove.disabled=false;}
+  });
+  row.append(text,remove);panel.appendChild(row);
  }
 }
 $("streamRepairRevoke").addEventListener("click",async()=>{
- const tab=await networkTab();
+ const tab=await streamingTab();
  if(!tab){$("streamRepairStatus").textContent="No streaming tab selected.";return;}
  const result=await browser.runtime.sendMessage({action:"clearTemporaryStreamingAllowances",tabId:tab.id});
  if(result?.ok){

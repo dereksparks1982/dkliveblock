@@ -26,13 +26,24 @@ function allow(table,tabId,pageHost,requestHost,type,now=Date.now()){
  table.set(tabId,existing);
  return true;
 }
+function revoke(table,tabId,pageHost,requestHost,type,now=Date.now()){
+ if(!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||
+    !validHost(requestHost)||!TYPES.has(type))return false;
+ const previous=list(table,tabId,now);
+ const remaining=previous.filter(row=>!(row.pageHost===pageHost&&
+  row.host===requestHost&&row.type===type));
+ if(remaining.length===previous.length)return false;
+ if(remaining.length)table.set(tabId,remaining);
+ else table.delete(tabId);
+ return true;
+}
 function matches(table,tabId,pageHost,requestHost,type,now=Date.now()){
  if(!isStreamingHost(pageHost)||!TYPES.has(type))return false;
  return list(table,tabId,now).some(row=>row.pageHost===pageHost&&
    row.host===requestHost&&row.type===type);
 }
 function clear(table,tabId){table.delete(tabId);}
-const API=Object.freeze({allow,matches,list,clear,isStreamingHost,validHost,TTL_MS,MAX});
+const API=Object.freeze({allow,revoke,matches,list,clear,isStreamingHost,validHost,TTL_MS,MAX});
 root.DKStreamingRepair=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
