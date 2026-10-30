@@ -307,3 +307,7 @@ $("streamRepairRevoke").addEventListener("click",async()=>{
 $("openNetworkMonitor").addEventListener("click",()=>browser.tabs.create({
  url:browser.runtime.getURL("network-monitor.html")
 }));
+
+$("openBugReport").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("report.html")
+}));

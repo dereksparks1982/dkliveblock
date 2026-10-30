@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.7 (Build 36).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.8 (Build 37).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 37: official bug reporting and support contact (0.3.8)
+
+DK Live Block's official developer-support inbox is **elderredsoftworks@proton.me**. Firefox toolbar and Settings now link to an opt-in **Report a Problem** page, with categories for bugs, missed ads, broken websites, unwanted popups/redirects, feature requests and other feedback. It prepares a local, reviewable email draft including only user-entered text, an optional sanitized **hostname** (never the full URL or its private tokens) and DK Live Block's version. No report is sent automatically, no diagnostic log is attached, and there is no tracking, account or new permission. Users can copy the draft instead of opening an email application. The official Mozilla Add-ons support field should use the same address **only when the extension is approved for public release**.
 
 ## Build 36: aggressive unsolicited new-tab/popunder defense (0.3.7)
 

@@ -176,3 +176,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 36: strict default-on Pirate Bay/1337x opener-tab and navigation-target closure, about:blank interception, duplicate-event suppression, per-source badge count, 15-second one-time new-tab permit, global opt-out and unit checks.
 - [ ] Build 36 acceptance: full offline regression suite, Firefox real-world popup/popunder tests on supported domain variants, magnetic URI and Ctrl-click behavior, late opener races and window popups.
+
+- [x] Build 37: developer Proton support address, explicit email-draft bug reporting UI, categories, bounded user-controlled report fields, optional hostname-only website context and no automatic telemetry.
+- [ ] Build 37 acceptance: Firefox support page/mailto handling, test clipboard fallback and final Mozilla Add-ons support listing configuration at release.

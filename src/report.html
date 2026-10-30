@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Report a Problem · DK Live Block</title><link rel="stylesheet" href="style.css"></head>
+<body class="options"><header><strong>DK LIVE BLOCK</strong><small>Voluntary developer support</small></header>
+<main>
+<h1>Help &amp; Report a Problem</h1>
+<p>Developer support: <a id="supportEmail" href="mailto:elderredsoftworks@proton.me">elderredsoftworks@proton.me</a></p>
+<p>Describe an unblocked ad, a broken website, a popup, a problem with the extension, or a feature you'd like. The form stays on your computer unless you choose to send an email.</p>
+<form id="bugReportForm">
+<label>What is the issue? <select id="reportKind" required>
+<option value="bug">Something is broken</option>
+<option value="unblocked">Ad not blocked</option>
+<option value="broken">Website stopped working</option>
+<option value="popup">Unwanted popup or redirect</option>
+<option value="feature">Feature request</option>
+<option value="other">Other feedback</option>
+</select></label>
+<label>Affected website (optional) <input id="reportWebsite" type="text" maxlength="500" placeholder="e.g. example.org"></label>
+<p>Only the website hostname will go into the report. Paths, query strings and tracking tokens are not included.</p>
+<label>What happened? <textarea id="reportDescription" rows="6" maxlength="1800" required placeholder="Explain the problem, what you expected, and what happened instead."></textarea></label>
+<label>Steps to reproduce (optional) <textarea id="reportSteps" rows="4" maxlength="1200" placeholder="What were you doing when the problem occurred?"></textarea></label>
+<button id="previewReport" type="submit">Review report</button>
+</form>
+<p id="reportStatus" role="status">Nothing is sent automatically.</p>
+<section id="reportDraftSection" hidden>
+<h2>Review your report before sending</h2>
+<p>Check for names, personal details, private links, login information or anything you do not want to share.</p>
+<label>Subject <input id="reportSubject" readonly></label>
+<label>Report text <textarea id="reportPreview" rows="14" readonly></textarea></label>
+<div class="actions">
+<button id="copyReport" type="button">Copy report</button>
+<button id="openEmailDraft" type="button">Open email draft</button>
+</div>
+<p>You must click Send yourself in your email application. If the email app is not configured, copy the report and send it manually to the address above.</p>
+</section>
+</main>
+<script src="support.js"></script><script src="report.js"></script>
+</body></html>

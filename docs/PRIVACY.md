@@ -29,3 +29,7 @@ This disclosure must be reviewed and updated against a real candidate build and 
 ### YouTube maintenance updates
 
 When automatic YouTube compatibility checks are enabled, Firefox fetches a data-only cosmetic filter list from `raw.githubusercontent.com`. The CDN receives ordinary connection metadata. DK LAB does not receive browsing history, YouTube video URLs, playback state, account information or error reports. Users can disable this update channel, check manually, or roll back a bad filter pack.
+
+## Voluntary support and bug reports (Build 37)
+
+Developer email: **elderredsoftworks@proton.me**. The Firefox extension does not transmit diagnostics, browsing logs, site URLs or any other data to this address automatically. Selecting **Report a Problem** opens a local form. The reporter must supply the description and optionally the issue category, reproduction steps and affected website. The draft includes the extension version and only the website's hostname, not its URL path or query parameters. It is displayed for review; pressing **Prepare email** opens a `mailto:` draft in the user's mail application, where they decide whether to send it. Alternatively, the report can be copied locally. The privacy practices of the user's chosen email service apply when they actually send an email.
