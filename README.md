@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.19 (Build 48).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.20 (Build 49).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 49: opt-in element-hiding debugger (0.3.20)
+
+A new **Inspect element-hiding filters** toolbar action opens a dedicated, local extension page. Users can scan the first 80 eligible cosmetic selectors for the original protected site, inspect selector-level match counts and temporarily outline up to 12 visible matches. Clear restores previous inline outline styles without changing display, hiding, scroll, video playback, filter rules or permissions. No page contents or full page URLs are captured. Real Firefox acceptance and CSS selector provenance remain outstanding.
 
 ## Build 48: optional regional language filters (0.3.19)
 

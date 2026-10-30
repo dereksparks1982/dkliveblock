@@ -1,0 +1,11 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block · Cosmetic Debugger</title><link rel="stylesheet" href="style.css"></head>
+<body class="options"><header><strong>DK LIVE BLOCK</strong><small>Read-only element-hiding debugger</small></header>
+<main><h1>Element-hiding inspection</h1>
+<p>This tool inspects the website tab from which you opened it. It shows matching CSS selectors without collecting page text, URLs, form values, account details or video data. A preview only outlines visible matches. A hidden element remains hidden: this debugger does not temporarily remove the ad blocker's hiding rules.</p>
+<div class="network-buttons"><button id="debugScan" type="button">Scan cosmetic rules</button>
+<button id="debugClear" type="button">Clear temporary outlines</button></div>
+<p id="debugStatus" role="status">Press Scan to inspect the original website tab.</p>
+<div id="debugRows"></div>
+<p>The first 80 eligible selectors are inspected. Rule origin attribution and selector-specific disabling require separate future engine work.</p>
+</main><script src="cosmetic-debug-page.js"></script></body></html>

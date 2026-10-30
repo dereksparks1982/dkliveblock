@@ -7,6 +7,7 @@
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
  const videoController=DKVideoAssist.createController();
+ const cosmeticDebugger=DKCosmeticDebug.create(document);
  const healthProbe=isHealthSite?DKPlaybackHealth.createProbe():null;
  function samplePlaybackHealth(){
   if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
@@ -37,7 +38,7 @@
    const proceduralChanged=JSON.stringify(nextProcedural)!==JSON.stringify(procedural);
    // Do not flash already-hidden notices on ordinary navigation or rule refresh.
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall||distractionControl&&!nextDistractions)restoreAntiHidden();
-   if(!nextActive||proceduralChanged)restoreHidden();
+   if(!nextActive||proceduralChanged){restoreHidden();cosmeticDebugger.restore();}
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
    const nextHealth=!!s.playbackHealthEnabled;
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
@@ -317,6 +318,17 @@
  browser.runtime.onMessage.addListener(msg=>{
   if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
+  if(msg.action==="inspectCosmeticDebug"){
+   if(!active||msg.siteHost!==host||window!==window.top)return Promise.resolve({error:"Inspector unavailable on this page."});
+   return Promise.resolve({ok:true,rows:DKCosmeticDebug.inspect(document,msg.selectors)});
+  }
+  if(msg.action==="highlightCosmeticDebug"){
+   if(!active||msg.siteHost!==host||window!==window.top)return Promise.resolve({error:"Inspector unavailable on this page."});
+   return Promise.resolve(cosmeticDebugger.highlight(msg.selector));
+  }
+  if(msg.action==="clearCosmeticDebug"){
+   cosmeticDebugger.restore();return Promise.resolve({ok:true});
+  }
   // Read only on an explicit toolbar request; never collect passive watch history.
   if(msg.action==="getVideoPosition"){
    if(!/^(www\.|m\.|music\.)?youtube\.com$/.test(host)||window!==window.top)return Promise.resolve({position:0});

@@ -790,6 +790,23 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   await persist();rebuild();
   return {ok:true,version:data.youtubeRules?.version||0,heldVersion:data.youtubeHeldVersion};
  }
+ if(msg.action==="getCosmeticDebugSelectors"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let page,site;
+  try{page=(await browser.tabs.get(id))?.url||"";site=host(page);}
+  catch(_){return {error:"Original tab no longer available."};}
+  if(!/^https?:\/\//i.test(page)||!site||!activeTab(id,site))
+   return {error:"Choose a protected website tab."};
+  if(data.hosts.get(id)&&data.hosts.get(id)!==site)
+   return {error:"Website is navigating; reload before inspecting."};
+  const policy=data.engine.getPagePolicy(page);
+  if(policy.document)return {error:"Cosmetic filters are disabled for this website."};
+  const selectors=DKAuthProtection.safeCosmetics(
+    DKVideoAssist.safeCosmetics(data.engine.getSelectors(site,policy),site))
+    .filter(s=>typeof s==="string"&&s.length>0&&s.length<=240)
+    .slice(0,80);
+  return {ok:true,siteHost:site,selectors};
+ }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,distractionControl:data.settings.distractionControl,adRecognition:data.settings.adRecognition,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,

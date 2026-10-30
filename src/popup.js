@@ -93,6 +93,7 @@ async function load(){
  $("temporary").textContent=current.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("temporary").disabled=!current.host||!current.enabled||current.sitePaused;
  $("picker").disabled=!current.host||!current.siteActive;
+ $("cosmeticDebugger").disabled=!current.host||!current.siteActive;
  $("popupProtectionRow").hidden=!current.popupProtectionAvailable;
  $("popupProtection").disabled=!current.siteActive;
  $("popupProtection").textContent=current.popupProtectionPaused?"Resume popup cleanup":"Disable popup cleanup here";
@@ -145,6 +146,9 @@ $("mediaRecovery").addEventListener("click",async()=>{
   await load();
  }catch(e){$("info").textContent=e.message;}finally{$("mediaRecovery").disabled=false;}
 });
+$("cosmeticDebugger").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("cosmetic-debug.html?tab="+encodeURIComponent(tab.id))
+}));
 $("picker").addEventListener("click",async()=>{try{const result=await browser.tabs.sendMessage(tab.id,{action:"startPicker"});if(result.ok)window.close();}catch(e){$("info").textContent="Reload the tab and try again."; }});
 $("update").addEventListener("click",async()=>{$("update").disabled=true;try{const result=await browser.runtime.sendMessage({action:"updateLists"});$("info").textContent=result.updated+" changed; "+result.checked+" checked; "+result.errors.length+" failed.";}catch(e){$("info").textContent=e.message;}finally{$("update").disabled=false;}});
 $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendMessage({action:"undoElementRule",url:tab.url,tabId:tab.id});$("info").textContent=r.ok?"Last hidden element restored. Reload this tab.":r.error;});

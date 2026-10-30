@@ -224,3 +224,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 48: six curated optional language filter lists; manual selection or click-to-recommend from Firefox languages; individual update/status and caching through existing subscription engine.
 - [ ] Build 48 acceptance: download and verify each regional source, filter-list licenses and multi-language performance in real Firefox; no claim of full ABP language parity yet.
+
+- [x] Build 49: user-initiated cosmetic rule inspection page, bounded selector match counts, reversible visible-element outlines and explicit clear.
+- [ ] Build 49 acceptance: Firefox live DOM/shadow DOM checks, no-display-mutation proof, correctness with rule updates, selector-to-source attribution, complete regression suite.
