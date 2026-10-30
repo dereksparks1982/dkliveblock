@@ -227,3 +227,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 49: user-initiated cosmetic rule inspection page, bounded selector match counts, reversible visible-element outlines and explicit clear.
 - [ ] Build 49 acceptance: Firefox live DOM/shadow DOM checks, no-display-mutation proof, correctness with rule updates, selector-to-source attribution, complete regression suite.
+
+- [x] Build 50: browser-native Firefox website notification default deny via browserSettings, default-on with Settings toggle, conflict handling and extension-owned cleanup.
+- [x] Build 50: synchronize older hard-coded background test script lists with language filters, context menu and notification helper.
+- [ ] Build 50 acceptance: real Firefox permission disclosure, notification requests, per-site exceptions, conflicts and complete Node/Python regression suite.

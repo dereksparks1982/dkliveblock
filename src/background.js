@@ -10,7 +10,7 @@ const SOURCES={
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
- ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+ ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -118,7 +118,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -583,6 +583,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="startVideoDownload")return startVideoDownload(msg);
  if(msg.action==="cancelVideoDownload")return cancelVideoDownload(msg);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
+ if(msg.action==="getNotificationControl"){
+  if(fromContent)return {error:"Extension interface only."};
+  return DKNotificationProtection.status(browser);
+ }
  if(msg.action==="reportPopupCleanup"){
   if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||
      !["antiAdblock","paywall","distraction"].includes(msg.kind))return {error:"Invalid popup report."};
@@ -816,6 +820,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const previous=data.settings.enabled;
   data.settings.enabled=!!msg.enabled;
   try{syncProxyListener();}catch(error){data.settings.enabled=previous;return {error:"Could not update proxy routing: "+String(error.message||error).slice(0,100)};}
+  data.notificationControl=await DKNotificationProtection.sync(browser,
+   data.settings.enabled&&data.settings.blockNotificationPrompts);
   await persist();rebuild();return status(id,url);
  }
  if(msg.action==="toggleSitePopupProtection"){
@@ -896,6 +902,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    data.settings.customSubscriptions=validated.urls;
    for(const u of Object.keys(data.customLists))if(!validated.urls.includes(u)){delete data.customLists[u];delete data.listErrors[u];}
   }
+  if(typeof s.blockNotificationPrompts==="boolean")data.settings.blockNotificationPrompts=s.blockNotificationPrompts;
   if(typeof s.showDevtoolsPanel==="boolean")data.settings.showDevtoolsPanel=s.showDevtoolsPanel;
   if(typeof s.showBadge==="boolean"){
    data.settings.showBadge=s.showBadge;
@@ -933,6 +940,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    data.settings.paused=DKSiteAllowlist.normalize(s.paused);
   }
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
+  data.notificationControl=await DKNotificationProtection.sync(browser,
+   data.settings.enabled&&data.settings.blockNotificationPrompts);
   await persist();rebuild();
   // Newly enabled subscriptions work immediately without waiting for tomorrow's alarm.
   const needsDownload=(data.settings.autoYouTubeRules&&!data.youtubeRules?.text)||Object.keys(SOURCES).some(k=>data.settings.listEnabled[k]&&!data.lists[k]?.text)||(data.settings.customSubscriptions||[]).some(u=>!data.customLists[u]?.text);
@@ -949,6 +958,8 @@ async function boot(){
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
   }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  data.notificationControl=await DKNotificationProtection.sync(browser,
+   data.settings.enabled&&data.settings.blockNotificationPrompts);
   await DKContextMenu.sync(browser,data.settings.showContextMenu);
   data.requestControls.remember=DKRequestControls.restore(stored.requestAllowances);
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));

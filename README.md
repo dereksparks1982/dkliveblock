@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.20 (Build 49).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.21 (Build 50).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 50: Firefox-native notification permission blocking (0.3.21)
+
+DK Live Block uses Firefox's own `browserSettings.webNotificationsDisabled` API, with a declared browser-settings permission, to deny new website notification permission prompts by default. The feature has a visible Settings toggle and actual control-status reporting. Previously granted per-site notification permissions remain effective. Disabling the protection **clears only DK Live Block's global override**, rather than overwriting user settings or another extension's preferences. No site scripts or promotional notifications are used. Real Firefox testing is outstanding.
 
 ## Build 49: opt-in element-hiding debugger (0.3.20)
 

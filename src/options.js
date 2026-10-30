@@ -6,7 +6,7 @@ const listKeys=[...primaryKeys,...regionKeys];
 const listNames={...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,item.name])),easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
  cookies:"EasyList Cookie: cookie notices",annoyances:"Fanboy Annoyances: distractions",
  social:"Fanboy Social: social widgets"};
-const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel"];
+const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
@@ -26,6 +26,15 @@ async function load(){
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
  renderAllowedSites(s.paused||[]);
+ try{
+  const control=await browser.runtime.sendMessage({action:"getNotificationControl"});
+  $("notificationControlStatus").textContent=control?.error||(
+   !control?.supported?"Firefox does not expose this control.":
+   control.controlled&&control.blocked?"Firefox-wide notification prompts are blocked by DK Live Block.":
+   control.blocked?"Notification prompts are blocked by another Firefox setting.":
+   "Firefox's notification permission default is not blocked.");
+ }catch(error){$("notificationControlStatus").textContent=String(error.message||error);}
+
  const pack=data.youtubeRules||{};
  $("youtubeRulesStatus").textContent=pack.version?
   "YouTube pack v"+pack.version+(pack.previousVersion?" · previous v"+pack.previousVersion:"")+

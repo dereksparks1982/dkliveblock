@@ -96,3 +96,10 @@ test("Build 44 default protection flags are on unless users explicitly disable t
  assert.equal(malformed.distractionControl,true);
  assert.equal(malformed.listEnabled.cookies,true);
 });
+
+test("notification protection defaults on and stored off state is respected",()=>{
+ const protection={...defaults,blockNotificationPrompts:true};
+ assert.equal(Settings.restoreSettings({},protection,["easylist"]).blockNotificationPrompts,true);
+ assert.equal(Settings.restoreSettings({blockNotificationPrompts:false},protection,["easylist"]).blockNotificationPrompts,false);
+ assert.equal(Settings.restoreSettings({blockNotificationPrompts:"false"},protection,["easylist"]).blockNotificationPrompts,true);
+});

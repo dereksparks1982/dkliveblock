@@ -9,7 +9,7 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Blocking standard display ads | Implemented (filter engine, EasyList, fallback patterns) | Measure actual ad removal and false positives |
 | Blocking additional trackers | Implemented (EasyPrivacy default on) | Test cross-site trackers and list freshness |
 | Basic distraction control | Partial (conservative overlay classifier) | Verify corner videos, install/shop prompts and legitimate UI |
-| Block push notification permission requests | Missing for native Firefox permission prompts; some webpage prompts affected by lists | Investigate Firefox permissions APIs and safe per-site choices |
+| Block push notification permission requests | Build 50: Firefox-owned notification default deny, reversible on disable; previous site grants remain effective | Test real Firefox permissions, other extensions and installation review |
 | Block social media icons/tracking | Implemented as social filter subscription | Test widgets and related request blocking |
 | Premium: cookie-consent popups | Partial (reject-only helper and filter subscription) | Validate against real consent platforms; no accidental acceptance |
 | Premium: enhanced distractions | Partial (newsletter, survey and floating-corner overlays) | Floating video without interrupting actively playing content |
