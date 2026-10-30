@@ -167,3 +167,7 @@ A Patreon button is included in the toolbar and settings footer, but it stays di
 ## Build 19: optional Ghostery engine integration
 
 An **optional** Ghostery MPL-2.0 filtering engine can be bundled locally from the pinned `@ghostery/adblocker@2.20.3` package. Run `npm install` then `npm run build:ghostery` on Ubuntu to generate the self-contained `src/ghostery-vendor.js`. The repository contains a harmless placeholder until this step runs. The extension loads no remote executable code. Our native filter engine still works without the optional bundle; with it, Ghostery augments network matching while DK's per-site pause, local exceptions, login protections, playback rescue, proxy restrictions and other defenses stay in charge. Extended cosmetics/scriptlets are **not** executed automatically from untrusted subscriptions. A locally built Ghostery bundle is not yet an approved release artifact; current source has not undergone complete live Firefox testing.
+
+## Build 19: conservative on-page ad recognition
+
+DK Live Block now recognizes strongly identifiable ad slots (Google display slots, GPT containers and explicitly advertising-labeled elements) even when downloaded list selectors lag behind. Checks are bounded and local-only, avoid normal sponsored articles, login/payment forms, videos and player controls, and can restore every hidden slot when blocking is paused. This is an additional, conservative heuristic, not guaranteed automatic detection of every ad or every YouTube video insertion.

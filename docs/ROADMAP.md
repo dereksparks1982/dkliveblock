@@ -107,3 +107,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Review future license terms: anyone, including businesses, can use DK Live Block free; the project's desired restriction is resale/monetization of DK Live Block itself, not business use. Existing MIT permissions remain effective for versions already distributed.
 
 - [x] Build 19 optional Ghostery MPL-2.0 engine bridge and local-only bundle compiler, with native fallback, rule arbitration and offline tests. Download/build of third-party dependency and real browser validation remain pending.
+
+- [x] Build 19 conservative automatic DOM ad recognition: labeled slots, GPT/Google ad markers, bounded scanning, reversible hiding, player/login/article safeguards and offline cases.

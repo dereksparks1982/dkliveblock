@@ -1,11 +1,16 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,cookieReject=false,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com");
  const videoController=DKVideoAssist.createController();
+ const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
+ function inspectAdSlots(){
+  if(!active||picking||!adRecognizer)return;
+  lastAdScan=Date.now();adRecognizer.scan();
+ }
  function applyCSS(){
   if(!document.documentElement)return;
   if(!active||!css){style?.remove();style=null;return;}
@@ -23,9 +28,10 @@
    // Do not flash already-hidden notices on ordinary navigation or rule refresh.
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
    if(!nextActive||proceduralChanged)restoreHidden();
+   if(!nextActive)adRecognizer?.restore();
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;cookieReject=!!s.cookieReject;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
-   applyCSS();queueOverlayScan();
+   applyCSS();queueOverlayScan();inspectAdSlots();
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
@@ -204,6 +210,7 @@
  async function choose(event){
   if(!picking||event.target===banner||banner?.contains(event.target))return;
   if(DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(event.target))return;
+  if(DKAuthProtection.isIdentityUI(event.target,String(event.target?.textContent||"").slice(0,180)))return;
   event.preventDefault();event.stopImmediatePropagation();
   const selector=cleanSelector(event.target);endPicker();
   if(selector&&selector.length<=600){try{await browser.runtime.sendMessage({action:"addElementRule",selector});}catch(_){}}
@@ -240,6 +247,7 @@
  setInterval(()=>{
   skipVideo();rejectCookies();
   if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}
+  if(Date.now()-lastAdScan>3500)inspectAdSlots();
   if(Date.now()-lastOverlayScan>15000)scanDynamicOverlays();
  },1250);
 })();

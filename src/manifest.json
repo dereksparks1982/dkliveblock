@@ -68,6 +68,7 @@
         "overlay-recovery.js",
         "auth-protection.js",
         "popup-guard.js",
+        "ad-recognition.js",
         "content.js"
       ],
       "run_at": "document_start",
