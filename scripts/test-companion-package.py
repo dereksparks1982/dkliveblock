@@ -22,7 +22,7 @@ class ZipappTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as temp:
             package=PKG.build(Path(temp)/"companion.pyz")
             with zipfile.ZipFile(package) as archive:
-                self.assertEqual(set(archive.namelist()),{"__main__.py","native_host.py","verified_install.py","video_download.py"})
+                self.assertEqual(set(archive.namelist()),{"__main__.py","native_host.py","verified_install.py","video_download.py","download_jobs.py"})
                 self.assertIn(b"tkinter",archive.read("__main__.py"))
                 self.assertIn(b"allowed_extensions",archive.read("__main__.py"))
     def test_installer_creates_user_files_without_touching_system(self):
@@ -36,7 +36,7 @@ class ZipappTests(unittest.TestCase):
             self.assertEqual(process.returncode,0,process.stderr)
             base=home/".local/share/dk-live-block"
             self.assertTrue((base/"dependencies").is_dir())
-            for name in ("native_host.py","verified_install.py","video_download.py"):
+            for name in ("native_host.py","verified_install.py","video_download.py","download_jobs.py"):
                 self.assertEqual((base/"companion"/name).read_bytes(),(ROOT/"companion"/name).read_bytes())
             reg=json.loads((home/".mozilla/native-messaging-hosts/dk_live_block_companion.json").read_text())
             self.assertEqual(reg["allowed_extensions"],["dk-live-block@elderred-softworks.local"])

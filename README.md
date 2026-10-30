@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.2.5 (Build 24).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.2.6 (Build 25).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,14 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 25: Video quality, progress, cancellation and FFmpeg detection (0.2.6)
+
+The optional YouTube download panel now provides three explicit format choices: compatible single-stream MP4, best quality with FFmpeg merging, and audio only (original source format). The optional Linux companion discovers user-provided or system-installed FFmpeg, and the advanced quality choice refuses to run if FFmpeg is missing. FFmpeg is **not downloaded automatically**, not required by the ordinary ad blocker, and unlike the managed yt-dlp binary, system FFmpeg is **not hash verified**.
+
+Video downloads now use a persistent Firefox native messaging port with numeric in-memory progress, a Cancel Download button, and graceful termination of yt-dlp and its child process group. The native side restricts jobs to valid YouTube video IDs and three fixed quality modes, with no arbitrary arguments or browser-cookie access. The companion installer copies the new `download_jobs.py` module, including in the single-file zipapp. Download progress is a best-effort estimate from yt-dlp; it may reset or jump during multiple streams. Partial files may remain after cancellation.
+
+Source-only Build 25 remains **UNRELEASED**. No real YouTube downloads, Firefox playback tests, or ABP-parity verification have passed yet. See `docs/BUILD_25.md`.
 
 ## Build 24: local video library and optional direct downloads (0.2.5, unreleased)
 

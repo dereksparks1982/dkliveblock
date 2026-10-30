@@ -13,7 +13,15 @@
 <div class="row"><button id="picker">Hide an element</button><button id="undo">Undo hide</button><button id="update">Update lists</button></div>
 <section id="videoTools" class="video-tools" hidden>
 <strong>▶ Current YouTube video</strong><p id="videoTitle"></p>
-<div class="video-actions"><button id="saveVideo">Save for Later</button><button id="downloadVideo">Download This Video</button></div>
+<div class="video-actions"><button id="saveVideo">Save for Later</button></div>
+<label class="video-quality-label">Download quality
+<select id="videoQuality">
+<option value="compatible">Compatible MP4 (no FFmpeg needed)</option>
+<option value="best">Best video + audio (requires FFmpeg)</option>
+<option value="audio">Audio only (original format)</option>
+</select></label>
+<div class="video-actions"><button id="downloadVideo">Download This Video</button><button id="cancelVideo" hidden>Cancel Download</button></div>
+<progress id="videoProgress" value="0" max="100" hidden></progress>
 <p id="videoDownloadStatus" role="status">Downloads require the optional Linux companion and verified yt-dlp.</p>
 </section>
 <p id="info" role="status">Loading…</p><div class="row"><button id="savedVideos">My Saved Videos</button><button id="dependencies">Dependencies</button></div>

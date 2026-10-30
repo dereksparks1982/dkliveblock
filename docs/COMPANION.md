@@ -74,3 +74,13 @@ Video saving and timestamp resume now work inside Firefox without the companion.
 Files are saved under `~/.local/share/dk-live-block/downloads/`. The browser background tracks one job per session, up to 15 minutes, with coarse running/done/failed status. Exiting Firefox or missing native messaging support can interrupt a download. Quality choices, FFmpeg merging, cancellation and detailed progress are not yet implemented.
 
 The optional source-only packaging tool `python3 scripts/make-companion-installer.py --candidate` creates `dist/dk-live-block-companion-linux.pyz`. It bundles the DK native host and modules (not yt-dlp or other third-party programs) and offers a Tkinter install window where available. A manual Python command may be necessary when no graphical Python/Tkinter or desktop file association is present. Not signed or released.
+
+## Build 25: quality modes, optional FFmpeg, progress and cancellation
+
+The Firefox toolbar offers three **fixed choices**, not free-form command arguments: `compatible` (single MP4 stream when available), `best` (best streams merged with FFmpeg to MKV), and `audio` (best audio track, source container without conversion). Unsupported qualities are rejected by both the extension background and Linux native companion.
+
+The `best` mode requires FFmpeg. The companion checks `~/.local/share/dk-live-block/dependencies/ffmpeg/bin/ffmpeg`, `ffmpeg/ffmpeg`, then the system PATH. It does not install or automatically update FFmpeg; user-supplied and system binaries are not verified by DK, unlike our pinned managed yt-dlp binary.
+
+Build 25 adds `download_jobs.py` to the optional companion and `.pyz` installer. The Firefox extension uses a **persistent** native port, enabling intermediate numeric progress and a Cancel Download action. The worker runs a single allowlisted yt-dlp command (no shell) and stops its Linux process group on cancellation or after 15 minutes. The progress display represents yt-dlp's download output and might not include subsequent FFmpeg merging time. No automatic history collection, no telemetry, and no downloads unless the user explicitly confirms.
+
+Any user with a previously installed Build 24 development companion must reinstall the updated companion source to obtain progress and cancel support. The directory chosen earlier remains unchanged. Cancellation can leave partial downloads that the user can remove manually. No real browser/streaming acceptance yet.

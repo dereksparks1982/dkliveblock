@@ -11,7 +11,8 @@ const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.c
 const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false},autoUpdate:true,autoYouTubeRules:true,youtubeSkip:true,adRecognition:true,cookieReject:false,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
-let videoJob={id:"",state:"idle",error:""};
+let videoJob={id:"",state:"idle",progress:0,quality:"compatible",error:""};
+let videoPort=null;
 function libraryUpdate(operation){
  const run=videoLibraryQueue.catch(()=>{}).then(async()=>{
   const stored=await browser.storage.local.get("savedVideos");
@@ -33,23 +34,64 @@ async function verifiedActiveVideo(msg){
  }catch(_){return null;}
 }
 function jobStatus(){return {...videoJob};}
+const VIDEO_QUALITIES=new Set(["compatible","best","audio"]);
 async function startVideoDownload(msg){
  const active=await verifiedActiveVideo(msg);
  if(!active)return {error:"Select an open YouTube video first."};
- if(videoJob.state==="running")return {error:"Another DK video download is already running."};
- if(!browser.runtime.sendNativeMessage||!browser.permissions?.contains||
+ const quality=msg.quality||"compatible";
+ if(!VIDEO_QUALITIES.has(quality))return {error:"Unsupported video quality."};
+ if(videoJob.state==="running"||videoJob.state==="cancelling")
+  return {error:"Another DK video download is already running."};
+ if(!browser.runtime.connectNative||!browser.permissions?.contains||
    !await browser.permissions.contains({permissions:["nativeMessaging"]}))
   return {error:"Install the optional DK Linux companion and allow native messaging first."};
- // A second request might have arrived while the permission check was pending.
- if(videoJob.state==="running")return {error:"Another DK video download is already running."};
- videoJob={id:active.video.id,state:"running",error:""};
- Promise.resolve().then(()=>browser.runtime.sendNativeMessage("dk_live_block_companion",{
-  protocol:1,action:"downloadVideo",videoId:active.video.id,confirmation:"explicit-user-action"
- })).then(reply=>{
-  if(reply?.ok&&reply?.state==="complete")videoJob={id:active.video.id,state:"complete",error:""};
-  else videoJob={id:active.video.id,state:"failed",error:String(reply?.error||"Companion rejected download").slice(0,180)};
- }).catch(error=>{videoJob={id:active.video.id,state:"failed",error:String(error.message||error).slice(0,180)};});
- return {ok:true,id:active.video.id,state:"running"};
+ if(videoJob.state==="running"||videoJob.state==="cancelling")
+  return {error:"Another DK video download is already running."};
+ let port;
+ try{port=browser.runtime.connectNative("dk_live_block_companion");}
+ catch(error){return {error:"Could not connect to the optional Linux companion: "+String(error.message||error).slice(0,100)};}
+ videoPort=port;
+ videoJob={id:active.video.id,state:"running",progress:0,quality,error:""};
+ port.onMessage.addListener(message=>{
+  if(videoPort!==port||!message||message.protocol!==1||message.videoId!==active.video.id)return;
+  if(message.type==="progress"&&videoJob.state==="running"){
+   if(Number.isFinite(message.percent)&&message.percent>=0&&message.percent<=100)
+    videoJob.progress=Math.max(videoJob.progress,Math.round(message.percent));
+  }else if(message.type==="cancelling"){
+   videoJob.state="cancelling";
+  }else if(message.type==="finished"&&["complete","cancelled","failed"].includes(message.state)){
+   videoJob.state=message.state;
+   videoJob.progress=message.state==="complete"?100:videoJob.progress;
+   videoJob.error=message.state==="failed"?String(message.error||"yt-dlp download failed").slice(0,180):"";
+   videoPort=null;
+   try{port.disconnect();}catch(_){}
+  }
+ });
+ port.onDisconnect.addListener(()=>{
+  if(videoPort!==port)return;
+  videoPort=null;
+  if(videoJob.state==="running"||videoJob.state==="cancelling"){
+   videoJob.state="failed";
+   videoJob.error="Native companion disconnected before the download finished.";
+  }
+ });
+ try{
+  port.postMessage({protocol:1,action:"startVideoDownload",
+   videoId:active.video.id,quality,confirmation:"explicit-user-action"});
+ }catch(error){
+  videoPort=null;videoJob.state="failed";videoJob.error=String(error.message||error).slice(0,180);
+  try{port.disconnect();}catch(_){}
+  return {error:videoJob.error};
+ }
+ return {ok:true,id:active.video.id,state:"running",quality};
+}
+function cancelVideoDownload(msg){
+ if(!videoPort||videoJob.state!=="running"||msg.videoId!==videoJob.id)
+  return {error:"No matching active download to cancel."};
+ try{videoPort.postMessage({protocol:1,action:"cancelVideoDownload",videoId:videoJob.id});}
+ catch(error){return {error:"Cancellation request could not be delivered."};}
+ videoJob.state="cancelling";
+ return {ok:true,state:"cancelling"};
 }
 const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
@@ -284,6 +326,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  }
  if(msg.action==="videoDownloadStatus")return jobStatus();
  if(msg.action==="startVideoDownload")return startVideoDownload(msg);
+ if(msg.action==="cancelVideoDownload")return cancelVideoDownload(msg);
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
  if(msg.action==="reportPopupCleanup"){
   if(!fromContent||id<0||!Number.isInteger(msg.count)||msg.count<1||msg.count>6||

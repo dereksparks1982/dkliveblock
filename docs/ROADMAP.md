@@ -138,3 +138,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 24: generator for a standalone unsigned Python zipapp Linux companion installer and offline tests.
 - [ ] Build 24 release gate: full regression suite, live Firefox playback/resume, native install, actual video download, packaged GUI validation and publisher signing.
 - [ ] Next: cancel/progress, FFmpeg-quality options, user-friendly verified companion distribution, continued YouTube/Disney+ real testing.
+
+- [x] Build 25: user-selectable compatible MP4, best quality with optional FFmpeg, and source audio; optional FFmpeg discovery from the DK dependency folder or system PATH.
+- [x] Build 25: persistent Firefox native messaging port for bounded progress and explicit cancellation, with native process-group termination, 15-minute deadline and local-only progress state.
+- [x] Build 25: added offline format, progress and cancellation regression source; no hosted Actions, and no new mandatory browser permissions.
+- [ ] Build 25 acceptance: run complete local suite, test Linux Firefox native port and cancellation, verify actual yt-dlp/FFmpeg playback and data paths, and perform YouTube preroll/midroll and Disney+ browser checks.

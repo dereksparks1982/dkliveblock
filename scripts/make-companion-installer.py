@@ -12,7 +12,7 @@ import zipapp
 
 ROOT = Path(__file__).resolve().parent.parent
 COMPANION = ROOT / "companion"
-MODULES = ("native_host.py", "verified_install.py", "video_download.py")
+MODULES = ("native_host.py", "verified_install.py", "video_download.py", "download_jobs.py")
 LAUNCHER = '''"""DK Live Block: optional one-file Linux companion setup.
 Installation requires an explicit click or --install; never downloads third-party tools.
 """
@@ -24,7 +24,7 @@ import zipfile
 
 REGISTRY_NAME = "dk_live_block_companion.json"
 EXTENSION_ID = "dk-live-block@elderred-softworks.local"
-FILES = ("native_host.py", "verified_install.py", "video_download.py")
+FILES = ("native_host.py", "verified_install.py", "video_download.py", "download_jobs.py")
 
 def install():
     if sys.platform != "linux":

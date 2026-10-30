@@ -1,14 +1,27 @@
 "use strict";
 const $=id=>document.getElementById(id);
 let tab=null,current=null,videoContext=null;
+const QUALITIES=new Set(["compatible","best","audio"]);
 function videoMessage(message){$("videoDownloadStatus").textContent=message;}
 async function refreshDownloadStatus(){
  if(!videoContext)return;
  try{
   const job=await browser.runtime.sendMessage({action:"videoDownloadStatus"});
-  if(job?.id===videoContext.id&&job.state==="running")videoMessage("Downloading in the background. Reopen DK Live Block to check status.");
-  else if(job?.id===videoContext.id&&job.state==="complete")videoMessage("Download complete. Saved to ~/.local/share/dk-live-block/downloads/");
-  else if(job?.id===videoContext.id&&job.state==="failed")videoMessage("Download failed: "+(job.error||"See dependency settings."));
+  const same=job?.id===videoContext.id;
+  const running=job?.state==="running"||job?.state==="cancelling";
+  $("videoProgress").hidden=!(same&&running);
+  $("videoProgress").value=same?Math.min(100,Math.max(0,job.progress||0)):0;
+  $("cancelVideo").hidden=!(same&&running);
+  $("cancelVideo").disabled=job?.state==="cancelling";
+  $("downloadVideo").disabled=running;
+  if(same&&job.state==="running")videoMessage($("videoProgress").value>=100?
+   "Download data received. Finishing or merging media…":
+   "Downloading: "+$("videoProgress").value+"%. Closing the popup will not cancel the job.");
+  else if(same&&job.state==="cancelling")videoMessage("Cancelling download…");
+  else if(same&&job.state==="complete")videoMessage("Download complete. Saved to ~/.local/share/dk-live-block/downloads/");
+  else if(same&&job.state==="cancelled")videoMessage("Download cancelled. Partial files may remain in the downloads folder.");
+  else if(same&&job.state==="failed")videoMessage("Download failed: "+(job.error||"See dependency settings."));
+  else if(running)videoMessage("A different video is currently downloading.");
  }catch(_){}
 }
 function showVideoTools(){
@@ -32,14 +45,17 @@ async function saveVideo(){
 }
 async function downloadVideo(){
  if(!videoContext)return;
+ const quality=$("videoQuality").value;
+ if(!QUALITIES.has(quality))return videoMessage("Select a supported download quality.");
  if(!window.confirm("Download this YouTube video using verified local yt-dlp? It will save to ~/.local/share/dk-live-block/downloads/. Only download videos you are authorized to save."))return;
  $("downloadVideo").disabled=true;
  try{
   if(!browser.permissions?.request||!await browser.permissions.request({permissions:["nativeMessaging"]})){
    videoMessage("Native companion permission is required for downloading.");return;
   }
-  const result=await browser.runtime.sendMessage({action:"startVideoDownload",tabId:tab.id,videoId:videoContext.id});
+  const result=await browser.runtime.sendMessage({action:"startVideoDownload",tabId:tab.id,videoId:videoContext.id,quality});
   videoMessage(result?.ok?"Download requested. Open this menu again to check progress.":result?.error||"Could not start download.");
+  if(result?.ok)await refreshDownloadStatus();
  }catch(error){videoMessage("Download unavailable: "+error.message);}
  finally{$("downloadVideo").disabled=false;}
 }
@@ -100,6 +116,15 @@ $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.
 $("savedVideos").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("library.html")}));
 $("saveVideo").addEventListener("click",saveVideo);
 $("downloadVideo").addEventListener("click",downloadVideo);
+$("cancelVideo").addEventListener("click",async()=>{
+ if(!videoContext)return;
+ $("cancelVideo").disabled=true;
+ try{const result=await browser.runtime.sendMessage({action:"cancelVideoDownload",videoId:videoContext.id});
+  videoMessage(result.ok?"Cancelling download…":result.error||"Unable to cancel.");
+ }catch(error){videoMessage(error.message);}
+ await refreshDownloadStatus();
+});
+setInterval(()=>{if(videoContext)refreshDownloadStatus().catch(()=>{});},1500);
 load().catch(e=>$("info").textContent=e.message);
 
 DKSupport.installButton($("patreonSupport"));
