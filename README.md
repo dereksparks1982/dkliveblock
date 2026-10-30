@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.12 (Build 41).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.13 (Build 42).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 42: YouTube playback-health diagnostics and evidence-based repair (0.3.13)
+
+DK Live Block can now observe coarse, **local-only** YouTube HTML5 playback-health signals (sustained buffering of at least five seconds and media decode/source/network errors) and show them next to existing blocked streaming requests in Settings. The probe runs from the already existing low-frequency content-script loop only when protection and private request logging are active, the top-level YouTube page is visible, and the player is not paused, seeking, or ended. It never captures video titles, playback progress, media URLs, account details or personal watch history. It is capped, time-limited and reset across navigation.
+
+A health event is marked if a blocked **media-type** request happened nearby, but **correlation is not proof that DK Live Block caused playback problems**. No requests are automatically allowed. The existing 10-minute, exact-host-and-type manual repair requires explicit confirmation and remains reversible; YouTube/Disney+ server-inserted advertising and live playback acceptance have not been validated.
 
 ## Build 41: YouTube skip safety, observer performance and regression gates (0.3.12)
 

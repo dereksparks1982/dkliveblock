@@ -1,11 +1,18 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet();
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const videoController=DKVideoAssist.createController();
+ const healthProbe=isYouTube&&typeof DKPlaybackHealth!=="undefined"?DKPlaybackHealth.createProbe():null;
+ function samplePlaybackHealth(){
+  if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
+  const player=document.querySelector("video.html5-main-video, #movie_player video, video");
+  const kind=healthProbe.scan(player,document);
+  if(kind)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind}).catch(()=>{});
+ }
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
@@ -31,6 +38,9 @@
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall)restoreAntiHidden();
    if(!nextActive||proceduralChanged)restoreHidden();
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
+   const nextHealth=!!s.playbackHealthEnabled;
+   if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
+   playbackHealthEnabled=nextHealth;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;procedural=nextProcedural;
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
@@ -258,8 +268,8 @@
  refresh();
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){
-  window.addEventListener("yt-navigate-finish",()=>{refresh();videoWatcher?.poke();},false);
-  window.addEventListener("popstate",()=>{refresh();videoWatcher?.poke();},false);
+  window.addEventListener("yt-navigate-finish",()=>{healthProbe?.reset();refresh();videoWatcher?.poke();},false);
+  window.addEventListener("popstate",()=>{healthProbe?.reset();refresh();videoWatcher?.poke();},false);
  }
  if(!document.documentElement){
   try{
@@ -272,7 +282,7 @@
  // Lightweight video/cookie checks remain periodic; heavy overlay scans run on DOM changes
  // and at a low-frequency fallback for pages that modify existing nodes in place.
  setInterval(()=>{
-  skipVideo();rejectCookies();
+  skipVideo();rejectCookies();samplePlaybackHealth();
   if(rememberVideos&&isYouTube)maybeRememberVideo().catch(()=>{});
   if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}
   if(Date.now()-lastAdScan>3500)inspectAdSlots();

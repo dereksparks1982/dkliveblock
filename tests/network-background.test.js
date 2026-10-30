@@ -1,7 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
-const sources=["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","streaming-diagnostics.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","ghostery-vendor.js","hybrid-engine.js","background.js"];
+const sources=["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","streaming-diagnostics.js","playback-health.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","ghostery-vendor.js","hybrid-engine.js","background.js"];
 async function setup(){
  const handlers={},filters={},on=name=>({addListener:(fn,filter)=>{handlers[name]=fn;filters[name]=filter;},removeListener:fn=>{if(handlers[name]===fn)delete handlers[name];delete filters[name];}});
  let stored={settings:{autoUpdate:false}},queries=0;

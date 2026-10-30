@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.12",
+  "version": "0.3.13",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -40,6 +40,7 @@
       "settings.js",
       "video-assist.js",
       "streaming-diagnostics.js",
+      "playback-health.js",
       "streaming-repair.js",
       "request-monitor.js",
       "request-controls.js",
@@ -74,6 +75,7 @@
         "paywall.js",
         "video-assist.js",
         "streaming-watch.js",
+        "playback-health.js",
         "overlay-recovery.js",
         "auth-protection.js",
         "popup-guard.js",

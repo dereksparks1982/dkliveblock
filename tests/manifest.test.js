@@ -18,6 +18,9 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(m.background.scripts.indexOf("request-monitor.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("popup-trap.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("popup-history.js")<m.background.scripts.indexOf("background.js"));
+ assert.ok(m.background.scripts.indexOf("playback-health.js")<m.background.scripts.indexOf("background.js"));
+ const content=m.content_scripts[0].js;
+ assert.ok(content.indexOf("playback-health.js")<content.indexOf("content.js"));
  assert.ok(m.background.scripts.indexOf("request-controls.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(fs.existsSync(path.join(root,"src/access-inspector.js")));
  assert.ok(fs.existsSync(path.join(root,"src/network-monitor.html")));

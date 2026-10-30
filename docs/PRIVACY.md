@@ -43,3 +43,7 @@ The user may explicitly allow a blocked source-site/destination-hostname/resourc
 ## Popup activity history (Build 39)
 
 When private request logging is enabled, DK Live Block retains at most 100 recently **closed** popup/tab records per source tab in Firefox memory, for up to two hours. Only the source site hostname, optional destination hostname, event time and reason category are recorded. A blank tab can leave the destination unknown. Full URLs with paths, query strings or credentials are not saved. The user can clear records or disable private request logging to stop collection and clear them. No developer upload is performed.
+
+## YouTube playback-health diagnostics (Build 42)
+
+When page protection and private request logging are enabled, DK Live Block may record a **coarse YouTube player status event** in local Firefox memory: sustained buffering or a media error, plus a time and whether a blocked media-type network request was observed nearby. Up to 30 events are retained per tab for 30 minutes. **No** video URL, title, watch history, playback time position, media bytes, account ID, access token or page text is saved or transmitted. The user can inspect or clear the records in Settings. Disabling private request logging clears the events and stops observation. These are diagnostic clues, not proof an ad-blocker caused playback failure.

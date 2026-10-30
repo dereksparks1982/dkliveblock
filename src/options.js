@@ -237,6 +237,36 @@ $("youtubeRollback").addEventListener("click",async()=>{
 DKSupport.installButton($("patreonSupport"));
 
 /* Build 31: manually requested private streaming playback diagnostics. */
+async function renderPlaybackHealth(){
+ const tab=await networkTab(),panel=$("playbackHealthRows");panel.replaceChildren();
+ if(!tab||!/^https?:\/\/[^/]*youtube(?:-nocookie)?\.com(?:[/:]|$)/i.test(tab.url||"")){
+  $("playbackHealthStatus").textContent="Open a YouTube tab first. Disney+ playback signals are not included in this build.";return;
+ }
+ const rows=await browser.runtime.sendMessage({action:"getPlaybackHealth",tabId:tab.id});
+ if(!Array.isArray(rows)){ $("playbackHealthStatus").textContent=rows?.error||"Unable to read health signals.";return; }
+ $("playbackHealthStatus").textContent=rows.length?
+  rows.length+" recent local player signal(s). A blocked request and player buffering are correlation, not proof of cause.":
+  "No sustained buffering or media errors recorded, or private request logging is off.";
+ for(const item of rows.slice(0,30)){
+  const line=document.createElement("div");line.className="log-row";
+  const label=document.createElement("span");
+  label.textContent=new Date(item.when).toLocaleTimeString()+" · "+
+    (item.kind==="buffering"?"Sustained player buffering":"Player media error")+
+    " · "+(item.blockedMediaNearby?"Blocked media request observed nearby":"No nearby blocked media request recorded");
+  line.appendChild(label);panel.appendChild(line);
+ }
+}
+$("playbackHealthShow").addEventListener("click",()=>
+ renderPlaybackHealth().catch(e=>$("playbackHealthStatus").textContent=e.message));
+$("playbackHealthClear").addEventListener("click",async()=>{
+ const tab=await networkTab();if(!tab)return;
+ try{
+  const result=await browser.runtime.sendMessage({action:"clearPlaybackHealth",tabId:tab.id});
+  if(!result?.ok)throw Error(result?.error||"Select a YouTube tab.");
+  $("playbackHealthRows").replaceChildren();
+  $("playbackHealthStatus").textContent="Local YouTube playback signals cleared.";
+ }catch(e){$("playbackHealthStatus").textContent=e.message;}
+});
 async function renderStreamingIssues(){
  const panel=$("streamIssuesRows");panel.replaceChildren();
  const tab=await networkTab();

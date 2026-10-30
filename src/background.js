@@ -116,7 +116,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -424,13 +424,14 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&session&&host(info.url)!==session.siteHost)DKNetworkMonitor.remove(data.networkMonitors,id);
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   if(info.status==="loading")data.popupTrapCounts.delete(id);
+  DKPlaybackHealth.clear(data.playbackHealth,id);
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
- DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
+ DKNetworkMonitor.remove(data.networkMonitors,id);DKPlaybackHealth.clear(data.playbackHealth,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -438,7 +439,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  // and submit a user-initiated element-picker rule for their own frame.
  // Never trust tabId or URL supplied by page-originated messages.
  const fromContent=!!sender.tab;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
@@ -602,6 +603,30 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(sender?.tab)return {error:"Extension settings only."};
   data.networkIssues.delete(id);return {ok:true};
  }
+ if(msg.action==="reportPlaybackHealth"){
+  if(!fromContent||!data.ready||!data.settings.requestLog||!data.settings.enabled||
+     sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
+  const pageHost=host(sender.url||"");
+  if(!DKPlaybackHealth.isYouTube(pageHost)||
+     pageHost!==host(sender.tab?.url||"")||
+     data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
+  try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
+  catch(_){return {ok:false};}
+  if(msg.kind!=="buffering"&&msg.kind!=="media-error")return {ok:false};
+  const now=Date.now(),nearby=DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
+   .some(row=>row.type==="media"&&now-row.when>=0&&now-row.when<=120000);
+  return {ok:DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now)};
+ }
+ if(msg.action==="getPlaybackHealth"||msg.action==="clearPlaybackHealth"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension settings only."};
+  let pageHost;
+  try{pageHost=host((await browser.tabs.get(id))?.url||"");}
+  catch(_){return {error:"Choose an open website tab."};}
+  if(!DKPlaybackHealth.isYouTube(pageHost))return [];
+  if(msg.action==="clearPlaybackHealth"){DKPlaybackHealth.clear(data.playbackHealth,id);return {ok:true};}
+  if(!data.settings.requestLog)return [];
+  return DKPlaybackHealth.recent(data.playbackHealth,id,pageHost);
+ }
  if(msg.action==="getStreamingIssues"){
   if(sender?.tab)return {error:"Extension settings only."};
   if(!data.settings.requestLog||!DKStreamingDiagnostics.streaming(data.hosts.get(id)||""))return [];
@@ -681,7 +706,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getLog")return (data.logs.get(id)||[]).slice().reverse();
  if(msg.action==="clearLog"){data.logs.delete(id);data.streamingIssues.delete(id);return {ok:true};}
  if(msg.action==="resetStatistics"){
-  data.settings.blockedTotal=0;data.counts.clear();data.logs.clear();data.streamingIssues.clear();data.streamingAllowances.clear();data.popupHistory.clear();
+  data.settings.blockedTotal=0;data.counts.clear();data.logs.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();
   await persistSettings();refreshTabs();return {ok:true};
  }
  if(msg.action==="updateLists")return updateLists();
@@ -702,6 +727,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  }
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject,adRecognition:data.settings.adRecognition,
+   playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.isYouTube(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
@@ -782,7 +808,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))data.settings.paused=s.paused.filter(x=>typeof x==="string"&&/^[a-z0-9.-]{1,253}$/.test(x)).slice(0,500);
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];

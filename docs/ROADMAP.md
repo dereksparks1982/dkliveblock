@@ -193,3 +193,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 41: verified 32 focused YouTube controller/watcher/pack-validator regression cases, reject recycled unrelated ad-slot buttons, stronger CSS visibility and accessible-label detection, bounded NodeList mutation inspection.
 - [ ] Build 41 acceptance: full offline Node/Python suite, real Firefox YouTube desktop/mobile SPA/preroll/midroll tests, skip-control accessibility and sign-in/playback false-positive audit.
+
+- [x] Build 42: private YouTube player-health probe (buffering and HTML5 media errors), top-frame/host verification, local-only bounded event history, correlation labels for nearby blocked media and explicit clear/read UI with no automated allowances.
+- [ ] Build 42 acceptance: full local Node/Python suite, live Firefox preroll/midroll/long-playing YouTube video tests, background/content origin guard audit, actual playback-repair effectiveness and Disney+ compatibility.
