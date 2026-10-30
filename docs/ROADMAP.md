@@ -170,3 +170,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 34: conservative site-scoped `:has-text`, `:-abp-has-text` and `:has` procedural aliases mapped to existing no-script predicates, with exception/malformed-payload regression tests.
 - [ ] Build 34 acceptance: full local suite, real Firefox element hiding/restore tests and streaming player safeguards.
+
+- [x] Build 35: opt-in per-tab Firefox network request capture, full per-request blocked/allowed/failed/redirected/pending state, bounded in-memory storage, filters, local CSV export, and blocked-request icon badge styling.
+- [ ] Build 35 acceptance: full repository regression suite, Firefox live request capture, badge count and navigation resets, export privacy checks, and YouTube/Disney+ real playback verification.

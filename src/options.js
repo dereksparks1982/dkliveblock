@@ -303,3 +303,7 @@ $("streamRepairRevoke").addEventListener("click",async()=>{
   $("streamRepairStatus").textContent="Temporary repair revoked. Reload the video to restore normal blocking.";
  }else $("streamRepairStatus").textContent=result?.error||"Could not revoke.";
 });
+
+$("openNetworkMonitor").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("network-monitor.html")
+}));

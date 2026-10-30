@@ -116,7 +116,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),popupCounts:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -136,7 +136,13 @@ function rebuild(){
  for(const id of data.counts.keys())badge(id);
  refreshTabs();
 }
-function badge(id){const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";browser.browserAction.setBadgeText({tabId:id,text:activeTab(id,h)&&n?String(Math.min(n,9999)):""}).catch(()=>{});}
+function badge(id){
+ const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";
+ // Persistent per-tab badge, independent of optional traffic capture.
+ browser.browserAction.setBadgeText({tabId:id,text:activeTab(id,h)&&n?(n>9999?"9999+":String(n)):""}).catch(()=>{});
+ browser.browserAction.setBadgeBackgroundColor?.({tabId:id,color:"#c13f3f"})?.catch?.(()=>{});
+ browser.browserAction.setBadgeTextColor?.({tabId:id,color:"#ffffff"})?.catch?.(()=>{});
+}
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persistSettings().catch(console.warn);},60000);}
 function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
@@ -267,14 +273,22 @@ browser.proxy?.onError?.addListener(e=>{
  data.proxyErrors.push({error,when:Date.now()});if(data.proxyErrors.length>8)data.proxyErrors.shift();
 });
 browser.webRequest.onErrorOccurred?.addListener(d=>{
+ DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"failed",{error:d.error});
  if(d.type!=="image"&&d.type!=="imageset"&&d.type!=="main_frame")return;
  const id=String(d.requestId??"");
  if(id&&data.ownBlocked.delete(id))return;
  if(data.tempPaused.has(d.tabId))return;
  addNetworkIssue(d.tabId,d.url,d.type,d.error);
 },{urls:["<all_urls>"]});
+browser.webRequest.onCompleted?.addListener(d=>{
+ DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"allowed",{statusCode:d.statusCode});
+},{urls:["<all_urls>"]});
+browser.webRequest.onBeforeRedirect?.addListener(d=>{
+ DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
+},{urls:["<all_urls>"]});
 function recordBlock(tabId,url,type,rule){
  if(tabId<0)return;
+ if(type==="popup")DKNetworkMonitor.syntheticBlock(data.networkMonitors,tabId,data.hosts.get(tabId)||"",url,type);
  data.counts.set(tabId,(data.counts.get(tabId)||0)+1);
  data.settings.blockedTotal++;scheduleSave();badge(tabId);
  if(data.settings.requestLog)DKStreamingDiagnostics.record(data.streamingIssues,tabId,
@@ -285,11 +299,15 @@ function recordBlock(tabId,url,type,rule){
  if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
 }
 browser.webRequest.onBeforeRequest.addListener(d=>{
- if(!data.ready||!data.settings.enabled||!/^https?:/i.test(d.url))return {};
+ if(!/^https?:/i.test(d.url))return {};
+ // Only user-started tab captures are recorded; never store raw URLs, headers or payloads.
+ DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
+ if(!data.ready||!data.settings.enabled)return {};
  if(d.type==="main_frame"){
   if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url)))return {};
   const ruleCleaned=data.engine.cleanNavigation(d.url)||d.url;
   const cleaned=DKPrivacy.stripTrackingParameters(ruleCleaned)||(ruleCleaned!==d.url?ruleCleaned:null);
+  if(cleaned)DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
   return cleaned?{redirectUrl:cleaned}:{};
  }
  const top=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url);
@@ -304,6 +322,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
+ DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
  rememberOwnBlock(d.requestId);
  recordBlock(d.tabId,d.url,d.type,result.rule);
  return {cancel:true};
@@ -324,10 +343,13 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){
+  // A capture belongs to one site only. Retain it across reloads, remove on new-site navigation.
+  const session=data.networkMonitors.get(id);
+  if(info.url&&session&&host(info.url)!==session.siteHost)DKNetworkMonitor.remove(data.networkMonitors,id);
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
-browser.tabs.onRemoved.addListener(id=>{autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
+browser.tabs.onRemoved.addListener(id=>{DKNetworkMonitor.remove(data.networkMonitors,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -341,6 +363,26 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
  if(msg.action==="status")return status(id,url);
+ if(msg.action==="startNetworkMonitor"){
+  if(fromContent)return {error:"Extension interface only."};
+  try{
+   const tab=await browser.tabs.get(id),site=host(tab?.url||"");
+   if(!site||!/^https?:\/\//i.test(tab.url||""))return {error:"Choose a regular website tab."};
+   if(!DKNetworkMonitor.start(data.networkMonitors,id,site))return {error:"Unable to start capture."};
+   return {ok:true};
+  }catch(_){return {error:"Website tab no longer available."};}
+ }
+ if(msg.action==="getNetworkMonitor"){
+  if(fromContent)return {error:"Extension interface only."};
+  return DKNetworkMonitor.snapshot(data.networkMonitors,id);
+ }
+ if(msg.action==="stopNetworkMonitor"||msg.action==="clearNetworkMonitor"){
+  if(fromContent)return {error:"Extension interface only."};
+  const changed=msg.action==="stopNetworkMonitor"?
+    DKNetworkMonitor.stop(data.networkMonitors,id):
+    DKNetworkMonitor.clear(data.networkMonitors,id);
+  return changed?{ok:true}:{error:"Start a capture for the selected tab first."};
+ }
  if(msg.action==="getSavedVideos"){
   return DKVideoLibrary.list((await browser.storage.local.get("savedVideos")).savedVideos);
  }

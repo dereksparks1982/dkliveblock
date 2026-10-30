@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.5 (Build 34).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.6 (Build 35).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 35: private network traffic monitor and blocked-request badge (0.3.6)
+
+A new **Network Monitor** opens from the Firefox toolbar or Settings. Select a website tab and click **Start capture** to see individual requests with their allowed, blocked, redirected, failed or pending status. Filter by decision, resource type or hostname, and export an explicitly requested local CSV. Captures belong to one tab and site, stay in memory, and retain up to 1,500 recent requests with a visible dropped-row count. Request bodies, full URL paths, query parameters, cookies, authorization headers and response contents are never recorded. Capture stops on request or when navigating to another site, and ad blocking works normally with the monitor off.
+
+The existing browser-action badge remains independent from capture and counts blocked requests for the current tab. Its color is now red with white text; large counts display a capped `9999+`. The badge resets on navigation/reload. Only Firefox-observed requests are visible, not OS-wide Linux traffic. The extension remains unreleased, and actual Firefox testing is outstanding.
 
 ## Build 34: conservative site-scoped cosmetic filter aliases (0.3.5)
 

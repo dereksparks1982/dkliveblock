@@ -25,7 +25,8 @@ test("conditional 304 updates reuse valid cached lists, preserve last-good on er
  };
  const st=(fn,ms)=>{const timer=setTimeout(fn,ms);if(ms>=60000)timer.unref();return timer;};
  const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,AbortController,Date,console,fetch,setTimeout:st,clearTimeout});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","manual-rules.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","video-assist.js","auth-protection.js","youtube-maintenance.js","ghostery-vendor.js","hybrid-engine.js","background.js"])
+ for(const name of JSON.parse(
+  fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8")).background.scripts)
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,20));
  let response=await handlers.message({action:"updateLists"});

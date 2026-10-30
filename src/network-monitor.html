@@ -1,0 +1,34 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block Network Monitor</title><link rel="stylesheet" href="style.css"></head>
+<body class="options"><header><strong>DK LIVE BLOCK</strong><small>Private network monitor</small></header>
+<main><h1>Network Monitor</h1>
+<p>Inspect requests made by the selected Firefox tab and see what DK Live Block blocks, allows or redirects, plus network failures. Monitoring starts only when you choose <strong>Start capture</strong>. The blocker works normally without it.</p>
+<div class="network-monitor-controls">
+<label>Website tab <select id="monitorTab"><option value="">Choose a website tab</option></select></label>
+<button id="monitorRefreshTabs" type="button">Refresh tabs</button>
+<button id="monitorStart" type="button">Start capture</button>
+<button id="monitorStop" type="button">Stop capture</button>
+<button id="monitorClear" type="button">Clear captured traffic</button>
+<button id="monitorExport" type="button">Export CSV</button>
+</div>
+<p id="monitorState" role="status">Capture not started.</p>
+<div id="monitorMetrics" class="network-monitor-metrics">
+<span>Requests: <strong id="monitorSeen">0</strong></span>
+<span>Blocked: <strong id="monitorBlocked">0</strong></span>
+<span>Allowed: <strong id="monitorAllowed">0</strong></span>
+<span>Failed: <strong id="monitorFailed">0</strong></span>
+<span>Redirected: <strong id="monitorRedirected">0</strong></span>
+<span>Pending: <strong id="monitorPending">0</strong></span>
+</div>
+<div class="network-monitor-controls">
+<label>Show <select id="monitorStatus"><option value="all">All requests</option><option value="blocked">Blocked only</option><option value="allowed">Allowed only</option><option value="failed">Failures only</option><option value="redirected">Redirects only</option><option value="pending">In flight</option></select></label>
+<label>Resource type <select id="monitorType"><option value="all">All types</option></select></label>
+<label>Find hostname <input id="monitorSearch" type="search" maxlength="120" placeholder="e.g. doubleclick.net"></label>
+</div>
+<p id="monitorCount" role="status">No requests captured.</p>
+<div class="network-monitor-table"><table><thead><tr><th>Time</th><th>Decision</th><th>Hostname</th><th>Type</th><th>Method</th><th>HTTP</th><th>Details</th></tr></thead><tbody id="monitorRows"></tbody></table></div>
+<p><button id="monitorMore" type="button" hidden>Show more requests</button></p>
+<p><strong>Privacy:</strong> The monitor keeps up to 1,500 recent requests per tab in Firefox memory. It does not collect full URL paths, query strings, request or response bodies, cookies, headers, passwords or IP packet contents. When the limit is reached, older rows are discarded and a warning appears. Export happens only when you click Export CSV.</p>
+<p>The number on the DK Live Block toolbar icon counts blocked requests on the current tab independently of whether monitoring is enabled. It resets when the tab navigates or reloads.</p>
+<p><strong>Scope:</strong> This shows Firefox web requests, not all traffic from your Linux computer. Some browser-internal or cached activity may not appear.</p>
+</main><script src="network-monitor.js"></script></body></html>

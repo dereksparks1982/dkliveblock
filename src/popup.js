@@ -121,6 +121,9 @@ $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendM
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
+$("networkMonitor").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("network-monitor.html"+(Number.isInteger(tab?.id)?"?tab="+tab.id:""))
+}));
 $("streamingDiagnostics").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#streaming-diagnostics")}));
 $("savedVideos").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("library.html")}));
 $("myDownloads").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("downloads.html")}));
