@@ -29,3 +29,14 @@ test("debugger background fetch requires real protected HTTP(S) tab",()=>{
  assert.match(block,/safeCosmetics/);
  assert.doesNotMatch(block,/data\.settings\.customRules\s*=/);
 });
+
+test("Build 52 inspector contains exact-site cosmetic exception controls",()=>{
+ const js=fs.readFileSync(path.join(dir,"cosmetic-debug-page.js"),"utf8");
+ const html=fs.readFileSync(path.join(dir,"cosmetic-debug.html"),"utf8");
+ assert.match(html,/id="debugAllowed"/);
+ assert.match(js,/setCosmeticSiteException/);
+ assert.match(js,/getCosmeticSiteExceptions/);
+ assert.match(js,/window\.confirm/);
+ assert.match(js,/Stop hiding on this site/);
+ assert.match(js,/Restore hiding/);
+});

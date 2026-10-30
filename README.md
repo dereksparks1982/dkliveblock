@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.22 (Build 51).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.23 (Build 52).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 52: selective cosmetic rule exceptions and undo (0.3.23)
+
+The element-hiding debugger now includes **Stop hiding on this site** for an identified selector and a separate list of saved exceptions with **Restore hiding** buttons. Only exact-site, explicitly confirmed `site#@#selector` cosmetic rules are added to existing user custom filter text. They cannot allow network ads or stop general tracker blocking. The background independently verifies the live protected HTTP(S) tab, validates the selector and enforces local caps. A repeated change does not duplicate the rule, and every exception can be undone. The DOM outline scan now stops after inspecting at most 160 candidate elements to avoid large page stalls. Full Firefox acceptance and additional browser permissions testing remain pending.
 
 ## Build 51: per-website cookie and distraction controls (0.3.22)
 

@@ -235,3 +235,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 51: separate per-site cookie-consent-rejection and newsletter/distraction cleanup controls without disabling ad/tracker filtering, subdomain behavior, persistent exception lists, and reversible Settings management.
 - [ ] Build 51 acceptance: local full Node/Python regression suite, real Firefox cookie-consent CMP tests, site-specific restore/reload behavior, cross-origin iframe checks, accessibility and saved preferences.
 - [ ] Next: actual acceptance coverage for stalled video, cookie/overlay false positives, complete ABP functionality and permission compatibility; do not claim parity until tested.
+
+- [x] Build 52: reversible per-site cosmetic hiding exceptions from the debugger, strict live-tab/selector guards, persisted rules and bounded large-DOM outline scanning.
+- [ ] Build 52 acceptance: full Node/Python suite, real Firefox rule engine exception precedence, site switching, custom rule editor synchronization, DOM performance and accessibility.

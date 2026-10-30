@@ -21,7 +21,7 @@ Status legend: **Implemented** = source pathway exists; **Partial** = limited im
 | Advanced: badge number blocked | Implemented; Build 45 adds a user preference | Test per-tab updates and reset behavior in Firefox |
 | Advanced: right-click Block Element | Implemented in Build 45 (uses existing picker) | Test context menu on pages, iframe targets, restricted Firefox pages |
 | Advanced: Adblock Plus panel in Developer Tools | Implemented in Build 45 (optional Firefox DevTools panel) | Test panel registration, start/stop, hostname-only records |
-| Advanced: debug element-hiding filters | Build 49: dedicated read-only selector inspector with reversible visible-element outlines | Source attribution, selective rule disable, advanced CSS/DOM live Firefox verification |
+| Advanced: debug element-hiding filters | Build 52: selector inspector, bounded reversible outlining and exact-site cosmetic allow/restore control | Source-list attribution, shadow DOM and real Firefox false-positive acceptance |
 | **Advanced: allow occasional promotional messages (checked in user's screenshot)** | **Different by design: never implemented. No developer ads or upgrade nags, no opt-in toggle needed** | Keep own advertising/promotional surfaces absent |
 | Filter list status toggles | Implemented for bundled EasyList, EasyPrivacy, Cookie, Annoyances and Social | Firefox state management and failures |
 | Filter list last updated and errors | Implemented in Settings status summary | Individual list rows, error details, stale status and refresh |

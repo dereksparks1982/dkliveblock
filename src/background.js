@@ -796,6 +796,27 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   await persist();rebuild();
   return {ok:true,version:data.youtubeRules?.version||0,heldVersion:data.youtubeHeldVersion};
  }
+ if(msg.action==="getCosmeticSiteExceptions"||msg.action==="setCosmeticSiteException"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension inspector only."};
+  let page="",site="";
+  try{page=(await browser.tabs.get(id))?.url||"";site=DKSiteAllowlist.host(page);}
+  catch(_){return {error:"Original website tab is unavailable."};}
+  if(!site||!activeTab(id,site)||data.hosts.get(id)&&data.hosts.get(id)!==site)
+   return {error:"Choose an active, protected website tab."};
+  if(msg.action==="getCosmeticSiteExceptions")
+   return {ok:true,siteHost:site,selectors:DKCosmeticExceptions.list(data.settings.customRules,site)};
+  if(typeof msg.allowed!=="boolean"||
+     !DKCosmeticExceptions.valid(site,msg.selector))
+   return {error:"Invalid cosmetic exception or selector."};
+  const result=DKCosmeticExceptions.change(data.settings.customRules,site,msg.selector,msg.allowed);
+  if(!result.ok)return result;
+  if(result.changed){
+   data.settings.customRules=result.text;
+   await persistSettings();rebuild();
+  }
+  return {ok:true,changed:result.changed,siteHost:site,
+   selectors:DKCosmeticExceptions.list(data.settings.customRules,site)};
+ }
  if(msg.action==="getCosmeticDebugSelectors"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
   let page,site;

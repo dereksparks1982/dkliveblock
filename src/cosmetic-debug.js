@@ -35,9 +35,9 @@ function create(doc){
   if(!goodSelector(selector)||!doc?.querySelectorAll)return {error:"Invalid selector."};
   let matches;
   try{matches=doc.querySelectorAll(selector);}catch(_){return {error:"Unsupported cosmetic selector."};}
-  let count=0;
+  let count=0,scanned=0;
   for(const node of matches){
-   if(count>=MAX_HIGHLIGHT)break;
+   if(count>=MAX_HIGHLIGHT||++scanned>160)break;
    if(!node?.style||node===doc.documentElement||node===doc.body||
       !node.isConnected||!node.getClientRects?.().length||
       /^(?:html|body|video|audio|iframe|form)$/i.test(node.localName||""))continue;
