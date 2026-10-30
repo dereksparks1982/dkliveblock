@@ -71,6 +71,8 @@ async function load(){
  $("issues").textContent=String(current.networkIssueCount||0);
  $("popups").textContent=String(current.popupHiddenCount||0);
  $("mediaRecoveryRow").hidden=!current.mediaRecoveryAvailable;
+ $("streamingDiagnosticsRow").hidden=!current.mediaRecoveryAvailable;
+ $("streamingIssueCount").textContent=String(current.streamingIssueCount||0);
  $("mediaWarning").hidden=!current.mediaRecoveryAvailable;
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
  $("mediaRecovery").disabled=!current.siteActive;
@@ -118,6 +120,7 @@ $("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendM
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));
+$("streamingDiagnostics").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#streaming-diagnostics")}));
 $("savedVideos").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("library.html")}));
 $("saveVideo").addEventListener("click",saveVideo);
 $("downloadVideo").addEventListener("click",downloadVideo);

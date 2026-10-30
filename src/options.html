@@ -41,6 +41,14 @@
 <label><input id="paywallPopups" type="checkbox"> Hide subscription popups covering already-loaded articles (Wall Street Journal, BBC and other sites where possible)</label>
 <p>This does not create access to missing articles or unlock server-side subscriptions. Turn this off per preference, or pause DK Live Block on an affected site.</p>
 <label><input id="stripTracking" type="checkbox"> Remove marketing tracking parameters from website addresses (never video or API requests)</label></section>
+<section id="streaming-diagnostics"><h2>Streaming playback diagnostics</h2>
+<p>When local request logging is enabled, DK Live Block keeps a short, private record of blocked <strong>media and XHR/other requests</strong> on YouTube and Disney+. These are potential troubleshooting clues, <strong>not evidence that video playback was broken or that the request was legitimate</strong>. Blocking advertisements can produce the same records.</p>
+<p>Only hostnames, request types, counts and times are retained in memory (up to 60 groups per tab for 30 minutes). No full URLs, paths, cookies, account IDs or raw filter rules. Nothing is uploaded or automatically allowed.</p>
+<div class="network-buttons"><button id="streamIssuesShow" type="button">Show recent streaming-page blocks</button>
+<button id="streamIssuesClear" type="button">Clear streaming diagnostics</button></div>
+<p id="streamIssuesStatus" role="status">Not inspected yet.</p><div id="streamIssuesRows"></div>
+<p>If playback fails, inspect the hostnames and use Website repair and exceptions only if you independently verify a request is necessary. Allowing a host may also permit advertisements.</p>
+</section>
 <section id="network-recovery"><h2>DK Network Recovery / Open Access</h2>
 <p>Optional proxy routing for restricted websites and failing images. <strong>Off by default.</strong> DK Live Block provides no proxy server, VPN or Tor service. A proxy you configure can see network metadata. Nothing is routed automatically without opting in.</p>
 <label><input id="netEnabled" type="checkbox"> Enable selective proxy routing</label>

@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.1 (Build 30).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.2 (Build 31).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,12 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 31: private streaming playback diagnostics (0.3.2)
+
+A new **Streaming playback diagnostics** settings section displays recent request-block groups on YouTube and Disney+, using only hostnames, request types, counts and times in a bounded in-memory store. These are **potential troubleshooting clues**, not proof of an actual playback failure. Data is kept only if temporary request logging is enabled and is never uploaded; disabling logs or clearing the tab removes the records. The toolbar has an Inspect shortcut when a supported streaming site is open. No request is automatically allowed, and ordinary ad blocking is unchanged.
+
+The feature is not a substitute for real Firefox YouTube preroll/midroll and Disney+ playback tests, which remain required.
 
 ## Build 30: erase viewing history and disable automatic remembering (0.3.1)
 

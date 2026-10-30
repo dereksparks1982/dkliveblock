@@ -158,3 +158,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 30: explicit viewing-history erase + auto-remember off, clear last coarse download status, reject erase while active native job, serialized storage cleanup and visible privacy status.
 - [ ] Build 30 acceptance: complete local suite, actual Firefox storage restoration and download-vs-erase race tests.
+
+- [x] Build 31: bounded local streaming-page blocked-request diagnostics for YouTube/Disney+, host-only disclosure, 30-minute TTL, settings inspection/clear and toolbar navigation.
+- [ ] Build 31 acceptance: full regression suite and real Firefox playback with user review of false-positive diagnostics.

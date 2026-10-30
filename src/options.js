@@ -235,3 +235,30 @@ $("youtubeRollback").addEventListener("click",async()=>{
 });
 
 DKSupport.installButton($("patreonSupport"));
+
+/* Build 31: manually requested private streaming playback diagnostics. */
+async function renderStreamingIssues(){
+ const panel=$("streamIssuesRows");panel.replaceChildren();
+ const tab=await networkTab();
+ if(!tab){$("streamIssuesStatus").textContent="Open YouTube or Disney+ in another tab first.";return;}
+ const rows=await browser.runtime.sendMessage({action:"getStreamingIssues",tabId:tab.id});
+ if(!Array.isArray(rows)){
+  $("streamIssuesStatus").textContent=rows?.error||"Unable to read local streaming diagnostics.";return;
+ }
+ $("streamIssuesStatus").textContent=rows.length?rows.length+" recent blocked request group(s) for "+new URL(tab.url).hostname+
+  ". This is not proof of playback failure.":"No recent blocked streaming requests for this tab, or request logging is off.";
+ for(const row of rows.slice(0,60)){
+  const line=document.createElement("div");line.className="log-row";
+  const summary=document.createElement("span");
+  summary.textContent=new Date(row.when).toLocaleTimeString()+" · "+row.type+" · "+row.host+
+   " · "+row.count+" blocked request(s)";
+  line.appendChild(summary);panel.appendChild(line);
+ }
+}
+$("streamIssuesShow").addEventListener("click",()=>renderStreamingIssues().catch(e=>$("streamIssuesStatus").textContent=e.message));
+$("streamIssuesClear").addEventListener("click",async()=>{
+ const tab=await networkTab();if(!tab)return;
+ const result=await browser.runtime.sendMessage({action:"clearStreamingIssues",tabId:tab.id});
+ $("streamIssuesRows").replaceChildren();
+ $("streamIssuesStatus").textContent=result?.ok?"Local streaming diagnostics cleared.":result?.error||"Unable to clear.";
+});

@@ -52,3 +52,17 @@ test("popup displays only a bounded per-tab popup-cleanup count",()=>{
  assert.match(bg,/reportPopupCleanup/);
  assert.match(bg,/Math\.min\(1000/);
 });
+
+test("Build 31 streaming diagnostics are local and do not turn off blocking automatically",()=>{
+ const html=fs.readFileSync(path.join(root,"options.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"options.js"),"utf8");
+ const popup=fs.readFileSync(path.join(root,"popup.html"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
+ assert.match(html,/id="streaming-diagnostics"/);
+ assert.match(html,/id="streamIssuesRows"/);
+ assert.match(popup,/id="streamingDiagnosticsRow" hidden/);
+ assert.match(js,/getStreamingIssues/);
+ assert.match(js,/clearStreamingIssues/);
+ assert.match(bg,/DKStreamingDiagnostics\.record/);
+ assert.match(bg,/streamingIssues\.clear\(\)/);
+});
