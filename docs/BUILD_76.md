@@ -1,0 +1,3 @@
+# Build 76: bounded local replacements
+
+Version 0.3.46. The native filter parser recognizes only `redirect=noop.js` for an explicit `script` rule and `redirect=empty.css` for an explicit `stylesheet` rule, with a hostname anchor or site scope. The webRequest handler redirects matching blocked requests to extension-local benign files, rather than canceling a script or CSS request and potentially breaking the page. Priority of standard allow/important exceptions remains unchanged. No remote scripts, response media, arbitrary URLs or executable redirect content are supported. This is a small subset of uBO resources and requires live Firefox validation.

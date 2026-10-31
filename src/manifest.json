@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.45",
+  "version": "0.3.46",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -67,6 +67,7 @@
       "rule-provenance.js",
       "ghostery-cosmetics.js",
       "youtube-response.js",
+      "redirect-resources.js",
       "background.js"
     ],
     "persistent": true
@@ -125,5 +126,9 @@
     "48": "icons/dk-live-block.png",
     "96": "icons/dk-live-block.png",
     "128": "icons/dk-live-block.png"
-  }
+  },
+  "web_accessible_resources": [
+    "redirect/noop.js",
+    "redirect/empty.css"
+  ]
 }

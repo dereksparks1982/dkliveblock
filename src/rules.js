@@ -43,7 +43,7 @@ function network(raw){
  let p=line,opts=[],i=line.lastIndexOf("$");
  if(i>0&&/^[a-z0-9~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
  if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
- const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="";
+ const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="",redirect="";
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
   if((o.startsWith("domain=")||o.startsWith("from="))&&!neg){
    if(scope)return null;
@@ -59,6 +59,11 @@ function network(raw){
    if(!/^[a-zA-Z0-9_.~-]{1,64}$/.test(removeparam))return null;
    continue;
   }
+  if(o.startsWith("redirect=")&&!neg){
+   const name=o.slice(9);
+   if(redirect||!["noop.js","empty.css"].includes(name)||exception)return null;
+   redirect=name;continue;
+  }
   if(o==="third-party"||o==="3p"){third=!neg;continue;}
   if(o==="first-party"||o==="1p"){third=neg;continue;}
   if(o==="match-case"){matchCase=!neg;continue;}
@@ -69,9 +74,15 @@ function network(raw){
   if(RES.has(resource)){(neg?exclude:include).add(resource);continue;}return null;
  }
  if(denyallow&&!scope)return null;
+ // Never allow broad, arbitrary, media, navigation or sign-in substitutions.
+ if(redirect){
+  const kind=redirect==="noop.js"?"script":"stylesheet";
+  if(include.size!==1||!include.has(kind)||exclude.size||removeparam||special||
+     !(scope||p.startsWith("||")))return null;
+ }
  const compiled=regex(p,matchCase);if(!compiled)return null;
  let anchor="";if(p.startsWith("||")){const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?*: ]|$)/i.exec(p);if(m)anchor=m[1].toLowerCase();}
- return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
+ return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,redirect,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 
 function cosmetic(line){

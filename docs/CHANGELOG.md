@@ -435,3 +435,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.45 / Build 75 (2026-10-31)
 - Integrated narrow first-party player request pass-through with targeted response ad-metadata filtering, while preserving manual blocks and unrelated filtering. Added integration simulation for pass/block/response/disable and safer page hook teardown.
 - Full local tests and live YouTube are still pending, not a public release.
+
+### 0.3.46 / Build 76 (2026-10-31)
+- Added two bundled inert resource substitutes and a restricted ABP redirect option, with a type/domain guard, native exception precedence, Firefox-only extension-local destinations, and dedicated parser/engine/package tests. No remote redirects, arbitrary JS, media replacement or newly installed dependencies.
+- Browser release gate still open.

@@ -352,3 +352,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 75: reserve only direct, same-page, first-party POST YouTube player/get_watch JSON requests for response-side filtering so ordinary network rules cannot prematurely cancel them. Manual user blocks still apply, all unrelated/third-party ad requests remain filtered, site pause still applies. Harden MAIN-world wrapper teardown and add end-to-end VM request/response integration fixture.
 - [ ] Build 75 acceptance: run complete local Node/Python suites and Firefox browser acceptance including strict filter versions; verify low latency and new playback without advertisements or enforcement. Never count a skipped cosmetic notice as playback success.
+
+- [x] Build 76: local, vetted noop JavaScript and empty CSS redirect resources, trusted only by exact parser name/type/domain selectors; prevent arbitrary/remote/media redirect targets. Firefox extension-local redirect URL only, standard engine exception priority, no separate downloads.
+- [ ] Build 76 acceptance: full on-device test suite and Firefox network substitute behavior, content-type and CSP checks, actual site compatibility and regression for login players. Only two static replacements, not full uBO redirect-resource coverage.

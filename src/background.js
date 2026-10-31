@@ -468,6 +468,12 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,"User-approved hostname/type exception");
   return {};
  }
+ const replacement=DKRedirectResources.url(result.rule,d.type,browser.runtime);
+ if(replacement){
+  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
+  recordBlock(d.tabId,d.url,d.type,result.rule);
+  return {redirectUrl:replacement};
+ }
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
  rememberOwnBlock(d.requestId);
  recordBlock(d.tabId,d.url,d.type,result.rule);
