@@ -588,3 +588,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.95 / Build 125 (2026-10-31)
 - Extended fail-open playback refusal safety to browse, watch-next and playlist JSON, rather than just player replies. Explicit server-side denial/error objects now remain byte-for-byte unchanged. Normal playable feed ads are still filtered; tests added. Browser acceptance pending.
+
+### 0.3.96 / Build 126 (2026-10-31)
+- Expanded per-tab, URL-free YouTube JSON request diagnostics to distinguish watch-next and playlist calls from general feeds/search, with site dashboard and manual TXT/JSON report support and regression fixtures. Browser acceptance pending.

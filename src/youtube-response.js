@@ -9,9 +9,20 @@ const liveByTab=new Map(),versions=new Map();let liveCount=0;
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
-const kinds=()=>({player:{requests:0,seen:0,changed:0},feed:{requests:0,seen:0,changed:0},shorts:{requests:0,seen:0,changed:0}});
+const makeKind=()=>({requests:0,seen:0,changed:0});
+const kinds=()=>({player:makeKind(),feed:makeKind(),next:makeKind(),
+ playlist:makeKind(),shorts:makeKind()});
 function category(url){
- const feed=Feed?.kind(url);if(feed)return feed;
+ const feed=Feed?.kind(url);
+ if(feed==="shorts")return "shorts";
+ if(feed==="feed"){
+  try{
+   const path=new URL(url).pathname;
+   if(path==="/youtubei/v1/next")return "next";
+   if(path==="/youtubei/v1/playlist")return "playlist";
+  }catch(_){}
+  return "feed";
+ }
  return target(url)?"player":"";
 }
 const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds()});
@@ -131,7 +142,9 @@ function observeRequest(tab,url=""){
 }
 function stats(tab){
  const v=records.get(tab)||EMPTY();
- return {...v,byKind:{player:{...v.byKind.player},feed:{...v.byKind.feed},shorts:{...v.byKind.shorts}}};
+ return {...v,byKind:{player:{...v.byKind.player},feed:{...v.byKind.feed},
+  next:{...v.byKind.next},playlist:{...v.byKind.playlist},
+  shorts:{...v.byKind.shorts}}};
 }
 function clear(tab){
  records.delete(tab);

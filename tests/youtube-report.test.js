@@ -39,3 +39,15 @@ test("Build 77 report UI loads only bundled scripts with explicit TXT/JSON actio
  assert.ok(js.includes("DKYouTubeReport.build(current)"));
  assert.doesNotMatch(js,/fetch\(|sendBeacon|innerHTML\s*=/);
 });
+
+test("Build 126 compatibility reports provide separate watch-next and playlist metrics",()=>{
+ const s={ok:true,site:"www.youtube.com",tabId:11,youtubeResponse:{enabled:true,
+  supported:true,byKind:{next:{requests:4,seen:3,changed:2},
+   playlist:{requests:2,seen:1,changed:1}}}};
+ const report=Report.build(s);
+ assert.equal(report.responseFiltering.byKind.next.requests,4);
+ assert.equal(report.responseFiltering.byKind.playlist.changed,1);
+ const lines=Report.asText(report);
+ assert.match(lines,/next JSON: 4 requested, 3 processed, 2 modified/);
+ assert.match(lines,/playlist JSON: 2 requested, 1 processed, 1 modified/);
+});

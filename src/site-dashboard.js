@@ -447,6 +447,8 @@ function display(d){
   " · "+Model.number(responses.playerRequests)+" YouTube JSON requests passed to filtering"+
   " · "+Model.number(responses.byKind?.player?.requests)+" player"+
   " / "+Model.number(responses.byKind?.feed?.requests)+" feed/search"+
+  " / "+Model.number(responses.byKind?.next?.requests)+" Up Next"+
+  " / "+Model.number(responses.byKind?.playlist?.requests)+" playlist"+
   " / "+Model.number(responses.byKind?.shorts?.requests)+" Shorts"+
   " · "+Model.number(responses.observed)+" eligible responses handled"+
   " · "+Model.number(responses.modified)+" rewritten"+

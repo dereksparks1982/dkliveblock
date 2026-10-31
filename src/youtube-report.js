@@ -13,7 +13,7 @@ function build(s,now=Date.now()){
   supported:s.youtubeResponse?.supported===true};
  for(const k of COUNTERS)responses[k]=number(s.youtubeResponse?.[k]);
  responses.byKind={};
- for(const kind of ["player","feed","shorts"]){
+ for(const kind of ["player","feed","next","playlist","shorts"]){
   const row=s.youtubeResponse?.byKind?.[kind];
   responses.byKind[kind]={requests:number(row?.requests),seen:number(row?.seen),
    changed:number(row?.changed)};
@@ -49,7 +49,7 @@ function asText(report){
   "Player-response filtering enabled: "+report.responseFiltering.enabled,
   "Firefox response filter available: "+report.responseFiltering.supported];
  for(const key of COUNTERS)lines.push("YouTube JSON "+key+": "+report.responseFiltering[key]);
- for(const kind of ["player","feed","shorts"]){
+ for(const kind of ["player","feed","next","playlist","shorts"]){
   const row=report.responseFiltering.byKind[kind];
   lines.push(kind+" JSON: "+row.requests+" requested, "+row.seen+
    " processed, "+row.changed+" modified");

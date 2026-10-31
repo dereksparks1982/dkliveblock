@@ -1,0 +1,3 @@
+# Build 126: distinguish where YouTube sponsored content is slipping through
+
+Unreleased 0.3.96. The aggregate YouTube JSON request report previously grouped browse/search, watch-next sidebar and playlist API calls together, making coverage gaps hard to isolate. The local Site Dashboard and explicitly exported TXT/JSON compatibility report now separate player, feed/search, watch-next, playlist and Shorts request/response/modification counts. Only bounded numeric counters are retained per tab, without video IDs, URL paths, account data or token values. The old aggregate counts remain backward-compatible. Firefox playback/ad-free and complete offline acceptance remain pending, and no user testing or external install is requested.

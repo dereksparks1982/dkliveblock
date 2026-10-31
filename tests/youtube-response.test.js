@@ -353,3 +353,17 @@ test("Build 125 outer feed refusal remains byte-for-byte unchanged through share
  assert.equal(out.changed,false);
  assert.equal(out.text,body);
 });
+
+test("Build 126 keeps watch-next and playlist diagnostics separate from feeds",()=>{
+ const tabId=988;
+ for(const endpoint of ["browse","next","playlist","reel_watch_sequence","player"])
+  R.observeRequest(tabId,"https://www.youtube.com/youtubei/v1/"+endpoint+"?videoId=PRIVATE");
+ const stats=R.stats(tabId);
+ assert.equal(stats.playerRequests,5);
+ for(const kind of ["feed","next","playlist","shorts","player"])
+  assert.equal(stats.byKind[kind].requests,1,kind);
+ assert.equal(JSON.stringify(stats).includes("PRIVATE"),false);
+ stats.byKind.next.requests=999;
+ assert.equal(R.stats(tabId).byKind.next.requests,1);
+ R.clear(tabId);
+});

@@ -502,3 +502,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 125: fail open on feed/watch-next/playlist responses with explicit playability refusal or structured error, preserving original JSON and server-side enforcement evidence.
 - [ ] Live Firefox refusal/playback checks and full regression suite remain outstanding.
+
+- [x] Build 126: split privacy-limited per-tab YouTube JSON diagnostics into player, feed/search, Up Next, playlist and Shorts, including request/response/modified counts, without storing request URLs or video identifiers.
+- [ ] Full suite and live Firefox diagnostic correlation/accurate ad-blocking acceptance outstanding.
