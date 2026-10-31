@@ -89,3 +89,17 @@ test("empty, off, invalid or stale selection cannot generate an export",()=>{
  assert.throws(()=>E.download({requests:[]}),/No blocked/);
  assert.throws(()=>E.download(E.build(f),"html"),/Unsupported export type/);
 });
+
+test("exports YouTube refusal and buffering separately, never private media URLs",()=>{
+ const f=fixture();
+ f.playbackDiagnostics=[
+  {kind:"enforcement",when:1793410601000,blockedMediaNearby:false,url:"https://www.youtube.com/watch?v=PRIVATE_VIDEO"},
+  {kind:"buffering",when:1793410607000,blockedMediaNearby:true},
+  {kind:"fake",when:1793410610000}
+ ];
+ const result=E.build(f);
+ assert.deepEqual(result.playbackDiagnostics.map(row=>row.kind),["enforcement","buffering"]);
+ assert.match(E.asText(result),/PLAYBACK DIAGNOSTICS/);
+ assert.match(E.asText(result),/enforcement/);
+ assert.doesNotMatch(JSON.stringify(result),/PRIVATE_VIDEO/);
+});

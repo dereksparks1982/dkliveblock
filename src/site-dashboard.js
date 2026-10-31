@@ -169,8 +169,9 @@ function clearDisplay(message){
  for(const id of ["dashboardBlocked","dashboardOverlays","dashboardTabsStopped"])
   $(id).textContent="0";
  for(const id of ["dashboardRecent","dashboardPopupHistory","dashboardCustomAllowances",
-  "dashboardRequestAllowances"])$(id).replaceChildren();
+  "dashboardRequestAllowances","dashboardPlaybackEvents"])$(id).replaceChildren();
  $("dashboardLogState").textContent="";
+ $("dashboardPlaybackState").textContent="";
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -270,6 +271,17 @@ function display(d){
   section.scrollIntoView?.({block:"start"});
   section.focus?.({preventScroll:true});
  }
+ const playback=Array.isArray(d.playbackDiagnostics)?d.playbackDiagnostics.filter(row=>
+  ["enforcement","buffering","media-error"].includes(row?.kind)).slice(0,30):[];
+ $("dashboardPlaybackState").textContent=!d.requestLog?
+  "Private request logging is OFF; playback diagnostics are unavailable.":
+  playback.length?playback.length+" observed playback diagnostic event(s).":
+  "No playback diagnostic events recorded for this tab.";
+ render("dashboardPlaybackEvents",playback,"No playback diagnostics recorded.",row=>
+  line(time(row.when)+" · "+(row.kind==="enforcement"?
+    "YouTube refused playback (anti-adblock enforcement)":
+    row.kind==="buffering"?"Player stalled / buffering":"Video media error")+
+    (row.blockedMediaNearby?" · blocked media request nearby":"")));
  $("dashboardFilterDetails").textContent=d.filterBackend+" · "+
   Model.number(d.networkRules).toLocaleString()+" network filters · "+
   Model.number(d.cosmeticRules).toLocaleString()+" element-hiding filters · "+

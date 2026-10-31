@@ -28,7 +28,9 @@ function summary(host,type,site,ruleType){
  const source=valid(site)?site:"";
  const third=source&&name?name!==source&&!name.endsWith("."+source)&&!source.endsWith("."+name):null;
  const purpose=item?item[2]:"Not verified from the network log; this may be advertising, analytics, essential content or something else.";
- const importance=item?"Likely nonessential advertising/analytics traffic; some site functionality may still depend on it.":
+ const importance=item&&["youtube.com","google.com"].includes(item[0])?
+  "Not established. This hostname serves essential and optional resources; an image block may be a false positive.":
+  item?"Likely nonessential advertising/analytics traffic; some site functionality may still depend on it.":
   ["media","font","stylesheet","script","xmlhttprequest"].includes(type)?
   "Could affect website functionality. Blocking alone does not establish that it is nonessential.":
   "Not established. A blocked request is not proof of danger or malicious behavior.";

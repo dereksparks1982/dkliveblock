@@ -93,3 +93,12 @@ test("one click export of all and individual blocked requests includes opt-in RD
  assert.match(exporter,/anchor\.download=name/);
  assert.doesNotMatch(exporter,/fetch\(|XMLHttpRequest|navigator\.sendBeacon/);
 });
+
+test("dashboard distinguishes visible platform enforcement from ordinary blocked resources",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ assert.match(html,/id="dashboardPlaybackState"/);
+ assert.match(html,/id="dashboardPlaybackEvents"/);
+ assert.match(js,/YouTube refused playback \(anti-adblock enforcement\)/);
+ assert.match(js,/playbackDiagnostics/);
+});

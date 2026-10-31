@@ -309,3 +309,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Firefox site dashboard: export all retained blocked requests or one selected request as readable TXT or structured JSON, including privacy-safe matched evidence, service-operator caveats, research links and any registration data explicitly queried in the current dashboard session; all done locally without automatic lookup or extra permission.
 - [x] Known operator mapping for youtube.com and google.com, clearly distinguishing Google's service operation from MarkMonitor registrar and avoiding claims that first-party image blocks are automatically advertising.
 - [ ] Live Firefox acceptance: verify text/JSON files are saved and importable/attachable; ensure accurate selected-tab snapshot and that YouTube's player still needs separate compatibility investigation.
+
+- [x] Build 64: analyze real YouTube JSON: three DoubleClick blocks expected, first-party YouTube and Google images inconclusive, no blocked media resources recorded. Do not grant broad CDN exceptions.
+- [x] Build 64: preserve explicit YouTube playback-refusal notices instead of merely hiding them; retain sanitized, bounded enforcement diagnostics in Site Dashboard and TXT/JSON exports.
+- [ ] Build 64: complete offline Ubuntu suite, test real Firefox, investigate player black screen and ad-free compatibility; distinguish platform refusal from native and Ghostery image false positives.

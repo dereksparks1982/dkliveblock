@@ -60,7 +60,11 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
   scope:only?"individual request":"all retained blocked requests",
   totalBlockedOnTab:Model.number(snapshot.blocked),retainedRecords:all.length,
   exportedRecords:records.length,filterBackend:short(snapshot.filterBackend||"Unknown",70),
-  privacyNotice:NOTE,requests:records};
+  privacyNotice:NOTE,
+  playbackDiagnostics:Array.isArray(snapshot.playbackDiagnostics)?snapshot.playbackDiagnostics.slice(0,30).flatMap(row=>{
+   if(!["enforcement","buffering","media-error"].includes(row?.kind))return [];
+   return [{kind:row.kind,when:safeDate(row.when),blockedMediaNearby:row.blockedMediaNearby===true}];
+  }):[],requests:records};
 }
 function asText(report){
  const lines=["DK LIVE BLOCK | BLOCKED REQUEST DETAILS",
@@ -69,7 +73,12 @@ function asText(report){
   "Blocked counter: "+report.totalBlockedOnTab,
   "Retained requests: "+report.retainedRecords,
   "Exported requests: "+report.exportedRecords,
-  "Filtering backend: "+report.filterBackend,"",report.privacyNotice,""];
+  "Filtering backend: "+report.filterBackend,"",report.privacyNotice,"",
+  "PLAYBACK DIAGNOSTICS (not proof of a filtering-rule cause)"];
+ if(!report.playbackDiagnostics?.length)lines.push("No playback diagnostics recorded.");
+ else for(const event of report.playbackDiagnostics)
+  lines.push(event.when+" · "+event.kind+(event.blockedMediaNearby?" · blocked media nearby":""));
+ lines.push("");
  for(const [index,item] of report.requests.entries()){
   lines.push("========================================================",
    "REQUEST "+(index+1)+" OF "+report.requests.length+

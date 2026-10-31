@@ -389,3 +389,8 @@ Changing site pauses, recognition, logging, cookie choices, popup protections, o
 From the DK Live Block source directory on Ubuntu run `bash scripts/install-ghostery.sh`. It installs the pinned npm dependencies, compiles a self-contained local `src/ghostery-vendor.js`, and checks basic blocking and scoped exceptions before replacing the placeholder. The script does not open Firefox, prompt for credentials, publish an extension, or create a ZIP. The cloud coding environment cannot reach the npm registry; actual package compilation must occur on an Ubuntu computer with npm access.
 
 Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, YouTube maintenance and browser-like TextEncoder/TextDecoder globals load together. The filter-list cache regression disables unrelated YouTube fetches in its own test fixture rather than changing production defaults.
+
+### 0.3.34 (Build 64, unreleased)
+- Keep explicit YouTube playback enforcement notices visible rather than hiding unresolved refusals.
+- Report coarse playback enforcement separately from buffering and media errors in Site Dashboard and TXT/JSON export.
+- Mark YouTube and Google image importance as unverified.
