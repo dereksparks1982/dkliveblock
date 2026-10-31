@@ -179,3 +179,22 @@ test("Build 127 AMP ad containers within protected form/player remain untouched"
  assert.equal(A.create(doc,{}).scan(),0);
  assert.equal(A.relevantMutation({type:"childList",addedNodes:[ad({tag:"amp-ad",cls:""})]}),true);
 });
+
+test("Build 129 exact ad-banner signals are recognized without hiding editorial lookalikes",()=>{
+ for(const node of [
+  ad({tag:"div",cls:"",attrs:[["data-testid","ad-container"]]}),
+  ad({tag:"div",cls:"",attrs:[["data-testid","ad-banner"]]}),
+  ad({tag:"div",cls:"",aria:"Paid advertisement"}),
+  ad({tag:"section",cls:"",aria:"Ad slot"})
+ ])assert.equal(A.hasStrongSignal(node),true);
+ for(const node of [
+  ad({tag:"div",cls:"",attrs:[["data-testid","ad-banner-news"]]}),
+  ad({tag:"article",cls:"",aria:"Sponsored article"}),
+  ad({tag:"div",cls:"",aria:"Advice"}),
+  ad({tag:"section",cls:"",attrs:[["data-testid","banner-content"]]})
+ ])assert.equal(A.hasStrongSignal(node),false);
+});
+test("Build 129 explicit ad slots still cannot hide controls or forms",()=>{
+ const item=ad({tag:"div",aria:"Paid advertisement",excluded:true});
+ assert.equal(A.safe(item,documentFor([item])),false);
+});

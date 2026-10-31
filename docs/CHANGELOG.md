@@ -597,3 +597,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.98 / Build 128 (2026-10-31)
 - Added strictly ad-specific AMP element CSS to built-in first-run fallback filters. These styles can hide AMP ad containers before the bounded JS scanner runs, and still obey global/site pause and cosmetic exceptions. Regression fixture included; live Firefox acceptance pending.
+
+### 0.3.99 / Build 129 (2026-10-31)
+- Extended conservative ad recognition to explicit `ad-container`/`ad-banner` test IDs and accessible `Ad slot`/`Paid advertisement` labels. Avoids substring-based editorial false positives and respects protected form/player controls. Tests added; Firefox acceptance pending.

@@ -1,0 +1,3 @@
+# Build 129: exact ad banner accessibility and test markers
+
+Unreleased v0.3.99. Advertising containers on modern websites often carry explicit `data-testid` markers or accessible labels. The bounded DOM recognizer now accepts exact ad-container/ad-banner IDs and explicit `Ad slot`/`Paid advertisement` labels, while deliberately refusing generic words inside editorial headlines or unrelated widget IDs. Existing checks for visible elements, protected article/form/identity/video contexts and reversible hiding remain mandatory. Unit fixtures cover positive signals, lookalikes and protected controls. No runtime dependencies, GitHub Actions, installer or public release; live Firefox acceptance still pending.

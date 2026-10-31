@@ -511,3 +511,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 128: bundle AMP ad-only CSS selectors in the offline fallback, complementing reversible DOM recognition and avoiding delayed visible AMP ads before a scan.
 - [ ] Verify CSS injection and on/off restoration across Firefox AMP news pages in full browser acceptance.
+
+- [x] Build 129: recognize exact accessible ad-slot and ad-banner test labels while rejecting lookalike editorial article names and retaining form/player safety.
+- [ ] Full browser DOM acceptance and local test suite still pending.

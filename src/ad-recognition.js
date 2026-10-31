@@ -7,8 +7,10 @@ const CANDIDATES=[
  "[data-ad-client][data-ad-slot]","[data-ad-unit][data-ad-slot]",
  "[id^='div-gpt-ad-']","iframe[id^='google_ads_iframe_']",
  "[data-testid*='ad-slot' i]","[data-testid='advertisement' i]",
+ "[data-testid='ad-container' i]","[data-testid='ad-banner' i]",
  "[aria-label='Advertisement' i]","[aria-label='Sponsored advertisement' i]",
- "[aria-label='Ad' i]","[class~='ad-slot']"
+ "[aria-label='Ad' i]","[aria-label='Ad slot' i]",
+ "[aria-label='Paid advertisement' i]","[class~='ad-slot']"
 ].join(",");
 const EXCLUDED="video, audio, form, input, select, textarea, button, iframe[src*='accounts.google.com'], [role='dialog'], [aria-modal='true'], article, main, [role='main'], [role='navigation'], [id='movie_player'], .html5-video-player, [data-sitekey], [class*='captcha' i]";
 const PROTECTED_ANCESTORS="[role='dialog'], [aria-modal='true'], [class*='captcha' i], [id*='captcha' i], form, article, [id='movie_player'], .html5-video-player, [role='navigation'], [role='button']";
@@ -24,10 +26,12 @@ function hasStrongSignal(element){
   if(element.hasAttribute?.("data-ad-unit")&&element.hasAttribute?.("data-ad-slot"))return true;
   if(/^div-gpt-ad-[a-z0-9_-]{1,90}$/i.test(id))return true;
   if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_-]{1,90}$/i.test(id))return true;
-  if(/^(?:ad|advertisement|sponsored advertisement)$/.test(aria))return true;
-  if(element.hasAttribute?.("data-testid")&&
-     (/\bad-slot\b/i.test(element.getAttribute("data-testid"))||
-      element.getAttribute("data-testid").toLowerCase()==="advertisement"))return true;
+  if(/^(?:ad|ad slot|advertisement|paid advertisement|sponsored advertisement)$/.test(aria))return true;
+  if(element.hasAttribute?.("data-testid")){
+   const testid=String(element.getAttribute("data-testid")||"").toLowerCase();
+   if(/\bad-slot\b/.test(testid)||
+      ["advertisement","ad-container","ad-banner"].includes(testid))return true;
+  }
   if(/(?:^|\s)ad-slot(?:\s|$)/.test(cls))return true;
  }catch(_){}
  return false;
