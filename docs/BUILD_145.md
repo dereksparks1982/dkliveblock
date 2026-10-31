@@ -1,0 +1,3 @@
+# Build 145: stronger default UTM campaign tracking removal
+
+Unreleased 0.3.115. Advertisers and analytics vendors add nonstandard `utm_` campaign fields that the previous fixed tracking key list did not cover. The default, on-device privacy cleaner now recognizes the bounded `utm_` family with alphanumeric/underscore suffixes and removes matching keys from ordinary article navigation, including mixed-case and duplicate tags. The entire URL remains unchanged whenever signing, authentication, session or OAuth state is recognized. No external rule download, telemetry or executable script is involved. Tests cover standard/custom UTM keys, duplicate values and signed links. Full browser acceptance remains necessary.

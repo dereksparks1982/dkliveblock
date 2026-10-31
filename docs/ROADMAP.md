@@ -559,3 +559,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 144: reject parameter-removal network rules using request-target scope, denyallow, redirect or other semantics not implemented by the navigation cleaner. Avoid unexpectedly broader query rewrites.
 - [ ] Full local and Firefox signed-link/scope tests still pending.
+
+- [x] Build 145: first-party privacy cleaner now removes bounded custom `utm_` campaign variants by default, without waiting for an external subscription. Whole-URL signing/auth safeguards remain authoritative.
+- [ ] Real Firefox signed navigation and full offline suite acceptance pending.

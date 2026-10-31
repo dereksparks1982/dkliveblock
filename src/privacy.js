@@ -36,7 +36,14 @@ function stripTrackingParameters(raw){
  try{
   const url=new URL(raw);if(!url.search||signedOrAuth(url))return null;
   let changed=false;
-  for(const key of [...url.searchParams.keys()])if(TRACKING_KEYS.has(key.toLowerCase())){url.searchParams.delete(key);changed=true;}
+  // Standard and site-added UTM campaign tags are marketing metadata.
+  // The signed/auth navigation guard above protects the entire link when
+  // any known sensitive state or signing field is present.
+  for(const key of [...url.searchParams.keys()]){
+   const normalized=key.toLowerCase();
+   if(!TRACKING_KEYS.has(normalized)&&!/^utm_[a-z0-9_]{1,48}$/i.test(key))continue;
+   url.searchParams.delete(key);changed=true;
+  }
   return changed?url.toString():null;
  }catch(_){return null;}
 }

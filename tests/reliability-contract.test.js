@@ -98,3 +98,10 @@ test("Build 132 browser privacy cleaner does not rewrite OAuth fragment redirect
  assert.equal(P.preserveNavigation(original),true);
  assert.equal(P.stripTrackingParameters(original),null);
 });
+
+test("Build 145 custom UTM marketing fields are cleaned without touching signed links",()=>{
+ const Privacy=require("../src/privacy.js");
+ assert.equal(Privacy.stripTrackingParameters("https://news.example/?UTM_Custom_Channel=ad&article=3"),
+  "https://news.example/?article=3");
+ assert.equal(Privacy.stripTrackingParameters("https://cdn.example/?UTM_Custom_Channel=ad&utm_nonce=opaque"),null);
+});

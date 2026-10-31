@@ -645,3 +645,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.114 / Build 144 (2026-10-31)
 - Hardened native network filter parsing to refuse incompatible `removeparam` target-scope and denyallow options rather than accepting them but silently ignoring their intended restrictions during navigation cleanup. Added parser/validator regression fixtures. Firefox acceptance pending.
+
+### 0.3.115 / Build 145 (2026-10-31)
+- Extended built-in tracking-parameter cleanup to recognize bounded custom UTM campaign tags, not only a fixed set of standard identifiers, while preserving entire signed/login URLs. Added targeted privacy and crossfeature regression tests. Firefox acceptance pending.

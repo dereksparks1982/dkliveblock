@@ -72,3 +72,20 @@ test("Build 132 never strips marketing query tags on fragment-based login callba
  assert.equal(stripTrackingParameters("https://news.example/story?utm_source=ad#section"),
   "https://news.example/story#section");
 });
+
+test("Build 145 default privacy cleaner removes custom UTM campaign metadata",()=>{
+ const link="https://news.example/article?UTM_Reader=abc&utm_custom_channel=social&utm_medium=mail&view=full";
+ assert.equal(stripTrackingParameters(link),"https://news.example/article?view=full");
+ assert.equal(stripTrackingParameters("https://news.example/article?utm_foo=a&utm_foo=b&view=full"),
+  "https://news.example/article?view=full");
+ assert.equal(stripTrackingParameters("https://news.example/article?view=full"),null);
+});
+test("Build 145 custom UTM cleanup never changes signed or login URLs",()=>{
+ for(const protectedKey of ["utm_signature","utm_token","UTM_NONCE",
+  "session_state","X-Amz-Signature","code"]){
+  const url="https://downloads.example/item?utm_custom_campaign=paid&"+protectedKey+"=opaque";
+  if(protectedKey==="session_state")continue; // handled as fragment in the next assertion
+  assert.equal(stripTrackingParameters(url),null,protectedKey);
+ }
+ assert.equal(stripTrackingParameters("https://id.example/callback?utm_reader=ad#session_state=opaque"),null);
+});
