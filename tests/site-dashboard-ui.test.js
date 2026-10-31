@@ -102,3 +102,17 @@ test("dashboard distinguishes visible platform enforcement from ordinary blocked
  assert.match(js,/YouTube refused playback \(anti-adblock enforcement\)/);
  assert.match(js,/playbackDiagnostics/);
 });
+
+test("permitted site details show a safe inspect button and reversible checkbox",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const popup=fs.readFileSync(path.join(root,"src/popup.html"),"utf8");
+ for(const id of ["allowedDetailFields","allowedDetailLinks","allowedDetailClose","dashboardAllowedList",
+  "dashboardAllowedCount"])assert.ok(html.includes('id="'+id+'"'),id);
+ assert.match(js,/function showAllowed\(row\)/);
+ assert.match(js,/inspect\.textContent="Inspect"/);
+ assert.match(js,/browser\.runtime\.sendMessage\(\{action:"setSelectiveBlock"/);
+ assert.match(js,/input\.checked=!checked/);
+ assert.match(popup,/id="viewAllowed"/);
+ assert.doesNotMatch(js,/innerHTML\s*=/);
+});

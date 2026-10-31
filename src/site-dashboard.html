@@ -36,6 +36,13 @@
 <p><strong id="dashboardAllowedCount">0</strong> completed permitted requests; <strong id="dashboardAllowedGroups">0</strong> destination/type groups; <strong id="dashboardSelectiveCount">0</strong> manual blocking choices.</p>
 <p id="dashboardAllowedState" role="status"></p>
 <div id="dashboardAllowedList" aria-label="Permitted request destinations and individual block toggles"></div>
+<article id="dashboardAllowedDetails" hidden aria-label="Permitted request inspection">
+<h3>Permitted request details</h3>
+<p>Permitted means the request completed without DK Live Block cancelling it. It does not mean the destination is safe or that its contents were inspected.</p>
+<dl id="allowedDetailFields"></dl>
+<div id="allowedDetailLinks"></div>
+<button id="allowedDetailClose" type="button">Close details</button>
+</article>
 <p>Turn a switch ON to block future requests to that exact hostname and resource type on this website. Turn it OFF to allow them again. Changes are remembered, but already loaded resources cannot be undone; refresh the website to test. Sign-in-critical requests and main page navigation are never blocked by these switches. The global protection switch and Pause this tab override manual blocks.</p>
 </section>
 <section id="blockedRequestsSection" tabindex="-1"><h2>Blocked requests for this tab</h2>

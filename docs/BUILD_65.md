@@ -9,3 +9,5 @@ The Site Dashboard lists each observed destination+resource type, including the 
 The user-supplied Ubuntu test output for Build 64 recorded 145 passing out of 146 extension-structure tests. Its lone failure was the icon-state test assuming icon-state.js was second-last, before rule-evidence.js was inserted. Build 65 tests relative load order instead.
 
 Source syntax and targeted checks are planned; live Firefox and full test suite acceptance remain pending. No GitHub Actions, ZIP or external runtime dependencies.
+
+Post-implementation hardening: permitted-request rows now provide an Inspect panel with explanatory, inferred service-operator information and optional research links. Saved manual block toggles remain visible and reversible when private request logging is disabled. Control changes refresh the dashboard once, revert cleanly on declined confirmation or failure, and protect against tab navigation. Added pure-model and backend integration regression tests including an allowlisted GitHub website, confirming that only an observed exact hostname/type can be manually blocked and later unblocked.

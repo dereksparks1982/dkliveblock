@@ -59,9 +59,8 @@ function allowances(data){
  });
 }
 function permittedRows(data){
- if(!data?.requestLog)return [];
  const seen=new Map();
- for(const row of (Array.isArray(data.allowedGroups)?data.allowedGroups:[]).slice(0,150)){
+ for(const row of (data?.requestLog&&Array.isArray(data.allowedGroups)?data.allowedGroups:[]).slice(0,150)){
   const host=hostname(row?.host),type=String(row?.type||"");
   if(!host||!RESOURCE_TYPES.has(type)||type==="popup")continue;
   seen.set(host+"|"+type,{host,type,count:number(row.count),last:Number.isFinite(row.last)?row.last:0,observed:true,block:false});

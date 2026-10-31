@@ -78,3 +78,38 @@ test("content scripts and nonweb tab URLs cannot mutate site allowances",async()
  const removed=await hooks.message({action:"removeAllowedSite",site:"example.org"});
  assert.match(removed.error,/not in the allowlist/i);
 });
+
+test("allowlisted GitHub-style requests are counted; observed exact host/type can be blocked and unblocked",async()=>{
+ const {hooks,tabs,persisted}=await setup();
+ tabs.set(1,"https://github.com/dereksparks1982/dkliveblock");
+ hooks.updated(1,{url:tabs.get(1),status:"loading"},{url:tabs.get(1)});
+ assert.equal((await hooks.message({action:"setSiteAllowed",tabId:1,allowed:true})).ok,true);
+ const resource={requestId:"github-pixel-1",tabId:1,type:"image",
+  url:"https://avatars.githubusercontent.com/u/42.png?token=SECRET",documentUrl:tabs.get(1),method:"GET"};
+ assert.equal(hooks.before(resource).cancel,undefined);
+ hooks.completed({...resource,statusCode:200});
+ const stats=await hooks.message({action:"status",tabId:1,url:tabs.get(1)});
+ assert.equal(stats.allowedRequests,1);
+ const dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.allowedRequests,1);
+ assert.equal(dashboard.allowedGroups[0].host,"avatars.githubusercontent.com");
+ assert.equal(dashboard.allowedGroups[0].count,1);
+ assert.doesNotMatch(JSON.stringify(dashboard.allowedGroups),/SECRET|42\.png/);
+ const unobserved=await hooks.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"github.com",host:"doubleclick.net",type:"script",block:true,confirm:true});
+ assert.match(unobserved.error,/not observed/i);
+ const allowed=await hooks.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"github.com",host:"avatars.githubusercontent.com",type:"image",block:true,confirm:true});
+ assert.equal(allowed.ok,true);
+ assert.equal(persisted().manualBlocks.length,1);
+ assert.equal(hooks.before({...resource,requestId:"github-pixel-2"}).cancel,true);
+ assert.equal(hooks.before({...resource,requestId:"github-js-3",type:"script"}).cancel,undefined);
+ assert.equal(hooks.before({...resource,requestId:"github-nav-4",type:"main_frame"}).cancel,undefined);
+ const rev=await hooks.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"github.com",host:"avatars.githubusercontent.com",type:"image",block:false});
+ assert.equal(rev.ok,true);
+ assert.equal(hooks.before({...resource,requestId:"github-pixel-5"}).cancel,undefined);
+ const invalid=await hooks.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"evil.github.com",host:"avatars.githubusercontent.com",type:"image",block:true,confirm:true});
+ assert.match(invalid.error,/changed websites/i);
+});

@@ -317,3 +317,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 65: count completed permitted subrequests and display host/type activity for each tab; allow controlled user-selected exact hostname/type blocking even when website automatic filtering is allowlisted. Strict auth and main-frame safety. User toggles stored locally and reversible.
 - [x] Fix prior Build 64 icon-state test ordering assumption after rule-evidence script was added, as surfaced by the user’s 145/146 passing test output.
 - [ ] Build 65: full local Ubuntu test run and live Firefox verification of allowed counters and toggles. Do not claim YouTube playback fixed.
+
+- [x] Build 65 verification follow-up: readable Inspect panel for allowed host/type activity; saved toggles visible without request logging; integration test for GitHub allowlisted resources, exact reversible selective blocks and privacy.

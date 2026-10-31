@@ -52,3 +52,19 @@ test("Detailed blocked records remain hostname-only with bounded safe fields",()
  assert.deepEqual(item,[{host:"ads.example",type:"script",when:123,sequence:9,registeredDomain:"ads.example",ruleType:"filter"}]);
  assert.equal(JSON.stringify(item).includes("secret"),false);
 });
+
+test("permitted groups are bounded and saved manual switches remain visible when logging off",()=>{
+ const normal={requestLog:true,allowedGroups:[
+  {host:"avatars.githubusercontent.com",type:"image",count:8,last:100},
+  {host:"unsafe.example/token=SECRET",type:"script",count:1,last:101}],
+  selectiveBlocks:[{host:"avatars.githubusercontent.com",type:"image"},
+   {host:"api.github.com",type:"xmlhttprequest"}]};
+ const rows=M.permittedRows(normal);
+ assert.equal(rows.length,2);
+ assert.equal(rows[0].count,8);
+ assert.equal(rows[0].block,true);
+ assert.equal(rows[1].observed,false);
+ assert.equal(rows[1].block,true);
+ assert.deepEqual(M.permittedRows({...normal,requestLog:false}).map(x=>x.host),
+  ["avatars.githubusercontent.com","api.github.com"]);
+});

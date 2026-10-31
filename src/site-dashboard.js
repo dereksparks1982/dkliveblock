@@ -166,6 +166,7 @@ function setButtons(d){
  $("dashboardDistraction").textContent=d?.distractionPaused?"Resume distraction cleanup here":"Pause distraction cleanup here";
 }
 function clearDisplay(message){
+ $("dashboardAllowedDetails").hidden=true;
  closeBlock();current=null;registrationCache.clear();setButtons(null);
  $("dashboardSite").textContent="No site selected";
  $("dashboardShield").textContent="No website selected";
@@ -242,14 +243,15 @@ async function revokeRequest(row){
  });
 }
 async function toggleSelectiveRequest(row,checked,input){
- const previous=!checked;
- await withAction(async()=>{
-  if(!current?.ok)throw Error("Choose a site before changing a request.");
-  const snapshot=current;
+ if(loading||busy||!current?.ok){input.checked=!checked;return;}
+ const snapshot=current;
+ busy=true;setButtons(current);
+ try{
   await verifyCurrentTab(snapshot);
   if(checked&&!window.confirm("Block future "+row.type+" requests to "+row.host+
-    " on "+snapshot.site+"? This can break website features."))
-   {input.checked=previous;return;}
+    " on "+snapshot.site+"? This can break website features.")){
+   input.checked=false;return;
+  }
   const reply=await browser.runtime.sendMessage({action:"setSelectiveBlock",
    tabId:snapshot.tabId,expectedSite:snapshot.site,
    host:row.host,type:row.type,block:checked,confirm:checked});
@@ -257,10 +259,45 @@ async function toggleSelectiveRequest(row,checked,input){
   await refresh();
   notice((checked?"Blocking":"Allowing")+" future "+row.type+" requests to "+row.host+
    " on "+snapshot.site+". Reload the website to test.");
- }).catch?.(()=>{});
- // If the action failed or user cancelled, the current display reverts on refresh.
- if(current?.ok)await refresh();
+ }catch(error){
+  input.checked=!checked;notice(error?.message||"Could not update this request.");
+ }finally{busy=false;setButtons(current);}
 }
+function addAllowedDetail(label,value){
+ const dt=document.createElement("dt"),dd=document.createElement("dd");
+ dt.textContent=label;dd.textContent=String(value??"Not available");
+ $("allowedDetailFields").append(dt,dd);
+}
+function showAllowed(row){
+ if(!current?.ok||!row?.host)return;
+ const info=Details.summary(row.host,row.type,current.site,"");
+ const panel=$("dashboardAllowedDetails");
+ $("allowedDetailFields").replaceChildren();
+ addAllowedDetail("Destination hostname",row.host);
+ addAllowedDetail("Resource type",info.resource+" ("+row.type+")");
+ addAllowedDetail("Completed requests observed",row.count);
+ addAllowedDetail("Last completed",row.last?time(row.last):"Not observed this session");
+ addAllowedDetail("Current selective rule",row.block?"Block future matching requests":"No selective block");
+ addAllowedDetail("Site auto-filter status",current.sitePaused?"Allowlisted / automatic filters off":
+  current.temporarilyPaused?"Temporarily paused":current.globalEnabled?"Enabled":"Globally disabled");
+ addAllowedDetail("Service operator (local reference)",info.operator);
+ addAllowedDetail("Operator evidence",info.operatorEvidence);
+ addAllowedDetail("Typical service purpose (not an observed action)",info.purpose);
+ addAllowedDetail("Essential or optional?",info.importance);
+ addAllowedDetail("Relationship to site",info.thirdParty===null?"Not established":info.thirdParty?"Third party":"First party or subdomain");
+ addAllowedDetail("Scope of evidence",info.access);
+ const links=$("allowedDetailLinks");links.replaceChildren();
+ const items=Details.researchLinks(row.host);
+ if(info.operatorUrl)items.unshift({label:"Service operator website",url:info.operatorUrl});
+ for(const item of items){
+  const link=document.createElement("a");link.href=item.url;link.textContent=item.label;
+  link.target="_blank";link.rel="noopener noreferrer";links.appendChild(link);
+ }
+ panel.hidden=false;panel.scrollIntoView?.({block:"nearest"});
+}
+$("allowedDetailClose").addEventListener("click",()=>{
+ $("dashboardAllowedDetails").hidden=true;
+});
 function permittedLine(row,siteStatus){
  const div=document.createElement("div");div.className="dashboard-line allowed-request-line";
  const label=document.createElement("label");label.className="allowed-request-label";
@@ -273,11 +310,16 @@ function permittedLine(row,siteStatus){
  checkbox.addEventListener("change",()=>{
   const desired=checkbox.checked;
   checkbox.disabled=true;
-  toggleSelectiveRequest(row,desired,checkbox).catch(error=>notice(error?.message||"Could not update."));
+  toggleSelectiveRequest(row,desired,checkbox).catch(error=>
+   notice(error?.message||"Could not update this request."));
  });
- label.append(desc,checkbox);div.appendChild(label);return div;
+ const inspect=document.createElement("button");inspect.type="button";
+ inspect.textContent="Inspect";inspect.addEventListener("click",()=>showAllowed(row));
+ label.append(desc,checkbox);div.append(label,inspect);
+ return div;
 }
 function display(d){
+ $("dashboardAllowedDetails").hidden=true;
  if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
  closeBlock();current=d;setButtons(d);
  const summary=Model.status(d);
@@ -291,7 +333,7 @@ function display(d){
  const permitted=Model.permittedRows(d);
  $("dashboardAllowedGroups").textContent=String(permitted.filter(row=>row.observed).length);
  $("dashboardAllowedState").textContent=!d.requestLog?
-  "Private request logging is off. Enable it in Settings to see newly permitted requests.":
+  "Private request logging is off. Saved selective block choices remain available below. Enable logging to see newly permitted requests.":
   permitted.length?permitted.length+" destination/type controls available.":
   "No permitted requests observed yet. Reload the website and refresh this dashboard.";
  render("dashboardAllowedList",permitted,"No permitted requests recorded.",row=>permittedLine(row,d));
