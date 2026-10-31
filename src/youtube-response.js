@@ -3,7 +3,7 @@
    ad-unblocking fallback or browsing-history storage. */
 (function(root){"use strict";
 const MAX_BYTES=1500000,MAX_TABS=100,MAX_DELAY_MS=4000,MAX_FILTERS=16,MAX_PER_TAB=4;
-const liveByTab=new Map();let liveCount=0;
+const liveByTab=new Map(),versions=new Map();let liveCount=0;
 // Load the same bounded feed helper in Firefox's background global and in
 // direct Node tests. Optional at runtime: fail open, never block playback.
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
@@ -121,11 +121,23 @@ function stats(tab){
  const v=records.get(tab)||EMPTY();
  return {...v,byKind:{player:{...v.byKind.player},feed:{...v.byKind.feed},shorts:{...v.byKind.shorts}}};
 }
-function clear(tab){records.delete(tab);}
+function clear(tab){
+ records.delete(tab);
+ if(!Number.isInteger(tab)||tab<0)return;
+ versions.set(tab,(versions.get(tab)||0)+1);
+ // Retain recent generations so an in-flight filter from a previous
+ // page cannot recreate its record on the next navigation.
+ if(versions.size>256)versions.delete(versions.keys().next().value);
+}
 function attach(details,webRequest,clock=root){
  if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
  const tab=details.tabId;
  if(!Number.isInteger(tab)||tab<0)return false;
+ const generation=versions.get(tab)||0;
+ function noteCurrent(outcome,fields=0){
+  if((versions.get(tab)||0)===generation)
+   note(tab,outcome,fields,details.url);
+ }
  if(liveCount>=MAX_FILTERS||(liveByTab.get(tab)||0)>=MAX_PER_TAB){
   const v=records.get(tab)||EMPTY();
   v.skippedBusy++;
@@ -134,7 +146,7 @@ function attach(details,webRequest,clock=root){
   if(records.size>MAX_TABS)records.delete(records.keys().next().value);
   return false;
  }
- let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){note(details.tabId,"error",0,details.url);return false;}
+ let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){noteCurrent("error");return false;}
  liveCount++;
  liveByTab.set(tab,(liveByTab.get(tab)||0)+1);
  let chunks=[],length=0,overflow=false,ended=false,deadline=null;
@@ -162,12 +174,12 @@ function attach(details,webRequest,clock=root){
    if(overflow){filter.write(chunk);return;}
    if(length+chunk.byteLength>MAX_BYTES){
     overflow=true;writeOriginal();filter.write(chunk);
-    note(details.tabId,"oversized",0,details.url);finish(true);return;
+    noteCurrent("oversized");finish(true);return;
    }
    chunks.push(chunk);length+=chunk.byteLength;
   }catch(_){
    try{writeOriginal();}catch(__){}
-   note(details.tabId,"error",0,details.url);finish(true);
+   noteCurrent("error");finish(true);
   }
  };
  filter.onstop=()=>{
@@ -180,17 +192,17 @@ function attach(details,webRequest,clock=root){
    const result=rewrite(original,details.url);
    if(result.changed){
     filter.write(new TextEncoder().encode(result.text));
-    note(details.tabId,"modified",result.fields,details.url);
-   }else{writeOriginal();note(details.tabId,"unchanged",0,details.url);}
+    noteCurrent("modified",result.fields);
+   }else{writeOriginal();noteCurrent("unchanged");}
   }catch(_){
    try{writeOriginal();}catch(__){}
-   note(details.tabId,"error",0,details.url);
+   noteCurrent("error");
   }finally{chunks=[];finish();}
  };
  filter.onerror=()=>{
   if(ended)return;
   try{writeOriginal();}catch(_){}
-  note(details.tabId,"error",0,details.url);finish(true);
+  noteCurrent("error");finish(true);
  };
  // Firefox keeps the response suspended until the extension finishes it.
  if(typeof clock?.setTimeout==="function"){
@@ -198,7 +210,7 @@ function attach(details,webRequest,clock=root){
    deadline=clock.setTimeout(()=>{
     if(ended)return;
     try{writeOriginal();}catch(_){}
-    note(details.tabId,"timedOut",0,details.url);finish(true);
+    noteCurrent("timedOut");finish(true);
    },MAX_DELAY_MS);
    deadline?.unref?.();
   }catch(_){deadline=null;}

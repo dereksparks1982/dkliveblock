@@ -215,3 +215,44 @@ test("Build 89 globally caps active response filters to bounded memory",()=>{
  for(let id=610;id<610+R.MAX_FILTERS/R.MAX_PER_TAB;id++)R.clear(id);
  R.clear(777);R.clear(778);
 });
+
+test("Build 96 ignores old response completions after a tab navigates",()=>{
+ const filters=[];
+ const clock={setTimeout(){return 1;},clearTimeout(){}};
+ const web={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};
+  filters.push(filter);return filter;}};
+ const d={...req(),tabId:611,requestId:"old"};
+ R.observeRequest(611,d.url);
+ assert.equal(R.attach(d,web,clock),true);
+ R.clear(611);
+ R.observeRequest(611,d.url);
+ assert.equal(R.stats(611).playerRequests,1);
+ filters[0].ondata({data:Buffer.from('{"videoDetails":{},"adSlots":[{}]}')});
+ filters[0].onstop();
+ assert.equal(R.stats(611).observed,0,"old completion cannot enter new page statistics");
+ assert.equal(R.stats(611).modified,0);
+ assert.equal(R.stats(611).playerRequests,1);
+ assert.equal(R.attach({...d,requestId:"new"},web,clock),true);
+ filters[1].ondata({data:Buffer.from('{"videoDetails":{},"adSlots":[{}]}')});
+ filters[1].onstop();
+ assert.equal(R.stats(611).modified,1);
+ R.clear(611);
+});
+test("Build 96 post-navigation deadlines and errors never resurrect old tab records",()=>{
+ const timers=[],filters=[];
+ const clock={setTimeout(cb){timers.push(cb);return timers.length;},clearTimeout(){}};
+ const web={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};
+  filters.push(filter);return filter;}};
+ const tabId=612;
+ assert.equal(R.attach({...req(),tabId},web,clock),true);
+ R.clear(tabId);
+ timers[0]();
+ assert.equal(R.stats(tabId).observed,0);
+ assert.equal(R.stats(tabId).timedOut,0);
+ assert.equal(R.attach({...req(),tabId},web,clock),true);
+ R.clear(tabId);
+ filters[1].onerror();
+ assert.equal(R.stats(tabId).errors,0);
+});

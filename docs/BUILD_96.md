@@ -1,0 +1,3 @@
+# Build 96: isolate stale YouTube response data across navigation
+
+Unreleased v0.3.66. Firefox requests from an old YouTube page may complete after a navigation or tab ID reuse. A bounded per-tab generation counter is now advanced on clear(), which is already called on tab navigation and removal. In-flight filter callbacks capture the old generation, still properly flush/disconnect and release memory slots, but never recreate request/response statistics in the new tab session. New requests on the same tab ID receive fresh counters. Fixtures cover normal completion, timeout and error cases. No tracked video IDs or URLs. Full local and Firefox checks remain outstanding; no release or Actions.

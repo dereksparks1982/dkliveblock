@@ -498,3 +498,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.65 / Build 95 (2026-10-31)
 - Added constrained UTM family tracking-parameter removal with site and individual key exceptions, refusing unrestricted wildcard patterns. Repaired the prior frozen JSON response text test. Full Firefox/local acceptance pending.
+
+### 0.3.66 / Build 96 (2026-10-31)
+- Added per-tab generation isolation to intercepted YouTube response completion, error and timeout metrics. Old requests finishing after page changes can no longer revive stale dashboard data for the new page. Added deterministic tab reuse and deadline fixtures; Firefox verification pending.
