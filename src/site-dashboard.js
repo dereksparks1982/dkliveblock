@@ -3,7 +3,7 @@ const $=id=>document.getElementById(id),Model=DKSiteDashboardModel,Details=DKBlo
 let current=null,requestToken=0,loading=false,busy=false;
 let focusBlockedRequests=location.hash==="#blocked-requests";
 let focusAllowedRequests=location.hash==="#allowed-requests";
-let selectedBlock=null,blockLookupToken=0;
+let selectedBlock=null,selectedAllowed=null,blockLookupToken=0;
 const registrationCache=new Map();
 function tabHost(url){
  try{return /^https?:\/\//i.test(url||"")?Model.hostname(new URL(url).hostname.toLowerCase()):"";}
@@ -145,6 +145,22 @@ $("dashboardExportText").addEventListener("click",()=>exportBlocked("txt"));
 $("dashboardExportJSON").addEventListener("click",()=>exportBlocked("json"));
 $("blockExportText").addEventListener("click",()=>exportBlocked("txt",true));
 $("blockExportJSON").addEventListener("click",()=>exportBlocked("json",true));
+function exportAllowed(format,individual=false){
+ try{
+  if(loading||busy||!current?.ok)throw Error("Choose a website tab before exporting.");
+  const selection=individual?selectedAllowed:null;
+  if(individual&&(!selection||selection.site!==current.site||
+   selection.tabId!==current.tabId))throw Error("Choose a permitted destination first.");
+  const report=DKAllowedExport.build(current,selection?.row||null);
+  const saved=DKAllowedExport.download(report,format);
+  notice("Saved "+saved.records+" permitted destination"+(saved.records===1?"":"s")+
+   " as "+saved.filename);
+ }catch(error){notice(error?.message||"Could not export permitted requests.");}
+}
+$("dashboardExportAllowedText").addEventListener("click",()=>exportAllowed("txt"));
+$("dashboardExportAllowedJSON").addEventListener("click",()=>exportAllowed("json"));
+$("allowedExportText").addEventListener("click",()=>exportAllowed("txt",true));
+$("allowedExportJSON").addEventListener("click",()=>exportAllowed("json",true));
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -160,13 +176,16 @@ function setButtons(d){
  const hasRows=!!(d?.ok&&d.requestLog&&Model.requestRows(d).length);
  $("dashboardExportText").disabled=busy||!hasRows;
  $("dashboardExportJSON").disabled=busy||!hasRows;
+ const hasPermitted=!!(d?.ok&&Model.permittedRows(d).length);
+ $("dashboardExportAllowedText").disabled=busy||!hasPermitted;
+ $("dashboardExportAllowedJSON").disabled=busy||!hasPermitted;
  $("dashboardAllowlist").textContent=d?.sitePaused?"Remove from allowlist":"Allowlist website";
  $("dashboardPause").textContent=d?.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("dashboardCookie").textContent=d?.cookieRejectPaused?"Resume cookie rejection here":"Pause cookie rejection here";
  $("dashboardDistraction").textContent=d?.distractionPaused?"Resume distraction cleanup here":"Pause distraction cleanup here";
 }
 function clearDisplay(message){
- $("dashboardAllowedDetails").hidden=true;
+ $("dashboardAllowedDetails").hidden=true;selectedAllowed=null;
  closeBlock();current=null;registrationCache.clear();setButtons(null);
  $("dashboardSite").textContent="No site selected";
  $("dashboardShield").textContent="No website selected";
@@ -270,6 +289,7 @@ function addAllowedDetail(label,value){
 }
 function showAllowed(row){
  if(!current?.ok||!row?.host)return;
+ selectedAllowed={row,site:current.site,tabId:current.tabId};
  const info=Details.summary(row.host,row.type,current.site,"");
  const panel=$("dashboardAllowedDetails");
  $("allowedDetailFields").replaceChildren();
@@ -296,7 +316,7 @@ function showAllowed(row){
  panel.hidden=false;panel.scrollIntoView?.({block:"nearest"});
 }
 $("allowedDetailClose").addEventListener("click",()=>{
- $("dashboardAllowedDetails").hidden=true;
+ selectedAllowed=null;$("dashboardAllowedDetails").hidden=true;
 });
 function permittedLine(row,siteStatus){
  const div=document.createElement("div");div.className="dashboard-line allowed-request-line";
@@ -319,7 +339,7 @@ function permittedLine(row,siteStatus){
  return div;
 }
 function display(d){
- $("dashboardAllowedDetails").hidden=true;
+ selectedAllowed=null;$("dashboardAllowedDetails").hidden=true;
  if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
  closeBlock();current=d;setButtons(d);
  const summary=Model.status(d);

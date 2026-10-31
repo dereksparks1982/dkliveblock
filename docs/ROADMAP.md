@@ -325,3 +325,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Review MIT commercial-use permissions against stated distribution preference and third-party GPL/MPL obligations before importing code or lists.
 
 - [x] Comprehensive competitor-parity work breakdown in [Master parity plan](COMPETITOR_PARITY_MASTER_PLAN_2026-10-31.md): twenty-five distinct technical, security, QA, UX and licensing milestones. Planned Build 66-70 slices; no release/parity claims.
+
+- [x] Build 66: export permitted site activity and one selected destination/type in TXT/JSON with privacy bounds; next source build is safe rule attribution.
+- [ ] Build 66 Firefox acceptance: verify local downloads and exact selected-tab counts.

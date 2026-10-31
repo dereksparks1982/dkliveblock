@@ -35,13 +35,21 @@
 <p>Completed HTTP(S) subresource requests that DK Live Block did not block, grouped by destination hostname and request type. The count is requests, not distinct companies. An allowed request is not automatically safe or advertising. No URLs, paths, cookies, or request contents are recorded. The list resets when this tab reloads and only tracks activity while private request logging is enabled.</p>
 <p><strong id="dashboardAllowedCount">0</strong> completed permitted requests; <strong id="dashboardAllowedGroups">0</strong> destination/type groups; <strong id="dashboardSelectiveCount">0</strong> manual blocking choices.</p>
 <p id="dashboardAllowedState" role="status"></p>
+<div class="network-monitor-controls">
+<button id="dashboardExportAllowedText" type="button" disabled>Export permitted details (.txt)</button>
+<button id="dashboardExportAllowedJSON" type="button" disabled>Export permitted details (.json)</button>
+</div>
 <div id="dashboardAllowedList" aria-label="Permitted request destinations and individual block toggles"></div>
 <article id="dashboardAllowedDetails" hidden aria-label="Permitted request inspection">
 <h3>Permitted request details</h3>
 <p>Permitted means the request completed without DK Live Block cancelling it. It does not mean the destination is safe or that its contents were inspected.</p>
 <dl id="allowedDetailFields"></dl>
 <div id="allowedDetailLinks"></div>
+<div class="network-monitor-controls">
+<button id="allowedExportText" type="button">Export this destination (.txt)</button>
+<button id="allowedExportJSON" type="button">Export this destination (.json)</button>
 <button id="allowedDetailClose" type="button">Close details</button>
+</div>
 </article>
 <p>Turn a switch ON to block future requests to that exact hostname and resource type on this website. Turn it OFF to allow them again. Changes are remembered, but already loaded resources cannot be undone; refresh the website to test. Sign-in-critical requests and main page navigation are never blocked by these switches. The global protection switch and Pause this tab override manual blocks.</p>
 </section>
@@ -96,5 +104,6 @@
 <script src="block-details.js"></script>
 <script src="site-dashboard-model.js"></script>
 <script src="blocked-export.js"></script>
+<script src="allowed-export.js"></script>
 <script src="site-dashboard.js"></script>
 </body></html>

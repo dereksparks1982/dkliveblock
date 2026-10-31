@@ -116,3 +116,17 @@ test("permitted site details show a safe inspect button and reversible checkbox"
  assert.match(popup,/id="viewAllowed"/);
  assert.doesNotMatch(js,/innerHTML\s*=/);
 });
+
+test("permitted requests have TXT/JSON exports, both all-groups and single destination",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const src=fs.readFileSync(path.join(root,"src/allowed-export.js"),"utf8");
+ for(const id of ["dashboardExportAllowedText","dashboardExportAllowedJSON","allowedExportText","allowedExportJSON"])
+  assert.ok(html.includes('id="'+id+'"'),id);
+ assert.ok(html.indexOf('src="site-dashboard-model.js"')<html.indexOf('src="allowed-export.js"'));
+ assert.ok(html.indexOf('src="allowed-export.js"')<html.indexOf('src="site-dashboard.js"'));
+ assert.match(js,/DKAllowedExport\.build\(current,selection\?\.row\|\|null\)/);
+ assert.match(js,/DKAllowedExport\.download\(report,format\)/);
+ assert.match(src,/createObjectURL\(blob\)/);
+ assert.doesNotMatch(src,/\bfetch\(|XMLHttpRequest|sendBeacon|innerHTML\s*=/);
+});
