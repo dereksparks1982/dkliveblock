@@ -61,6 +61,7 @@
       "video-library.js",
       "ghostery-vendor.js",
       "hybrid-engine.js",
+      "icon-state.js",
       "background.js"
     ],
     "persistent": true

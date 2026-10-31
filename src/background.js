@@ -135,11 +135,16 @@ function rebuild(){
   lastCompiledRules=next;
   filterRevision++;
  }
- for(const id of data.counts.keys())badge(id);
+ for(const id of new Set([...data.hosts.keys(),...data.counts.keys()]))badge(id);
  refreshTabs();
 }
+const toolbarIcons=typeof DKIconState!=="undefined"?DKIconState.create(browser):null;
 function badge(id){
  const n=data.counts.get(id)||0,h=data.hosts.get(id)||"";
+ if(toolbarIcons){
+  const siteAllowed=!!h&&data.settings.paused.some(x=>DKRules.sub(h,x));
+  toolbarIcons.apply(id,DKIconState.state(data.settings.enabled,siteAllowed,data.tempPaused.has(id)));
+ }
  // Persistent per-tab badge, independent of optional traffic capture.
  browser.browserAction.setBadgeText({tabId:id,text:data.settings.showBadge&&activeTab(id,h)&&n?(n>9999?"9999+":String(n)):""}).catch(()=>{});
  browser.browserAction.setBadgeBackgroundColor?.({tabId:id,color:"#c13f3f"})?.catch?.(()=>{});
@@ -516,13 +521,13 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   // Keep the per-site popup count across reloads; host changes clear it above.
   DKPlaybackHealth.clear(data.playbackHealth,id);
-  autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
+  autoVideoTimes.delete(id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
- DKNetworkMonitor.remove(data.networkMonitors,id);DKPlaybackHealth.clear(data.playbackHealth,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);});
+ DKNetworkMonitor.remove(data.networkMonitors,id);DKPlaybackHealth.clear(data.playbackHealth,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -1218,7 +1223,8 @@ async function boot(){
    data.youtubeRules=null;data.listErrors.youtube="Rolled-back pack disabled until a newer version arrives.";
   }
   rebuild();
-  const tabs=await browser.tabs.query({});for(const t of tabs)if(t.url)data.hosts.set(t.id,host(t.url));
+  const tabs=await browser.tabs.query({});
+  for(const t of tabs)if(t.url){data.hosts.set(t.id,host(t.url));badge(t.id);}
   data.ready=true;
   try{syncProxyListener();}catch(error){
    console.warn("DK Live Block proxy activation failed:",error);
