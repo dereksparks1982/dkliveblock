@@ -609,3 +609,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.102 / Build 132 (2026-10-31)
 - Protected fragment-based authentication callbacks from unrelated query rewrites. Recognizes explicit OAuth/SSO token, code and state assignments in URL fragments while preserving ordinary article fragment cleanup. Added regression tests; Firefox acceptance pending.
+
+### 0.3.103 / Build 133 (2026-10-31)
+- Improved YouTube response header validation by rejecting contradictory or incomplete charset declarations. Only unambiguous UTF-8 JSON responses enter the bounded stream filter; malformed responses remain unmodified. Added header fixtures, browser testing pending.

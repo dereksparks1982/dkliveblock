@@ -523,3 +523,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 132: protect fragment-based OAuth/SSO callback URLs before marketing-parameter cleanup, including hash-router code/state/token flows; retain normal article tracking cleanup.
 - [ ] Full Linux suite and browser authentication callback acceptance outstanding.
+
+- [x] Build 133: reject duplicate, contradictory or malformed Content-Type charset directives before opening a Firefox YouTube JSON filter. Safe single UTF-8 declarations remain eligible.
+- [ ] Full Firefox response compatibility and local test suite still pending.

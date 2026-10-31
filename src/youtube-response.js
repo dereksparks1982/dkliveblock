@@ -72,7 +72,10 @@ function safeHeaders(details){
  if(types.length!==1||lengths.length>1)return false;
  const mime=header(headers,"content-type");
  if(!/^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(mime))return false;
- const charset=/;\s*charset\s*=\s*["']?([a-z0-9_-]+)/i.exec(mime)?.[1];
+ const charsets=[...mime.matchAll(/;\s*charset\s*=\s*(?:"([^"]*)"|'([^']*)'|([^\s;]+))/gi)];
+ // Multiple or malformed charset directives make decoded bytes ambiguous.
+ if(charsets.length>1||/;\s*charset\b/i.test(mime)&&charsets.length!==1)return false;
+ const charset=charsets[0]&&(charsets[0][1]??charsets[0][2]??charsets[0][3]);
  if(charset&&!["utf-8","utf8"].includes(charset.toLowerCase()))return false;
  const size=header(headers,"content-length");
  if(size&&(!/^\d+$/.test(size)||Number(size)>MAX_BYTES))return false;

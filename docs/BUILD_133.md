@@ -1,0 +1,3 @@
+# Build 133: reject ambiguous response encodings
+
+Unreleased 0.3.103. The Firefox response filter already refused duplicate Content-Type headers but still read only the first `charset` within a single header value. Contradictory, duplicated or incomplete character-encoding directives could therefore cause unsafe assumptions about the JSON text. The header gate now accepts only zero or one valid UTF-8/UTF8 declaration and declines malformed/multiple/other encodings. Non-compliant responses pass through Firefox unchanged. Regression tests include double charsets, malformed quoted values and normal JSON. Full Linux and Firefox playback acceptance remain open.

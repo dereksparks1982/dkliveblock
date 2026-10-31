@@ -367,3 +367,18 @@ test("Build 126 keeps watch-next and playlist diagnostics separate from feeds",(
  assert.equal(R.stats(tabId).byKind.next.requests,1);
  R.clear(tabId);
 });
+
+test("Build 133 refuses multiple or invalid Content-Type charset declarations",()=>{
+ for(const value of [
+  "application/json; charset=utf-8; charset=windows-1252",
+  "application/json; charset=utf-8; charset=utf8",
+  "application/json; charset=",
+  "application/json; charset=\"unterminated",
+  "application/json; charset=latin1"
+ ])assert.equal(R.safeHeaders({...req(),responseHeaders:[
+  {name:"Content-Type",value}]}),false,value);
+ for(const value of ["application/json","application/json; charset=UTF-8",
+  "application/json; charset='utf8'","application/json; charset = \"utf-8\""])
+  assert.equal(R.safeHeaders({...req(),responseHeaders:[
+   {name:"Content-Type",value}]}),true,value);
+});
