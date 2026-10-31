@@ -516,3 +516,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.71 / Build 101 (2026-10-31)
 - Implemented safe quoted-literal matching for cosmetic `has-text` rules, reusing the existing bounded text predicate and rejecting regex-like syntax until intentionally implemented. Added parser, matcher and validator fixtures. Firefox acceptance pending.
+
+### 0.3.72 / Build 102 (2026-10-31)
+- Added site-scoped literal `:contains()` aliases through the existing bounded procedural text matcher, including exceptions, quoted text and validator recognition. No global scans or executable expressions. Firefox validation pending.

@@ -33,3 +33,10 @@ test("Build 101 quoted literal text uses existing bounded matcher",()=>{
  assert.equal(matches({textContent:"Sponsored editorial note"},r),true);
  assert.equal(matches({textContent:"Editorial note"},r),false);
 });
+
+test("Build 102 :contains aliases share literal procedural matching",()=>{
+ const {procedural}=require("../src/rules.js");
+ const r=procedural("news.example##article:contains(Advert)");
+ assert.equal(matches({textContent:"Paid Advert placement"},r),true);
+ assert.equal(matches({textContent:"Editorial coverage"},r),false);
+});

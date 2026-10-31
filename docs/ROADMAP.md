@@ -430,3 +430,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 101: quoted literal cosmetic `:has-text` and `:-abp-has-text` phrases are unquoted for matching, while unsupported regex-like expressions and empty literals are rejected.
 - [ ] Build 101 acceptance: Firefox DOM tests and full local suite.
+
+- [x] Build 102: safe site-scoped literal `:contains(...)` cosmetic aliases reuse existing bounded text predicate and exceptions, refusing generic/regex forms.
+- [ ] Build 102 acceptance: full regression suite and live Firefox DOM matching.

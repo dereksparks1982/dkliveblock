@@ -354,3 +354,14 @@ test("Build 101 quoted literal text selectors match their content, not quote cha
  assert.equal(R.procedural("news.example##article:has-text(/Sponsored/)"),null);
  assert.equal(R.procedural("news.example##article:has-text(  )"),null);
 });
+
+test("Build 102 supports literal :contains without accepting generic global text matching",()=>{
+ const f=new FilterEngine("news.example##article:contains(Sponsored)"+
+  "\nnews.example#@#article:contains(Sponsored)"+
+  "\nnews.example##section:contains('Promoted')");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"section",mode:"text",text:"Promoted"}]);
+ assert.deepEqual(f.getProcedural("unrelated.example"),[]);
+ assert.equal(R.procedural("##article:contains(Sponsored)"),null);
+ assert.equal(R.procedural("news.example##article:contains(/Sponsor/)"),null);
+});

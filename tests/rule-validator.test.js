@@ -59,3 +59,10 @@ test("Build 101 quoted text accepted; regex-like text flagged unsupported",()=>{
  assert.equal(r.counts.procedural,1);
  assert.equal(r.counts.unsupported,1);
 });
+
+test("Build 102 site-scoped contains aliases classify as procedural not CSS",()=>{
+ const r=V.validate("news.example##article:contains(Advert)"+
+  "\n##article:contains(Advert)");
+ assert.equal(r.counts.procedural,1);
+ assert.equal(r.counts.unsupported,1);
+});

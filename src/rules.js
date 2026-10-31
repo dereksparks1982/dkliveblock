@@ -108,7 +108,7 @@ function procedural(line){
  const match=/^([^#]+)(#@\?#|#\?#|#@#|##)(.+)$/.exec(line.trim());if(!match)return null;
  const scope=match[1].toLowerCase(),raw=match[3].trim();
  const standard=match[2]==="##"||match[2]==="#@#";
- if(standard&&!/:has-text\(/i.test(raw))return null;
+ if(standard&&!/:(?:has-text|contains)\(/i.test(raw))return null;
  const sites=scope.split(",");
  const included=sites.filter(h=>!h.startsWith("~"));
  if(!included.length||sites.length>16||
@@ -118,7 +118,7 @@ function procedural(line){
      !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part));
    }))
   return null;
- const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text)\(([^()]{1,120})\)$/i.exec(raw);
+ const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text|:contains)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains){
   let text=contains[2].trim();
   if((text.startsWith('"')&&text.endsWith('"'))||
