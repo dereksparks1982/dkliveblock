@@ -442,3 +442,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 105: cap literal sponsored-text scans at 32,000 characters per candidate and fail open on untrusted text getters, preventing rule-matcher work on enormous page bodies.
 - [ ] Build 105 acceptance: full offline tests, Firefox DOM performance and accessibility checks.
+
+- [x] Build 106: reject another class of nested counted regex repetitions during list ingestion to reduce browser CPU risk. Keep ordinary safe regex and hostname ad filters available.
+- [ ] Build 106 acceptance: full suite and multi-list regex/performance differential profiling.

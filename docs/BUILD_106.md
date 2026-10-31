@@ -1,0 +1,3 @@
+# Build 106: reject expensive nested repetition filters
+
+Unreleased 0.3.76. The independent regex compiler already rejects some nested quantifiers, ambiguous alternations and backreferences. Counted inner repetitions repeated as a larger outer group were not covered. These can create extreme matching work on long request URLs. The parser now rejects this additional class while continuing to allow simple ad-domain and ordinary regex patterns. Regression tests cover nested and benign forms. This is conservative screening, not a proof that every potentially expensive regex is eliminated. Full local and live browser performance checks remain open.

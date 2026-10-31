@@ -528,3 +528,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.75 / Build 105 (2026-10-31)
 - Added a bounded text length limit and exception handling to the independent procedural sponsored-text matcher; unusually large page text is left untouched rather than repeatedly scanned. Added performance and error fixtures. Firefox validation pending.
+
+### 0.3.76 / Build 106 (2026-10-31)
+- Hardened independent network regex ingestion against nested counted repetition patterns that can trigger heavy backtracking. Added adversarial and ordinary regex fixtures. Full Firefox/Ubuntu acceptance pending.

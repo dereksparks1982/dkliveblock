@@ -371,3 +371,12 @@ test("Build 104 UTM exceptions also preserve case-varied query keys",()=>{
  assert.equal(f.cleanNavigation("https://shop.example/?UTM_SOURCE=allowed&UtM_Medium=removed&sku=17"),
   "https://shop.example/?UTM_SOURCE=allowed&sku=17");
 });
+
+test("Build 106 blocks nested counted regex groups that may backtrack excessively",()=>{
+ for(const filter of ["/^(a{1,10}){2,10}$/",
+  "/^(ab{2,8})+$/","/^(a{1,8}b){1,10}$/"]){
+  assert.equal(R.network(filter),null,filter);
+ }
+ assert.ok(R.network("/^ads?[0-9]+$/"));
+ assert.ok(R.network("||ads.example^"));
+});
