@@ -259,3 +259,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 57 acceptance: full local Node/Python suite, real Firefox YouTube preroll/midroll (including localized labels), genuine content and controls, Disney+ authorized playback, safety and performance acceptance.
 
 - [x] Build 57 QA: synchronize six browser-simulation fixtures with the cosmetic debug module and required YouTube watcher; add an explicit test-fixture contract check to the local regression suite.
+
+- [x] Build 57 QA: align popup-refresh fixture distraction setting with its stated expectation and rerun simulated browser regression scenarios.

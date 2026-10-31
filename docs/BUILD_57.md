@@ -19,3 +19,5 @@ This is **not** proof of YouTube ad elimination or Adblock Plus Premium parity. 
 ## QA fixture reconciliation
 
 Existing Node VM tests for the content script were missing the newer cosmetic-debug interface, and the older YouTube anti-adblock fixture also missed the streaming watcher. These fixtures now supply inert test doubles matching their intended behaviors. A source-level contract test protects against repeating the missing-module setup. This is test maintenance, not a new production permission or feature claim.
+
+The stale popup-refresh test responses now explicitly include the distraction-cleanup setting. Previously the mock silently disabled it, generating an unrelated overlay restore event and a false failure.
