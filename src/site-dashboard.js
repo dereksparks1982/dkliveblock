@@ -85,6 +85,7 @@ function showBlock(row){
  addDetail("Third-party relation",info.thirdParty===null?"Not established":info.thirdParty?"Different hostname from website":"Same website or subdomain");
  addDetail("Why DK Live Block stopped it",info.why);
  addDetail("Filter engine",row.ruleEvidence?.source||"Not recorded");
+ addDetail("Matched filter source",row.ruleEvidence?.subscription||"Unattributed active filter");
  addDetail("Matched filter evidence",row.ruleEvidence?.pattern||"Not recorded");
  addDetail("Service operator (local reference)",info.operator);
  addDetail("Operator evidence",info.operatorEvidence);

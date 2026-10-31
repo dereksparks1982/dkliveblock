@@ -118,10 +118,23 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
+function sourceSections(){
+ const entries=[{name:"Built-in fallback",text:SEED}];
+ for(const k of Object.keys(SOURCES))
+  if(data.settings.listEnabled[k]&&data.lists[k]?.text)
+   entries.push({name:SOURCES[k].name,text:data.lists[k].text});
+ let customNumber=0;
+ for(const url of data.settings.customSubscriptions||[])
+  if(data.customLists[url]?.text)
+   entries.push({name:"Custom subscription "+(++customNumber),text:data.customLists[url].text});
+ if(data.youtubeRules?.text)entries.push({name:"YouTube cosmetic pack",text:data.youtubeRules.text});
+ if(data.settings.customRules)entries.push({name:"User custom filters",text:data.settings.customRules});
+ return entries;
+}
 function assemble(){const all=[SEED];for(const k of Object.keys(SOURCES)){if(data.settings.listEnabled[k]&&data.lists[k]?.text)all.push(data.lists[k].text);}for(const u of data.settings.customSubscriptions||[])if(data.customLists[u]?.text)all.push(data.customLists[u].text);if(data.youtubeRules?.text)all.push(data.youtubeRules.text);if(data.settings.customRules)all.push(data.settings.customRules);return all.join("\n");}
 async function persist(){await browser.storage.local.set({settings:data.settings,lists:data.lists,customLists:data.customLists,listErrors:data.listErrors,youtubeRules:data.youtubeRules,youtubePrevious:data.youtubePrevious,youtubeHeldVersion:data.youtubeHeldVersion});}
 async function persistSettings(){await browser.storage.local.set({settings:data.settings});}
@@ -133,6 +146,7 @@ function rebuild(){
  if(next!==lastCompiledRules){
   data.engine=typeof DKHybridEngine!=="undefined"?DKHybridEngine.create(next):new DKFilter.FilterEngine(next);
   lastCompiledRules=next;
+  data.ruleSources=DKRuleProvenance.create(sourceSections());
   filterRevision++;
  }
  for(const id of new Set([...data.hosts.keys(),...data.counts.keys()]))badge(id);
@@ -381,7 +395,9 @@ function recordBlock(tabId,url,type,rule){
   data.hosts.get(tabId)||"",host(url),type);
  if(!data.settings.requestLog)return;
  const rows=data.logs.get(tabId)||[];
- rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),when:Date.now(),sequence:data.counts.get(tabId)});
+ rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),
+  ruleSource:DKRuleProvenance.identify(rule,data.ruleSources),
+  when:Date.now(),sequence:data.counts.get(tabId)});
  if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
 }
 browser.webRequest.onBeforeRequest.addListener(d=>{
@@ -750,7 +766,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=1?row.sequence:0,
    ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine",
    registeredDomain:DKPublicSuffix.registrable(row.host),
-   ruleEvidence:DKRuleEvidence.explain(row.rule)
+   ruleEvidence:{...DKRuleEvidence.explain(row.rule),subscription:DKRuleProvenance.clean(row.ruleSource)}
   })):[];
   const popupEvents=sameTab&&requestLog?
    DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];

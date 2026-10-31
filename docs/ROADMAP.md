@@ -328,3 +328,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 66: export permitted site activity and one selected destination/type in TXT/JSON with privacy bounds; next source build is safe rule attribution.
 - [ ] Build 66 Firefox acceptance: verify local downloads and exact selected-tab counts.
+
+- [x] Build 67: native blocked rule provenance in Site Dashboard and JSON/TXT exports; no private request or user subscription URLs.
+- [ ] Build 67 acceptance: local full suite plus Firefox source attribution on YouTube's blocked first-party XHR.

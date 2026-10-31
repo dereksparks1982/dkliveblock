@@ -31,6 +31,9 @@ function requestRows(data){
    registeredDomain:hostname(row.registeredDomain)||host,
    ...(row.ruleEvidence&&typeof row.ruleEvidence==="object"?
     {ruleEvidence:{source:["Embedded Ghostery network filter","Native network filter (original list not determined)","Unknown filtering rule"].includes(row.ruleEvidence.source)?row.ruleEvidence.source:"Unknown filtering rule",
+      subscription:typeof row.ruleEvidence.subscription==="string"&&
+       /^[\p{L}\p{N} (),.+_-]{1,80}$/u.test(row.ruleEvidence.subscription)?
+        row.ruleEvidence.subscription:"Unattributed active filter",
       pattern:typeof row.ruleEvidence.pattern==="string"&&
        (/^\|\|[a-z0-9.-]+\^$/.test(row.ruleEvidence.pattern)||
         ["Rule text not exposed by embedded matcher","No matched pattern was recorded","Matching pattern withheld: may contain a URL path or private parameter"].includes(row.ruleEvidence.pattern))?

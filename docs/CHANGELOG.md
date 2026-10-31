@@ -403,3 +403,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.36 (Build 66, unreleased)
 - One-click TXT/JSON export for all retained permitted destination/type groups or one inspected destination.
 - Include counts, safe service hints, toggles and privacy caveats. Keep request URLs and account information out of reports.
+
+### 0.3.37 (Build 67, unreleased)
+- Show active filtering-list attribution for each blocked request, with privacy-safe source labels and duplicate-source reporting.

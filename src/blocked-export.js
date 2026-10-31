@@ -48,6 +48,7 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
    siteRelation:info.thirdParty===null?"Unknown":info.thirdParty?"Third party":"First party or subdomain",
    blockingReason:info.why,
    filterEngine:row.ruleEvidence?.source||"Not recorded",
+   filterSource:row.ruleEvidence?.subscription||"Unattributed active filter",
    matchedFilter:row.ruleEvidence?.pattern||"Not recorded",
    serviceOperator:info.operator,operatorEvidence:info.operatorEvidence,
    likelyPurpose:info.purpose,importance:info.importance,scopeOfEvidence:info.access,
@@ -88,6 +89,7 @@ function asText(report){
    ["registrationDomain","Registration domain"],["resourceType","Resource type"],
    ["resourceDescription","Resource description"],["siteRelation","Relationship to website"],
    ["blockingReason","Why blocked"],["filterEngine","Filter engine"],
+   ["filterSource","Matched filter source"],
    ["matchedFilter","Matched filter evidence"],["serviceOperator","Service operator"],
    ["operatorEvidence","Operator evidence"],["likelyPurpose","Likely service purpose"],
    ["importance","Importance / possible impact"],["scopeOfEvidence","Evidence limitations"]])
