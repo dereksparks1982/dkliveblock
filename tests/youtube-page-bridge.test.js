@@ -56,6 +56,15 @@ test("Build 74 XHR responseText and json are limited to valid response and reset
  xhr.responseType="json";assert.equal(xhr.response.adSlots,undefined);
  p.send("disable");assert.equal(Object.getOwnPropertyDescriptor(proto,"responseText").get,native);
 });
+test("Build 77 removes known ad fields from an already loaded initial player bootstrap",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse={streamingData:{formats:["signed"]},videoDetails:{title:"private"},
+  adPlacements:[{ad:1}],adSlots:[{ad:2}],playabilityStatus:{status:"OK"}};
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse.adPlacements,undefined);
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
+ assert.deepEqual(Array.from(p.window.ytInitialPlayerResponse.streamingData.formats),["signed"]);
+});
 test("Build 75 safe teardown does not undo somebody else's later XHR hook",()=>{
  const p=context(),proto=p.window.XMLHttpRequest.prototype;
  p.send("enable");

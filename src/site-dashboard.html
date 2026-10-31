@@ -88,6 +88,10 @@
 <p id="dashboardPlaybackState" role="status"></p>
 <p id="dashboardYouTubeTriage" role="status" hidden></p>
 <p id="dashboardYouTubeResponse" role="status" hidden></p>
+<div class="network-monitor-controls" id="dashboardYouTubeExportControls" hidden>
+<button id="dashboardYouTubeExportJSON" type="button">Export YouTube diagnostics (.json)</button>
+<button id="dashboardYouTubeExportText" type="button">Export YouTube diagnostics (.txt)</button>
+</div>
 <div id="dashboardPlaybackEvents" aria-label="Streaming playback events"></div></section>
 <section><h2>Recently blocked popups</h2>
 <p>Firefox may not reveal a destination if a tab was stopped while blank. No URLs, paths or query strings are displayed.</p>
@@ -114,5 +118,6 @@
 <script src="blocked-export.js"></script>
 <script src="allowed-export.js"></script>
 <script src="session-export.js"></script>
+<script src="youtube-report.js"></script>
 <script src="site-dashboard.js"></script>
 </body></html>

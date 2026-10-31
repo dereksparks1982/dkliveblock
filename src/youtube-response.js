@@ -40,8 +40,7 @@ function safeHeaders(details){
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function pruneObject(obj){
  if(!plain(obj)||obj.playabilityStatus&&obj.playabilityStatus.status&&obj.playabilityStatus.status!=="OK")return 0;
- if(!plain(obj.streamingData)&&!plain(obj.videoDetails)&&!plain(obj.playerResponse)||
-    !plain(obj.streamingData)&&!plain(obj.videoDetails)&&!obj.playerResponse)return 0;
+ if(!plain(obj.streamingData)&&!plain(obj.videoDetails)&&!plain(obj.playerResponse))return 0;
  let changed=0;
  for(const key of AD_FIELDS){
   if(Object.prototype.hasOwnProperty.call(obj,key)&&

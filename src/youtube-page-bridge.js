@@ -69,8 +69,19 @@ function decorate(response){
  }catch(_){/* If a response is locked or non-extensible, leave it untouched. */}
  return response;
 }
+function pruneExistingBootstrap(){
+ // A data property already loaded by YouTube may still be consumed during
+ // navigation. Do not replace an accessor, intercept an assignment, or touch
+ // unrelated initial page data.
+ try{
+  const own=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
+  if(own&&Object.prototype.hasOwnProperty.call(own,"value")&&plain(own.value))
+   prune(own.value);
+ }catch(_){}
+}
 function enable(){
  if(enabled)return;enabled=true;
+ pruneExistingBootstrap();
  if(typeof g.fetch==="function"){
   oldFetch=g.fetch;
   wrappedFetch=function(...args){

@@ -355,3 +355,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 76: local, vetted noop JavaScript and empty CSS redirect resources, trusted only by exact parser name/type/domain selectors; prevent arbitrary/remote/media redirect targets. Firefox extension-local redirect URL only, standard engine exception priority, no separate downloads.
 - [ ] Build 76 acceptance: full on-device test suite and Firefox network substitute behavior, content-type and CSP checks, actual site compatibility and regression for login players. Only two static replacements, not full uBO redirect-resource coverage.
+
+- [x] Build 77: prune existing known ad-only fields in YouTube's initial player bootstrap data property after verified activation; no global property rewrite or page hook bypass. One-click dedicated YouTube JSON/TXT compatibility export showing response-filter counts, safe blocked/allowed host/type rows, and player-refusal signals without URLs or titles.
+- [ ] Build 77 acceptance: full local suite and Firefox actual delivery, initial bootstrap race/verification, free films and normal videos signed in/out, privacy inspection of exports.

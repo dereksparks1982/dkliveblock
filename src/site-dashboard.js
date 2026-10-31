@@ -186,6 +186,17 @@ async function exportAllOpenSites(format){
 }
 $("dashboardSessionExportText").addEventListener("click",()=>exportAllOpenSites("txt"));
 $("dashboardSessionExportJSON").addEventListener("click",()=>exportAllOpenSites("json"));
+function exportYouTube(kind){
+ try{
+  if(loading||busy||!current?.ok||!DKYouTubeTriage.isYouTube(current.site))
+   throw Error("Select a current YouTube tab before exporting diagnostics.");
+  const report=DKYouTubeReport.build(current);
+  const saved=DKYouTubeReport.download(report,kind);
+  notice("Saved YouTube diagnostic report as "+saved.filename);
+ }catch(error){notice(error?.message||"Could not export YouTube diagnostics.");}
+}
+$("dashboardYouTubeExportJSON").addEventListener("click",()=>exportYouTube("json"));
+$("dashboardYouTubeExportText").addEventListener("click",()=>exportYouTube("txt"));
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -418,6 +429,9 @@ function display(d){
   section.focus?.({preventScroll:true});
  }
  const triage=DKYouTubeTriage.summarize(d);
+ $("dashboardYouTubeExportControls").hidden=!triage.applicable;
+ $("dashboardYouTubeExportJSON").disabled=busy||!triage.applicable;
+ $("dashboardYouTubeExportText").disabled=busy||!triage.applicable;
  $("dashboardYouTubeTriage").hidden=!triage.applicable;
  $("dashboardYouTubeTriage").textContent=triage.applicable?
   "YouTube compatibility evidence: "+triage.firstPartyXHR+" first-party background request blocks, "+

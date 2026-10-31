@@ -439,3 +439,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.46 / Build 76 (2026-10-31)
 - Added two bundled inert resource substitutes and a restricted ABP redirect option, with a type/domain guard, native exception precedence, Firefox-only extension-local destinations, and dedicated parser/engine/package tests. No remote redirects, arbitrary JS, media replacement or newly installed dependencies.
 - Browser release gate still open.
+
+### 0.3.47 / Build 77 (2026-10-31)
+- Added conservative existing YouTube player bootstrap ad metadata pruning and user-triggered TXT/JSON YouTube compatibility export, available without requiring blocked-request history. Added dedicated privacy and UI tests.
+- Full regression and Firefox playback unverified.
