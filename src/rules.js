@@ -90,7 +90,9 @@ function network(raw){
  if(methods&&(special||removeparam))return null;
  // Navigation query cleanup cannot honor request-target scope or denyallow
  // semantics. Reject instead of silently broadening the author's rule.
- if(removeparam&&(targetScope||denyallow||redirect||special))return null;
+ if(removeparam&&(targetScope||denyallow||redirect||special||
+   third===true||exclude.has("document")||
+   include.size&&!(include.size===1&&include.has("document"))))return null;
  // Never allow broad, arbitrary, media, navigation or sign-in substitutions.
  if(redirect){
   const kind=redirect==="noop.js"?"script":"stylesheet";

@@ -657,3 +657,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.118 / Build 148 (2026-10-31)
 - Corrected overly narrow Google Ad Manager iframe naming detection to accept slash-separated inventory IDs while retaining strict prefix/character/length bounds and protected player/form checks. Added positive/negative fixtures; browser acceptance pending.
+
+### 0.3.119 / Build 149 (2026-10-31)
+- Tightened filter parser handling of `removeparam` rules so script-only, third-party-only, and document-excluded modifiers are rejected rather than accepted but never honored by navigation cleanup. Document and first-party rules remain supported. Parser/validator tests included.

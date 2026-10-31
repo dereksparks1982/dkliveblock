@@ -1,0 +1,3 @@
+# Build 149: make navigation-only tracking rules unambiguous
+
+Unreleased 0.3.119. The independent query cleaner only operates on top-level document navigation. A filter rule that restricts `removeparam` to script requests, third-party resources or excludes document requests has no meaningful application there. Previously such rules could be accepted even though the cleaner ignored them, misleading users about filter-list compatibility. The parser now explicitly rejects incompatible resource and third-party constraints, while retaining legitimate `document` and first-party-scoped query rules. Tests verify the rejected forms and ordinary clean navigation. Full Firefox/Ubuntu acceptance remains outstanding.

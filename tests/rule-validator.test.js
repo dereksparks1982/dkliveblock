@@ -88,3 +88,11 @@ test("Build 144 unsupported navigation target options are counted accurately",()
  assert.equal(v.counts.unsupported,1);
  assert.equal(v.counts.network,1);
 });
+
+test("Build 149 navigation cleanup reports incompatible resource options as unsupported",()=>{
+ const report=V.validate(["*$removeparam=utm_source,script",
+  "*$removeparam=utm_source,third-party",
+  "*$removeparam=utm_source,document"].join("\n"));
+ assert.equal(report.counts.unsupported,2);
+ assert.equal(report.counts.network,1);
+});

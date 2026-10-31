@@ -473,3 +473,17 @@ test("Build 144 reject navigation tracking rules with unsupported target modifie
   "https://shop.example/?sku=1");
  assert.equal(allowed.cleanNavigation("https://other.example/?utm_source=campaign"),null);
 });
+
+test("Build 149 rejects request-only options on navigation query cleaners",()=>{
+ for(const text of ["*$removeparam=utm_source,script",
+  "*$removeparam=utm_source,third-party",
+  "*$removeparam=utm_source,3p",
+  "*$removeparam=utm_source,~document",
+  "*$removeparam=utm_source,document,script",
+  "*$removeparam=utm_source,denyallow=cdn.example,domain=shop.example"])
+  assert.equal(R.network(text),null,text);
+ const allowed=new FilterEngine("*$removeparam=utm_source,document"+
+  "\n*$removeparam=utm_medium,first-party");
+ assert.equal(allowed.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=19"),
+  "https://shop.example/?sku=19");
+});
