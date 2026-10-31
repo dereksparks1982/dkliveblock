@@ -26,3 +26,10 @@ test("Build 34 normalized aliases cannot run code and preserve matching semantic
  assert.equal(matches({querySelector:selector=>selector===".sponsored"?{}:null},child),true);
  assert.equal(matches({querySelector:()=>null},child),false);
 });
+
+test("Build 101 quoted literal text uses existing bounded matcher",()=>{
+ const {procedural}=require("../src/rules.js");
+ const r=procedural('news.example##article:has-text("Sponsored")');
+ assert.equal(matches({textContent:"Sponsored editorial note"},r),true);
+ assert.equal(matches({textContent:"Editorial note"},r),false);
+});

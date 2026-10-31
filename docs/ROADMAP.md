@@ -427,3 +427,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 100: safe procedural cosmetics support up to 16 explicit positive/negative site scopes. At least one positive host is required; excluded subdomains never receive an unrelated site's literal matching. No global text scans.
 - [ ] Build 100 acceptance: full Node/Python regression suite and Firefox multi-site/embedded-page DOM tests.
+
+- [x] Build 101: quoted literal cosmetic `:has-text` and `:-abp-has-text` phrases are unquoted for matching, while unsupported regex-like expressions and empty literals are rejected.
+- [ ] Build 101 acceptance: Firefox DOM tests and full local suite.

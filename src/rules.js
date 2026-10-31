@@ -119,8 +119,15 @@ function procedural(line){
    }))
   return null;
  const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text)\(([^()]{1,120})\)$/i.exec(raw);
- if(contains&&!/[{};\\]/.test(contains[2]))
-  return {scope,selector:contains[1].trim(),mode:"text",text:contains[2],exception:match[2]==="#@?#"||match[2]==="#@#"};
+ if(contains){
+  let text=contains[2].trim();
+  if((text.startsWith('"')&&text.endsWith('"'))||
+     (text.startsWith("'")&&text.endsWith("'")))text=text.slice(1,-1);
+  if(!text||text.startsWith("/")&&text.endsWith("/")||
+     /[{};\\]/.test(text))return null;
+  return {scope,selector:contains[1].trim(),mode:"text",text,
+   exception:match[2]==="#@?#"||match[2]==="#@#"};
+ }
  const has=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-has|:has)\(([^()]{1,150})\)$/i.exec(raw);
  if(has&&/^[a-zA-Z.#\[][a-zA-Z0-9_.#>[\]="'\s:*-]*$/.test(has[2])&&!/[{};\\]/.test(has[2]))
   return {scope,selector:has[1].trim(),mode:"has",target:has[2].trim(),exception:match[2]==="#@?#"};

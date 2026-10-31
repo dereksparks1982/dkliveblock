@@ -1,0 +1,3 @@
+# Build 101: exact quoted cosmetic labels
+
+Unreleased 0.3.71. Filter authors can quote literal sponsored labels in site-scoped text cosmetic rules. Previously the parser preserved the quote characters and matched the wrong text. The independent parser now unwraps only a balanced leading/trailing quote pair, preserves literal content, and refuses unsupported regular-expression style `/pattern/` strings and empty values. Existing site limits, exceptions, and bounded DOM matching remain unchanged. Parser, validator and matcher fixtures were added. Real Firefox and full offline tests remain pending.

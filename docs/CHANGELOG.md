@@ -513,3 +513,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.70 / Build 100 (2026-10-31)
 - Added subdomain exclusion in bounded multi-site literal procedural rules, preserving individual site exceptions and refusing negative-only global text scanning. Added parser/engine/validator tests. Firefox acceptance remains outstanding.
+
+### 0.3.71 / Build 101 (2026-10-31)
+- Implemented safe quoted-literal matching for cosmetic `has-text` rules, reusing the existing bounded text predicate and rejecting regex-like syntax until intentionally implemented. Added parser, matcher and validator fixtures. Firefox acceptance pending.

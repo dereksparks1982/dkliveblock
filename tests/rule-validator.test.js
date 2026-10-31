@@ -52,3 +52,10 @@ test("Build 100 multi-site exclusions classify as supported, negative-only does 
  assert.equal(r.counts.procedural,1);
  assert.equal(r.counts.unsupported,1);
 });
+
+test("Build 101 quoted text accepted; regex-like text flagged unsupported",()=>{
+ const r=V.validate('news.example##div:has-text("Sponsored")'+
+  "\nnews.example##div:has-text(/Sponsored/)");
+ assert.equal(r.counts.procedural,1);
+ assert.equal(r.counts.unsupported,1);
+});

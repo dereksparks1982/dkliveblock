@@ -342,3 +342,15 @@ test("Build 100 negative-only scopes remain unsupported to avoid global text sca
   "\npay.news.example##article:has-text(Sponsored)");
  assert.equal(f.getProcedural("pay.news.example").length,1);
 });
+
+test("Build 101 quoted literal text selectors match their content, not quote characters",()=>{
+ const a=R.procedural('news.example##article:has-text("Sponsored")');
+ const b=R.procedural("news.example##article:has-text('Promoted')");
+ assert.equal(a.text,"Sponsored");
+ assert.equal(b.text,"Promoted");
+ const f=new FilterEngine('news.example##article:has-text("Sponsored")');
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"article",mode:"text",text:"Sponsored"}]);
+ assert.equal(R.procedural("news.example##article:has-text(/Sponsored/)"),null);
+ assert.equal(R.procedural("news.example##article:has-text(  )"),null);
+});
