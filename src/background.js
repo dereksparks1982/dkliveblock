@@ -510,6 +510,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   catch(_){return {error:"Selected tab is no longer available."};}
   if(!sourceHost||!DKManualRules.validHost(sourceHost))
    return {error:"Choose a normal website tab."};
+  if(typeof msg.expectedSite==="string"&&msg.expectedSite!==sourceHost)
+   return {error:"The selected tab changed websites. Refresh the dashboard."};
   if(msg.action==="getRequestAllowances")
    return DKRequestControls.list(data.requestControls,id,sourceHost);
   if(msg.action==="allowMonitoredRequest"){
@@ -1008,6 +1010,27 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const existing=data.settings.customRules.split("\n");
   if(!existing.includes(rule))data.settings.customRules+="\n"+rule;
   await persist();rebuild();return {ok:true,rule};
+ }
+ if(msg.action==="revokeSiteDashboardHost"||msg.action==="clearSiteDashboardLog"){
+  if(fromContent||!Number.isInteger(id)||id<0||
+   !DKManualRules.validHost(msg.expectedSite))
+   return {error:"Invalid site dashboard request."};
+  let site="",liveURL="";
+  try{
+   liveURL=(await browser.tabs.get(id))?.url||"";
+   site=DKSiteAllowlist.host(liveURL);
+  }catch(_){return {error:"Selected website tab unavailable."};}
+  if(!/^https?:\/\//i.test(liveURL)||site!==msg.expectedSite)
+   return {error:"The selected tab changed websites. Refresh the dashboard."};
+  if(msg.action==="clearSiteDashboardLog"){
+   data.logs.delete(id);data.streamingIssues.delete(id);return {ok:true};
+  }
+  if(!DKManualRules.validHost(msg.host))return {error:"Invalid request hostname."};
+  const result=DKManualRules.removeSiteException(data.settings.customRules,site,msg.host);
+  if(result.error)return result;
+  data.settings.customRules=result.text;
+  await persistSettings();rebuild();
+  return {ok:true,removed:result.removed};
  }
  if(msg.action==="getSiteExceptions")return DKManualRules.listSiteExceptions(data.settings.customRules,h);
  if(msg.action==="removeSiteException"){

@@ -271,3 +271,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 59: verified extension-only data snapshot, host-only privacy boundary, no URL paths or query tokens; inspect/revoke website exceptions and narrowly scoped allowances with confirmation.
 - [x] Build 59: one-click recovery actions for global/site/tab pause, per-site cookie and distraction cleanup and links to existing detailed network tools.
 - [ ] Build 59 acceptance: full local test suite and Firefox accessibility, focus, loading-state, tab-switch and layout acceptance; evaluate ABP gaps separately without claiming complete parity.
+
+- [x] Build 60: serialize dashboard changes, reject stale tab selections and malformed URLs, and validate live site before exception or history mutations.
+- [x] Build 60: extend offline audit to every packaged extension HTML page with local script, stylesheet, duplicate ID and control checks; add synthetic failure fixtures.
+- [ ] Build 60 acceptance: full offline Node/Python suite, long-session Firefox stability and real-site audio/video/YouTube/Disney+ compatibility before test release.

@@ -130,3 +130,31 @@ test("Build 59 dashboard inventory reflects narrow request and explicit host exc
  assert.deepEqual(Array.from(snap.requestAllowances),[]);
  assert.equal(snap.requestLog,true);
 });
+
+test("Build 60 dashboard will not revoke an old website after tab navigation",async()=>{
+ const {events,tabs}=await setup();
+ assert.equal((await events.message({action:"allowHost",
+  url:"https://news.example.org/",host:"ads.example.org"})).ok,true);
+ tabs.set(1,"https://second.example.net/");
+ const bad=await events.message({action:"revokeSiteDashboardHost",
+  tabId:1,expectedSite:"news.example.org",host:"ads.example.org"});
+ assert.match(bad.error,/changed websites/);
+ const log=await events.message({action:"clearSiteDashboardLog",
+  tabId:1,expectedSite:"news.example.org"});
+ assert.match(log.error,/changed websites/);
+ tabs.set(1,"https://news.example.org/article");
+ const good=await events.message({action:"revokeSiteDashboardHost",
+  tabId:1,expectedSite:"news.example.org",host:"ads.example.org"});
+ assert.equal(good.ok,true);
+ const snapshot=await events.message({action:"getSiteDashboard",tabId:1});
+ assert.deepEqual(Array.from(snapshot.customAllowances),[]);
+});
+test("Build 60 page scripts cannot alter dashboard exceptions",async()=>{
+ const {events}=await setup();
+ const sender={tab:{id:1,url:"https://news.example.org/"},url:"https://news.example.org/"};
+ for(const action of ["revokeSiteDashboardHost","clearSiteDashboardLog"]){
+  const reply=await events.message({action,tabId:1,expectedSite:"news.example.org",
+   host:"ads.example.org"},sender);
+  assert.match(reply.error,/extension interface/i);
+ }
+});

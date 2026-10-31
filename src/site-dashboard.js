@@ -1,6 +1,10 @@
 "use strict";
 const $=id=>document.getElementById(id),Model=DKSiteDashboardModel;
-let current=null,requestToken=0,loading=false;
+let current=null,requestToken=0,loading=false,busy=false;
+function tabHost(url){
+ try{return /^https?:\/\//i.test(url||"")?Model.hostname(new URL(url).hostname.toLowerCase()):"";}
+ catch(_){return "";}
+}
 function notice(message){$("dashboardMessage").textContent=String(message||"").slice(0,220);}
 function line(text,buttonLabel=null,onClick=null){
  const container=document.createElement("div");container.className="dashboard-line";
@@ -35,15 +39,15 @@ async function selectTabs(preferred=null){
  const blank=document.createElement("option");blank.value="";blank.textContent="Choose a website tab";
  picker.appendChild(blank);
  for(const tab of list){
-  if(!Number.isInteger(tab.id)||!/^https?:\/\//i.test(tab.url||""))continue;
-  const option=document.createElement("option");option.value=String(tab.id);
-  const host=Model.hostname(new URL(tab.url).hostname.toLowerCase());
+  if(!Number.isInteger(tab.id))continue;
+  const host=tabHost(tab.url);
   if(!host)continue;
+  const option=document.createElement("option");option.value=String(tab.id);
   option.textContent=host+" · Tab "+tab.id+" · "+String(tab.title||"").slice(0,65);
   picker.appendChild(option);
  }
  const choices=[preferred,previous].filter(id=>Number.isInteger(id)&&id>=0);
- const active=list.find(tab=>tab.active&&/^https?:\/\//i.test(tab.url||""));
+ const active=list.find(tab=>tab.active&&tabHost(tab.url));
  if(active)choices.push(active.id);
  for(const id of choices){
   if([...picker.options].some(option=>option.value===String(id))){
@@ -53,12 +57,14 @@ async function selectTabs(preferred=null){
  await refresh();
 }
 function setButtons(d){
- $("dashboardAllowlist").disabled=!d?.ok||!d.globalEnabled;
- $("dashboardPause").disabled=!d?.ok||!d.globalEnabled||d.sitePaused;
- $("dashboardCookie").disabled=!d?.ok||!d.siteActive||!d.cookieRejectEnabled;
- $("dashboardDistraction").disabled=!d?.ok||!d.siteActive||!d.distractionEnabled;
- $("dashboardClearLog").disabled=!d?.ok||!d.requestLog;
- $("dashboardMonitor").disabled=!d?.ok;
+ for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
+  $(id).disabled=busy;
+ $("dashboardAllowlist").disabled=busy||!d?.ok||!d.globalEnabled;
+ $("dashboardPause").disabled=busy||!d?.ok||!d.globalEnabled||d.sitePaused;
+ $("dashboardCookie").disabled=busy||!d?.ok||!d.siteActive||!d.cookieRejectEnabled;
+ $("dashboardDistraction").disabled=busy||!d?.ok||!d.siteActive||!d.distractionEnabled;
+ $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
+ $("dashboardMonitor").disabled=busy||!d?.ok;
  $("dashboardAllowlist").textContent=d?.sitePaused?"Remove from allowlist":"Allowlist website";
  $("dashboardPause").textContent=d?.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("dashboardCookie").textContent=d?.cookieRejectPaused?"Resume cookie rejection here":"Pause cookie rejection here";
@@ -77,58 +83,66 @@ function clearDisplay(message){
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
-async function verifyCurrentTab(){
- if(!current?.ok)throw Error("Choose a website tab.");
- const tab=await browser.tabs.get(current.tabId);
- if(!/^https?:\/\//i.test(tab.url||"")||
-    Model.hostname(new URL(tab.url).hostname.toLowerCase())!==current.site)
-  throw Error("The selected tab navigated. Refresh before changing its settings.");
+async function verifyCurrentTab(expected=current){
+ if(!expected?.ok||current!==expected||selected()!==expected.tabId)
+  throw Error("Selected tab changed. Refresh this dashboard.");
+ const tab=await browser.tabs.get(expected.tabId);
+ if(current!==expected||selected()!==expected.tabId||tabHost(tab?.url)!==expected.site)
+  throw Error("The selected tab navigated. Refresh before changing settings.");
  return tab;
 }
+async function withAction(handler){
+ if(loading||busy||!current?.ok)return;
+ busy=true;setButtons(current);
+ try{await handler();}
+ catch(error){notice(error?.message||"Website setting failed.");}
+ finally{busy=false;setButtons(current);}
+}
 async function perform(action,confirmText=null,reload=false){
- if(loading||!current?.ok)return;
- const data=current;
- if(confirmText&&!window.confirm(confirmText))return;
- try{
-  const tab=await verifyCurrentTab();
+ await withAction(async()=>{
+  const data=current;
+  if(confirmText&&!window.confirm(confirmText))return;
+  const tab=await verifyCurrentTab(data);
   const response=await browser.runtime.sendMessage({action,tabId:data.tabId,
    url:tab.url,allowed:action==="setSiteAllowed"?!data.sitePaused:undefined,
    paused:action==="toggleTabPause"?!data.temporarilyPaused:undefined});
   if(response?.error)throw Error(response.error);
   if(reload)await browser.tabs.reload(data.tabId);
-  notice("Change saved. Updating site status.");
   await refresh();
- }catch(error){notice(error?.message||"Could not update site.");}
+ });
 }
 async function toggleFeature(feature){
- if(loading||!current?.ok)return;
- const data=current;
- try{
-  await verifyCurrentTab();
+ await withAction(async()=>{
+  const data=current;
+  await verifyCurrentTab(data);
   const paused=feature==="cookieReject"?!data.cookieRejectPaused:!data.distractionPaused;
   const response=await browser.runtime.sendMessage({action:"setSiteFeaturePaused",
    tabId:data.tabId,feature,paused});
-  if(!response?.ok)throw Error(response?.error||"Could not update website cleanup.");
-  await browser.tabs.reload(data.tabId);
-  await refresh();
- }catch(error){notice(error?.message||"Could not change cleanup.");}
+  if(!response?.ok)throw Error(response?.error||"Site cleanup could not be changed.");
+  await browser.tabs.reload(data.tabId);await refresh();
+ });
 }
 async function revokeHost(host){
- if(!current?.ok||!window.confirm("Remove the saved allow rule for "+host+" on "+current.site+"?"))return;
- const data=current;await verifyCurrentTab();
- const r=await browser.runtime.sendMessage({action:"removeSiteException",tabId:data.tabId,
-  url:"https://"+data.site+"/",host});
- if(r?.error)throw Error(r.error);
- await refresh();
+ await withAction(async()=>{
+  const data=current;
+  if(!window.confirm("Revoke the hostname allowance for "+host+" on "+data.site+"?"))return;
+  await verifyCurrentTab(data);
+  const r=await browser.runtime.sendMessage({action:"revokeSiteDashboardHost",
+   tabId:data.tabId,expectedSite:data.site,host});
+  if(!r?.ok)throw Error(r?.error||"Unable to revoke hostname.");
+  await refresh();
+ });
 }
 async function revokeRequest(row){
- if(!current?.ok||!window.confirm("Revoke "+row.scope+" exception: "+row.host+
-   " ("+row.type+") for "+current.site+"?"))return;
- const data=current;await verifyCurrentTab();
- const r=await browser.runtime.sendMessage({action:"revokeMonitoredRequest",tabId:data.tabId,
-  host:row.host,type:row.type,scope:row.scope});
- if(!r?.ok)throw Error(r?.error||"Could not revoke.");
- await refresh();
+ await withAction(async()=>{
+  const data=current;
+  if(!window.confirm("Revoke "+row.scope+" permission for "+row.host+" ("+row.type+") on "+data.site+"?"))return;
+  await verifyCurrentTab(data);
+  const r=await browser.runtime.sendMessage({action:"revokeMonitoredRequest",
+   tabId:data.tabId,expectedSite:data.site,host:row.host,type:row.type,scope:row.scope});
+  if(!r?.ok)throw Error(r?.error||"Unable to revoke request permission.");
+  await refresh();
+ });
 }
 function display(d){
  current=d;setButtons(d);
@@ -175,36 +189,36 @@ async function refresh(){
   if(!data?.ok)throw Error(data?.error||"Site dashboard unavailable.");
   const live=await browser.tabs.get(id);
   if(token!==requestToken)return;
-  if(!/^https?:\/\//i.test(live?.url||"")||
-    Model.hostname(new URL(live.url).hostname.toLowerCase())!==data.site)
+  if(tabHost(live?.url)!==data.site)
    throw Error("The tab navigated during inspection. Refresh to see its new site.");
   display(data);notice("Showing local status for "+data.site);
  }catch(error){if(token===requestToken)clearDisplay(error?.message||"Could not load site.");}
  finally{if(token===requestToken)loading=false;}
 }
-$("dashboardTab").addEventListener("change",refresh);
-$("dashboardRefresh").addEventListener("click",refresh);
-$("dashboardRefreshTabs").addEventListener("click",()=>selectTabs());
+$("dashboardTab").addEventListener("change",()=>{if(!busy)refresh();});
+$("dashboardRefresh").addEventListener("click",()=>{if(!busy)refresh();});
+$("dashboardRefreshTabs").addEventListener("click",()=>{if(!busy)selectTabs();});
 $("dashboardAllowlist").addEventListener("click",()=>perform("setSiteAllowed",
  current?.sitePaused?null:"Allowlist "+current?.site+" and its subdomains? This turns OFF ALL blocking there.",true));
 $("dashboardPause").addEventListener("click",()=>perform("toggleTabPause",null,true));
 $("dashboardCookie").addEventListener("click",()=>toggleFeature("cookieReject"));
 $("dashboardDistraction").addEventListener("click",()=>toggleFeature("distractionControl"));
-$("dashboardClearLog").addEventListener("click",async()=>{
- if(!current?.ok||!window.confirm("Clear recent blocked-request history for this tab? The blocked counter is unchanged."))return;
- try{
-  const data=current;await verifyCurrentTab();
-  const response=await browser.runtime.sendMessage({action:"clearLog",tabId:data.tabId});
-  if(!response?.ok)throw Error(response?.error||"Could not clear log.");
-  await refresh();
- }catch(error){notice(error?.message);}
-});
+$("dashboardClearLog").addEventListener("click",()=>withAction(async()=>{
+ const data=current;
+ if(!window.confirm("Clear blocked-request history and streaming diagnostics on this tab? Counters remain unchanged."))return;
+ await verifyCurrentTab(data);
+ const result=await browser.runtime.sendMessage({action:"clearSiteDashboardLog",
+  tabId:data.tabId,expectedSite:data.site});
+ if(!result?.ok)throw Error(result?.error||"Unable to clear log.");
+ await refresh();
+}));
 $("dashboardMonitor").addEventListener("click",()=>{
  const id=selected();
  if(id!==null)openLocal("network-monitor.html?tab="+id);
 });
 $("dashboardReport").addEventListener("click",()=>openLocal("report.html"));
 $("dashboardOptions").addEventListener("click",()=>browser.runtime.openOptionsPage());
-const preferred=Number(new URLSearchParams(location.search).get("tab"));
+const tabParameter=new URLSearchParams(location.search).get("tab");
+const preferred=tabParameter!==null&&/^\d+$/.test(tabParameter)?Number(tabParameter):null;
 selectTabs(Number.isSafeInteger(preferred)&&preferred>=0?preferred:null)
  .catch(error=>clearDisplay(error?.message||"Could not open dashboard."));

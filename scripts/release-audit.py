@@ -8,6 +8,46 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "src"
 
+def audit_pages(src: Path):
+    """Check every extension page for missing assets, inline code and bad controls."""
+    errors = []
+    for page in sorted(src.glob("*.html")):
+        try:
+            html = page.read_text(encoding="utf-8")
+        except OSError:
+            errors.append("Cannot read extension page " + page.name)
+            continue
+        ids = re.findall(r'\bid\s*=\s*["\']([^"\']+)["\']', html, re.I)
+        for value in sorted({x for x in ids if ids.count(x) > 1}):
+            errors.append("Duplicate HTML id in " + page.name + ": " + value)
+        scripts = []
+        for tag in re.findall(r'<script\b[^>]*>', html, re.I):
+            match = re.search(r'\bsrc\s*=\s*["\']([^"\']+)["\']', tag, re.I)
+            if match:
+                scripts.append(match.group(1))
+            else:
+                errors.append("Inline extension script in " + page.name)
+        styles = []
+        for tag in re.findall(r'<link\b[^>]*>', html, re.I):
+            if re.search(r'\brel\s*=\s*["\']stylesheet["\']', tag, re.I):
+                match = re.search(r'\bhref\s*=\s*["\']([^"\']+)["\']', tag, re.I)
+                if match:
+                    styles.append(match.group(1))
+        for relative in scripts + styles:
+            if not re.fullmatch(r'[a-zA-Z0-9_.-]+', relative):
+                errors.append("Unsafe page asset in " + page.name + ": " + relative[:80])
+            elif not (src / relative).is_file():
+                errors.append("Missing page asset in " + page.name + ": " + relative)
+        controller = ("cosmetic-debug-page.js" if page.stem == "cosmetic-debug" else page.stem + ".js")
+        if controller not in scripts or not (src / controller).is_file():
+            continue
+        code = (src / controller).read_text(encoding="utf-8")
+        used = re.findall(r'\$\(\s*["\']([^"\']+)["\']\s*\)', code)
+        used += re.findall(r'getElementById\(\s*["\']([^"\']+)["\']\s*\)', code)
+        for element in sorted(set(used) - set(ids)):
+            errors.append("Missing control in " + page.name + ": " + element)
+    return errors
+
 def verify():
     issues = []
     workflows = ROOT / ".github" / "workflows"
@@ -42,6 +82,7 @@ def verify():
     value = manifest.get("options_ui", {}).get("page")
     if value:
         paths.append(value)
+    issues.extend(audit_pages(SRC))
     for page in ["options.html", "popup.html"]:
         try:
             data = (SRC / page).read_text(encoding="utf-8")

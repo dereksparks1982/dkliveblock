@@ -29,3 +29,14 @@ test("Build 59 packaged dashboard uses only bundled local scripts and no third-p
  const popupStyle=css.match(/\.popup\{width:(\d+)px\}/);
  assert.equal(popupStyle?.[1],"340");
 });
+
+test("Build 60 rejects stale site actions and protects dashboard interaction",()=>{
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"src/background.js"),"utf8");
+ assert.match(js,/function tabHost\(url\)/);
+ assert.match(js,/busy=true;setButtons\(current\)/);
+ assert.match(js,/current!==expected\|\|selected\(\)!==expected\.tabId/);
+ assert.match(js,/revokeSiteDashboardHost/);
+ assert.match(js,/clearSiteDashboardLog/);
+ assert.match(bg,/site!==msg\.expectedSite/);
+});
