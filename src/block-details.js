@@ -1,6 +1,8 @@
 /* DK Live Block: observed evidence vs research hints; never infer malware from a block. */
 (function(root){"use strict";
 const KNOWN=Object.freeze([
+ ["youtube.com","Google LLC (YouTube)","Video hosting and playback infrastructure; this particular request's purpose cannot be verified from its hostname","https://www.youtube.com/about/"],
+ ["google.com","Google LLC","Google service resources; the purpose of this particular image or data request cannot be verified from its hostname","https://about.google/"],
  ["doubleclick.net","Google LLC","Online advertising delivery and measurement","https://www.google.com/"],
  ["googlesyndication.com","Google LLC","Advertising placement and delivery","https://www.google.com/"],
  ["googleadservices.com","Google LLC","Advertising links and measurement","https://www.google.com/"],

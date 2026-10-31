@@ -77,3 +77,19 @@ test("dashboard status and individual blocks display safe match evidence and sit
  assert.match(dash,/addDetail\("Filter engine"/);
  assert.ok(manifest.background.scripts.indexOf("rule-evidence.js")<manifest.background.scripts.indexOf("background.js"));
 });
+
+test("one click export of all and individual blocked requests includes opt-in RDAP only",()=>{
+ const page=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const exporter=fs.readFileSync(path.join(root,"src/blocked-export.js"),"utf8");
+ for(const id of ["dashboardExportText","dashboardExportJSON","blockExportText","blockExportJSON"])
+  assert.ok(page.includes('id="'+id+'"'),id);
+ assert.ok(page.indexOf('src="site-dashboard-model.js"')<page.indexOf('src="blocked-export.js"'));
+ assert.ok(page.indexOf('src="blocked-export.js"')<page.indexOf('src="site-dashboard.js"'));
+ assert.match(js,/DKBlockedExport\.download\(report,format\)/);
+ assert.match(js,/DKBlockedExport\.build\(current,row,registrationCache\)/);
+ assert.match(js,/registrationCache\.set\(DKBlockedExport\.rowKey/);
+ assert.match(exporter,/URLApi\.createObjectURL\(blob\)/);
+ assert.match(exporter,/anchor\.download=name/);
+ assert.doesNotMatch(exporter,/fetch\(|XMLHttpRequest|navigator\.sendBeacon/);
+});

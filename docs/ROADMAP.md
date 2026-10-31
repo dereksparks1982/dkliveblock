@@ -305,3 +305,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Review any blocked first-party YouTube/Google image in live Firefox using matched pattern and network monitor, then isolate the black-screen cause. Do not assume Google or YouTube image blocks are malicious or automatically exempt all first-party services.
 
 - [x] Popup dashboard-context routing regression: executable test resolves our selected YouTube tab and rejects foreign extension URLs, invalid selections and non-HTTP targets.
+
+- [x] Firefox site dashboard: export all retained blocked requests or one selected request as readable TXT or structured JSON, including privacy-safe matched evidence, service-operator caveats, research links and any registration data explicitly queried in the current dashboard session; all done locally without automatic lookup or extra permission.
+- [x] Known operator mapping for youtube.com and google.com, clearly distinguishing Google's service operation from MarkMonitor registrar and avoiding claims that first-party image blocks are automatically advertising.
+- [ ] Live Firefox acceptance: verify text/JSON files are saved and importable/attachable; ensure accurate selected-tab snapshot and that YouTube's player still needs separate compatibility investigation.

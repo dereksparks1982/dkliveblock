@@ -3,6 +3,7 @@ const $=id=>document.getElementById(id),Model=DKSiteDashboardModel,Details=DKBlo
 let current=null,requestToken=0,loading=false,busy=false;
 let focusBlockedRequests=location.hash==="#blocked-requests";
 let selectedBlock=null,blockLookupToken=0;
+const registrationCache=new Map();
 function tabHost(url){
  try{return /^https?:\/\//i.test(url||"")?Model.hostname(new URL(url).hostname.toLowerCase()):"";}
  catch(_){return "";}
@@ -71,7 +72,7 @@ function showBlock(row){
  if(!current?.ok||!row?.host)return;
  const info=Details.summary(row.host,row.type,current.site,row.ruleType);
  const currentTab=current.tabId,token=++blockLookupToken;
- selectedBlock={host:row.host,site:current.site,tabId:currentTab,token};
+ selectedBlock={host:row.host,site:current.site,tabId:currentTab,token,row};
  const section=$("dashboardBlockDetails");section.hidden=false;
  $("blockDetailFields").replaceChildren();
  addDetail("Event",row.sequence?"Blocked request #"+row.sequence:"Recorded blocked request");
@@ -111,6 +112,7 @@ async function lookupBlockRegistration(){
    action:"lookupBlockedDomain",tabId:target.tabId,expectedSite:target.site,host:target.host
   });
   if(!selectedBlock||selectedBlock.token!==token)return;
+  if(response?.ok)registrationCache.set(DKBlockedExport.rowKey(target.site,target.tabId,target.host),response);
   result.textContent=response?.error?response.error:
    "Registered domain: "+response.domain+" · Registered organization: "+
    (response.organization||"Not publicly disclosed")+" · Registrar: "+
@@ -127,6 +129,21 @@ async function lookupBlockRegistration(){
 }
 $("blockDetailClose").addEventListener("click",closeBlock);
 $("blockRdapLookup").addEventListener("click",lookupBlockRegistration);
+function exportBlocked(format,individual=false){
+ try{
+  if(loading||busy||!current?.ok)throw Error("Choose a website tab before exporting.");
+  const row=individual?selectedBlock?.row:null;
+  if(individual&&(!row||selectedBlock.tabId!==current.tabId||
+   selectedBlock.site!==current.site))throw Error("Choose a blocked request first.");
+  const report=DKBlockedExport.build(current,row,registrationCache);
+  const result=DKBlockedExport.download(report,format);
+  notice("Saved "+result.records+" blocked request"+(result.records===1?"":"s")+" as "+result.filename);
+ }catch(error){notice(error?.message||"Could not export blocked requests.");}
+}
+$("dashboardExportText").addEventListener("click",()=>exportBlocked("txt"));
+$("dashboardExportJSON").addEventListener("click",()=>exportBlocked("json"));
+$("blockExportText").addEventListener("click",()=>exportBlocked("txt",true));
+$("blockExportJSON").addEventListener("click",()=>exportBlocked("json",true));
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -136,13 +153,16 @@ function setButtons(d){
  $("dashboardDistraction").disabled=busy||!d?.ok||!d.siteActive||!d.distractionEnabled;
  $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
  $("dashboardMonitor").disabled=busy||!d?.ok;
+ const hasRows=!!(d?.ok&&d.requestLog&&Model.requestRows(d).length);
+ $("dashboardExportText").disabled=busy||!hasRows;
+ $("dashboardExportJSON").disabled=busy||!hasRows;
  $("dashboardAllowlist").textContent=d?.sitePaused?"Remove from allowlist":"Allowlist website";
  $("dashboardPause").textContent=d?.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("dashboardCookie").textContent=d?.cookieRejectPaused?"Resume cookie rejection here":"Pause cookie rejection here";
  $("dashboardDistraction").textContent=d?.distractionPaused?"Resume distraction cleanup here":"Pause distraction cleanup here";
 }
 function clearDisplay(message){
- closeBlock();current=null;setButtons(null);
+ closeBlock();current=null;registrationCache.clear();setButtons(null);
  $("dashboardSite").textContent="No site selected";
  $("dashboardShield").textContent="No website selected";
  $("dashboardExplanation").textContent=message;
@@ -216,6 +236,7 @@ async function revokeRequest(row){
  });
 }
 function display(d){
+ if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
  closeBlock();current=d;setButtons(d);
  const summary=Model.status(d);
  $("dashboardSite").textContent=d.site;

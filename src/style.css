@@ -139,3 +139,7 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 
 /* Keep the selected-site context legible in the popup without shifting the controls. */
 .popup #countScope{font-size:13px}
+
+/* Blocked-request export controls wrap cleanly on smaller dashboard windows. */
+.site-dashboard #blockedRequestsSection .network-monitor-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.site-dashboard #dashboardBlockDetails .network-monitor-controls{margin-top:14px}

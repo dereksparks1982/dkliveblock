@@ -30,8 +30,10 @@
 <p id="dashboardModeNote">Allowlisting turns off all protection for the site and subdomains. Pausing just this tab leaves other tabs alone. Cookie and distraction settings do not switch off network ad blocking.</p>
 </section>
 <section id="blockedRequestsSection" tabindex="-1"><h2>Blocked requests for this tab</h2>
-<p>Shows up to the last 250 blocked requests for this tab, including repeated blocks. Only destination hostnames, resource types and coarse timestamps are retained, never private URLs or payloads. The counter can exceed this history; an empty list means request logging is disabled or no events have been retained.</p>
+<p>Shows up to the last 250 blocked requests for this tab, including repeated blocks. Only destination hostnames, resource types and coarse timestamps are retained, never private URLs or payloads. The counter can exceed this history; an empty list means request logging is disabled or no events have been retained. Export saves these details locally; domain registration data is included only for lookups you explicitly performed in this dashboard session.</p>
 <div class="network-monitor-controls">
+<button id="dashboardExportText" type="button" disabled>Export all details (.txt)</button>
+<button id="dashboardExportJSON" type="button" disabled>Export all details (.json)</button>
 <button id="dashboardMonitor" type="button">Open detailed Network Monitor</button>
 <button id="dashboardClearLog" type="button">Clear recent blocked-request log</button></div>
 <p id="dashboardLogState" role="status"></p>
@@ -45,7 +47,11 @@
 <div id="blockDetailLinks"></div>
 <button id="blockRdapLookup" type="button">Look up domain registration (sends hostname to RDAP)</button>
 <p id="blockRdapResult" role="status" aria-live="polite"></p>
+<div class="network-monitor-controls">
+<button id="blockExportText" type="button">Export this request (.txt)</button>
+<button id="blockExportJSON" type="button">Export this request (.json)</button>
 <button id="blockDetailClose" type="button">Close details</button>
+</div>
 </article>
 </section>
 <section><h2>Recently blocked popups</h2>
@@ -69,5 +75,6 @@
 <script src="access-inspector.js"></script>
 <script src="block-details.js"></script>
 <script src="site-dashboard-model.js"></script>
+<script src="blocked-export.js"></script>
 <script src="site-dashboard.js"></script>
 </body></html>
