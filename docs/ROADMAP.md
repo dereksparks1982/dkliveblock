@@ -514,3 +514,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 129: recognize exact accessible ad-slot and ad-banner test labels while rejecting lookalike editorial article names and retaining form/player safety.
 - [ ] Full browser DOM acceptance and local test suite still pending.
+
+- [x] Build 130: consolidate source-level regression checks for ad-only YouTube pack v3, first-run cosmetics, signed navigation safety, watch-next/playlist refusal handling, AMP container recognition and five private response metrics categories.
+- [ ] Full 111-file test suite and real Firefox browser/performance/anti-adblock acceptance still required.

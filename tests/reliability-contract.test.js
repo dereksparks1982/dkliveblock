@@ -36,3 +36,49 @@ test("Build 107 harmful nested counted regex stays unsupported",()=>{
  assert.equal(Rules.network("/^(a{1,10}){2,10}$/"),null);
  assert.ok(Rules.network("||ads.example^$script"));
 });
+
+test("Build 130 bundled YouTube pack and offline cosmetic fallback remain ad-only",()=>{
+ const pack=fs.readFileSync(path.join(__dirname,"../filters/youtube.txt"),"utf8");
+ const background=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.match(pack,/! DKLB-YouTube-Pack: 3/);
+ for(const selector of ["ytd-search-pyv-renderer","ytm-display-ad-renderer"])
+  assert.ok(pack.includes("youtube.com##"+selector));
+ for(const token of ['"##amp-ad"','"##amp-auto-ads"',
+  '"youtube.com##ytd-display-ad-renderer"'])assert.ok(background.includes(token),token);
+ assert.doesNotMatch(pack,/^.*##video(?:$|\s)/m);
+});
+test("Build 130 signed URLs and tracking callbacks remain untouched",()=>{
+ const engine=new FilterEngine("*$removeparam=utm_*\n*$removeparam=clickid");
+ assert.equal(engine.cleanNavigation("https://shop.example/order?utm_source=ad&signature=secret"),null);
+ assert.equal(engine.cleanNavigation("https://login.example/callback?clickid=1&state=secret"),null);
+ assert.equal(engine.cleanNavigation("https://shop.example/product?utm_source=ad&sku=5"),
+  "https://shop.example/product?sku=5");
+});
+test("Build 130 watch-next and playlist routes preserve refusal evidence",()=>{
+ for(const endpoint of ["next","playlist"]){
+  const url="https://www.youtube.com/youtubei/v1/"+endpoint;
+  assert.equal(Feed.kind(url),"feed");
+  const denied=JSON.stringify({playabilityStatus:{status:"UNPLAYABLE"},
+   contents:[{adSlotRenderer:{id:1}}]});
+  assert.equal(Feed.rewrite(url,denied).text,denied);
+  const valid=Feed.rewrite(url,JSON.stringify({results:[
+   {videoRenderer:{id:1}},{adSlotRenderer:{id:2}}]}));
+  assert.equal(valid.changed,true);
+  assert.equal(JSON.parse(valid.text).results.length,1);
+ }
+});
+test("Build 130 AMP and labelled ad containers remain explicit, not editorial",()=>{
+ const A=require("../src/ad-recognition.js");
+ assert.equal(A.hasStrongSignal({localName:"amp-ad"}),true);
+ assert.equal(A.hasStrongSignal({localName:"amp-story"}),false);
+ const ads={localName:"div",getAttribute:k=>k==="aria-label"?"Paid advertisement":null};
+ const normal={localName:"article",getAttribute:k=>k==="aria-label"?"Sponsored article":null};
+ assert.equal(A.hasStrongSignal(ads),true);
+ assert.equal(A.hasStrongSignal(normal),false);
+});
+test("Build 130 YouTube response diagnostics cover all five endpoint categories",()=>{
+ for(const kind of ["player","feed","next","playlist","shorts"])
+  assert.ok(Object.prototype.hasOwnProperty.call(Y.stats(733).byKind,kind));
+ assert.ok(Y.MAX_FILTERS<=16);
+ assert.ok(Y.MAX_PER_TAB<=4);
+});

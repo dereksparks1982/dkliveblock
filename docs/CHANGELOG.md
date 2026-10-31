@@ -600,3 +600,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.99 / Build 129 (2026-10-31)
 - Extended conservative ad recognition to explicit `ad-container`/`ad-banner` test IDs and accessible `Ad slot`/`Paid advertisement` labels. Avoids substring-based editorial false positives and respects protected form/player controls. Tests added; Firefox acceptance pending.
+
+### 0.3.100 / Build 130 (2026-10-31)
+- Expanded the local cross-feature regression contract to cover the recent YouTube playlist/Up Next features, pack-v3 offline CSS, signed URL safety, AMP ad recognition and categorized private diagnostics. No browser acceptance claim; complete Ubuntu suite pending.
