@@ -154,3 +154,20 @@ test("Build 120 ignores ad-looking field names without an explicit ad renderer o
  assert.equal(result.changed,false);
  assert.equal(data.contents.length,3);
 });
+
+test("Build 121 watch-next recommendations remove ad renderers while retaining organic suggestions",()=>{
+ const next="https://www.youtube.com/youtubei/v1/next";
+ assert.equal(F.kind(next),"feed");
+ assert.equal(F.kind(next+"/other"),"");
+ const data={contents:{twoColumnWatchNextResults:{secondaryResults:{secondaryResults:{
+  results:[{compactVideoRenderer:{videoId:"organic"}},
+   {compactPromotedVideoRenderer:{videoId:"advertisement"}},
+   {richItemRenderer:{content:{adSlotRenderer:{id:7}}}},
+   {compactVideoRenderer:{videoId:"second"}}]
+ }}}},trackingParams:"opaque"};
+ // Explicitly supported nested watch-next list is handled in Build 121.
+ assert.equal(F.prune(data,next).changed,true);
+ assert.equal(data.contents.twoColumnWatchNextResults.secondaryResults.secondaryResults.results.length,2);
+ assert.equal(data.contents.twoColumnWatchNextResults.secondaryResults.secondaryResults.results[0].compactVideoRenderer.videoId,"organic");
+ assert.equal(data.trackingParams,"opaque");
+});

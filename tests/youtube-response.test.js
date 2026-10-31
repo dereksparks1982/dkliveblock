@@ -328,3 +328,11 @@ test("Build 118 permits first-party YouTube subdomain API calls but not external
   assert.equal(R.requestEligible({...d,documentUrl},"www.youtube.com"),false,documentUrl);
  }
 });
+
+test("Build 121 watch-next API is eligible only for trusted YouTube POST XHR",()=>{
+ const url="https://www.youtube.com/youtubei/v1/next";
+ assert.equal(R.target(url),true);
+ assert.equal(R.eligible(req(url),"www.youtube.com"),true);
+ assert.equal(R.target("https://www.youtube.com/youtubei/v1/next-malicious"),false);
+ assert.equal(R.eligible({...req(url),method:"GET"},"www.youtube.com"),false);
+});

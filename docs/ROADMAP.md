@@ -487,3 +487,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 120: recognize additional explicit sponsored renderers in YouTube search/feed JSON and rich section wrappers, without changing organic video rows or media playback data.
 - [ ] Real Firefox YouTube search and feed/ad-free playback verification still required.
+
+- [x] Build 121: include the first-party `/youtubei/v1/next` watch-next API in bounded JSON ad-only response handling, preserving ordinary recommendations, tracking and video metadata; the Firefox listener now registers that route.
+- [ ] Full Ubuntu/Firefox watch-next/sidebar ad tests remain required.

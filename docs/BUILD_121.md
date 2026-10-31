@@ -1,0 +1,3 @@
+# Build 121: watch-next sidebar advertising coverage
+
+Unreleased 0.3.91. The previous feed/Shorts JSON handler recognized browse, search, and reel endpoints but overlooked `/youtubei/v1/next`, commonly used to supply next-video/sidebar recommendations. This route is now eligible for the same bounded, ad-renderer-only filtering in Firefox's response stream and the existing first-party MAIN-world fetch/XHR helper. Tests verify eligible POST calls, unchanged organic recommendations and rejection of lookalike paths. Playback data, DRM and authentication fields remain untouched. Full Firefox/Ubuntu acceptance outstanding; no Actions or public release.

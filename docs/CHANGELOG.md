@@ -573,3 +573,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.90 / Build 120 (2026-10-31)
 - Expanded the independently implemented, bounded YouTube feed/search JSON parser to recognize explicitly advertising-only searchPyv, compact/grid promoted video and carousel ad renderers, including rich-section ad content. Editorial videos and normal shelves remain untouched; no broad player/DOM removal. Fixture coverage added, Firefox acceptance pending.
+
+### 0.3.91 / Build 121 (2026-10-31)
+- Added YouTube watch-next recommendations API coverage to the bounded feed/sidebar ad response filter, with Firefox request registration and fixtures preserving organic recommendations. No broad companion video/player removal. Live browser acceptance pending.
