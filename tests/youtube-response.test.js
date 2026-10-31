@@ -256,3 +256,17 @@ test("Build 96 post-navigation deadlines and errors never resurrect old tab reco
  filters[1].onerror();
  assert.equal(R.stats(tabId).errors,0);
 });
+
+test("Build 103 response headers skipped without touching unsupported JSON/media",()=>{
+ const tab=991,d={...req(),tabId:tab};
+ let called=0;
+ const api={filterResponseData(){called++;return {write(){},close(){},disconnect(){}}}};
+ assert.equal(R.attach({...d,responseHeaders:[{name:"Content-Type",value:"video/mp4"}]},api),false);
+ assert.equal(R.attach({...d,responseHeaders:[{name:"Content-Type",value:"application/json"},
+  {name:"Content-Length",value:String(R.MAX_BYTES+10)}]},api),false);
+ assert.equal(R.attach({...d,responseHeaders:[{name:"Content-Type",value:"application/json; charset=latin1"}]},api),false);
+ assert.equal(called,0);
+ assert.equal(R.stats(tab).skippedHeaders,3);
+ assert.equal(R.stats(tab).observed,0);
+ R.clear(tab);
+});

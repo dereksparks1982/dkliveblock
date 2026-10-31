@@ -1,0 +1,3 @@
+# Build 103: explain YouTube response filtering gaps
+
+Unreleased 0.3.73. Before this build, the YouTube request counter could rise while a response rejected by the safe-header gate left no visible outcome, confusing request coverage with actual filtering. A new capped `skippedHeaders` counter records when an eligible request reaches response interception but is intentionally passed through due to content type, size or charset. The site dashboard and explicitly exported compatibility TXT/JSON include this aggregate count, without URLs or video identifiers. Tests check the response-filter API is never invoked for excluded content. Live Firefox and full offline acceptance remain open. No Actions or release.

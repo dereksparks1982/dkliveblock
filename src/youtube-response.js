@@ -14,7 +14,7 @@ function category(url){
  const feed=Feed?.kind(url);if(feed)return feed;
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,byKind:kinds()});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds()});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -130,7 +130,18 @@ function clear(tab){
  if(versions.size>256)versions.delete(versions.keys().next().value);
 }
 function attach(details,webRequest,clock=root){
- if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
+ if(typeof webRequest?.filterResponseData!=="function")return false;
+ if(!safeHeaders(details)){
+  const tab=details?.tabId;
+  if(Number.isInteger(tab)&&tab>=0){
+   const v=records.get(tab)||EMPTY();
+   v.skippedHeaders=Math.min(1000000000,v.skippedHeaders+1);
+   if(records.has(tab))records.delete(tab);
+   records.set(tab,v);
+   if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+  }
+  return false;
+ }
  const tab=details.tabId;
  if(!Number.isInteger(tab)||tab<0)return false;
  const generation=versions.get(tab)||0;

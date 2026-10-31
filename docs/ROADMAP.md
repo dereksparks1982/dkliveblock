@@ -433,3 +433,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 102: safe site-scoped literal `:contains(...)` cosmetic aliases reuse existing bounded text predicate and exceptions, refusing generic/regex forms.
 - [ ] Build 102 acceptance: full regression suite and live Firefox DOM matching.
+
+- [x] Build 103: count YouTube JSON response bodies deliberately not inspected because headers indicate non-JSON, incompatible charset or oversized payload. Expose private per-tab skipped-header counts in the dashboard and TXT/JSON report.
+- [ ] Build 103 acceptance: complete local regression and live Firefox header classification against real player/Shorts feeds.

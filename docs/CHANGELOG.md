@@ -519,3 +519,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.72 / Build 102 (2026-10-31)
 - Added site-scoped literal `:contains()` aliases through the existing bounded procedural text matcher, including exceptions, quoted text and validator recognition. No global scans or executable expressions. Firefox validation pending.
+
+### 0.3.73 / Build 103 (2026-10-31)
+- Improved YouTube compatibility diagnostics with explicit header-skipped response counts. Unsupported MIME types, oversized content-length and incompatible charsets remain untouched rather than being misreported as handled JSON. Added regression fixtures. Full Firefox acceptance pending.
