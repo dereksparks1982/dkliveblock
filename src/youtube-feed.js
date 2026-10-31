@@ -7,7 +7,9 @@ const REEL="/youtubei/v1/reel_watch_sequence";
 const ARRAYS=new Set(["contents","items","entries","continuationItems"]);
 const ADS=new Set(["adSlotRenderer","promotedVideoRenderer",
  "promotedSparklesWebRenderer","inFeedAdLayoutRenderer","displayAdRenderer",
- "promotedSparklesTextSearchRenderer"]);
+ "promotedSparklesTextSearchRenderer","compactPromotedVideoRenderer",
+ "compactPromotedItemRenderer","gridPromotedVideoRenderer",
+ "carouselAdRenderer","searchPyvRenderer"]);
 function kind(raw){
  try{
   const u=new URL(raw);
@@ -21,8 +23,10 @@ function adEntry(x,kindName){
  if(!plain(x))return false;
  if(kindName==="shorts"&&x.command?.reelWatchEndpoint?.adClientParams?.isAd===true)return true;
  for(const name of ADS)if(plain(x[name]))return true;
- const content=x.richItemRenderer?.content;
- if(plain(content))for(const name of ADS)if(plain(content[name]))return true;
+ for(const wrapper of ["richItemRenderer","richSectionRenderer"]){
+  const content=x[wrapper]?.content;
+  if(plain(content))for(const name of ADS)if(plain(content[name]))return true;
+ }
  return false;
 }
 function prune(payload,url){

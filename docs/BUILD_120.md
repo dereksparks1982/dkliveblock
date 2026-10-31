@@ -1,0 +1,3 @@
+# Build 120: more explicit YouTube search and feed advertising formats
+
+Unreleased 0.3.90. Publicly documented filtering examples show ad-only renderer keys beyond the initial small list. Our independently written bounded feed parser now recognizes `searchPyvRenderer`, `compactPromotedVideoRenderer`, `compactPromotedItemRenderer`, `gridPromotedVideoRenderer`, and `carouselAdRenderer` when those keys contain actual objects, including content nested inside a `richSectionRenderer`. Organic videos, normal rich shelves and unknown string markers remain intact. This only affects supported browse/search/Shorts JSON paths; it does not modify media bytes, login, DRM or playback status. Full Ubuntu suite and Firefox playback/ad-free tests remain outstanding.

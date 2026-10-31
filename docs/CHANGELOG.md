@@ -570,3 +570,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.89 / Build 119 (2026-10-31)
 - Fixed misleading acceptance of malformed quoted cosmetic text and regex-like `/pattern/flags` predicates, which previously appeared supported but silently failed literal matching. Existing valid quoted/plain sponsored labels still work. Parser/validator fixtures added; Firefox tests pending.
+
+### 0.3.90 / Build 120 (2026-10-31)
+- Expanded the independently implemented, bounded YouTube feed/search JSON parser to recognize explicitly advertising-only searchPyv, compact/grid promoted video and carousel ad renderers, including rich-section ad content. Editorial videos and normal shelves remain untouched; no broad player/DOM removal. Fixture coverage added, Firefox acceptance pending.

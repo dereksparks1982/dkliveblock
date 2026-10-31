@@ -125,3 +125,32 @@ test("Build 112 independent arrays still remove independent advertised entries",
  assert.equal(data.left.contents[0].videoRenderer.videoId,"organic-1");
  assert.equal(data.right.contents[0].videoRenderer.videoId,"organic-2");
 });
+
+test("Build 120 removes additional explicit search and compact ad renderer entries",()=>{
+ const url="https://www.youtube.com/youtubei/v1/search";
+ const data={contents:[
+  {videoRenderer:{videoId:"organic"}},
+  {searchPyvRenderer:{ads:[{videoId:"promoted"}]}},
+  {compactPromotedVideoRenderer:{videoId:"paid"}},
+  {carouselAdRenderer:{carouselId:"ad"}},
+  {gridPromotedVideoRenderer:{adSlotId:"grid"}},
+  {richSectionRenderer:{content:{compactPromotedItemRenderer:{adId:"sponsor"}}}},
+  {richSectionRenderer:{content:{richShelfRenderer:{title:"Editorial"}}}}
+ ]};
+ const result=F.prune(data,url);
+ assert.equal(result.changed,true);
+ assert.equal(result.items,5);
+ assert.equal(data.contents.length,2);
+ assert.equal(data.contents[0].videoRenderer.videoId,"organic");
+ assert.ok(data.contents[1].richSectionRenderer.content.richShelfRenderer);
+});
+test("Build 120 ignores ad-looking field names without an explicit ad renderer object",()=>{
+ const data={contents:[
+  {videoRenderer:{videoId:"organic"},carouselAdRenderer:"false"},
+  {searchPyvRenderer:null},
+  {richSectionRenderer:{content:{videoRenderer:{videoId:"editorial"}}}}
+ ]};
+ const result=F.prune(data,"https://www.youtube.com/youtubei/v1/browse");
+ assert.equal(result.changed,false);
+ assert.equal(data.contents.length,3);
+});
