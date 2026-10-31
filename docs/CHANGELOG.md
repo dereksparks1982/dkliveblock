@@ -522,3 +522,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.73 / Build 103 (2026-10-31)
 - Improved YouTube compatibility diagnostics with explicit header-skipped response counts. Unsupported MIME types, oversized content-length and incompatible charsets remain untouched rather than being misreported as handled JSON. Added regression fixtures. Full Firefox acceptance pending.
+
+### 0.3.74 / Build 104 (2026-10-31)
+- Fixed mixed-case UTM exception handling so case variation does not cause an explicitly excepted campaign query key to be stripped. Added focused regression. Browser testing pending.

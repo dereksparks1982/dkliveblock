@@ -436,3 +436,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 103: count YouTube JSON response bodies deliberately not inspected because headers indicate non-JSON, incompatible charset or oversized payload. Expose private per-tab skipped-header counts in the dashboard and TXT/JSON report.
 - [ ] Build 103 acceptance: complete local regression and live Firefox header classification against real player/Shorts feeds.
+
+- [x] Build 104: case-insensitive matching of exact UTM query exceptions during UTM-family cleanup, leaving non-UTM query keys untouched.
+- [ ] Build 104 acceptance: Firefox navigation, full regression suite and signed-link checks.

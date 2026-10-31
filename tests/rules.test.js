@@ -365,3 +365,9 @@ test("Build 102 supports literal :contains without accepting generic global text
  assert.equal(R.procedural("##article:contains(Sponsored)"),null);
  assert.equal(R.procedural("news.example##article:contains(/Sponsor/)"),null);
 });
+
+test("Build 104 UTM exceptions also preserve case-varied query keys",()=>{
+ const f=new FilterEngine("*$removeparam=utm_*\n@@*$removeparam=utm_source");
+ assert.equal(f.cleanNavigation("https://shop.example/?UTM_SOURCE=allowed&UtM_Medium=removed&sku=17"),
+  "https://shop.example/?UTM_SOURCE=allowed&sku=17");
+});
