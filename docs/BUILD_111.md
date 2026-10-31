@@ -1,0 +1,3 @@
+# Build 111: protect campaign-adjacent authentication parameters
+
+Unreleased v0.3.81. The narrowly supported UTM family cleanup removes common marketing query tags. Some sites also use similar names for signed links, session continuation and authentication. The family cleanup now preserves a fixed list of sensitive UTM-prefixed keys including signature, session, token, nonce and state, without expanding to unrestricted wildcard or regular-expression query removal. Existing site/exception and signed-link guards remain. Local regression coverage was added; full Firefox checkout and login tests still required. No Actions or release.

@@ -543,3 +543,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.80 / Build 110 (2026-10-31)
 - Bounded the YouTube feed/Shorts scanner's queued traversal nodes and total eligible deletions. Oversized synthetic ad arrays remain completely unchanged rather than partially stripped; normal small sponsored arrays still filter. Added regression fixtures; Firefox testing pending.
+
+### 0.3.81 / Build 111 (2026-10-31)
+- Added explicit sensitive-key safeguards to the optional UTM family query cleanup so similarly named session and signature values survive. Added focused navigation regression fixture. Browser acceptance pending.

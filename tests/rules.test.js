@@ -380,3 +380,12 @@ test("Build 106 blocks nested counted regex groups that may backtrack excessivel
  assert.ok(R.network("/^ads?[0-9]+$/"));
  assert.ok(R.network("||ads.example^"));
 });
+
+test("Build 111 campaign family cleanup retains signed and session-like fields",()=>{
+ const f=new FilterEngine("*$removeparam=utm_*");
+ const url="https://shop.example/continue?utm_source=remove&utm_campaign=remove"+
+  "&utm_token=keep&utm_signature=keep&utm_session=keep&UTM_NONCE=keep&sku=15";
+ assert.equal(f.cleanNavigation(url),
+  "https://shop.example/continue?utm_token=keep&utm_signature=keep&utm_session=keep&UTM_NONCE=keep&sku=15");
+ assert.equal(f.cleanNavigation("https://shop.example/?utm_code=keep&utm_auth=keep"),null);
+});

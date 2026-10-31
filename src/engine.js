@@ -63,6 +63,9 @@ class FilterEngine {
    if(!R.domains(host,rule.scope)||rule.third===true||rule.anchor&&!R.sub(host,rule.anchor)||!rule.compiled.test(raw))continue;
    if(rule.exception)except.add(rule.removeparam);else remove.add(rule.removeparam);
   }
+  const protectedCampaignKeys=new Set(["utm_token","utm_auth","utm_signature",
+   "utm_sig","utm_state","utm_code","utm_key","utm_expires",
+   "utm_session","utm_nonce"]);
   const utmExceptions=new Set([...except].filter(name=>
    /^utm_[a-z0-9_]+$/i.test(name)).map(name=>name.toLowerCase()));
   let changed=false;
@@ -71,7 +74,8 @@ class FilterEngine {
     if(except.has(key))continue;
     for(const name of [...new Set(url.searchParams.keys())]){
      if(!/^utm_[a-z0-9_]+$/i.test(name)||except.has(name)||
-        utmExceptions.has(name.toLowerCase())||reserved.has(name.toLowerCase()))continue;
+        utmExceptions.has(name.toLowerCase())||reserved.has(name.toLowerCase())||
+        protectedCampaignKeys.has(name.toLowerCase()))continue;
      url.searchParams.delete(name);changed=true;
     }
     continue;
