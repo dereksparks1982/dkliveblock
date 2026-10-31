@@ -124,3 +124,39 @@ test("Build 74 manifest loads MAIN only on YouTube and control follows existing 
  assert.match(code,/CustomEvent\("dk-live-block:youtube-response-control"/);
  assert.doesNotMatch(source,/\bbrowser\.|fetch\(\s*["']https?:|eval\(|new Function\(/);
 });
+
+test("Build 91 supports site-relative YouTube API fetch calls without affecting unrelated paths",async()=>{
+ const p=context();
+ const response={status:200,headers:{get:()=> "application/json"},
+  json:async()=>({contents:[{videoRenderer:{videoId:"organic"}},
+   {adSlotRenderer:{slot:"paid"}}]}),
+  text:async()=>JSON.stringify({entries:[{command:{reelWatchEndpoint:{videoId:"organic"}}},
+   {command:{reelWatchEndpoint:{videoId:"paid",adClientParams:{isAd:true}}}}]}),
+  clone(){return this;}};
+ p.window.fetch=async()=>response;
+ p.send("enable");
+ const feed=await p.window.fetch("/youtubei/v1/browse",{method:"POST"});
+ const parsed=await feed.json();
+ assert.equal(parsed.contents.length,1);
+ assert.equal(parsed.contents[0].videoRenderer.videoId,"organic");
+ const shorts=await p.window.fetch("/youtubei/v1/reel_watch_sequence",{method:"POST"});
+ const sequence=JSON.parse(await shorts.text());
+ assert.equal(sequence.entries.length,1);
+ const other=await p.window.fetch("/youtubei/v1/unknown",{method:"POST"});
+ assert.equal(other,response,"unrelated endpoints are not decorated");
+});
+test("Build 91 relative XHR browse calls preserve organic entries and remove clearly marked ads",()=>{
+ const p=context(),proto=p.window.XMLHttpRequest.prototype;
+ const prior=Object.getOwnPropertyDescriptor(proto,"response").get;
+ Object.defineProperty(proto,"response",{configurable:true,get(){
+  return {contents:[{videoRenderer:{videoId:"organic"}},{adSlotRenderer:{adId:"paid"}}]};}});
+ p.send("enable");
+ const xhr=new p.window.XMLHttpRequest();
+ xhr.open("POST","/youtubei/v1/browse");
+ xhr.status=200;xhr.readyState=4;xhr.responseType="json";
+ const result=xhr.response;
+ assert.equal(result.contents.length,1);
+ assert.equal(result.contents[0].videoRenderer.videoId,"organic");
+ p.send("disable");
+ assert.notEqual(Object.getOwnPropertyDescriptor(proto,"response").get,prior);
+});

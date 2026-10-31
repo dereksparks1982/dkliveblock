@@ -397,3 +397,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 90: site-scoped uBO-style literal `##:has-text` rules and exceptions; reject generic/unsafe selectors and preserve native `:has()` CSS. Include parser, engine and validator regression coverage.
 - [ ] Build 90 acceptance: full local suite, Firefox DOM testing, and performance/accessibility review. Advanced uBO procedural compatibility remains incomplete.
+
+- [x] Build 91: MAIN-world first-party YouTube API handling canonicalizes relative browse/Shorts paths through the current page origin in both fetch and XHR, preserving host and POST checks. Added relative fetch/XHR regressions so feed ad entries are not silently missed.
+- [ ] Build 91 acceptance: real Firefox YouTube relative API calls, ordinary playback and free-with-ads movie tests, full local suite.

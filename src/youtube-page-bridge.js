@@ -46,13 +46,16 @@ function rewrite(text,url=""){
  let obj;try{obj=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return text;}
  return prune(obj)?prefix+JSON.stringify(obj):text;
 }
+function normalize(raw){
+ try{return new URL(String(raw),location.href).href;}catch(_){return "";}
+}
 function target(raw){
  try{
   const u=new URL(String(raw),location.href);
   if(u.protocol!=="https:"||u.username||u.password||
      !/(^|\.)youtube\.com$/.test(u.hostname))return false;
   return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
-  (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(String(raw)));
+  (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(u.href));
  }catch(_){return false;}
 }
 function eligible(method,url){return enabled&&String(method||"GET").toUpperCase()==="POST"&&target(url);}
@@ -109,7 +112,7 @@ function enable(){
    }catch(_){}
    const eligibleNow=eligible(method,url);
    const result=oldFetch.apply(this,args);
-   return eligibleNow?Promise.resolve(result).then(response=>decorate(response,url)):result;
+   return eligibleNow?Promise.resolve(result).then(response=>decorate(response,normalize(url))):result;
   };
   g.fetch=wrappedFetch;
  }
@@ -121,7 +124,7 @@ function enable(){
  if(typeof oldOpen==="function"){
   wrappedOpen=function(method,url,...rest){
    const result=oldOpen.call(this,method,url,...rest);
-   pending.set(this,eligible(method,url)?String(url):"");cache.delete(this);return result;
+   pending.set(this,eligible(method,url)?normalize(url):"");cache.delete(this);return result;
   };
   proto.open=wrappedOpen;
  }

@@ -483,3 +483,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.60 / Build 90 (2026-10-31)
 - Implemented a safe site-scoped literal subset of uBO cosmetic `##:has-text` and `#@#:has-text` syntax through the existing procedural text engine, with local validator support and regression fixtures. Global text scanning, regex and script execution are not supported. Browser tests outstanding.
+
+### 0.3.61 / Build 91 (2026-10-31)
+- Fixed overlooked YouTube `fetch('/youtubei/v1/browse')` and XHR relative API paths: only absolute URLs were recognized in the new feed/Shorts JSON helper. Page-side hooks now use a normalized first-party URL; tests cover relative browse and Shorts calls without relaxing unrelated hosts. Firefox acceptance pending.
