@@ -1,0 +1,3 @@
+# Build 147: more exact paid-click tracking protections
+
+Unreleased 0.3.117. Search and social advertisements can append tracking parameters besides the well-known `fbclid`, `gclid` or `utm_*` tags. The built-in privacy cleaner now identifies the exact parameter names `srsltid`, `twclid`, `li_fat_id`, and `epik`, removing them from ordinary navigations while preserving product identifiers and fragments. It still declines to rewrite any signed/SSO/authentication link under its existing safeguards. No wildcard matching beyond the already-bounded UTM campaign family, no external list dependency and no telemetry. Tests cover ordinary commerce URLs and protected checkout flows. Full Ubuntu/Firefox acceptance remains open.

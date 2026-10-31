@@ -565,3 +565,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 146: detect Google Ad Manager iframe name-based ad slots and attribute changes, with strict naming and protected-sign-in/media safety.
 - [ ] Full Firefox dynamic iframe and local suite acceptance remains pending.
+
+- [x] Build 147: built-in private navigation cleaner recognizes additional exact search/social click identifiers (`srsltid`, `twclid`, `li_fat_id`, `epik`), retaining signing and authentication protection and ordinary query fields.
+- [ ] Complete Firefox click-link tests and full offline suite pending.

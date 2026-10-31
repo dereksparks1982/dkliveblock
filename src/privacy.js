@@ -1,6 +1,6 @@
 /* DK Live Block: conservative URL tracking parameter cleanup for website navigation. */
 (function(g){"use strict";
-const TRACKING_KEYS=new Set(["utm_source","utm_medium","utm_campaign","utm_term","utm_content","utm_id","utm_source_platform","utm_creative_format","utm_marketing_tactic","fbclid","gclid","dclid","gbraid","wbraid","msclkid","yclid","ttclid","igshid","mc_cid","mc_eid","_hsenc","_hsmi","vero_conv","vero_id"]);
+const TRACKING_KEYS=new Set(["utm_source","utm_medium","utm_campaign","utm_term","utm_content","utm_id","utm_source_platform","utm_creative_format","utm_marketing_tactic","fbclid","gclid","dclid","gbraid","wbraid","msclkid","yclid","ttclid","igshid","mc_cid","mc_eid","_hsenc","_hsmi","vero_conv","vero_id","srsltid","twclid","li_fat_id","epik"]);
 const SIGNED_KEYS=new Set([
  "signature","sig","x-amz-signature","x-goog-signature","x-amz-credential",
  "x-goog-credential","x-amz-security-token","key-pair-id","policy",

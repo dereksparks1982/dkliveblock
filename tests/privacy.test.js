@@ -89,3 +89,13 @@ test("Build 145 custom UTM cleanup never changes signed or login URLs",()=>{
  }
  assert.equal(stripTrackingParameters("https://id.example/callback?utm_reader=ad#session_state=opaque"),null);
 });
+
+test("Build 147 removes common search/social ad click identifiers by exact key",()=>{
+ const raw="https://shop.example/product?srsltid=google&twclid=xclid&li_fat_id=linkedin&epik=pinterest&sku=18";
+ assert.equal(stripTrackingParameters(raw),"https://shop.example/product?sku=18");
+ assert.equal(stripTrackingParameters("https://news.example/story?article=7"),null);
+});
+test("Build 147 social click IDs are not removed from signed payment or login URLs",()=>{
+ const raw="https://shop.example/checkout?twclid=ad&li_fat_id=ad&signature=opaque";
+ assert.equal(stripTrackingParameters(raw),null);
+});

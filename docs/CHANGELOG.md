@@ -651,3 +651,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.116 / Build 146 (2026-10-31)
 - Expanded exact advertising iframe recognition to include Google Ad Manager frame names as well as IDs, and watch name attribute updates. Ordinary video/login frames remain protected. Added positive/negative fixtures; Firefox acceptance pending.
+
+### 0.3.117 / Build 147 (2026-10-31)
+- Added four commonly used advertising click identifiers to the narrow built-in tracking-key list, including search/social referral parameters. Ordinary product and page query fields remain intact, and signed/auth links are exempt. Regression cases added; browser acceptance pending.

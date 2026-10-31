@@ -105,3 +105,10 @@ test("Build 145 custom UTM marketing fields are cleaned without touching signed 
   "https://news.example/?article=3");
  assert.equal(Privacy.stripTrackingParameters("https://cdn.example/?UTM_Custom_Channel=ad&utm_nonce=opaque"),null);
 });
+
+test("Build 147 common paid-click IDs are removed only on ordinary navigation",()=>{
+ const P=require("../src/privacy.js");
+ assert.equal(P.stripTrackingParameters("https://news.example/?srsltid=paid&article=5"),
+  "https://news.example/?article=5");
+ assert.equal(P.stripTrackingParameters("https://files.example/?srsltid=paid&X-Amz-Signature=opaque"),null);
+});
