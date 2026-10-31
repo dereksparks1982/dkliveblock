@@ -15,7 +15,7 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
   storage:{local:{get:async()=>saved,set:async x=>{saved={...saved,...x}}}}
  };
  const setTimeoutSafe=(f,n)=>{const t=setTimeout(f,n);if(n>=60000)t.unref();return t;};
- const ctx=vm.createContext({browser,URL,console,AbortController,Date,fetch:async()=>{throw Error("Offline")},setTimeout:setTimeoutSafe,clearTimeout});
+ const ctx=vm.createContext({browser,URL,console,AbortController,TextEncoder,TextDecoder,Date,fetch:async()=>{throw Error("Offline")},setTimeout:setTimeoutSafe,clearTimeout});
  for(const name of JSON.parse(
   fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8")).background.scripts)
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});

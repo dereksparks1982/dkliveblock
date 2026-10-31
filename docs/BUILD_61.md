@@ -17,3 +17,7 @@ No GitHub Actions, new permission, external dependency, test download, signing o
 ## Follow-up: first real Ubuntu QA results
 
 The initial offline structural phase ran 115 cases: 112 passes and three obsolete pinned-version assertions. Corrected the three tests to compare package.json dynamically and added a regression guard against future hard-coded version expectations. The complete suite is still awaiting another desktop run. This is a QA fix, not a new release.
+
+## Follow-up: second Ubuntu regression pass
+
+The corrected extension-structure phase passed all 117 cases and Linux companion Python checks all passed. The full offline Node phase ran 320 cases with 6 failures: five missing Web TextEncoder globals in two test-only VM environments, and a two-list caching test that unintentionally inherited the newer five-list production defaults. Corrected both test fixtures and scoped the caching case without changing extension runtime code. The final packaging audit remains pending another full run.

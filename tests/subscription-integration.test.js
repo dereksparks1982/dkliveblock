@@ -3,7 +3,9 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("conditional 304 updates reuse valid cached lists, preserve last-good on errors",async()=>{
  const handlers={},on=name=>({addListener:f=>{handlers[name]=f;},removeListener:f=>{if(handlers[name]===f)delete handlers[name];}});
- let saved={settings:{autoUpdate:false,autoYouTubeRules:false}},calls=[],mode="fresh";
+ // Exercise just two known lists without changing the five-list production defaults.
+ let saved={settings:{autoUpdate:false,autoYouTubeRules:false,
+  listEnabled:{easylist:true,easyprivacy:true,cookies:false,annoyances:false,social:false}}},calls=[],mode="fresh";
  const doc="[Adblock Plus 2.0]\n! Title: Network test\n"+"||ad.example.net^\n".repeat(30);
  const fetch=async (url,opts)=>{
   calls.push({url,headers:opts.headers});

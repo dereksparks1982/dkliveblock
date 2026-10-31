@@ -47,3 +47,9 @@ Desktop fast-forwarded to Build 61. Previous locally modified Ghostery vendor fi
 The first phase passed suite inventory (90 Node test files and nine Python scripts) and JavaScript syntax checks. It executed 115 structural tests: **112 passed, 3 failed**. All three were historical manifest-version assertions in cosmetic-exceptions-ui, notification-protection-ui and video-quality tests. These assertions now compare against package.json, and a version-contract test guards against future hard-coded manifest versions.
 
 **These corrections must be rerun locally.** The Python, offline regression, packaging, Firefox, streaming and performance gates have not passed yet.
+
+## Second real Ubuntu run (October 30, 2026)
+
+At commit `4cb6d7c`, GitHub Actions absence, the 91-Node/9-Python file inventory, and JavaScript syntax passed. **117/117 structural Node cases passed**, and all six Python companion suites passed. The main offline regression phase ran **320 tests: 314 passed, 6 failed**. Five failures were from test-only Firefox VM fixtures missing `TextEncoder` (`tests/proxy-probe.test.js`, four cases, and `tests/security.test.js`, one). One failure was from the subscription caching test expecting two filter-list downloads when new default settings enable five. The fixes supply the proper web encoding APIs in those fixture contexts and explicitly enable only EasyList/EasyPrivacy within the two-list test, leaving production five-list defaults unchanged.
+
+**Pending:** a fresh complete `bash scripts/test-local.sh` run, the offline Firefox package audit, supervised real Firefox testing, YouTube/Disney+ playback and long-session stability. This is not proof of browser readiness.

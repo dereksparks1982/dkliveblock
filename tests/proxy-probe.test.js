@@ -21,7 +21,7 @@ async function setup(){
   storage:{local:{get:async()=>storage,set:async x=>{storage={...storage,...x};}}}
  };
  const st=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
- const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextDecoder,fetch,setTimeout:st,clearTimeout});
+ const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextEncoder,TextDecoder,fetch,setTimeout:st,clearTimeout});
  for(const name of JSON.parse(
   fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8")).background.scripts)
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
