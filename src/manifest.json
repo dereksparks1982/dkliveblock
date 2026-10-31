@@ -62,6 +62,7 @@
       "ghostery-vendor.js",
       "hybrid-engine.js",
       "icon-state.js",
+      "rule-evidence.js",
       "background.js"
     ],
     "persistent": true

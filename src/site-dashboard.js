@@ -82,6 +82,8 @@ function showBlock(row){
  addDetail("Request type",info.resource+" ("+row.type+")");
  addDetail("Third-party relation",info.thirdParty===null?"Not established":info.thirdParty?"Different hostname from website":"Same website or subdomain");
  addDetail("Why DK Live Block stopped it",info.why);
+ addDetail("Filter engine",row.ruleEvidence?.source||"Not recorded");
+ addDetail("Matched filter evidence",row.ruleEvidence?.pattern||"Not recorded");
  addDetail("Service operator (local reference)",info.operator);
  addDetail("Operator evidence",info.operatorEvidence);
  addDetail("Common service purpose (not observed behavior)",info.purpose);
@@ -225,7 +227,7 @@ function display(d){
  const requests=Model.requestRows(d);
  $("dashboardLogState").textContent=!d.requestLog?
   "Private request logging is OFF. Turn it on in Settings to show future blocks.":
-  requests.length?requests.length+" recent blocked requests (hostnames only).":
+  requests.length?requests.length+" retained blocked events for "+d.site+" (refresh for latest).":
   "No recent blocked request records for this tab.";
  render("dashboardRecent",requests,"No recent blocked requests.",row=>
   line((row.sequence?"#"+row.sequence+" · ":"")+time(row.when)+" · "+row.host+" · "+row.type,

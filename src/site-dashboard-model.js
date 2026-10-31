@@ -29,6 +29,12 @@ function requestRows(data){
   return [{host,type,when:Number.isFinite(row.when)?row.when:0,
    sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=0?row.sequence:0,
    registeredDomain:hostname(row.registeredDomain)||host,
+   ...(row.ruleEvidence&&typeof row.ruleEvidence==="object"?
+    {ruleEvidence:{source:["Embedded Ghostery network filter","Native network filter (original list not determined)","Unknown filtering rule"].includes(row.ruleEvidence.source)?row.ruleEvidence.source:"Unknown filtering rule",
+      pattern:typeof row.ruleEvidence.pattern==="string"&&
+       (/^\|\|[a-z0-9.-]+\^$/.test(row.ruleEvidence.pattern)||
+        ["Rule text not exposed by embedded matcher","No matched pattern was recorded","Matching pattern withheld: may contain a URL path or private parameter"].includes(row.ruleEvidence.pattern))?
+       row.ruleEvidence.pattern:"Pattern withheld"}}:{}),
    ruleType:["popup","filter","engine"].includes(row.ruleType)?row.ruleType:"engine"}];
  });
 }

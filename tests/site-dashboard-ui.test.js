@@ -63,3 +63,17 @@ test("individual-block view explains details, external research and explicit RDA
  assert.match(js,/noopener noreferrer/);
  assert.doesNotMatch(js,/innerHTML\s*=/);
 });
+
+test("dashboard status and individual blocks display safe match evidence and site-scope context",()=>{
+ const popup=fs.readFileSync(path.join(root,"src/popup.js"),"utf8");
+ const html=fs.readFileSync(path.join(root,"src/popup.html"),"utf8");
+ const dash=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ assert.match(popup,/async function resolveWebsiteTab/);
+ assert.match(popup,/site-dashboard\.html/);
+ assert.match(popup,/browser\.tabs\.get\(Number\(selected\)\)/);
+ assert.match(html,/id="countScope"/);
+ assert.match(dash,/addDetail\("Matched filter evidence"/);
+ assert.match(dash,/addDetail\("Filter engine"/);
+ assert.ok(manifest.background.scripts.indexOf("rule-evidence.js")<manifest.background.scripts.indexOf("background.js"));
+});

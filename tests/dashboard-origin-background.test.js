@@ -42,6 +42,8 @@ test("extension-tab dashboard reads each of three YouTube blocks, while content 
  assert.equal(view.requestLog,true);
  assert.equal(view.recentBlocks.length,3);
  assert.deepEqual(Array.from(view.recentBlocks,row=>row.sequence),[3,2,1]);
+ assert.equal(view.recentBlocks[0].ruleEvidence.pattern,"||doubleclick.net^");
+ assert.match(view.recentBlocks[1].ruleEvidence.source,/Native network filter/);
  assert.deepEqual(Array.from(view.recentBlocks,row=>row.host),
   ["doubleclick.net","googlesyndication.com","doubleclick.net"]);
  assert.equal(JSON.stringify(view.recentBlocks).includes("one.js"),false);

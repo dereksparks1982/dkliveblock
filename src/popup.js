@@ -64,10 +64,26 @@ async function downloadVideo(){
  }catch(error){videoMessage("Download unavailable: "+error.message);}
  finally{$("downloadVideo").disabled=false;}
 }
+async function resolveWebsiteTab(focused){
+ // On our Site Dashboard, keep toolbar controls and counts scoped to the website
+ // being inspected, rather than accidentally treating the dashboard as a website.
+ const prefix=browser.runtime.getURL("site-dashboard.html")+"?";
+ if(typeof focused?.url!=="string"||!focused.url.startsWith(prefix))return focused;
+ try{
+  const selected=new URL(focused.url).searchParams.get("tab");
+  if(!/^[1-9]\d{0,9}$/.test(selected||""))return focused;
+  const selectedTab=await browser.tabs.get(Number(selected));
+  return /^https?:\/\//i.test(selectedTab?.url||"")?selectedTab:focused;
+ }catch(_){return focused;}
+}
 async function load(){
- [tab]=await browser.tabs.query({active:true,currentWindow:true});
+ const [focused]=await browser.tabs.query({active:true,currentWindow:true});
+ tab=await resolveWebsiteTab(focused);
+
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
+ $("countScope").textContent=tab?.id!==undefined&&focused?.id!==tab.id?
+  "blocked on selected website tab":"blocked on this tab";
  $("viewBlocked").disabled=!Number.isInteger(tab?.id)||!current.host;
  $("issues").textContent=String(current.networkIssueCount||0);
  $("popups").textContent=String(current.popupHiddenCount||0);

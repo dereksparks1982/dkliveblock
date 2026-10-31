@@ -300,3 +300,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Generate red/amber versions at runtime from the existing uploaded cyan DK PNG. Per-tab Firefox toolbar colour: cyan active; red globally disabled/allowlisted; amber tab paused. Keep the icon shape, transparency and app name unchanged; cache pixel data and do not recolor on each blocked request. No additional user artwork, assets or permissions.
 - [ ] Confirm icon colours live in Firefox and rerun all offline test phases after this commit; the YouTube black-screen remains under investigation separately.
+
+- [x] YouTube blocked-request field-test cleanup: show the actual selected site when opening the popup over DK Site Dashboard, distinguish current tab count from historical events, and expose only privacy-safe matched network rule evidence per request.
+- [ ] Review any blocked first-party YouTube/Google image in live Firefox using matched pattern and network monitor, then isolate the black-screen cause. Do not assume Google or YouTube image blocks are malicious or automatically exempt all first-party services.

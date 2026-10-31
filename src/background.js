@@ -704,7 +704,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    when:Number.isFinite(row.when)?row.when:0,
    sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=1?row.sequence:0,
    ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine",
-   registeredDomain:DKPublicSuffix.registrable(row.host)
+   registeredDomain:DKPublicSuffix.registrable(row.host),
+   ruleEvidence:DKRuleEvidence.explain(row.rule)
   })):[];
   const popupEvents=sameTab&&requestLog?
    DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];
