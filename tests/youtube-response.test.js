@@ -10,6 +10,10 @@ function player(){return {playabilityStatus:{status:"OK"},streamingData:{formats
  videoDetails:{title:"private title"},adPlacements:[{advertisement:"ad"}],adSlots:[{}],playerAds:[{}]};}
 test("Build 73 selects only direct first-party YouTube player JSON",()=>{
  assert.equal(R.eligible(req(),"www.youtube.com"),true);
+ assert.equal(R.safeHeaders({...req(),responseHeaders:[
+  {name:"Content-Type",value:"application/json; charset=windows-1252"}]}),false);
+ assert.equal(R.safeHeaders({...req(),responseHeaders:[
+  {name:"Content-Type",value:"application/json; charset=UTF-8"}]}),true);
  assert.equal(R.eligible(req("https://www.youtube.com/youtubei/v1/get_watch"),"www.youtube.com"),true);
  assert.equal(R.eligible(req("https://youtube.com.evil.test/youtubei/v1/player"),"www.youtube.com"),false);
  assert.equal(R.eligible(req("https://www.youtube.com/youtubei/v1/browse"),"www.youtube.com"),false);
@@ -78,5 +82,8 @@ test("Build 73 stream filter handles split chunks, oversize, invalid JSON and cl
  assert.equal(stats.oversized>=1,true);
  assert.equal(stats.unchanged>=1,true);
  assert.equal(R.attach(req(),{filterResponseData(){throw Error("unavailable");}}),false);
+ R.observeRequest(7);R.observeRequest(7);
+ assert.equal(R.stats(7).playerRequests,2);
  R.clear(7);assert.equal(R.stats(7).observed,0);
+ assert.equal(R.stats(7).playerRequests,0);
 });

@@ -450,3 +450,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.49 / Build 79 (2026-10-31)
 - Fixed a missing Settings-to-background propagation for YouTube JSON filtering. Added persisted off/on checks in the background integration fixture and updated the competitor-parity implementation ledger.
 - All post-Build72 browser acceptance remains pending.
+
+### 0.3.50 / Build 80 (2026-10-31)
+- Added private, per-tab counts of YouTube player requests that enter response filtering, distinct from response bodies seen or rewritten. Hardened capability/charset checks and clone behavior. Browser tests remain pending.

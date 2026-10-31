@@ -451,10 +451,12 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  // EasyList/Ghostery rule cannot cancel this single trusted first-party call,
  // unless the user explicitly added a manual block above. Not a site allowlist.
  const doc=d.documentUrl||d.originUrl||"";
- if(data.settings.youtubeResponseFilter&&d.type==="xmlhttprequest"&&
+ if(data.settings.youtubeResponseFilter&&typeof browser.webRequest.filterResponseData==="function"&&
+    d.type==="xmlhttprequest"&&
     String(d.method||"GET").toUpperCase()==="POST"&&
     DKYouTubeResponse.validPage(top)&&DKYouTubeResponse.target(d.url)&&
     (!doc||host(doc)===top)){
+  DKYouTubeResponse.observeRequest(d.tabId);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
    "YouTube player JSON request reserved for response-side filtering");
   return {};

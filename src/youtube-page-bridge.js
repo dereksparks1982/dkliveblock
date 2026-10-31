@@ -70,7 +70,7 @@ function decorate(response){
    }
   });
   if(typeof clone==="function")Object.defineProperty(response,"clone",{
-   configurable:true,value:function(...args){return decorate(clone.apply(this,args));}
+   configurable:true,value:function(...args){const result=clone.apply(this,args);return result===this?result:decorate(result);}
   });
  }catch(_){/* If a response is locked or non-extensible, leave it untouched. */}
  return response;

@@ -5,6 +5,7 @@
 const MAX_BYTES=1500000,MAX_TABS=100;
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,errors:0});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -32,7 +33,10 @@ function header(headers,name){
 }
 function safeHeaders(details){
  const headers=details.responseHeaders||[];
- if(!/^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(header(headers,"content-type")))return false;
+ const mime=header(headers,"content-type");
+ if(!/^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(mime))return false;
+ const charset=/;\s*charset\s*=\s*["']?([a-z0-9_-]+)/i.exec(mime)?.[1];
+ if(charset&&!["utf-8","utf8"].includes(charset.toLowerCase()))return false;
  const size=header(headers,"content-length");
  if(size&&(!/^\d+$/.test(size)||Number(size)>MAX_BYTES))return false;
  return true;
@@ -70,7 +74,7 @@ function rewrite(text){
 }
 function note(tab,outcome){
  if(!Number.isInteger(tab)||tab<0)return;
- const v=records.get(tab)||{observed:0,modified:0,fields:0,unchanged:0,oversized:0,errors:0};
+ const v=records.get(tab)||EMPTY();
  if(outcome==="modified")v.modified++;
  else if(outcome==="unchanged")v.unchanged++;
  else if(outcome==="oversized")v.oversized++;
@@ -79,7 +83,15 @@ function note(tab,outcome){
  if(records.has(tab))records.delete(tab);records.set(tab,v);
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
 }
-function stats(tab){return {...(records.get(tab)||{observed:0,modified:0,fields:0,unchanged:0,oversized:0,errors:0})};}
+function observeRequest(tab){
+ if(!Number.isInteger(tab)||tab<0)return;
+ const v=records.get(tab)||EMPTY();
+ v.playerRequests=Math.min(1000000000,v.playerRequests+1);
+ if(records.has(tab))records.delete(tab);
+ records.set(tab,v);
+ if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+}
+function stats(tab){return {...(records.get(tab)||EMPTY())};}
 function clear(tab){records.delete(tab);}
 function attach(details,webRequest){
  if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
@@ -131,7 +143,7 @@ function attach(details,webRequest){
  };
  return true;
 }
-const API=Object.freeze({MAX_BYTES,AD_FIELDS,validPage,target,eligible,safeHeaders,rewrite,attach,stats,clear});
+const API=Object.freeze({MAX_BYTES,AD_FIELDS,validPage,target,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

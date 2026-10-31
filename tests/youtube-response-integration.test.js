@@ -51,6 +51,7 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  assert.equal(result.adPlacements,undefined);
  assert.deepEqual(result.streamingData.formats[0].url,"signed-video");
  const metrics=await listeners.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(metrics.youtubeResponse.playerRequests,1);
  assert.equal(metrics.youtubeResponse.modified,1);
  assert.equal(metrics.youtubeResponse.fields,3);
  await listeners.message({action:"saveSettings",settings:{youtubeResponseFilter:false}});

@@ -75,6 +75,12 @@ test("Build 77 removes known ad fields from an already loaded initial player boo
  assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
  assert.deepEqual(Array.from(p.window.ytInitialPlayerResponse.streamingData.formats),["signed"]);
 });
+test("Build 80 avoids recursive decoration if an unconventional clone returns itself",async()=>{
+ const p=context();p.send("enable");
+ const response=await p.window.fetch("https://www.youtube.com/youtubei/v1/player",{method:"POST"});
+ assert.equal(response.clone(),response);
+ assert.equal((await response.json()).adSlots,undefined);
+});
 test("Build 75 safe teardown does not undo somebody else's later XHR hook",()=>{
  const p=context(),proto=p.window.XMLHttpRequest.prototype;
  p.send("enable");

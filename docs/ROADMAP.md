@@ -364,3 +364,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 79: repair saved YouTube response-filter toggle propagation, preserving the opt-out and restoring native per-resource rule behavior. Integration tests assert off/on persisted values and request cancellation changes. Refresh master competitor-parity delta, explicitly distinguishing source implementations from real Firefox evidence.
 - [ ] Build 79 acceptance: complete on-device suite and live Firefox toggle, playback and enforcement verification; no uBlock-equivalence claim.
+
+- [x] Build 80: tab-scoped count of player request attempts compared with responses handled and modified; no bypass when Firefox lacks response-filter support, strict UTF-8 decoding gate, and pathological fetch clone recursion avoidance.
+- [ ] Build 80 acceptance: full on-device regression suite, live YouTube playback and filtering metrics. A missing response or blocked player remains a failure.
