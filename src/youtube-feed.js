@@ -33,6 +33,13 @@ function adEntry(x,kindName){
 function prune(payload,url){
  const mode=kind(url);
  if(!mode||!plain(payload))return {changed:false,items:0};
+ // No cosmetic metadata change can fix a server-side playback refusal.
+ // Preserve the whole response, including its ad markers and error evidence.
+ try{
+  const status=payload.playabilityStatus?.status;
+  if(status&&status!=="OK"||plain(payload.error))
+   return {changed:false,items:0};
+ }catch(_){return {changed:false,items:0};}
  const queue=[{node:payload,depth:0}],seen=new WeakSet(),selectedArrays=new WeakSet(),jobs=[];
  let inspected=0,total=0,edges=0;
  try{

@@ -214,3 +214,27 @@ test("Build 124 unknown playlist-like routes do not receive special filtering",(
   assert.equal(F.kind(url),"");
  }
 });
+
+test("Build 125 refuses to rewrite error or explicitly denied feed and playlist replies",()=>{
+ for(const url of ["https://www.youtube.com/youtubei/v1/browse",
+   "https://www.youtube.com/youtubei/v1/next",
+   "https://www.youtube.com/youtubei/v1/playlist"]){
+  for(const status of ["LOGIN_REQUIRED","UNPLAYABLE","ERROR"]){
+   const original=JSON.stringify({playabilityStatus:{status,reason:"server refusal"},
+    contents:[{adSlotRenderer:{id:1}}]});
+   const result=F.rewrite(url,original);
+   assert.equal(result.changed,false);
+   assert.equal(result.text,original);
+  }
+  const error=JSON.stringify({error:{code:403,message:"forbidden"},
+   contents:[{adSlotRenderer:{id:1}}]});
+  assert.equal(F.rewrite(url,error).text,error);
+ }
+});
+test("Build 125 ordinary authorized feed replies still remove known sponsored entries",()=>{
+ const original={playabilityStatus:{status:"OK"},
+  contents:[{videoRenderer:{videoId:"real"}},{adSlotRenderer:{id:"paid"}}]};
+ const out=F.rewrite(browse,JSON.stringify(original));
+ assert.equal(out.changed,true);
+ assert.equal(JSON.parse(out.text).contents[0].videoRenderer.videoId,"real");
+});

@@ -499,3 +499,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 124: bound sponsor-only JSON removal in YouTube `/youtubei/v1/playlist` responses alongside browse, search, watch-next and Shorts, retaining playlist video entries and user tracking fields.
 - [ ] Full Firefox playlist and standard-player playback tests still needed.
+
+- [x] Build 125: fail open on feed/watch-next/playlist responses with explicit playability refusal or structured error, preserving original JSON and server-side enforcement evidence.
+- [ ] Live Firefox refusal/playback checks and full regression suite remain outstanding.

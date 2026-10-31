@@ -344,3 +344,12 @@ test("Build 124 playlists pass through only recognized first-party POST JSON pat
  assert.equal(R.eligible({...req(url),method:"GET"},"www.youtube.com"),false);
  assert.equal(R.target(url+"_evil"),false);
 });
+
+test("Build 125 outer feed refusal remains byte-for-byte unchanged through shared response module",()=>{
+ const url="https://www.youtube.com/youtubei/v1/next";
+ const body=JSON.stringify({playabilityStatus:{status:"UNPLAYABLE"},
+  contents:[{adSlotRenderer:{id:"sponsor"}}]});
+ const out=R.rewrite(body,url);
+ assert.equal(out.changed,false);
+ assert.equal(out.text,body);
+});

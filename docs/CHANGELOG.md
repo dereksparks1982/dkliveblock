@@ -585,3 +585,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.94 / Build 124 (2026-10-31)
 - Added strictly first-party POST JSON playlist endpoint handling to the bounded feed sponsor renderer filter and Firefox response URL registration, with ordinary playlist item preservation tests. No media byte/DRM modifications. Browser acceptance pending.
+
+### 0.3.95 / Build 125 (2026-10-31)
+- Extended fail-open playback refusal safety to browse, watch-next and playlist JSON, rather than just player replies. Explicit server-side denial/error objects now remain byte-for-byte unchanged. Normal playable feed ads are still filtered; tests added. Browser acceptance pending.
