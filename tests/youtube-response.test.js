@@ -58,6 +58,15 @@ test("Build 78 nested string player JSON removes ad fields but preserves video",
  const refused={playerResponse:JSON.stringify({...player(),playabilityStatus:{status:"LOGIN_REQUIRED"}})};
  assert.equal(R.rewrite(JSON.stringify(refused)).changed,false);
 });
+test("Build 84 preserves denied outer response even when nested player metadata is playable",()=>{
+ for(const status of ["LOGIN_REQUIRED","UNPLAYABLE","ERROR"]){
+  const original=JSON.stringify({playabilityStatus:{status,reason:"restricted"},
+   playerResponse:JSON.stringify(player()),visitorData:"opaque"});
+  const result=R.rewrite(original);
+  assert.equal(result.changed,false);
+  assert.equal(result.text,original);
+ }
+});
 test("Build 73 stream filter handles split chunks, oversize, invalid JSON and closes without a black player",()=>{
  const enc=new TextEncoder(),dec=new TextDecoder();
  function simulate(body,chop=20){

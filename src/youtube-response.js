@@ -66,7 +66,10 @@ function rewrite(text,url=""){
  if(typeof text!=="string"||text.length>MAX_BYTES||text.length<2)return {text,changed:false,fields:0};
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let payload;try{payload=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return {text,changed:false,fields:0};}
- if(!plain(payload))return {text,changed:false,fields:0};
+ if(!plain(payload)||payload.playabilityStatus?.status&&
+     payload.playabilityStatus.status!=="OK")
+  return {text,changed:false,fields:0};
+ // Refused outer responses are never rewritten, even with playable nested data.
  // Only known ad-only fields on a recognized playable response.
  let fields=pruneObject(payload);
  if(plain(payload.playerResponse))fields+=pruneObject(payload.playerResponse);

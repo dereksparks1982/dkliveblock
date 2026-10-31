@@ -23,6 +23,8 @@ function pruneObject(x){
  return removed;
 }
 function prune(x,url=""){
+ if(plain(x)&&x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")
+  return false;
  if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
   return DKYouTubeFeed.prune(x,url).changed;
  if(!plain(x))return false;

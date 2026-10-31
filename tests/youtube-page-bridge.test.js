@@ -79,6 +79,16 @@ test("Build 78 page script nested reply handling and ready handshake",()=>{
  const c=fs.readFileSync(path.resolve(__dirname,"../src/content.js"),"utf8");
  assert.match(c,/bridgeReadySeen/);
 });
+test("Build 84 MAIN-world bridge preserves denied player response with nested metadata",()=>{
+ const p=context();
+ const nested={streamingData:{formats:[{url:"signed"}]},videoDetails:{title:"private"},
+  adPlacements:[{}]};
+ p.window.ytInitialPlayerResponse={playabilityStatus:{status:"LOGIN_REQUIRED"},
+  playerResponse:JSON.stringify(nested)};
+ const before=p.window.ytInitialPlayerResponse.playerResponse;
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse.playerResponse,before);
+});
 test("Build 77 removes known ad fields from an already loaded initial player bootstrap",()=>{
  const p=context();
  p.window.ytInitialPlayerResponse={streamingData:{formats:["signed"]},videoDetails:{title:"private"},

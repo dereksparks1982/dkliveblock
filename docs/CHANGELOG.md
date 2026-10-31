@@ -462,3 +462,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.53 / Build 83 (2026-10-31)
 - Fixed direct-test feed helper module loading and added integration tests for Firefox MAIN-world order, initial sponsored feed data, and Shorts response filtering without touching playback/account fields. Full Ubuntu/browser acceptance remains pending.
+
+### 0.3.54 / Build 84 (2026-10-31)
+- Repaired incomplete local runner inventory: all six previously omitted YouTube/redirect test files are now included. Corrected stale /browse background integration expectations and verified known ad-only feed entry transformation in test fixtures. Denied outer player responses are preserved intact even if nested data contains ad fields. No release or live browser validation yet.

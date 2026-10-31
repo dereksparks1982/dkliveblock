@@ -376,3 +376,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 83: repair standalone Node/Firefox shared feed-helper resolution. Tests now load the complete MAIN-world script group in manifest order, cover YouTube initial sponsored feed data and actual Shorts response rewriting through the exported response module.
 - [ ] Build 83 acceptance: full offline suite and live Firefox behavior. Do not treat manifest presence or successful module imports as proof of YouTube ad removal.
+
+- [x] Build 84: add the six omitted YouTube/redirect test files to the local runner (110/110 listed), update background integration expectations to correctly test browse response rewriting and normal video retention, and preserve outer playback refusal status even with nested player data. Offline full-suite and Firefox acceptance remain explicitly open.
+- [ ] Build 84 acceptance: full Ubuntu local Node/Python suite, real playback and ad-free verification in ordinary/Shorts/movie-with-ads modes.
