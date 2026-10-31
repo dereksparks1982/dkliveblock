@@ -84,3 +84,14 @@ test("skip-ad text detection stays limited to known player-related selectors",()
  assert.equal(W.elementRelated(labelled),true);
  assert.match(selector,/Skip Advertisement/);
 });
+
+test("Build 57 detects localized labels and title changes inside the watcher",()=>{
+ const f=fixture();f.w.start();f.flush();
+ assert.ok(f.observer.settings.attributeFilter.includes("title"));
+ for(const label of ["Passer l’annonce","Werbung überspringen","Reklamı geç","Пропустить рекламу","跳过广告"]){
+  const node={nodeType:1,matches:s=>s.includes(label),closest:()=>null,querySelector:()=>null};
+  f.emit({type:"attributes",attributeName:"aria-label",target:node});
+  assert.equal(f.pending,1,label);f.flush();
+ }
+ assert.equal(f.clicks,6);
+});

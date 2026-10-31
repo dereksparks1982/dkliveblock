@@ -4,7 +4,7 @@ const TTL_MS=10*60*1000,MAX=10;
 const TYPES=new Set(["media","xmlhttprequest","other"]);
 const STREAMING=["youtube.com","youtube-nocookie.com","disneyplus.com"];
 function isStreamingHost(host){return typeof host==="string"&&STREAMING.some(s=>host===s||host.endsWith("."+s));}
-function validHost(host){return typeof host==="string"&&/^[a-z0-9.-]{1,253}$/.test(host)&&!host.includes("..");}
+function validHost(host){return typeof host==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/.test(host)&&host.length<=253;}
 function list(table,tabId,now=Date.now()){
  if(!Number.isInteger(tabId)||tabId<0)return [];
  const existing=table.get(tabId)||[];

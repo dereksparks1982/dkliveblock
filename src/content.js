@@ -344,8 +344,11 @@
  refresh();
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){
-  window.addEventListener("yt-navigate-finish",()=>{healthProbe?.reset();refresh();videoWatcher?.poke();},false);
-  window.addEventListener("popstate",()=>{healthProbe?.reset();refresh();videoWatcher?.poke();},false);
+  const onNavigate=()=>{
+   healthProbe?.reset();videoController.reset?.();refresh();videoWatcher?.poke();
+  };
+  window.addEventListener("yt-navigate-finish",onNavigate,false);
+  window.addEventListener("popstate",onNavigate,false);
  }
  if(!document.documentElement){
   try{

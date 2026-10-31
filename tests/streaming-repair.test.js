@@ -47,3 +47,13 @@ test("single streaming host/type exception can be revoked without clearing other
  assert.equal(Repair.revoke(table,3,"www.disneyplus.com","cdn2.example.net","xmlhttprequest",1600),false);
  assert.equal(Repair.revoke(table,2,"www.disneyplus.com","cdn2.example.net","script",1600),false);
 });
+
+test("Build 57 refuses malformed hosts in manually approved streaming repairs",()=>{
+ const table=new Map();
+ for(const host of ["-cdn.example","cdn-.example","cdn..example",".cdn.example",
+  "cdn.example.","bad_host.example","bad:443","a".repeat(64)+".example"]){
+  assert.equal(Repair.allow(table,1,"youtube.com",host,"media",1000),false,host);
+ }
+ assert.equal(Repair.allow(table,1,"youtube.com","cdn-1.media.example","media",1000),true);
+ assert.equal(Repair.matches(table,1,"youtube.com","cdn-1.media.example","media",1200),true);
+});

@@ -253,3 +253,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 56: bundled dynamic ad recognition improvements across bounded open Shadow DOM, mutation coalescing, focus/host safeguards, fair scans, and reversible styles.
 - [x] Build 56: local visual QA fixture, real version-linked test assertions, compact product README and archived historical changelog.
 - [ ] Build 56 acceptance: full local Node/Python suite and live Firefox validation including real-site regressions, YouTube/Disney+ playback, false positives and long-session CPU/memory profiling.
+
+- [x] Build 57: exact multilingual YouTube ad-skip recognition; conflicting accessible and visible labels refuse clicks; link/form/toggle protection and SPA cooldown reset.
+- [x] Build 57: expanded multilingual watcher selectors, avoid reporting ordinary video stalls during ad playback/offline/hidden documents, and require valid hostnames for streaming diagnostics/temporary manual repairs.
+- [ ] Build 57 acceptance: full local Node/Python suite, real Firefox YouTube preroll/midroll (including localized labels), genuine content and controls, Disney+ authorized playback, safety and performance acceptance.

@@ -2,7 +2,7 @@
    No media manipulation, playback telemetry, remote code, or subscription bypass. */
 (function(root){"use strict";
 const PLAYER=".html5-video-player, #movie_player, .ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
-const SKIP=".ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container, button[aria-label='Skip Ad' i], button[aria-label='Skip Ads' i], button[aria-label='Skip Advertisement' i], button[aria-label='Skip Commercial' i], button[aria-label='Skip Commercials' i], button[aria-label='Skip Advertisements' i]";
+const SKIP=".ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container, button[aria-label='Skip Ad' i], button[aria-label='Skip Ads' i], button[aria-label='Skip Advertisement' i], button[aria-label='Skip Commercial' i], button[aria-label='Skip Commercials' i], button[aria-label='Skip Advertisements' i], button[aria-label='Passer l’annonce' i], button[aria-label='Werbung überspringen' i], button[aria-label='Saltar anuncio' i], button[aria-label='Reklamı geç' i], button[aria-label='Пропустить рекламу'], button[aria-label='تخطي الإعلان'], button[aria-label='跳过广告']";
 function elementRelated(node){
  if(!node||node.nodeType!==1)return false;
  try{return !!(node.matches?.(PLAYER+", "+SKIP)||node.closest?.(PLAYER)||node.querySelector?.(SKIP));}
@@ -45,7 +45,7 @@ function create(document,scan,enabled,options={}){
    const instance=new Observer(records=>{if(relevant(records))schedule();});
    instance.observe(document.documentElement,{
     childList:true,subtree:true,attributes:true,
-    attributeFilter:["class","style","hidden","aria-hidden","aria-disabled","aria-label","disabled"]
+    attributeFilter:["class","style","hidden","aria-hidden","aria-disabled","aria-label","disabled","title"]
    });
    observer=instance;running=true;schedule(0);return true;
   }catch(_){observer?.disconnect?.();observer=null;running=false;clear();return false;}

@@ -89,3 +89,10 @@ test("Build 21: paused assistant detaches watcher and Disney+ never installs it"
  const disney=create({host:"www.disneyplus.com"});await disney.ready();
  assert.equal(disney.activeWatchers(),0);
 });
+
+test("Build 57 navigation resets stale skip cooldown, ordinary scans retain it",async()=>{
+ const x=create();await x.ready();x.step();x.step();
+ assert.equal(x.skips(),1);
+ await x.events["yt-navigate-finish"]();await x.ready();x.step();
+ assert.equal(x.skips(),2);
+});

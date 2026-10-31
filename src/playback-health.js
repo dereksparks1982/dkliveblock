@@ -13,12 +13,22 @@ function platform(host){
  return "";
 }
 function supportsHost(host){return !!platform(host);}
+function isAdBreak(document){
+ try{return !!document?.querySelector?.(".html5-video-player.ad-showing, #movie_player.ad-showing");}
+ catch(_){return true;}
+}
+function isUnavailable(video,document){
+ try{
+  return !document||document.visibilityState==="hidden"||document.hidden===true||
+   document.defaultView?.navigator?.onLine===false||isAdBreak(document)||
+   !video||video.isConnected===false||!video.getClientRects?.().length||
+   video.seeking||video.ended;
+ }catch(_){return true;}
+}
 function createProbe(){
  let bufferingSince=null,lastReport=-Infinity,lastError=0,trackedVideo=null;
  function scan(video,document,now=Date.now()){
-  if(!Number.isFinite(now)||!document||document.visibilityState==="hidden"||
-     !video||video.isConnected===false||!video.getClientRects?.().length||
-     video.seeking||video.ended){
+  if(!Number.isFinite(now)||isUnavailable(video,document)){
    bufferingSince=null;trackedVideo=null;return null;
   }
   // YouTube can recycle a document and replace its video element without a
@@ -63,7 +73,7 @@ function recent(store,tab,siteHost,now=Date.now()){
 }
 function clear(store,tab){store.delete(tab);}
 const api=Object.freeze({BUFFER_MS,REPORT_INTERVAL,TTL_MS,MAX,isYouTube,platform,supportsHost,
- createProbe,record,recent,clear});
+ createProbe,record,recent,clear,isAdBreak,isUnavailable});
 root.DKPlaybackHealth=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

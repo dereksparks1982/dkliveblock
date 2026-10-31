@@ -14,10 +14,17 @@ const SKIP_SELECTORS=[
  "button[aria-label='Skip Ads' i]",
  "button[aria-label='Skip Advertisement' i]",
  "button[aria-label='Skip Advertisements' i]",
- "button[aria-label='Skip Commercial' i]"
+ "button[aria-label='Skip Commercial' i]",
+ "button[aria-label='Passer l’annonce' i]",
+ "button[aria-label='Werbung überspringen' i]",
+ "button[aria-label='Saltar anuncio' i]",
+ "button[aria-label='Reklamı geç' i]",
+ "button[aria-label='Пропустить рекламу']",
+ "button[aria-label='تخطي الإعلان']",
+ "button[aria-label='跳过广告']"
 ];
 const AD_SKIP_CLASS=/\b(?:ytp-ad-skip-button(?:-modern)?|ytp-skip-ad-button)\b/;
-const AD_LABEL=/^\s*(?:skip\s+ads?|skip\s+advertisements?|skip\s+commercials?)\s*$/i;
+const AD_LABEL=/^(?:skip\s+ads?|skip\s+advertisements?|skip\s+commercials?|passer l'(?:annonce|publicité)|ignorer l'(?:annonce|publicité)|werbung überspringen|anzeige überspringen|saltar anuncios?|omitir anuncios?|pular anúncios?|reklamı (?:geç|atla)|reklamları atla|пропустить рекламу|تخطي الإعلان|تخطي الإعلانات|跳过广告)$/iu;
 const SHORT_SKIP=/^\s*skip\s*$/i;
 const AD_CONTEXT=".ad-showing, #movie_player.ad-showing, .ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
 // A recycled ad-skip container must never turn an ordinary playback control into an ad action.
@@ -43,9 +50,24 @@ function playerElement(element){
  }catch(_){}
  return false;
 }
-function labelOf(button){
- try{return String(button.getAttribute?.("aria-label")||button.textContent||"").replace(/\s+/g," ").trim().slice(0,90);}
- catch(_){return "";}
+function normalizeLabel(value){
+ return String(value||"").normalize("NFKC").replace(/[‘’]/g,"'").replace(/\s+/g," ")
+  .trim().toLocaleLowerCase().slice(0,90);
+}
+function labelsOf(button){
+ try{return [button.textContent,button.getAttribute?.("aria-label"),button.getAttribute?.("title")]
+  .map(normalizeLabel).filter(Boolean);}
+ catch(_){return [];}
+}
+function safeAction(button){
+ try{
+  const tag=String(button.localName||"").toLowerCase(),attr=name=>button.getAttribute?.(name);
+  if(tag==="a"||attr("href")!=null||attr("role")==="link"||
+    attr("aria-pressed")!=null||attr("aria-checked")!=null)return false;
+  const form=button.form||button.closest?.("form");
+  const type=String(attr("type")||button.type||(tag==="button"?"submit":"")).toLowerCase();
+  return !(form&&type==="submit");
+ }catch(_){return false;}
 }
 function hasAdSkipClass(button){
  const s=typeof button?.className==="string"?button.className:"";
@@ -67,19 +89,20 @@ function isVisible(button){
  return true;
 }
 function isAdSkip(button){
- if(!isVisible(button))return false;
- const label=labelOf(button);
- if(NON_AD_SKIP.test(label))return false;
+ if(!isVisible(button)||!safeAction(button))return false;
+ const labels=labelsOf(button);
+ // Any conflicting visible/accessibility/title label means do not click.
+ if(!labels.length||labels.some(label=>NON_AD_SKIP.test(label)))return false;
  const dedicated=hasAdSkipClass(button);
- // Dedicated skip wrappers may be recycled between SPA views, so never click
- // arbitrary "Learn more", "Next video" or unrelated controls in them.
- if(!AD_LABEL.test(label)&&!(dedicated&&(!label||SHORT_SKIP.test(label))))return false;
- if(dedicated&&AD_LABEL.test(label))return true;
+ const explicit=labels.every(label=>AD_LABEL.test(label));
+ const compact=dedicated&&labels.every(label=>SHORT_SKIP.test(label));
+ if(!explicit&&!compact)return false;
+ if(dedicated&&explicit)return true;
  try{return !!button.closest?.(AD_CONTEXT);}
  catch(_){return false;}
 }
 function createController(cooldownMs=5000){
- const pressed=new WeakMap();
+ let pressed=new WeakMap();
  function scan(document,now=Date.now()){
   if(!document||!Number.isFinite(now))return {clicked:false,reason:"unavailable"};
   let candidates=[];
@@ -95,9 +118,9 @@ function createController(cooldownMs=5000){
   }
   return {clicked:false,reason:cooling?"cooldown":"no-button"};
  }
- return {scan};
+ return {scan,reset(){pressed=new WeakMap();}};
 }
-const api={isStreamingHost,mediaRecoveryAllowed,protectSelector,safeCosmetics,playerElement,isAdSkip,createController};
+const api={isStreamingHost,mediaRecoveryAllowed,protectSelector,safeCosmetics,playerElement,isAdSkip,createController,normalizeLabel};
 root.DKVideoAssist=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

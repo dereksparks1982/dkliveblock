@@ -143,3 +143,50 @@ test("expanded accessible ad labels remain recognized in ad context",()=>{
   assert.equal(V.isAdSkip(x.button),true,label);
  }
 });
+
+test("Build 57 recognizes explicit multilingual ad skips, never generic next controls",()=>{
+ for(const label of ["Passer l'annonce","Ignorer l’annonce","Werbung überspringen",
+  "Saltar anuncio","Omitir anuncios","Pular anúncio","Reklamı geç","Reklamları atla",
+  "Пропустить рекламу","تخطي الإعلان","跳过广告"]){
+  assert.equal(V.isAdSkip(btn({label}).button),true,label);
+ }
+ for(const label of ["Skip Intro","Play Next","Passer l'intro","Reklam ayarları",
+  "Пропустить вступление","Saltar introducción","跳过片头"]){
+  assert.equal(V.isAdSkip(btn({label}).button),false,label);
+ }
+});
+test("Build 57 conflicting caption, aria label, and title prevent automatic clicking",()=>{
+ const mismatch=btn({label:"Skip Ad"});
+ mismatch.button.getAttribute=name=>name==="aria-label"?"Skip Intro":null;
+ assert.equal(V.isAdSkip(mismatch.button),false);
+ const title=btn({label:"Skip Ad"});
+ title.button.getAttribute=name=>name==="aria-label"?"Skip Ad":name==="title"?"Continue":null;
+ assert.equal(V.isAdSkip(title.button),false);
+ const caption=btn({label:"Skip Intro"});
+ caption.button.getAttribute=name=>name==="aria-label"?"Skip Ad":null;
+ assert.equal(V.isAdSkip(caption.button),false);
+});
+test("Build 57 never click navigation, pressed-toggle or form-submit actions",()=>{
+ for(const attrs of [{href:"/"},{"aria-pressed":"false"},{"aria-checked":"false"}]){
+  const x=btn();x.button.getAttribute=name=>name==="aria-label"?"Skip Ad":attrs[name]??null;
+  assert.equal(V.isAdSkip(x.button),false);
+ }
+ const link=btn();link.button.localName="a";
+ assert.equal(V.isAdSkip(link.button),false);
+ const form=btn();form.button.form={};form.button.type="submit";
+ assert.equal(V.isAdSkip(form.button),false);
+});
+test("Build 57 explicit reset allows a new SPA skip, not an early repeat",()=>{
+ const x=btn(),ctrl=V.createController(),doc={querySelectorAll:()=>[x.button]};
+ assert.equal(ctrl.scan(doc,1000).clicked,true);
+ assert.equal(ctrl.scan(doc,2000).clicked,false);
+ ctrl.reset();
+ assert.equal(ctrl.scan(doc,2100).clicked,true);
+ assert.equal(x.clicks(),2);
+});
+test("Build 57 translated generic skip action requires ad context",()=>{
+ const x=btn({cls:"",label:"Passer l’annonce",ad:false});
+ assert.equal(V.isAdSkip(x.button),false);
+ x.button.closest=selector=>selector.includes("ad-showing")?{}:null;
+ assert.equal(V.isAdSkip(x.button),true);
+});

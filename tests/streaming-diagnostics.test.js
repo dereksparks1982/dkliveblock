@@ -47,3 +47,12 @@ test("streaming diagnostics keep the source site separated across services",()=>
  assert.equal(records[1].count,1);
  assert.doesNotMatch(JSON.stringify(records),/https:|\/play\/|token=/);
 });
+
+test("Build 57 diagnostic hostname validation rejects malformed DNS labels",()=>{
+ const table=new Map();
+ for(const host of ["-cdn.example","cdn-.example",".cdn.example","cdn.example.",
+  "cdn..example","bad_host.example","https://cdn.example/","x".repeat(64)+".example"]){
+  assert.equal(DK.record(table,1,"youtube.com",host,"media",1000),false,host);
+ }
+ assert.equal(DK.record(table,1,"youtube.com","cdn-123.example.com","media",1001),true);
+});

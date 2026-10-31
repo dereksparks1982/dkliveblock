@@ -104,3 +104,22 @@ test("Disney+ DRM or HTML5 failures remain only coarse events",()=>{
  assert.deepEqual(rows,[{kind:"media-error",when:10000,blockedMediaNearby:false}]);
  assert.doesNotMatch(JSON.stringify(rows),/PRIVATE|DRM|license|account|secret|url/);
 });
+
+test("Build 57 does not interpret an ad break as stalled main content",()=>{
+ const p=H.createProbe(),v=video();
+ const adBreak={visibilityState:"visible",querySelector:()=>({})};
+ assert.equal(p.scan(v,doc,1000),null);
+ assert.equal(p.scan(v,adBreak,7000),null);
+ assert.equal(p.scan(v,doc,8000),null);
+ assert.equal(p.scan(v,doc,12999),null);
+ assert.equal(p.scan(v,doc,13000),"buffering");
+});
+test("Build 57 guards offline, hidden, or inaccessible video DOM",()=>{
+ const p=H.createProbe(),v=video();
+ assert.equal(p.scan(v,doc,1000),null);
+ assert.equal(p.scan(v,{visibilityState:"visible",defaultView:{navigator:{onLine:false}}},7000),null);
+ assert.equal(p.scan(v,doc,8000),null);
+ assert.equal(p.scan(v,doc,13000),"buffering");
+ assert.equal(p.scan({...v,getClientRects(){throw Error("broken DOM");}},doc,20000),null);
+ assert.equal(p.scan(v,{hidden:true},22000),null);
+});

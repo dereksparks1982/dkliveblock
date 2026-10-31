@@ -7,7 +7,7 @@ function streaming(host){
  return typeof host==="string"&&STREAMING.some(s=>host===s||host.endsWith("."+s));
 }
 function safeHost(value){
- return typeof value==="string"&&/^[a-z0-9.-]{1,253}$/.test(value)&&!value.includes("..")?value:"";
+ return typeof value==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/.test(value)&&value.length<=253?value:"";
 }
 function recent(map,tabId,now=Date.now()){
  if(!Number.isInteger(tabId)||tabId<0)return [];
