@@ -526,10 +526,14 @@ browser.tabs.onRemoved.addListener(id=>{
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
- // Page/content scripts have only the minimum permissions needed to style a page
- // and submit a user-initiated element-picker rule for their own frame.
- // Never trust tabId or URL supplied by page-originated messages.
- const fromContent=!!sender.tab;
+ // Firefox provides sender.tab for extension pages opened in ordinary tabs.
+ // Treat only the browser-supplied sender.url in OUR extension origin as trusted.
+ // Do not infer caller privileges from sender.tab.url or msg.url.
+ const extensionRoot=typeof browser.runtime.getURL==="function"?
+  browser.runtime.getURL(""):"";
+ const ownExtensionPage=!!(extensionRoot&&typeof sender.url==="string"&&
+  sender.url.startsWith(extensionRoot));
+ const fromContent=!!sender.tab&&!ownExtensionPage;
  if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);

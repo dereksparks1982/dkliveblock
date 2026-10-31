@@ -294,3 +294,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 63 live Firefox acceptance: reload extension, confirm custom icon, inspect individually blocked events and optional RDAP, verify RUTUBE promotion and VPN nags disappear without playback damage, and run YouTube/Disney+ compatibility.
 
 - [x] Firefox popup branding: place the bundled cyan DK emblem immediately before DK LIVE BLOCK in the popup header, preserve the existing 340px popup and Development build label. Awaiting Firefox visual confirmation.
+
+- [x] Firefox dashboard sender fix: Firefox supplies `sender.tab` for internal extension pages opened as browser tabs; use the browser-provided own extension `sender.url` to authorize the dashboard, with website and foreign-extension test cases.
+- [ ] YouTube playback investigation: live anti-adblock flash then black player. Do NOT equate CSS-hiding warning to video restored. Review ABP's anti-circumvention and vetted snippet model; ABP currently documents a temporary block-pause fallback on warning, which is NOT an acceptable silent workaround for DK's ad-free guarantee. Diagnose specific stopped resource types and player health, rather than blanket-blocking googlevideo.com.

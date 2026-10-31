@@ -16,3 +16,9 @@ Verified from the user's actual Ubuntu desktop terminal output following `git pu
 - Final output: `FINAL PASS: Local source checks; browser and video playback remain unverified`.
 
 **Decision:** This build passes its complete offline test suite (450 Node tests). No claim of visual Firefox acceptance, actual RUTUBE modal removal, icon toolbar rendering, external RDAP success, YouTube/Disney+ playback, Mozilla signing or public readiness is warranted from this test log. Next step: reload the temporary Firefox extension, inspect icon and count-to-detail UI, and check RUTUBE banner, video playback and privacy against the live page. The local log is in memory only; enable the existing private request-log option before expecting new rows if it has been disabled.
+
+## Live Firefox: dashboard sender regression and YouTube investigation
+
+The initial real Firefox dashboard incorrectly displayed `This action is only available in the extension interface` despite the popup showing three blocked YouTube requests. Cause: the background dispatcher treated all messages with `sender.tab` as content scripts; in Firefox extension dashboards opened in a normal tab can also carry `sender.tab`. The fix verifies the browser-supplied sender URL is in this extension's own `moz-extension://` origin, without trusting page-provided arguments, and adds an offline synthetic test for three blocked requests and adversarial website senders.
+
+The YouTube player still shows an anti-block notice briefly followed by a black screen. ABP's Help Center documents temporary automatic blocker pause to restore video when detected, and describes snippet/anti-circumvention support. Do not implement silent ad allowlisting or disable all blocking on YouTube to falsely claim success; investigate player-required resource compatibility. This patch does NOT claim YouTube playback fixed. All modified code must still pass the full local suite and live Firefox.
