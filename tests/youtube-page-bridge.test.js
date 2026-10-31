@@ -280,3 +280,32 @@ test("Build 136 nonwritable XHR methods do not crash activation or disabling",()
  assert.doesNotThrow(()=>p.send("disable"));
  assert.equal(proto.open,original);
 });
+
+test("Build 142 player bootstrap inspection does not invoke custom getters",()=>{
+ const p=context();let called=0;
+ const player={videoDetails:{title:"editorial"},adSlots:[{}]};
+ Object.defineProperty(player,"streamingData",{enumerable:true,get(){
+  called++;throw Error("getter should not run");}});
+ p.window.ytInitialPlayerResponse=player;
+ assert.doesNotThrow(()=>p.send("enable"));
+ assert.equal(called,0);
+ assert.equal(player.adSlots,undefined,"ordinary ad fields may still be removed");
+ p.send("disable");
+});
+test("Build 142 an accessor-only nested player cannot trigger a getter",()=>{
+ const p=context();let calls=0;
+ const player={videoDetails:{title:"safe"},adSlots:[{}]};
+ Object.defineProperty(player,"playerResponse",{enumerable:true,get(){
+  calls++;throw Error("unexpected getter");}});
+ p.window.ytInitialPlayerResponse=player;
+ assert.doesNotThrow(()=>p.send("enable"));
+ assert.equal(calls,0);
+ p.send("disable");
+});
+test("Build 142 explicit playback refusal remains visible through own-data checks",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse={playabilityStatus:{status:"UNPLAYABLE"},
+  videoDetails:{title:"private"},adSlots:[{}]};
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+});

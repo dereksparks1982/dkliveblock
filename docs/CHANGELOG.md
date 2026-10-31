@@ -636,3 +636,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.111 / Build 141 (2026-10-31)
 - Hardened YouTube feed/Shorts JSON inspection to avoid invoking page-defined getters when traversing nested objects, entry arrays or known ad renderer keys. Read-only descriptor inspection and fail-open bounds remain in force. Added getter-trap and ordinary-ad fixtures.
+
+### 0.3.112 / Build 142 (2026-10-31)
+- Hardened the YouTube MAIN-world player-data helper to avoid executing accessor getters for ad markers, player bootstrap and nested responses. Uses property descriptors and fail-open checks; tests cover hostile getters and explicit playback denial.

@@ -11,24 +11,35 @@ let enabled=false,wrappedFetch=null,oldFetch=null,oldOpen=null,oldSend=null,wrap
 let oldResponse=null,oldText=null,wrappedResponse=null,wrappedText=null;
 const pending=new WeakMap(),cache=new WeakMap(),decorated=new WeakSet();
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
+function ownData(x,key){
+ if(!plain(x))return undefined;
+ const descriptor=Object.getOwnPropertyDescriptor(x,key);
+ return descriptor&&Object.prototype.hasOwnProperty.call(descriptor,"value")?
+  descriptor.value:undefined;
+}
+function denied(x){
+ const status=ownData(ownData(x,"playabilityStatus"),"status");
+ return Boolean(status&&status!=="OK");
+}
 function playable(x){return plain(x)&&(
- plain(x.streamingData)||plain(x.videoDetails)||plain(x.playerResponse));}
+ plain(ownData(x,"streamingData"))||plain(ownData(x,"videoDetails"))||
+ plain(ownData(x,"playerResponse")));}
 function safeToPrune(x){
  if(!playable(x))return true;
- if(x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")return true;
+ if(denied(x))return true;
  for(const field of AD_FIELDS){
   if(!Object.prototype.hasOwnProperty.call(x,field)||
-    !(Array.isArray(x[field])||plain(x[field])))continue;
+    !(Array.isArray(ownData(x,field))||plain(ownData(x,field))))continue;
   if(!Object.getOwnPropertyDescriptor(x,field)?.configurable)return false;
  }
  return true;
 }
 function pruneObject(x){
- if(!playable(x)||x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")return 0;
+ if(!playable(x)||denied(x))return 0;
  let removed=0;
  const fields=AD_FIELDS.filter(field=>
   Object.prototype.hasOwnProperty.call(x,field)&&
-  (Array.isArray(x[field])||plain(x[field])));
+  (Array.isArray(ownData(x,field))||plain(ownData(x,field))));
  // A frozen/non-configurable player payload must not break fetch().json().
  for(const field of fields)if(!Object.getOwnPropertyDescriptor(x,field)?.configurable)
   return 0;
@@ -36,25 +47,24 @@ function pruneObject(x){
  return removed;
 }
 function prune(x,url=""){
- if(plain(x)&&x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")
-  return false;
+ if(plain(x)&&denied(x))return false;
  if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
   return DKYouTubeFeed.prune(x,url).changed;
  if(!plain(x))return false;
- // Preflight nested and outer objects before deleting any ad property.
- // Otherwise a non-configurable nested field can leave only the outer
- // structure modified, and break playback data consistency.
+ const nested=ownData(x,"playerResponse");
+ // Accessor-backed player data is not needed for ad filtering and is not
+ // invoked. The outer object remains eligible only by its own data fields.
  if(!safeToPrune(x))return false;
- if(plain(x.playerResponse)&&!safeToPrune(x.playerResponse))return false;
- if(typeof x.playerResponse==="string"&&x.playerResponse.length<=MAX/2){
+ if(plain(nested)&&!safeToPrune(nested))return false;
+ if(typeof nested==="string"&&nested.length<=MAX/2){
   const desc=Object.getOwnPropertyDescriptor(x,"playerResponse");
   if(desc&&!desc.writable)return false;
  }
  let removed=pruneObject(x);
- if(plain(x.playerResponse))removed+=pruneObject(x.playerResponse);
- else if(typeof x.playerResponse==="string"&&x.playerResponse.length<=MAX/2){
+ if(plain(nested))removed+=pruneObject(nested);
+ else if(typeof nested==="string"&&nested.length<=MAX/2){
   try{
-   const child=JSON.parse(x.playerResponse),count=pruneObject(child);
+   const child=JSON.parse(nested),count=pruneObject(child);
    if(count){x.playerResponse=JSON.stringify(child);removed+=count;}
   }catch(_){}
  }

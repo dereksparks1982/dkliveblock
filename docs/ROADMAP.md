@@ -550,3 +550,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 141: inspect YouTube page-world feed objects via own data descriptors rather than calling userland getter properties; reject accessor-backed or sparse arrays before editing any ad entries.
 - [ ] Browser/Firefox real feed compatibility and full local suite pending.
+
+- [x] Build 142: MAIN-world player JSON inspection now reads known own data descriptors rather than invoking page-defined getter properties, preserving refusal status and signed media fields.
+- [ ] Full Firefox playback and Linux regression suite remain open.

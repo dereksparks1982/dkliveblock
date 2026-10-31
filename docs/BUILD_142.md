@@ -1,0 +1,3 @@
+# Build 142: inspect player data without invoking website getters
+
+Unreleased 0.3.112. The page-world video player helper previously used ordinary property access to determine whether data was playable and to identify removable ad fields. This could call website-defined property getters or throw during initialization. It now reads only own data descriptors for known player, advertising and refusal fields, never knowingly invoking accessors. Nested string and object responses keep their prior safety preflight and the original signed media/login/DRM structures. Tests simulate throwing getter properties on streamingData and playerResponse and verify no execution. Proxies and the browser environment still require real Firefox acceptance. No Actions or public release.
