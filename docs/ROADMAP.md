@@ -526,3 +526,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 133: reject duplicate, contradictory or malformed Content-Type charset directives before opening a Firefox YouTube JSON filter. Safe single UTF-8 declarations remain eligible.
 - [ ] Full Firefox response compatibility and local test suite still pending.
+
+- [x] Build 134: fix possible duplicate buffered response chunks when an intercepted Firefox stream write fails after earlier chunks were accepted. Track committed flush progress; fail open and preserve normal playback where possible.
+- [ ] Full local Node/Python and Firefox stream-error integration remains necessary.

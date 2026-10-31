@@ -188,14 +188,16 @@ function attach(details,webRequest,clock=root){
  let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){noteCurrent("error");return false;}
  liveCount++;
  liveByTab.set(tab,(liveByTab.get(tab)||0)+1);
- let chunks=[],length=0,overflow=false,ended=false,deadline=null;
+ let chunks=[],length=0,overflow=false,ended=false,deadline=null,flushCursor=0;
  function clearDeadline(){
   if(deadline!==null&&typeof clock?.clearTimeout==="function")try{clock.clearTimeout(deadline);}catch(_){}
   deadline=null;
  }
  function writeOriginal(){
-  for(const chunk of chunks)filter.write(chunk);
-  chunks=[];
+  // Advance before writing. A page-level stream can throw after accepting
+  // a chunk; a later fallback must never replay chunks already attempted.
+  while(flushCursor<chunks.length)filter.write(chunks[flushCursor++]);
+  chunks=[];flushCursor=0;
  }
  function finish(disconnect=false){
   if(ended)return;ended=true;clearDeadline();chunks=[];

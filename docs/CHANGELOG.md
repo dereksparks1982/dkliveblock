@@ -612,3 +612,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.103 / Build 133 (2026-10-31)
 - Improved YouTube response header validation by rejecting contradictory or incomplete charset declarations. Only unambiguous UTF-8 JSON responses enter the bounded stream filter; malformed responses remain unmodified. Added header fixtures, browser testing pending.
+
+### 0.3.104 / Build 134 (2026-10-31)
+- Corrected original-byte fallback streaming to avoid replaying already attempted buffered chunks after a partial write error. Added deterministic simulated Firefox writer exception regression. Actual browser acceptance pending.

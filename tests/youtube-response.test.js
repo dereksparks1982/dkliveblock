@@ -382,3 +382,23 @@ test("Build 133 refuses multiple or invalid Content-Type charset declarations",(
   assert.equal(R.safeHeaders({...req(),responseHeaders:[
    {name:"Content-Type",value}]}),true,value);
 });
+
+test("Build 134 response stream retry does not duplicate chunks after a partial write failure",()=>{
+ let filter,writeCalls=0,disconnects=0;
+ const out=[];
+ const web={filterResponseData(){filter={
+  write(b){out.push(Buffer.from(b));if(++writeCalls===2)throw Error("write failed after accepting bytes");},
+  close(){},disconnect(){disconnects++}
+ };return filter;}};
+ const clock={setTimeout(){return 3;},clearTimeout(){}};
+ const tabId=934;
+ assert.equal(R.attach({...req(),tabId},web,clock),true);
+ const segments=["raw-","plain-","text-"];
+ for(const item of segments)filter.ondata({data:Buffer.from(item)});
+ filter.onstop();
+ assert.equal(Buffer.concat(out).toString(),"raw-plain-text-");
+ assert.equal(writeCalls,3,"first chunk must not be retransmitted");
+ assert.equal(disconnects,0);
+ assert.equal(R.stats(tabId).errors,1);
+ R.clear(tabId);
+});
