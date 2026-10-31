@@ -331,3 +331,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 67: native blocked rule provenance in Site Dashboard and JSON/TXT exports; no private request or user subscription URLs.
 - [ ] Build 67 acceptance: local full suite plus Firefox source attribution on YouTube's blocked first-party XHR.
+
+- [x] Build 68: conservative Ghostery stylesheet bridge on non-streaming sites; discard scriptlets and prevent unsafe CSS.
+- [ ] Build 68: full local tests and Firefox visual validation on ordinary sites.

@@ -406,3 +406,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.37 (Build 67, unreleased)
 - Show active filtering-list attribution for each blocked request, with privacy-safe source labels and duplicate-source reporting.
+
+### 0.3.38 (Build 68, unreleased)
+- Add bounded embedded Ghostery cosmetic CSS on non-streaming pages; exclude scripting and playback-critical sites.

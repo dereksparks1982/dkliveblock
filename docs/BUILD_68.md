@@ -1,0 +1,3 @@
+# Build 68: locally bundled Ghostery cosmetic styles
+
+Version 0.3.38 (unreleased). This build connects the bundled Ghostery cosmetic stylesheet output to the existing page CSS injector for non-streaming websites. It accepts only simple display:none!important CSS declarations with conservative selectors, applies existing player/identity UI protection, and skips streaming hosts entirely until playback is stable. Remote scriptlets and all script output are discarded; no page-world JS or response rewrites are added. Added unit tests. Not a YouTube fix. Full Ubuntu tests and Firefox validation pending.

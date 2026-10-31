@@ -1061,7 +1061,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
-   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n"):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
+   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
+    "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
+      streaming:DKVideoAssist.isStreamingHost(h),
+      safeSelector:list=>DKAuthProtection.safeCosmetics(list),
+      protectSelector:selector=>DKVideoAssist.protectSelector(selector)
+    }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
   const previous=data.settings.enabled;
   data.settings.enabled=!!msg.enabled;
