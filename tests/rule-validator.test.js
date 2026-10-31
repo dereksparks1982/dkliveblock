@@ -74,3 +74,10 @@ test("Build 119 malformed quoted and regex-like cosmetics are reported unsupport
  assert.equal(result.counts.procedural,1);
  assert.equal(result.counts.unsupported,2);
 });
+
+test("Build 137 class/ID procedural selectors are counted accurately",()=>{
+ const v=V.validate("news.example##.card:has-text(Sponsored)"+
+  "\nnews.example#?##promo:has(.paid)");
+ assert.equal(v.counts.procedural,2);
+ assert.equal(v.counts.unsupported,0);
+});

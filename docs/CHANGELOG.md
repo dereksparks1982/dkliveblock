@@ -621,3 +621,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.106 / Build 136 (2026-10-31)
 - Hardened page-world YouTube fetch and XHR hook activation/restoration when a website makes those APIs read-only, falling back without throwing into the page. Added read-only method regression cases.
+
+### 0.3.107 / Build 137 (2026-10-31)
+- Extended bounded literal cosmetic procedures to accept `.class` and `#id` selector roots, preserving site scope, exception precedence and invalid-selector rejection. Added parser, matching and validator tests. Firefox acceptance pending.

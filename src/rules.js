@@ -119,8 +119,9 @@ function procedural(line){
      !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part));
    }))
   return null;
- const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text|:contains)\(([^()]{1,120})\)$/i.exec(raw);
+ const contains=/^([a-z.#][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text|:contains)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains){
+  if(!/^(?:[a-z]|[.#][a-z_])/i.test(contains[1].trim()))return null;
   let text=contains[2].trim();
   // A mismatched quote or /pattern/flags expression is not a literal.
   // Refusing it avoids claiming a rule works when it silently cannot match.
@@ -133,8 +134,8 @@ function procedural(line){
   return {scope,selector:contains[1].trim(),mode:"text",text,
    exception:match[2]==="#@?#"||match[2]==="#@#"};
  }
- const has=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-has|:has)\(([^()]{1,150})\)$/i.exec(raw);
- if(has&&/^[a-zA-Z.#\[][a-zA-Z0-9_.#>[\]="'\s:*-]*$/.test(has[2])&&!/[{};\\]/.test(has[2]))
+ const has=/^([a-z.#][\w.#>[\]="'\s:-]{0,160})(?::-abp-has|:has)\(([^()]{1,150})\)$/i.exec(raw);
+ if(has&&/^(?:[a-z]|[.#][a-z_])/i.test(has[1].trim())&&/^[a-zA-Z.#\[][a-zA-Z0-9_.#>[\]="'\s:*-]*$/.test(has[2])&&!/[{};\\]/.test(has[2]))
   return {scope,selector:has[1].trim(),mode:"has",target:has[2].trim(),exception:match[2]==="#@?#"};
  return null;
 }

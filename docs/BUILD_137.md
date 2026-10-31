@@ -1,0 +1,3 @@
+# Build 137: common class and ID sponsored-content selectors
+
+Unreleased 0.3.107. Filter lists frequently use `.sponsored-card:has-text(...)` and `#promo:has(.paid-label)` rather than an element-name root. The independently implemented, site-scoped procedural matcher now supports those safe class and ID roots, including exact matching exceptions and bounded DOM scanning. Empty `.`/`#` roots remain invalid; no broad global scanning, remote code or arbitrary scriptlets were introduced. Tests cover parsing, exception behavior, DOM text matching and validator counting. Full Firefox and Ubuntu tests remain a release gate.

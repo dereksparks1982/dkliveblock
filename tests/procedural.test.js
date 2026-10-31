@@ -49,3 +49,11 @@ test("Build 105 bounded literal text matching avoids huge article bodies",()=>{
  assert.equal(P.matches({get textContent(){throw Error("unusual page getter");}},rule),false);
  assert.equal(P.matches({textContent:"Sponsored"},{...rule,text:""}),false);
 });
+
+test("Build 137 class selectors use the existing bounded procedural matcher",()=>{
+ const {procedural}=require("../src/rules.js");
+ const rule=procedural("news.example##.ad-card:has-text(Sponsored)");
+ assert.equal(rule.selector,".ad-card");
+ assert.equal(matches({textContent:"Sponsored link"},rule),true);
+ assert.equal(matches({textContent:"Regular news"},rule),false);
+});

@@ -535,3 +535,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 136: fail-open on read-only fetch and XMLHttpRequest prototype hook assignments and restores, preserving page execution and remaining supported hook paths.
 - [ ] Real Firefox immutable page API and complete suite acceptance pending.
+
+- [x] Build 137: support safe site-scoped CSS class/ID roots in literal procedural text/descendant filters, with malformed roots rejected and scoped exceptions intact.
+- [ ] Full Linux and real Firefox DOM acceptance still pending.

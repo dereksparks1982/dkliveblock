@@ -442,3 +442,21 @@ test("Build 128 offline fallback AMP ad selectors remain simple reversible CSS",
  assert.ok(selectors.includes("ins.adsbygoogle"));
  assert.equal(f.getProcedural("news.example").length,0);
 });
+
+test("Build 137 accepts class/ID literal text rules without global selectors",()=>{
+ const f=new FilterEngine("news.example##.ad-card:has-text(Sponsored)"+
+  "\nnews.example###promo:contains(Promoted)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:".ad-card",mode:"text",text:"Sponsored"},
+  {selector:"#promo",mode:"text",text:"Promoted"}]);
+ assert.deepEqual(f.getProcedural("other.example"),[]);
+ for(const rule of ["news.example##.:has-text(Sponsored)",
+  "news.example###:has-text(Sponsored)"])assert.equal(R.procedural(rule),null);
+});
+test("Build 137 class/ID descendant rules still respect exact site exceptions",()=>{
+ const f=new FilterEngine("news.example#?#.ad-card:has(.paid-label)"+
+  "\nnews.example#@?#.ad-card:has(.paid-label)"+
+  "\nnews.example#?##sponsor:has(.disclosure)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"#sponsor",mode:"has",target:".disclosure"}]);
+});
