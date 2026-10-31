@@ -448,3 +448,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 107: cross-feature reliability contract covering manifest, cosmetics and YouTube response safety; complete local runner now includes 111 unique JS test files.
 - [ ] Full Ubuntu/Firefox acceptance remains necessary.
+
+- [x] Build 108: preflight *all* indices affected by a YouTube feed-array splice; reject read-only/accessor/hole/nonconfigurable entries before any mutation.
+- [ ] Complete local Node/Python and Firefox acceptance still open.

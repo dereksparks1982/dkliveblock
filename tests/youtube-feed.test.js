@@ -69,3 +69,20 @@ test("Build 93 does not modify sealed arrays or new unknown wrapper structures",
  assert.equal(F.prune(normal,browse).changed,false);
  assert.equal(normal.contents.length,1);
 });
+
+test("Build 108 cannot partially change feeds containing nonconfigurable trailing elements",()=>{
+ const entries=[{adSlotRenderer:{id:1}},{videoRenderer:{id:2}},{videoRenderer:{id:3}}];
+ Object.defineProperty(entries,"2",{configurable:false,writable:true,value:entries[2]});
+ const data={contents:entries,other:{contents:[{adSlotRenderer:{id:4}}]}};
+ assert.equal(F.prune(data,browse).changed,false);
+ assert.equal(entries.length,3);
+ assert.equal(data.other.contents.length,1);
+});
+test("Build 108 refuses sparse/accessor arrays instead of partially splicing them",()=>{
+ const entries=[{adSlotRenderer:{id:1}},{videoRenderer:{id:2}}];
+ Object.defineProperty(entries,"1",{configurable:true,get(){return {videoRenderer:{id:2}};}});
+ assert.equal(F.prune({contents:entries},browse).changed,false);
+ const sparse=[{adSlotRenderer:{id:1}},, {videoRenderer:{id:3}}];
+ assert.equal(F.prune({contents:sparse},browse).changed,false);
+ assert.equal(sparse.length,3);
+});

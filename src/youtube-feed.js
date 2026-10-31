@@ -65,9 +65,13 @@ function prune(payload,url){
    if(!Object.isExtensible(job.array)||Object.isFrozen(job.array)||
       !Object.getOwnPropertyDescriptor(job.array,"length")?.writable)
     return {changed:false,items:0};
-   for(const index of job.indices)
-    if(Object.getOwnPropertyDescriptor(job.array,String(index))?.writable===false)
-     return {changed:false,items:0};
+   // Splice can shift/delete later organic entries too, so validate all
+   // affected slots before *any* change to this or another feed array.
+   for(let i=Math.min(...job.indices);i<job.array.length;i++){
+    const desc=Object.getOwnPropertyDescriptor(job.array,String(i));
+    if(!desc||!Object.prototype.hasOwnProperty.call(desc,"value")||
+       !desc.writable||!desc.configurable)return {changed:false,items:0};
+   }
   }
   for(const job of jobs)for(let i=job.indices.length-1;i>=0;i--)
    job.array.splice(job.indices[i],1);

@@ -534,3 +534,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.77 / Build 107 (2026-10-31)
 - Added whole-project regression contract and registered its test in the 111-file local-only runner, guarding major YouTube and filter-engine compatibility invariants. Actual browser acceptance pending.
+
+### 0.3.78 / Build 108 (2026-10-31)
+- Made YouTube feed-array removal more transactional by preflighting all shifted entries, rather than only the ad indices. Added adversarial immutable/accessor/sparse-array fixtures. Browser tests pending.
