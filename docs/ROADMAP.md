@@ -275,3 +275,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 60: serialize dashboard changes, reject stale tab selections and malformed URLs, and validate live site before exception or history mutations.
 - [x] Build 60: extend offline audit to every packaged extension HTML page with local script, stylesheet, duplicate ID and control checks; add synthetic failure fixtures.
 - [ ] Build 60 acceptance: full offline Node/Python suite, long-session Firefox stability and real-site audio/video/YouTube/Disney+ compatibility before test release.
+
+- [x] Build 61: eliminate version-pinned assertion, prevent $removeparam from rewriting signed/SSO/CDN-token URLs, add source tests and conserve RAM with two-worker Node suite.
+- [x] Build 61: maintain a self-checking complete Node/Python test inventory, require manifest/package version consistency and document first-test stop conditions.
+- [ ] Build 61 acceptance: complete local offline regression and packaging audit with a real source checkout, then user-authorized Firefox installation, live-site and long-session tests. No test-candidate ZIP, public release or ABP parity assertion until verified.

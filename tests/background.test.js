@@ -3,7 +3,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 test("background blocks seeded ads, logs host-only requests, then pauses the site",async()=>{
  const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;},removeListener(fn){if(listeners[name]===fn)delete listeners[name];}});
- let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup"}};
+ let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup\n*$removeparam=utm_source"}};
  const removedTabs=[];
  const browser={
   webRequest:{onBeforeRequest:reg("network"),onErrorOccurred:reg("networkError")},proxy:{onRequest:reg("proxy"),onError:reg("proxyError")},dns:{resolve:async host=>({addresses:["203.0.113.10"]})},
@@ -29,6 +29,10 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   type:"main_frame",method:"POST"}).redirectUrl,undefined);
  assert.equal(listeners.network({url:"https://site.test/?sig=abc&utm_source=x",tabId:1,
   type:"main_frame",method:"GET"}).redirectUrl,undefined);
+ assert.equal(listeners.network({url:"https://site.test/?X-Amz-Signature=signed&utm_source=x",
+  tabId:1,type:"main_frame",method:"GET"}).redirectUrl,undefined);
+ assert.equal(listeners.network({url:"https://site.test/?token=signed&utm_source=x",
+  tabId:1,type:"main_frame",method:"GET"}).redirectUrl,undefined);
  assert.equal(state.ready,true);
  listeners.networkError({requestId:"unrelated",url:"https://img.site.test/photo.png?private=secret",type:"image",error:"NS_ERROR_UNKNOWN_HOST",tabId:1});
  const issueStatus=await listeners.message({action:"status",tabId:1,url:"https://site.test"});

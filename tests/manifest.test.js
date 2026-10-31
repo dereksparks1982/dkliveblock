@@ -105,7 +105,7 @@ test("Build 59 dashboard scripts exist, load locally, and keep extension permiss
  for(const match of html.matchAll(/<script[^>]+src="([^"]+)"/g))
   assert.ok(fs.existsSync(path.join(root,"src",match[1])),"Missing local script "+match[1]);
  const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
- assert.equal(manifest.version,"0.3.30");
+ assert.equal(manifest.version,JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8")).version);
  assert.ok(!manifest.permissions.includes("notifications"));
  assert.ok(!manifest.permissions.includes("clipboardRead"));
 });

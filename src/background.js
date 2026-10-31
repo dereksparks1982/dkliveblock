@@ -317,6 +317,9 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(d.type==="main_frame"){
   if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url))||
      d.method&&String(d.method).toUpperCase()!=="GET")return {};
+  // Protect the original URL BEFORE calling the filter engine's separate
+  // $removeparam handler: any query rewrite can invalidate an HMAC/SSO link.
+  if(DKPrivacy.preserveNavigation(d.url))return {};
   const ruleCleaned=data.engine.cleanNavigation(d.url)||d.url;
   const cleaned=DKPrivacy.stripTrackingParameters(ruleCleaned)||(ruleCleaned!==d.url?ruleCleaned:null);
   if(cleaned)DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");

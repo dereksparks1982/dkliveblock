@@ -64,6 +64,12 @@ def verify():
         issues.append("Stable Firefox Gecko extension ID missing")
     if not re.fullmatch(r"\d+\.\d+\.\d+", manifest.get("version", "")):
         issues.append("Manifest version must be three numeric components")
+    try:
+        package=json.loads((ROOT/"package.json").read_text(encoding="utf-8"))
+        if manifest.get("version") != package.get("version"):
+            issues.append("Manifest and package.json versions disagree")
+    except (OSError,ValueError) as error:
+        issues.append("Cannot validate package.json version: "+str(error))
     permissions = manifest.get("permissions", [])
     for needed in ["webRequest", "webRequestBlocking", "storage", "proxy", "dns"]:
         if needed not in permissions:

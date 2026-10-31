@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.31, Build 60.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.32, Build 61.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -23,7 +23,7 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 
 This is NOT a publicly released or Mozilla-signed extension. Video ads can be inserted server-side, browser extensions cannot remove every ad, and protected streaming playback may be restricted. Optional proxy/network recovery is not an anonymity guarantee.
 
-A developer can load the unpacked source from src/manifest.json through Firefox about:debugging. Local regression checks use bash scripts/test-local.sh. A synthetic manual QA lab is available through python3 scripts/qa-lab.py on localhost without automatically opening a browser. This does not replace real-site testing.
+A developer can load the unpacked source from src/manifest.json through Firefox about:debugging. Local regression checks use bash scripts/test-local.sh. The two Node test phases are capped at two workers to reduce peak RAM, and a suite inventory guard verifies that no test files were forgotten. A synthetic manual QA lab is available through python3 scripts/qa-lab.py on localhost without automatically opening a browser. This does not replace real-site testing.
 
 No GitHub Actions, hosted build runners, automatic releases, or public downloads are authorized.
 

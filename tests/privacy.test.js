@@ -26,3 +26,17 @@ test("Build 58 leaves signed and authentication query strings intact",()=>{
  assert.equal(stripTrackingParameters("https://news.test/?utm_source=x&article=3"),
   "https://news.test/?article=3");
 });
+
+test("Build 61 protects signed navigation before any filter-rule query rewrite",()=>{
+ const {preserveNavigation}=require("../src/privacy.js");
+ for(const url of [
+  "https://downloads.example/?X-Amz-Signature=HMAC&utm_source=email",
+  "https://cdn.example/video?token=opaque&expires=123&utm_campaign=social",
+  "https://idp.example/callback?code=secret&state=opaque&fbclid=123",
+  "https://asset.example/?X-Goog-Signature=abcd&gclid=123",
+  "https://user:pass@example.test/?utm_source=email"
+ ])assert.equal(preserveNavigation(url),true,url);
+ assert.equal(preserveNavigation("https://news.example/?utm_source=mail"),false);
+ assert.equal(preserveNavigation("file:///tmp/test"),true);
+ assert.equal(preserveNavigation("not a URL"),true);
+});
