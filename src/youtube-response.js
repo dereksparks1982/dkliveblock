@@ -20,15 +20,19 @@ function target(url){
    (Feed&&!!Feed.kind(url));
  }catch(_){return false;}
 }
+function requestEligible(details,pageHost){
+ if(!details||details.type!=="xmlhttprequest"||
+  String(details.method||"").toUpperCase()!=="POST"||
+  !Number.isInteger(details.tabId)||details.tabId<0||
+  !validPage(pageHost)||!target(details.url))return false;
+ const source=details.documentUrl||details.originUrl||"";
+ try{
+  const page=new URL(source);
+  return page.protocol==="https:"&&!page.username&&!page.password&&page.hostname===pageHost;
+ }catch(_){return false;}
+}
 function eligible(details,pageHost){
- if(!details||details.type!=="xmlhttprequest"||details.method!=="POST"||
-    details.statusCode!==200||!Number.isInteger(details.tabId)||details.tabId<0||
-    !validPage(pageHost)||!target(details.url))return false;
- if(details.documentUrl){
-  try{if(new URL(details.documentUrl).hostname!==pageHost)return false;}
-  catch(_){return false;}
- }
- return true;
+ return details?.statusCode===200&&requestEligible(details,pageHost);
 }
 function header(headers,name){
  const row=(Array.isArray(headers)?headers:[]).find(h=>
@@ -172,7 +176,7 @@ function attach(details,webRequest,clock=root){
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,AD_FIELDS,validPage,target,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
+const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

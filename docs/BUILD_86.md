@@ -1,0 +1,3 @@
+# Build 86: origin-verified YouTube interception
+
+Unreleased v0.3.56. The former YouTube rule exception relied partly on the target URL, which could allow contextless requests to bypass ordinary network filters even if the response could not be intercepted. Pre-request and response checks now use a single explicit HTTPS originating-document eligibility contract; originUrl is used only when documentUrl is not present. Site pause, user-selected blocks, and unrelated advertising-network rules remain intact. Tests include missing/foreign origins and normal video requests. This change is not proof of ad-free YouTube playback or anti-adblock evasion. Full Firefox/Ubuntu acceptance remains open.

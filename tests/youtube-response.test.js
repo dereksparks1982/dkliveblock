@@ -10,6 +10,11 @@ function player(){return {playabilityStatus:{status:"OK"},streamingData:{formats
  videoDetails:{title:"private title"},adPlacements:[{advertisement:"ad"}],adSlots:[{}],playerAds:[{}]};}
 test("Build 73 selects only direct first-party YouTube player JSON",()=>{
  assert.equal(R.eligible(req(),"www.youtube.com"),true);
+ assert.equal(R.requestEligible(req(),"www.youtube.com"),true);
+ assert.equal(R.requestEligible({...req(),documentUrl:"",originUrl:""},"www.youtube.com"),false);
+ assert.equal(R.requestEligible({...req(),documentUrl:"",originUrl:"https://www.youtube.com/watch"},"www.youtube.com"),true);
+ assert.equal(R.requestEligible({...req(),documentUrl:"https://unrelated.test/watch"},"www.youtube.com"),false);
+ assert.equal(R.requestEligible({...req(),documentUrl:"http://www.youtube.com/watch"},"www.youtube.com"),false);
  assert.equal(R.safeHeaders({...req(),responseHeaders:[
   {name:"Content-Type",value:"application/json; charset=windows-1252"}]}),false);
  assert.equal(R.safeHeaders({...req(),responseHeaders:[

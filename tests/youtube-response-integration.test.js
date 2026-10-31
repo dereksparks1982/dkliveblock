@@ -37,6 +37,10 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  const player={...base,url:"https://www.youtube.com/youtubei/v1/player?prettyPrint=false"};
  const browse={...base,url:"https://www.youtube.com/youtubei/v1/browse"};
  assert.equal(listeners.before(player).cancel,undefined,"player must pass");
+ assert.equal(listeners.before({...player,documentUrl:""}).cancel,true,
+  "contextless player-looking request must remain under normal network rules");
+ assert.equal(listeners.before({...player,documentUrl:"https://unrelated.test/watch"}).cancel,true,
+  "cross-site player-looking request must not receive a free pass");
  assert.equal(listeners.before(browse).cancel,undefined,"supported YouTube feed JSON must reach response filtering");
  assert.equal(listeners.before({...base,url:"https://googleads.g.doubleclick.net/pagead"}).cancel,true,"third-party ad stays blocked");
  listeners.headers({...player,requestId:"p1",statusCode:200,

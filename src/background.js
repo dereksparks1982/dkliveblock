@@ -404,7 +404,7 @@ function recordBlock(tabId,url,type,rule){
 browser.webRequest.onHeadersReceived?.addListener(d=>{
  if(!data.ready||!data.settings.enabled||!data.settings.youtubeResponseFilter||
     data.tempPaused.has(d.tabId))return;
- const site=data.hosts.get(d.tabId)||"";
+ const site=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
  if(!activeTab(d.tabId,site)||!DKYouTubeResponse.eligible(d,site))return;
  DKYouTubeResponse.attach(d,browser.webRequest);
 },{urls:["https://*.youtube.com/youtubei/v1/player*",
@@ -455,10 +455,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  // unless the user explicitly added a manual block above. Not a site allowlist.
  const doc=d.documentUrl||d.originUrl||"";
  if(data.settings.youtubeResponseFilter&&typeof browser.webRequest.filterResponseData==="function"&&
-    d.type==="xmlhttprequest"&&
-    String(d.method||"GET").toUpperCase()==="POST"&&
-    DKYouTubeResponse.validPage(top)&&DKYouTubeResponse.target(d.url)&&
-    (!doc||host(doc)===top)){
+    DKYouTubeResponse.requestEligible(d,top)){
   DKYouTubeResponse.observeRequest(d.tabId);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
    "YouTube player JSON request reserved for response-side filtering");

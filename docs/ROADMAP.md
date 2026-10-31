@@ -382,3 +382,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 85: time-bound the Firefox YouTube JSON response stream at four seconds, flush original bytes and disconnect on timeout; immediately stream oversized responses through rather than waiting onstop. Expose timeout counts in the local dashboard and TXT/JSON report; add deterministic timeout/oversize regression tests.
 - [ ] Build 85 acceptance: full offline suite and real Firefox playback, no stalled players or phantom success; deadline checks are not ad-free playback verification.
+
+- [x] Build 86: unify Firefox first-party YouTube JSON request eligibility across pre-request pass-through and response interception. Require HTTPS matching origin and reject unknown/unrelated contexts; preserve default network filtering otherwise. Add source tests for unrelated pages and no originating document.
+- [ ] Build 86 acceptance: full offline suite and real Firefox request/response consistency, embeds, Shorts and movie-with-ads playback checks.

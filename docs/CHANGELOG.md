@@ -468,3 +468,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.55 / Build 85 (2026-10-31)
 - Added a fail-open four-second deadline to Firefox YouTube JSON response filtering, immediate pass-through on oversized JSON and dashboard timeout diagnostics. Added controlled timer tests. Full Firefox and Node/Python acceptance still pending.
+
+### 0.3.56 / Build 86 (2026-10-31)
+- Hardened first-party YouTube response interception with a shared HTTPS origin check. Only recognized POST XHR from a matching YouTube document receives the selective network rule exemption; unknown initiators and unrelated websites remain subject to ordinary filters. Added integration regressions. Browser testing pending.
