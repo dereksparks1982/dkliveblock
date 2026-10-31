@@ -154,3 +154,23 @@ test("Build 58 strict blocked count persists across same-site reload",async()=>{
  s=await callbacks.message({action:"status",tabId:1,url:originalUrls.get(1)});
  assert.equal(s.strictPopupBlocked,1);
 });
+
+test("Build 113 tab closure invalidates old strict-popunder claim before ID reuse",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:75,openerTabId:1,url:"about:blank"});
+ await flush();
+ assert.ok(removed.includes(75));
+ callbacks.removed(75);
+ const outcome=callbacks.request({requestId:"reuse-75",
+  url:"https://ordinary.example/start",tabId:75,type:"main_frame"});
+ assert.notEqual(outcome.cancel,true,
+  "reused tab ID must not inherit the already closed popunder's claim");
+});
+test("Build 113 a closed tab cannot keep an old one-time popup grant",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.removed(3);
+ callbacks.created({id:76,openerTabId:3,url:"about:blank"});
+ await flush();
+ assert.equal(removed.includes(76),false,
+  "closed source must not permit or block new tabs without a live protected source");
+});

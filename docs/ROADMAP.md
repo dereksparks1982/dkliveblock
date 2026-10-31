@@ -463,3 +463,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 112: deduplicate shared YouTube `contents`/`entries` arrays before scheduling ad removal; aliased data is rewritten only once so ordinary adjacent video items survive.
 - [ ] Full suite and Firefox shared-reference/frozen-feed acceptance pending.
+
+- [x] Build 113: discard popup claim and one-time allowance state when Firefox removes a tab, preventing strict popup traps from leaking into reused tab IDs.
+- [ ] Full Node/Python suite, legitimate tab opening and popunder Firefox browser tests pending.

@@ -549,3 +549,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.82 / Build 112 (2026-10-31)
 - Fixed duplicate removal when separate YouTube response branches alias the same feed array. Only one removal job is scheduled per array identity, preserving organic items and existing bounds. Added shared/independent reference fixtures. Firefox testing pending.
+
+### 0.3.83 / Build 113 (2026-10-31)
+- Fixed stale strict popup claims and one-time allowances after tab closure to avoid incorrect blocking when Firefox reuses a tab ID. Added background integration fixtures. Browser acceptance pending.

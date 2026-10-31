@@ -1,0 +1,3 @@
+# Build 113: prevent old pop-up claims from following a reused tab ID
+
+Unreleased v0.3.83. Strict pop-up protection claims new tabs created from protected Pirate Bay and 1337x sources. When Firefox closes a claimed tab, the background now clears its claim and allowed-once marker immediately. Without this, a new unrelated tab receiving the same ID within a short claim interval might be treated as an already blocked pop-up. Other source-tab histories, permissions and request monitoring remain isolated. Tests simulate pop-up closure and a new navigation using the reused ID. Full Firefox and offline suite tests remain pending; no Actions or release.
