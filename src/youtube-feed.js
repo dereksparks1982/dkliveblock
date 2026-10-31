@@ -20,13 +20,22 @@ function kind(raw){
  }catch(_){return "";}
 }
 function plain(x){return x!==null&&typeof x==="object"&&!Array.isArray(x);}
+function ownData(x,name){
+ if(!plain(x))return undefined;
+ const d=Object.getOwnPropertyDescriptor(x,name);
+ return d&&Object.prototype.hasOwnProperty.call(d,"value")?d.value:undefined;
+}
 function adEntry(x,kindName){
  if(!plain(x))return false;
- if(kindName==="shorts"&&x.command?.reelWatchEndpoint?.adClientParams?.isAd===true)return true;
- for(const name of ADS)if(plain(x[name]))return true;
+ const command=ownData(x,"command");
+ const reel=ownData(command,"reelWatchEndpoint");
+ const params=ownData(reel,"adClientParams");
+ if(kindName==="shorts"&&ownData(params,"isAd")===true)return true;
+ for(const name of ADS)if(plain(ownData(x,name)))return true;
  for(const wrapper of ["richItemRenderer","richSectionRenderer"]){
-  const content=x[wrapper]?.content;
-  if(plain(content))for(const name of ADS)if(plain(content[name]))return true;
+  const content=ownData(ownData(x,wrapper),"content");
+  if(plain(content))for(const name of ADS)
+   if(plain(ownData(content,name)))return true;
  }
  return false;
 }
@@ -52,13 +61,24 @@ function prune(payload,url){
    seen.add(node);
    if(Array.isArray(node)){
     if(node.length>MAX_ARRAY)return {changed:false,items:0};
-    for(let i=node.length-1;i>=0;i--)queue.push({node:node[i],depth:depth+1});
+    for(let i=node.length-1;i>=0;i--){
+     const desc=Object.getOwnPropertyDescriptor(node,String(i));
+     if(!desc||!Object.prototype.hasOwnProperty.call(desc,"value"))
+      return {changed:false,items:0};
+     queue.push({node:desc.value,depth:depth+1});
+    }
     continue;
    }
-   const pairs=Object.entries(node);
+   // Descriptors allow a read-only inspection without invoking page-defined
+   // getters. Treat accessor-backed objects as unsupported and leave intact.
+   const pairs=Object.entries(Object.getOwnPropertyDescriptors(node))
+    .filter(([,desc])=>desc.enumerable);
    if(pairs.length>MAX_KEYS||(edges+=pairs.length)>MAX_EDGES)
     return {changed:false,items:0};
-   for(const [name,child] of pairs){
+   for(const [name,desc] of pairs){
+    if(!Object.prototype.hasOwnProperty.call(desc,"value"))
+     return {changed:false,items:0};
+    const child=desc.value;
     if(!child||typeof child!=="object")continue;
     if(ARRAYS.has(name)&&Array.isArray(child)){
      if(child.length>MAX_ARRAY)return {changed:false,items:0};
@@ -68,8 +88,12 @@ function prune(payload,url){
      selectedArrays.add(child);
      const indices=[];
      for(let i=0;i<child.length;i++){
-      if(adEntry(child[i],mode))indices.push(i);
-      else queue.push({node:child[i],depth:depth+1});
+      const desc=Object.getOwnPropertyDescriptor(child,String(i));
+      if(!desc||!Object.prototype.hasOwnProperty.call(desc,"value"))
+       return {changed:false,items:0};
+      const entry=desc.value;
+      if(adEntry(entry,mode))indices.push(i);
+      else queue.push({node:entry,depth:depth+1});
      }
      if(indices.length){
       total+=indices.length;

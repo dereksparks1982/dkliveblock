@@ -547,3 +547,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 140: automatic DOM ad recognition now refreshes the stored rollback style whenever a website changes and the extension re-hides a tracked ad container, aligning with procedural cosmetic restoration.
 - [ ] Complete Linux suite and live Firefox dynamic-ad DOM acceptance pending.
+
+- [x] Build 141: inspect YouTube page-world feed objects via own data descriptors rather than calling userland getter properties; reject accessor-backed or sparse arrays before editing any ad entries.
+- [ ] Browser/Firefox real feed compatibility and full local suite pending.

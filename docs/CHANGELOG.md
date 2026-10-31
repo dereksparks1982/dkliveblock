@@ -633,3 +633,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.110 / Build 140 (2026-10-31)
 - Fixed automatic ad-recognizer rollback on dynamic sites: a re-hidden ad container now remembers its newest live inline style rather than restoring an obsolete original value. Added regression fixture.
+
+### 0.3.111 / Build 141 (2026-10-31)
+- Hardened YouTube feed/Shorts JSON inspection to avoid invoking page-defined getters when traversing nested objects, entry arrays or known ad renderer keys. Read-only descriptor inspection and fail-open bounds remain in force. Added getter-trap and ordinary-ad fixtures.

@@ -1,0 +1,3 @@
+# Build 141: avoid executing getters during YouTube page-data inspection
+
+Unreleased 0.3.111. YouTube's page-world data can contain JavaScript objects with getters, unlike freshly parsed network JSON. Reading such properties through Object.entries or normal property access may execute unrelated page code, make navigation slower, or throw. The bounded sponsored-item scanner now inspects own data descriptors, declines accessor-backed and sparse structures, and recognizes known ad-only renderer fields without property getter calls. Legitimate JSON-derived ad-only entries still get removed. This is not complete protection against Proxy traps or live Firefox behavior; the full browser and offline suite remain acceptance gates. No external scripts or Actions.

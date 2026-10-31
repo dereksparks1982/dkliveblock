@@ -238,3 +238,32 @@ test("Build 125 ordinary authorized feed replies still remove known sponsored en
  assert.equal(out.changed,true);
  assert.equal(JSON.parse(out.text).contents[0].videoRenderer.videoId,"real");
 });
+
+test("Build 141 does not invoke page-defined getters while scanning feed objects",()=>{
+ let called=0;
+ const awkward={contents:[{videoRenderer:{id:1}},{adSlotRenderer:{id:2}}]};
+ Object.defineProperty(awkward,"unexpected",{enumerable:true,get(){
+  called++;throw Error("must not execute getter");}});
+ const result=F.prune(awkward,browse);
+ assert.equal(result.changed,false);
+ assert.equal(called,0);
+ assert.equal(awkward.contents.length,2);
+});
+test("Build 141 getter-backed Shorts ad marker is never read or executed",()=>{
+ let called=0;
+ const command={};
+ Object.defineProperty(command,"reelWatchEndpoint",{enumerable:true,get(){
+  called++;throw Error("getter");}});
+ const payload={entries:[{command},{command:{reelWatchEndpoint:{
+  videoId:"editorial",adClientParams:{isAd:false}}}}]};
+ assert.equal(F.prune(payload,reel).changed,false);
+ assert.equal(called,0);
+ assert.equal(payload.entries.length,2);
+});
+test("Build 141 ordinary data-only sponsored entries still disappear",()=>{
+ const payload={results:[{compactVideoRenderer:{videoId:"real"}},
+  {compactPromotedVideoRenderer:{adId:"ad"}}]};
+ const result=F.prune(payload,"https://www.youtube.com/youtubei/v1/next");
+ assert.equal(result.changed,true);
+ assert.equal(payload.results.length,1);
+});
