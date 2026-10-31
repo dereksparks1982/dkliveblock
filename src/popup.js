@@ -162,6 +162,9 @@ $("mediaRecovery").addEventListener("click",async()=>{
   await load();
  }catch(e){$("info").textContent=e.message;}finally{$("mediaRecovery").disabled=false;}
 });
+$("siteDashboard").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("site-dashboard.html"+(Number.isInteger(tab?.id)?"?tab="+tab.id:""))
+}));
 $("cosmeticDebugger").addEventListener("click",()=>browser.tabs.create({
  url:browser.runtime.getURL("cosmetic-debug.html?tab="+encodeURIComponent(tab.id))
 }));

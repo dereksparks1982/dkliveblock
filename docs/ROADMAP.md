@@ -266,3 +266,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 58: keep strict popup counters on same-site reloads; expire future/invalid popup history; preserve signed/authentication query strings and non-GET forms.
 - [x] Build 58: bounded nested open-shadow cookie rejection buttons, with visibility checks and no accept-all fallback.
 - [ ] Build 58 acceptance: full local tests plus real Firefox popup races, signed-link compatibility, nested consent interfaces, YouTube/Disney+ streaming and accessibility.
+
+- [x] Build 59: one-click local Site Dashboard showing exact live-tab protection state, reasons, per-tab counts, blocked request domains, popup history and exception inventory.
+- [x] Build 59: verified extension-only data snapshot, host-only privacy boundary, no URL paths or query tokens; inspect/revoke website exceptions and narrowly scoped allowances with confirmation.
+- [x] Build 59: one-click recovery actions for global/site/tab pause, per-site cookie and distraction cleanup and links to existing detailed network tools.
+- [ ] Build 59 acceptance: full local test suite and Firefox accessibility, focus, loading-state, tab-switch and layout acceptance; evaluate ABP gaps separately without claiming complete parity.

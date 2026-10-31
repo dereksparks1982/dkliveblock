@@ -91,3 +91,23 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 #monitorRows button{white-space:nowrap;font-size:11px;padding:6px}
 
 #monitorRows td label{display:inline-flex;align-items:center;gap:5px;font-size:11px;white-space:nowrap;cursor:pointer}
+
+
+/* Build 59: standalone responsive dashboard; existing popup dimensions unchanged. */
+.site-dashboard .dashboard-metrics{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin:16px 0}
+.site-dashboard .dashboard-metrics>div{background:#0a2925;border:1px solid #3a6059;border-radius:7px;padding:12px;font-size:13px}
+.site-dashboard .dashboard-metrics strong{display:block;font-size:23px;margin-top:5px;color:#d9fff7}
+.site-dashboard .dashboard-line{display:flex;justify-content:space-between;align-items:center;gap:14px;padding:10px 2px;border-bottom:1px solid #3a6059}
+.site-dashboard .dashboard-line span{flex:1;min-width:0;overflow-wrap:anywhere}
+.site-dashboard .dashboard-line button{flex-shrink:0}
+.site-dashboard #dashboardRecent,.site-dashboard #dashboardPopupHistory{max-height:320px;overflow-y:auto}
+.site-dashboard #dashboardCustomAllowances,.site-dashboard #dashboardRequestAllowances{max-height:300px;overflow-y:auto}
+.site-dashboard #dashboardTab{max-width:100%;box-sizing:border-box}
+.site-dashboard #dashboardShield{font-size:19px;color:#c8fff3}
+.site-dashboard #dashboardMessage{border-left:3px solid #13ad98;padding:8px 12px;background:#0b2e2b}
+.site-dashboard .dashboard-footnote{font-size:12px}
+.site-dashboard button:focus-visible,.site-dashboard select:focus-visible{outline:3px solid #baf9e5;outline-offset:3px}
+@media(max-width:600px){
+ .site-dashboard .dashboard-metrics{grid-template-columns:1fr}
+ .site-dashboard .dashboard-line{align-items:flex-start;flex-direction:column}
+}

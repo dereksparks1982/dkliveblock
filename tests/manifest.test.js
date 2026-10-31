@@ -99,3 +99,13 @@ test("Build 55 open-shadow consent script loads before the content controller",(
  assert.ok(scripts.indexOf("consent-dom.js")<scripts.indexOf("content.js"));
  assert.equal(m.version,JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8")).version);
 });
+
+test("Build 59 dashboard scripts exist, load locally, and keep extension permissions identical",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ for(const match of html.matchAll(/<script[^>]+src="([^"]+)"/g))
+  assert.ok(fs.existsSync(path.join(root,"src",match[1])),"Missing local script "+match[1]);
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ assert.equal(manifest.version,"0.3.30");
+ assert.ok(!manifest.permissions.includes("notifications"));
+ assert.ok(!manifest.permissions.includes("clipboardRead"));
+});

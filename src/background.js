@@ -602,6 +602,55 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="videoDownloadStatus")return jobStatus();
  if(msg.action==="startVideoDownload")return startVideoDownload(msg);
  if(msg.action==="cancelVideoDownload")return cancelVideoDownload(msg);
+ if(msg.action==="getSiteDashboard"){
+  // Only extension pages may inspect private, tab-specific history.
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let liveURL="",site="";
+  try{
+   liveURL=(await browser.tabs.get(id))?.url||"";
+   site=DKSiteAllowlist.host(liveURL);
+  }catch(_){return {error:"Website tab is unavailable."};}
+  if(!/^https?:\/\//i.test(liveURL)||!DKManualRules.validHost(site))
+   return {error:"Choose a normal HTTP(S) website tab."};
+  const sameTab=data.hosts.get(id)===site;
+  const requestLog=data.settings.requestLog===true;
+  const logs=sameTab&&requestLog?(data.logs.get(id)||[]).slice(-12).reverse().map(row=>({
+   host:DKManualRules.validHost(row.host)?row.host:"",
+   type:String(row.type||"").slice(0,30),
+   when:Number.isFinite(row.when)?row.when:0
+  })):[];
+  const popupEvents=sameTab&&requestLog?
+   DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];
+  const allowance=DKRequestControls.list(data.requestControls,id,site).slice(0,150).map(row=>({
+   host:row.host,type:row.type,scope:row.scope,
+   expires:Number.isFinite(row.expires)?row.expires:0
+  }));
+  const pausedOn=DKSiteAllowlist.match(data.settings.paused,site);
+  return {
+   ok:true,tabId:id,site,
+   globalEnabled:data.settings.enabled===true,
+   sitePaused:!!pausedOn,allowlistMatch:pausedOn||"",
+   temporarilyPaused:data.tempPaused.has(id),
+   siteActive:activeTab(id,site),
+   blocked:sameTab?(data.counts.get(id)||0):0,
+   popupHidden:sameTab?(data.popupCounts.get(id)||0):0,
+   scamTabsBlocked:sameTab?(data.popupTrapCounts.get(id)||0):0,
+   strictPopupAvailable:DKPopupTrap.protectedHost(site),
+   strictPopupEnabled:DKPopupTrap.shouldBlock(site,data.settings.strictPopupSites,activeTab(id,site)),
+   cookieRejectEnabled:data.settings.cookieReject===true,
+   cookieRejectPaused:data.settings.cookieRejectPaused.some(h=>DKRules.sub(site,h)),
+   distractionEnabled:data.settings.distractionControl===true,
+   distractionPaused:data.settings.distractionPaused.some(h=>DKRules.sub(site,h)),
+   popupCleanupEnabled:data.settings.antiAdblock||data.settings.paywallPopups,
+   popupCleanupPaused:data.settings.popupProtectionPaused.some(h=>DKRules.sub(site,h)),
+   requestLog,filterBackend:String(data.engine.backend||"Local").slice(0,64),
+   networkRules:data.engine.networkCount||0,cosmeticRules:data.engine.cosmetic.length,
+   unsupportedRules:data.engine.unsupportedCount||0,
+   recentBlocks:logs,popupHistory:popupEvents,
+   customAllowances:DKManualRules.listSiteExceptions(data.settings.customRules,site).slice(0,150),
+   requestAllowances:allowance
+  };
+ }
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
  if(msg.action==="getNotificationControl"){
   if(fromContent)return {error:"Extension interface only."};

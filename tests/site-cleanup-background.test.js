@@ -90,3 +90,43 @@ test("settings API can remove exactly one site exception",async()=>{
  assert.deepEqual(Array.from(remaining.cookieReject),[]);
  assert.deepEqual(Array.from(remaining.distractionControl),["news.example.org"]);
 });
+
+test("Build 59 dashboard snapshot uses actual tab, host-only entries and current settings",async()=>{
+ const {events,tabs}=await setup();
+ const current=await events.message({action:"getSiteDashboard",tabId:1,
+  url:"https://evil.test/private?SECRET=1"});
+ assert.equal(current.ok,true);
+ assert.equal(current.site,"news.example.org");
+ assert.equal(current.globalEnabled,true);
+ assert.equal(current.cookieRejectEnabled,true);
+ assert.equal(current.siteActive,true);
+ assert.deepEqual(Array.from(current.recentBlocks),[]);
+ assert.equal(JSON.stringify(current).includes("SECRET"),false);
+ assert.equal(JSON.stringify(current).includes("private?"),false);
+ const paused=await events.message({action:"setSiteFeaturePaused",tabId:1,
+  feature:"cookieReject",paused:true});
+ assert.equal(paused.ok,true);
+ const updated=await events.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(updated.cookieRejectPaused,true);
+});
+test("Build 59 dashboard cannot be spoofed by a page script or stale internal tab",async()=>{
+ const {events,tabs}=await setup();
+ const sender={tab:{id:1,url:"https://news.example.org/"},
+  url:"https://news.example.org/"};
+ const forbidden=await events.message({action:"getSiteDashboard",tabId:1},sender);
+ assert.match(forbidden.error,/extension interface/i);
+ tabs.set(1,"about:config");
+ const internal=await events.message({action:"getSiteDashboard",tabId:1,
+  url:"https://news.example.org/private"});
+ assert.match(internal.error,/HTTP\(S\)/);
+});
+test("Build 59 dashboard inventory reflects narrow request and explicit host exceptions",async()=>{
+ const {events}=await setup();
+ const allowed=await events.message({action:"allowHost",url:"https://news.example.org/",
+  host:"ads.example.org"});
+ assert.equal(allowed.ok,true);
+ const snap=await events.message({action:"getSiteDashboard",tabId:1});
+ assert.deepEqual(Array.from(snap.customAllowances),["ads.example.org"]);
+ assert.deepEqual(Array.from(snap.requestAllowances),[]);
+ assert.equal(snap.requestLog,true);
+});

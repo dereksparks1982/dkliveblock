@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.29, Build 58.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.30, Build 59.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -10,7 +10,7 @@
 - Adds conservative automatic ad-slot recognition for explicitly labelled ads, including dynamically added and open-shadow components.
 - Lets users allowlist websites, manage subscriptions, edit filters, pick elements to hide and restore unwanted hiding.
 - Stops many unwanted popups, new tabs, cookie prompts, newsletter distractions and tracking parameters.
-- Includes private request inspection, per-request temporary exceptions, site controls and playback diagnostics.
+- Includes a **Site Dashboard** to inspect the selected tab's protection state, recent blocked hostnames and active exceptions, with clear controls to revoke allowances. Detailed network inspection and playback diagnostics remain available.
 - Offers optional video watch-later features and Linux companion integrations; optional features are still under development.
 
 ## What makes it different

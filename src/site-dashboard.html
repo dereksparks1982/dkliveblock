@@ -1,0 +1,61 @@
+<!doctype html><html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block | Site Dashboard</title><link rel="stylesheet" href="style.css"></head>
+<body class="options site-dashboard">
+<header><strong>DK LIVE BLOCK</strong><small>Local site dashboard · No accounts</small></header>
+<main>
+<h1>Site Dashboard</h1>
+<p>See what DK Live Block does on a selected website, which destinations were blocked, and which exceptions you approved. This page stays inside Firefox.</p>
+<div class="network-monitor-controls"><label>Website tab
+<select id="dashboardTab"><option value="">Choose a website tab</option></select></label>
+<button id="dashboardRefreshTabs" type="button">Refresh tabs</button>
+<button id="dashboardRefresh" type="button">Refresh status</button>
+<button id="dashboardReport" type="button">Report a problem</button></div>
+<p id="dashboardMessage" role="status" aria-live="polite">Choose a website tab.</p>
+<section id="dashboardSiteSection">
+<h2 id="dashboardSite">No site selected</h2>
+<p><strong id="dashboardShield" aria-live="polite">No website selected</strong></p>
+<p id="dashboardExplanation">Nothing is being changed.</p>
+<div class="dashboard-metrics">
+<div>Blocked requests <strong id="dashboardBlocked">0</strong></div>
+<div>Overlays suppressed <strong id="dashboardOverlays">0</strong></div>
+<div>Unwanted tabs stopped <strong id="dashboardTabsStopped">0</strong></div>
+</div>
+<div class="network-monitor-controls">
+<button id="dashboardAllowlist" type="button">Allowlist website</button>
+<button id="dashboardPause" type="button">Pause this tab</button>
+<button id="dashboardCookie" type="button">Pause cookie rejection here</button>
+<button id="dashboardDistraction" type="button">Pause distraction cleanup here</button>
+</div>
+<p id="dashboardModeNote">Allowlisting turns off all protection for the site and subdomains. Pausing just this tab leaves other tabs alone. Cookie and distraction settings do not switch off network ad blocking.</p>
+</section>
+<section><h2>Recent blocked requests</h2>
+<p>The temporary log stores only destination hostnames, resource types and a coarse timestamp. It does not reveal exactly what the server tried to do. Empty when private request logging is disabled.</p>
+<div class="network-monitor-controls">
+<button id="dashboardMonitor" type="button">Open detailed Network Monitor</button>
+<button id="dashboardClearLog" type="button">Clear recent blocked-request log</button></div>
+<p id="dashboardLogState" role="status"></p>
+<div id="dashboardRecent" aria-label="Recent blocked hostnames"></div>
+</section>
+<section><h2>Recently blocked popups</h2>
+<p>Firefox may not reveal a destination if a tab was stopped while blank. No URLs, paths or query strings are displayed.</p>
+<div id="dashboardPopupHistory"></div>
+</section>
+<section><h2>Allowed destinations</h2>
+<p>Review exceptions that could allow advertising or tracking. Each exception can be revoked without disabling the whole website.</p>
+<h3>Custom website hostname allowances</h3>
+<div id="dashboardCustomAllowances"></div>
+<h3>Hostname and resource-type allowances</h3>
+<div id="dashboardRequestAllowances"></div>
+<p>Temporary permissions automatically expire; remembered permissions apply only to this website. Grant new exceptions from the detailed Network Monitor after observing an actually blocked request.</p>
+</section>
+<section><h2>Filter coverage</h2>
+<p id="dashboardFilterDetails">No filter information loaded.</p>
+<button id="dashboardOptions" type="button">Settings and filter lists</button>
+</section>
+<p class="dashboard-footnote">Local display only · no telemetry · no automatic new network monitoring · no Acceptable Ads</p>
+</main>
+<script src="access-inspector.js"></script>
+<script src="site-dashboard-model.js"></script>
+<script src="site-dashboard.js"></script>
+</body></html>
