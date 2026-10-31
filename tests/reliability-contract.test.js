@@ -82,3 +82,12 @@ test("Build 130 YouTube response diagnostics cover all five endpoint categories"
  assert.ok(Y.MAX_FILTERS<=16);
  assert.ok(Y.MAX_PER_TAB<=4);
 });
+
+test("Build 131 signed query preservation is enforced before either cleanup layer",()=>{
+ const Privacy=require("../src/privacy.js");
+ for(const key of ["utm_signature","UTM_NONCE","X-Goog-Algorithm"]){
+  const link="https://cdn.example/file?utm_campaign=social&"+key+"=opaque";
+  assert.equal(Privacy.preserveNavigation(link),true);
+  assert.equal(Privacy.stripTrackingParameters(link),null);
+ }
+});

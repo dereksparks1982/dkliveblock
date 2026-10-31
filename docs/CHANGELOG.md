@@ -603,3 +603,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.100 / Build 130 (2026-10-31)
 - Expanded the local cross-feature regression contract to cover the recent YouTube playlist/Up Next features, pack-v3 offline CSS, signed URL safety, AMP ad recognition and categorized private diagnostics. No browser acceptance claim; complete Ubuntu suite pending.
+
+### 0.3.101 / Build 131 (2026-10-31)
+- Closed a signed URL preservation gap across the independent and built-in tracking cleaners. Recognized UTM-prefixed signing/authorization keys now cause both to leave the entire URL untouched, preventing invalid signatures from unrelated UTM removal. Added cross-layer regression tests. Firefox validation pending.

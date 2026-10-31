@@ -6,7 +6,10 @@ const SIGNED_KEYS=new Set([
  "x-goog-credential","x-amz-security-token","key-pair-id","policy",
  "samlresponse","samlrequest","relaystate","oauth_token","oauth_verifier",
  "code","state","code_challenge","id_token","access_token",
- "token","auth","expires","x-amz-date","x-goog-date"
+ "token","auth","expires","x-amz-date","x-goog-date",
+ "utm_token","utm_auth","utm_signature","utm_sig","utm_state",
+ "utm_code","utm_key","utm_expires","utm_session","utm_nonce",
+ "x-amz-algorithm","x-goog-algorithm","x-goog-security-token"
 ]);
 function signedOrAuth(url){
  if(url.username||url.password)return true;

@@ -517,3 +517,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 130: consolidate source-level regression checks for ad-only YouTube pack v3, first-run cosmetics, signed navigation safety, watch-next/playlist refusal handling, AMP container recognition and five private response metrics categories.
 - [ ] Full 111-file test suite and real Firefox browser/performance/anti-adblock acceptance still required.
+
+- [x] Build 131: align the separate built-in privacy tracker remover with the engine's signed-query safeguards. Preserve entire URLs containing UTM-prefixed signature/session/token/state and additional cloud signing markers, not only the signature keys themselves.
+- [ ] Complete regression and browser checkout/authentication/download safety acceptance pending.

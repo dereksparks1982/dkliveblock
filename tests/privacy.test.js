@@ -40,3 +40,19 @@ test("Build 61 protects signed navigation before any filter-rule query rewrite",
  assert.equal(preserveNavigation("file:///tmp/test"),true);
  assert.equal(preserveNavigation("not a URL"),true);
 });
+
+test("Build 131 privacy and network tracking layers both preserve UTM-adjacent signed links",()=>{
+ const {preserveNavigation}=require("../src/privacy.js");
+ const {FilterEngine}=require("../src/engine.js");
+ const engine=new FilterEngine("*$removeparam=utm_*\n*$removeparam=clickid");
+ for(const key of ["utm_signature","UTM_TOKEN","utm_session","utm_nonce",
+  "utm_auth","X-Goog-Algorithm","X-Amz-Algorithm"]){
+  const url="https://downloads.example/object?utm_source=advert&"+key+"=opaque&clickid=ad";
+  assert.equal(preserveNavigation(url),true,key);
+  assert.equal(stripTrackingParameters(url),null,key);
+  assert.equal(engine.cleanNavigation(url),null,key);
+ }
+ const normal="https://news.example/story?utm_source=advert&view=full";
+ assert.equal(preserveNavigation(normal),false);
+ assert.equal(stripTrackingParameters(normal),"https://news.example/story?view=full");
+});
