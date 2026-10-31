@@ -53,3 +53,13 @@ test("Build 62 view-blocked action sits beside popup count and focuses same-tab 
  assert.match(script,/focusBlockedRequests/);
  assert.match(script,/scrollIntoView/);
 });
+
+test("individual-block view explains details, external research and explicit RDAP control",()=>{
+ const page=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ for(const id of ["blockDetailFields","dashboardBlockDetails","blockRdapLookup","blockRdapResult","blockDetailLinks","blockDetailClose"])assert.ok(page.includes(`id="${id}"`));
+ assert.match(js,/showBlock\(row\)/);
+ assert.match(js,/lookupBlockedDomain/);
+ assert.match(js,/noopener noreferrer/);
+ assert.doesNotMatch(js,/innerHTML\s*=/);
+});

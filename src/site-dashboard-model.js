@@ -26,7 +26,9 @@ function requestRows(data){
  return (Array.isArray(data.recentBlocks)?data.recentBlocks:[]).slice(0,250).flatMap(row=>{
   const host=hostname(row?.host),type=String(row?.type||"");
   if(!host||!RESOURCE_TYPES.has(type))return [];
-  return [{host,type,when:Number.isFinite(row.when)?row.when:0}];
+  return [{host,type,when:Number.isFinite(row.when)?row.when:0,
+   sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=0?row.sequence:0,
+   ruleType:["popup","filter","engine"].includes(row.ruleType)?row.ruleType:"engine"}];
  });
 }
 function popupRows(data){

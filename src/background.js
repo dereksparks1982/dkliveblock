@@ -304,7 +304,7 @@ function recordBlock(tabId,url,type,rule){
   data.hosts.get(tabId)||"",host(url),type);
  if(!data.settings.requestLog)return;
  const rows=data.logs.get(tabId)||[];
- rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),when:Date.now()});
+ rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),when:Date.now(),sequence:data.counts.get(tabId)});
  if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
 }
 browser.webRequest.onBeforeRequest.addListener(d=>{
@@ -622,7 +622,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const logs=sameTab&&requestLog?(data.logs.get(id)||[]).slice(-250).reverse().map(row=>({
    host:DKManualRules.validHost(row.host)?row.host:"",
    type:String(row.type||"").slice(0,30),
-   when:Number.isFinite(row.when)?row.when:0
+   when:Number.isFinite(row.when)?row.when:0,
+   sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=1?row.sequence:0,
+   ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine"
   })):[];
   const popupEvents=sameTab&&requestLog?
    DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];

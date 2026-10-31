@@ -1,7 +1,8 @@
 "use strict";
-const $=id=>document.getElementById(id),Model=DKSiteDashboardModel;
+const $=id=>document.getElementById(id),Model=DKSiteDashboardModel,Details=DKBlockDetails;
 let current=null,requestToken=0,loading=false,busy=false;
 let focusBlockedRequests=location.hash==="#blocked-requests";
+let selectedBlock=null,blockLookupToken=0;
 function tabHost(url){
  try{return /^https?:\/\//i.test(url||"")?Model.hostname(new URL(url).hostname.toLowerCase()):"";}
  catch(_){return "";}
@@ -57,6 +58,68 @@ async function selectTabs(preferred=null){
  }
  await refresh();
 }
+function addDetail(label,value){
+ const term=document.createElement("dt");term.textContent=label;
+ const desc=document.createElement("dd");desc.textContent=String(value??"Not available");
+ $("blockDetailFields").append(term,desc);
+}
+function closeBlock(){
+ selectedBlock=null;blockLookupToken++;
+ $("dashboardBlockDetails").hidden=true;$("blockRdapResult").textContent="";
+}
+function showBlock(row){
+ if(!current?.ok||!row?.host)return;
+ const info=Details.summary(row.host,row.type,current.site,row.ruleType);
+ const currentTab=current.tabId,token=++blockLookupToken;
+ selectedBlock={host:row.host,site:current.site,tabId:currentTab,token};
+ const section=$("dashboardBlockDetails");section.hidden=false;
+ $("blockDetailFields").replaceChildren();
+ addDetail("Event",row.sequence?"Blocked request #"+row.sequence:"Recorded blocked request");
+ addDetail("Destination hostname",info.host);
+ addDetail("Website tab",current.site);
+ addDetail("When",time(row.when));
+ addDetail("Request type",info.resource+" ("+row.type+")");
+ addDetail("Third-party relation",info.thirdParty===null?"Not established":info.thirdParty?"Different hostname from website":"Same website or subdomain");
+ addDetail("Why DK Live Block stopped it",info.why);
+ addDetail("Service operator (local reference)",info.operator);
+ addDetail("Operator evidence",info.operatorEvidence);
+ addDetail("Common service purpose (not observed behavior)",info.purpose);
+ addDetail("Essential or optional?",info.importance);
+ addDetail("Scope of evidence",info.access);
+ $("blockRdapResult").textContent="Registration details are not fetched unless you click the lookup button.";
+ const links=$("blockDetailLinks");links.replaceChildren();
+ const items=[...Details.researchLinks(row.host)];
+ if(info.operatorUrl)items.unshift({label:"Service operator website",url:info.operatorUrl});
+ for(const item of items){
+  const link=document.createElement("a");link.href=item.url;link.target="_blank";
+  link.rel="noopener noreferrer";link.textContent=item.label;
+  links.appendChild(link);
+ }
+ section.scrollIntoView?.({block:"nearest"});section.focus?.();
+}
+async function lookupBlockRegistration(){
+ const target=selectedBlock;if(!target||!current?.ok||
+  current.tabId!==target.tabId||current.site!==target.site)return;
+ const result=$("blockRdapResult"),button=$("blockRdapLookup");
+ button.disabled=true;result.textContent="Looking up public domain registration…";
+ const token=++blockLookupToken;selectedBlock={...target,token};
+ try{
+  const response=await browser.runtime.sendMessage({
+   action:"lookupBlockedDomain",tabId:target.tabId,expectedSite:target.site,host:target.host
+  });
+  if(!selectedBlock||selectedBlock.token!==token)return;
+  result.textContent=response?.error?response.error:
+   "Registered domain: "+response.domain+" · Registered organization: "+
+   (response.organization||"Not publicly disclosed")+" · Registrar: "+
+   (response.registrar||"Not disclosed")+
+   " · Expires: "+(response.expires||"Not disclosed")+
+   ". Registration is not proof of who operated this request.";
+ }catch(error){if(selectedBlock?.token===token)
+  result.textContent="Could not retrieve RDAP: "+String(error.message||error).slice(0,140);
+ }finally{button.disabled=false;}
+}
+$("blockDetailClose").addEventListener("click",closeBlock);
+$("blockRdapLookup").addEventListener("click",lookupBlockRegistration);
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -72,7 +135,7 @@ function setButtons(d){
  $("dashboardDistraction").textContent=d?.distractionPaused?"Resume distraction cleanup here":"Pause distraction cleanup here";
 }
 function clearDisplay(message){
- current=null;setButtons(null);
+ closeBlock();current=null;setButtons(null);
  $("dashboardSite").textContent="No site selected";
  $("dashboardShield").textContent="No website selected";
  $("dashboardExplanation").textContent=message;
@@ -146,7 +209,7 @@ async function revokeRequest(row){
  });
 }
 function display(d){
- current=d;setButtons(d);
+ closeBlock();current=d;setButtons(d);
  const summary=Model.status(d);
  $("dashboardSite").textContent=d.site;
  $("dashboardShield").textContent=summary.label;
@@ -159,11 +222,9 @@ function display(d){
   "Private request logging is OFF. Turn it on in Settings to show future blocks.":
   requests.length?requests.length+" recent blocked requests (hostnames only).":
   "No recent blocked request records for this tab.";
- render("dashboardRecent",requests,"No recent blocked requests.",row=>{
-  const result=DKAccessInspector.describe(row.host,row.type,d.site);
-  return line(time(row.when)+" · "+row.host+" · "+result.observed+
-   " · "+result.purpose+" ("+result.certainty+" inference)");
- });
+ render("dashboardRecent",requests,"No recent blocked requests.",row=>
+  line((row.sequence?"#"+row.sequence+" · ":"")+time(row.when)+" · "+row.host+" · "+row.type,
+   "Details",()=>showBlock(row)));
  render("dashboardPopupHistory",Model.popupRows(d),
   d.requestLog?"No recent popup closures.":"Popup history is unavailable while private request logging is off.",
   row=>line(time(row.when)+" · "+row.host+" · "+row.reason));

@@ -35,7 +35,18 @@
 <button id="dashboardMonitor" type="button">Open detailed Network Monitor</button>
 <button id="dashboardClearLog" type="button">Clear recent blocked-request log</button></div>
 <p id="dashboardLogState" role="status"></p>
-<div id="dashboardRecent" aria-label="Recent blocked hostnames"></div>
+<div id="dashboardRecent" aria-label="Individual blocked requests"></div>
+<article id="dashboardBlockDetails" hidden aria-label="Selected blocked request details">
+<h3>Individual blocked request</h3>
+<p id="blockDetailHint">Details reflect what Firefox observed, not a malware verdict.</p>
+<dl id="blockDetailFields"></dl>
+<h4>Ownership and further research</h4>
+<p id="blockOwnerNotice">Local service-operator hints are not legal ownership records. Lookups and external links are optional.</p>
+<div id="blockDetailLinks"></div>
+<button id="blockRdapLookup" type="button">Look up domain registration (sends hostname to RDAP)</button>
+<p id="blockRdapResult" role="status" aria-live="polite"></p>
+<button id="blockDetailClose" type="button">Close details</button>
+</article>
 </section>
 <section><h2>Recently blocked popups</h2>
 <p>Firefox may not reveal a destination if a tab was stopped while blank. No URLs, paths or query strings are displayed.</p>
@@ -56,6 +67,7 @@
 <p class="dashboard-footnote">Local display only · no telemetry · no automatic new network monitoring · no Acceptable Ads</p>
 </main>
 <script src="access-inspector.js"></script>
+<script src="block-details.js"></script>
 <script src="site-dashboard-model.js"></script>
 <script src="site-dashboard.js"></script>
 </body></html>

@@ -117,3 +117,14 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 .popup .metric>span{min-width:0}
 .popup .metric #viewBlocked{white-space:nowrap;flex-shrink:0;padding:8px 11px;font-size:12px}
 .site-dashboard #blockedRequestsSection:focus{outline:2px solid #13ad98;outline-offset:2px}
+
+/* Build 63: deliberate individual-block inspection, safe text-only controls. */
+.site-dashboard #dashboardBlockDetails{margin-top:18px;border:1px solid #17b8a5;border-radius:9px;background:#082b28;padding:16px}
+.site-dashboard #dashboardBlockDetails[hidden]{display:none}
+.site-dashboard #blockDetailFields{display:grid;grid-template-columns:minmax(155px,1fr) minmax(0,2fr);gap:10px 20px}
+.site-dashboard #blockDetailFields dt{color:#b4dfd5;font-weight:700}
+.site-dashboard #blockDetailFields dd{margin:0;overflow-wrap:anywhere}
+.site-dashboard #blockDetailLinks{display:flex;flex-wrap:wrap;gap:12px;margin:12px 0}
+.site-dashboard #blockDetailLinks a{color:#a2fced;text-decoration:underline}
+.site-dashboard #blockDetailClose{margin-left:8px}
+@media(max-width:600px){.site-dashboard #blockDetailFields{grid-template-columns:1fr;gap:3px}}

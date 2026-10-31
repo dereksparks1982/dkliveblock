@@ -282,3 +282,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 61 browser acceptance: temporary Firefox installation, real-site controls, YouTube/Disney+ playback and long-session stability. No test-candidate ZIP, public release or ABP parity assertion until verified.
 
 - [x] Build 62: add a direct View blocked button alongside the tab blocked count, open same-tab history on Site Dashboard and display up to 250 bounded hostname-only records.
+
+- [x] Build 63: one-click per-event blocked request details, observed resource type, event sequence, nonessential/essential caveats, known operator hints, privacy-preserving external research links and user-opt-in RDAP lookup.
+- [ ] Build 63 acceptance: verify all link behavior, registered organization availability, no network lookups before consent, details match the selected live tab and all 91+ test files pass.

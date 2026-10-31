@@ -14,7 +14,7 @@ test("Build 59 only displays bounded host-only blocked requests",()=>{
   {host:"evil.test/path?token=SECRET",type:"script",when:101},
   {host:"site.test",type:"not-a-resource",when:102}
  ]});
- assert.deepEqual(rows,[{host:"doubleclick.net",type:"image",when:100}]);
+ assert.deepEqual(rows,[{host:"doubleclick.net",type:"image",when:100,sequence:0,ruleType:"engine"}]);
  assert.deepEqual(M.requestRows({requestLog:false,recentBlocks:rows}),[]);
 });
 test("Build 59 only displays valid scoped allowances and sanitized history",()=>{
@@ -45,4 +45,10 @@ test("Build 62 retained host-only records show all nine blocks and cap at 250",(
  assert.equal(full[8].when,9);
  assert.equal(M.requestRows({requestLog:true,recentBlocks:Array.from({length:300},(_,index)=>({host:"ad.example",type:"image",when:index+1}))}).length,250);
  assert.equal(M.requestRows({requestLog:false,recentBlocks:rows}).length,0);
+});
+
+test("Detailed blocked records remain hostname-only with bounded safe fields",()=>{
+ const item=M.requestRows({requestLog:true,recentBlocks:[{host:"ads.example",type:"script",when:123,sequence:9,ruleType:"filter",url:"https://ads.example/path?token=secret"}]});
+ assert.deepEqual(item,[{host:"ads.example",type:"script",when:123,sequence:9,ruleType:"filter"}]);
+ assert.equal(JSON.stringify(item).includes("secret"),false);
 });
