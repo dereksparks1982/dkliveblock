@@ -481,3 +481,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 118: recognize trusted cross-subdomain HTTPS youtube.com first-party origins for selective response handling while rejecting lookalike, credentialed, insecure and unrelated initiators.
 - [ ] Full local and Firefox subdomain/embedded-media acceptance required.
+
+- [x] Build 119: reject unbalanced cosmetic-text quotes and regex-like patterns with flags, preserving literal labels and accurate validator coverage.
+- [ ] Full offline suite and real Firefox DOM verification pending.

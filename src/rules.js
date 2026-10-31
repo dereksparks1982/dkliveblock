@@ -122,10 +122,14 @@ function procedural(line){
  const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text|:contains)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains){
   let text=contains[2].trim();
+  // A mismatched quote or /pattern/flags expression is not a literal.
+  // Refusing it avoids claiming a rule works when it silently cannot match.
+  if(text.startsWith('"')!==text.endsWith('"')||
+     text.startsWith("'")!==text.endsWith("'"))return null;
   if((text.startsWith('"')&&text.endsWith('"'))||
      (text.startsWith("'")&&text.endsWith("'")))text=text.slice(1,-1);
-  if(!text||text.startsWith("/")&&text.endsWith("/")||
-     /[{};\\]/.test(text))return null;
+  if(!text||/^\/.*\/[a-z]*$/i.test(text)||
+     /[{};\\\x00-\x1f\x7f]/.test(text))return null;
   return {scope,selector:contains[1].trim(),mode:"text",text,
    exception:match[2]==="#@?#"||match[2]==="#@#"};
  }

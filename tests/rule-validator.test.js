@@ -66,3 +66,11 @@ test("Build 102 site-scoped contains aliases classify as procedural not CSS",()=
  assert.equal(r.counts.procedural,1);
  assert.equal(r.counts.unsupported,1);
 });
+
+test("Build 119 malformed quoted and regex-like cosmetics are reported unsupported",()=>{
+ const result=V.validate(["news.example##article:has-text('/Sponsored/i')",
+  'news.example##article:has-text("Sponsored)',
+  'news.example##article:has-text("Sponsored")'].join("\n"));
+ assert.equal(result.counts.procedural,1);
+ assert.equal(result.counts.unsupported,2);
+});

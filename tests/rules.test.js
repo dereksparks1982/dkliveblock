@@ -424,3 +424,12 @@ test("Build 117 keeps complete signed download and checkout query strings intact
  assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&utm_source=ad&sku=7"),
   "https://shop.example/item?sku=7");
 });
+
+test("Build 119 text predicates reject mismatched quotes and regex flags",()=>{
+ for(const body of ['"Sponsored', "Sponsored'", "'Sponsored",
+  '"Sponsored\'', "/Sponsored/i", "/Sponsored/g", "/Sponsor.*/iu"]){
+  assert.equal(R.procedural("news.example##article:has-text("+body+")"),null,body);
+ }
+ assert.equal(R.procedural("news.example##article:has-text('Sponsored')").text,"Sponsored");
+ assert.equal(R.procedural('news.example##article:has-text("Promoted")').text,"Promoted");
+});

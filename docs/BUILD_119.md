@@ -1,0 +1,3 @@
+# Build 119: report unsupported cosmetic expressions correctly
+
+Unreleased 0.3.89. Some imported filter lists use regular-expression notation such as `/Sponsored/i` and malformed quoted phrases. A literal-only matcher could previously accept these strings as if it supported their meaning, then silently fail to hide the sponsored element. The parser now rejects such expressions and mismatched quotes rather than inflating compatibility counts. Normal quoted and unquoted literal `:has-text`, `:contains` and matching exceptions remain supported. Tests cover both good and unsupported forms. No downloaded scripts, external dependencies, Actions or release.
