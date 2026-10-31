@@ -2,7 +2,8 @@
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
  let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
- const clickedRejectButtons=new WeakSet();
+ const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
+ let lastConsentScan=0;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
@@ -228,41 +229,28 @@
   videoController.scan(document);
  }
  function rejectCookies(){
-  if(!active||!cookieReject)return;
-  const selectors=["[role='dialog']","[aria-modal='true']","#onetrust-banner-sdk",
-  "#onetrust-consent-sdk","#CybotCookiebotDialog",".qc-cmp2-container",
-  "#didomi-host",".osano-cm-dialog","[class*='cookie-banner' i]"];
-  let roots;try{roots=document.querySelectorAll(selectors.join(","));}catch(_){return;}
+  if(!active||!cookieReject||picking||document.fullscreenElement)return;
+  const roots=DKConsentDOM.findBanners(document);
   let checked=0;
   for(const root of roots){
    if(++checked>20)break;
    try{
+    if(clickedRejectRoots.has(root)||DKConsentDOM.userEngaged(root,document))continue;
     const info=String(root.textContent||"").slice(0,1500);
     if(!DKConsent.cookieContext(info)||DKPopupGuard.protectedDialog(root,info))continue;
     let inspected=0;
     for(const button of root.querySelectorAll("button,[role='button']")){
      if(++inspected>35)break;
      if(clickedRejectButtons.has(button))continue;
-     const style=window.getComputedStyle?.(button);
-     const visible=!!button.isConnected&&!!button.getClientRects?.().length&&
-       style?.display!=="none"&&style?.visibility!=="hidden"&&
-       style?.visibility!=="collapse"&&style?.pointerEvents!=="none"&&
-       Number(style?.opacity??1)>0;
-     const form=button.closest?.("form");
+     const state=DKConsentDOM.inspectButton(button,window);
      if(!DKConsent.shouldReject({context:info,text:button.textContent,
        ariaLabel:button.getAttribute?.("aria-label")||"",
-       title:button.getAttribute?.("title")||"",
-       visible,disabled:!!button.disabled||
-        button.getAttribute?.("aria-disabled")==="true",
-       protectedUI:!!button.closest?.("[inert], [hidden], [aria-hidden='true'], [aria-disabled='true']"),
-       isLink:!!button.getAttribute?.("href"),
-       isSubmit:!!form&&(button.type==="submit"||button.getAttribute?.("type")==="submit"),
-       isToggle:button.getAttribute?.("aria-pressed")!=null}))continue;
+       title:button.getAttribute?.("title")||"",...state}))continue;
      if(typeof button.click!=="function")continue;
-     clickedRejectButtons.add(button);
+     clickedRejectButtons.add(button);clickedRejectRoots.add(root);
      button.click();return;
     }
-   }catch(_){/* Page widgets can change during scans. */}
+   }catch(_){/* Unknown page widget: never interrupt browsing. */}
   }
  }
  function cleanSelector(el){
@@ -362,7 +350,8 @@
  // Lightweight video/cookie checks remain periodic; heavy overlay scans run on DOM changes
  // and at a low-frequency fallback for pages that modify existing nodes in place.
  setInterval(()=>{
-  skipVideo();rejectCookies();samplePlaybackHealth();
+  skipVideo();samplePlaybackHealth();
+  if(Date.now()-lastConsentScan>=3500){lastConsentScan=Date.now();rejectCookies();}
   if(rememberVideos&&isYouTube)maybeRememberVideo().catch(()=>{});
   if(Date.now()-lastProc>3000){lastProc=Date.now();hideProcedural();}
   if(Date.now()-lastAdScan>3500)inspectAdSlots();

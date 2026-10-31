@@ -25,12 +25,16 @@ test("Build 44 cookie logic only clicks explicit rejection, never accept-all",()
  assert.doesNotMatch(content,/button\.click\(\);.*Accept all/);
 });
 
-test("Build 54 content cleanup protects active editing and only explicit reject actions",()=>{
- const page=fs.readFileSync(path.join(src,"content.js"),"utf8");
- assert.match(page,/DKDistractions\.userEngaged\(el,document\.activeElement\)/);
- assert.match(page,/isLink:!!button\.getAttribute/);
- assert.match(page,/isSubmit:!!form/);
- assert.match(page,/isToggle:button\.getAttribute/);
- assert.match(page,/style\?\.pointerEvents!=="none"/);
- assert.match(page,/typeof button\.click!=="function"/);
+test("Build 55 cookie safety delegates to bounded open-shadow helper",()=>{
+ const content=fs.readFileSync(path.join(src,"content.js"),"utf8");
+ const helper=fs.readFileSync(path.join(src,"consent-dom.js"),"utf8");
+ assert.match(content,/DKDistractions\.userEngaged\(el,document\.activeElement\)/);
+ assert.match(content,/DKConsentDOM\.findBanners\(document\)/);
+ assert.match(content,/DKConsentDOM\.userEngaged\(root,document\)/);
+ assert.match(content,/DKConsentDOM\.inspectButton\(button,window\)/);
+ assert.match(content,/clickedRejectRoots\.add\(root\)/);
+ assert.match(content,/lastConsentScan>=3500/);
+ assert.match(helper,/isLink:tag==="a"/);
+ assert.match(helper,/isSubmit:!!form&&type==="submit"/);
+ assert.match(content,/typeof button\.click!=="function"/);
 });

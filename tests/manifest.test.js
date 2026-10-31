@@ -91,3 +91,11 @@ test("Build 44 loads distraction classifier before content and retains no Accept
  assert.match(html,/id="distractionControl"/);
  assert.doesNotMatch(html,/id="acceptableAds"/i);
 });
+
+test("Build 55 open-shadow consent script loads before the content controller",()=>{
+ const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ const scripts=m.content_scripts[0].js;
+ assert.ok(scripts.indexOf("consent-dom.js")>scripts.indexOf("consent.js"));
+ assert.ok(scripts.indexOf("consent-dom.js")<scripts.indexOf("content.js"));
+ assert.equal(m.version,"0.3.26");
+});

@@ -245,3 +245,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 54: conservative cookie-consent action validation across visible, accessibility and title labels; rejects navigational/form submit/toggle controls and hidden buttons.
 - [x] Build 54: preserve user-edited newsletter and survey dialog fields from automatic hiding; add explicit consent/distraction regression cases.
 - [ ] Build 54 acceptance: full local Node/Python test suite, Firefox consent CMPs in multiple languages, never accept cookies inadvertently, preserve user-initiated overlays and accessibility.
+
+- [x] Build 55: bounded open-shadow cookie consent dialog discovery, focused-dialog safety and one opt-out action per dialog, preserving existing settings and normal blocking.
+- [x] Build 55: throttle DOM scans and add offline source tests without GitHub Actions or new permissions.
+- [ ] Build 55 acceptance: complete Node/Python suite and real Firefox open/nested/late-created consent tests, keyboard/ARIA audit, long-page performance, no accidental acceptance or repeated action; closed-shadow/unknown platforms remain unsupported.

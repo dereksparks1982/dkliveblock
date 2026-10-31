@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.25",
+  "version": "0.3.26",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -14,7 +14,10 @@
       }
     }
   },
-  "optional_permissions": ["nativeMessaging", "devtools"],
+  "optional_permissions": [
+    "nativeMessaging",
+    "devtools"
+  ],
   "permissions": [
     "webRequest",
     "webRequestBlocking",
@@ -78,6 +81,7 @@
       ],
       "js": [
         "consent.js",
+        "consent-dom.js",
         "distractions.js",
         "procedural.js",
         "anti-adblock.js",

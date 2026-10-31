@@ -1,6 +1,6 @@
 # DK Live Block
 
-**UNRELEASED source code, current development version 0.3.25 (Build 54).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
+**UNRELEASED source code, current development version 0.3.26 (Build 55).** A Firefox-first ad and tracker blocker being developed by DK LAB / Elderred Softworks. No subscriptions, accounts, "acceptable ads" exemptions, telemetry, or premium-only features.
 
 DK Live Block is **not yet equivalent to Adblock Plus**. Priorities include general automatic ad detection and video-site compatibility, especially YouTube and Disney+. Real Firefox playback behavior still needs verification. Server-inserted advertisements and DRM can limit what a browser extension can remove.
 
@@ -15,6 +15,10 @@ Developers may run optional offline checks with: bash scripts/test-local.sh
 Developer loading, once all extension files are present: Firefox about:debugging#/runtime/this-firefox, Load Temporary Add-on, select src/manifest.json. A temporary extension is removed when Firefox restarts.
 
 See docs/ROADMAP.md for the acceptance checklist.
+
+## Build 55: conservative open-shadow cookie dialogs (0.3.26)
+
+The optional cookie-rejection assistant can now discover familiar consent dialogs within bounded **open Shadow DOM** scopes, including nested web components. It skips focused dialogs, disabled/hidden controls, links, forms and toggles, and never falls back to Accept All. Consent scans are throttled and only one opt-out action is attempted per dialog instance. No permissions, accounts, dependencies or promotional messages were added. Closed shadow roots and some consent managers remain unsupported; full Firefox validation remains outstanding. See [Build 55 details](docs/BUILD_55.md).
 
 ## Build 54: safer cookie rejection and distraction cleanup (0.3.25)
 
