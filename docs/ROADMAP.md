@@ -323,3 +323,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] 2026-10-31 open-source blocker research: study uBlock Origin/uAssets, Ghostery, AdGuard, ABP, and Brave, with scriptlets, first-party response handling and Firefox API constraints. Details: [Engine research](ADBLOCK_ENGINE_RESEARCH_2026-10-31.md).
 - [ ] Diagnose source of repeated first-party YouTube XHR blocks, then stage trusted local scriptlet support and carefully bounded first-party ad-metadata handling. No broad YouTube exceptions or silent pause.
 - [ ] Review MIT commercial-use permissions against stated distribution preference and third-party GPL/MPL obligations before importing code or lists.
+
+- [x] Comprehensive competitor-parity work breakdown in [Master parity plan](COMPETITOR_PARITY_MASTER_PLAN_2026-10-31.md): twenty-five distinct technical, security, QA, UX and licensing milestones. Planned Build 66-70 slices; no release/parity claims.
