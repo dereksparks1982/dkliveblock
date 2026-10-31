@@ -149,3 +149,8 @@ test("YouTube request diagnosis appears as a coarse summary without page URLs",(
  assert.ok(html.indexOf('src="youtube-triage.js"')<html.indexOf('src="site-dashboard.js"'));
  assert.match(js,/DKYouTubeTriage\.summarize\(d\)/);
 });
+
+test("script dependencies load before blocked reports",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ assert.ok(html.indexOf("youtube-triage.js")<html.indexOf("blocked-export.js"));
+});
