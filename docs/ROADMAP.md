@@ -538,3 +538,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 137: support safe site-scoped CSS class/ID roots in literal procedural text/descendant filters, with malformed roots rejected and scoped exceptions intact.
 - [ ] Full Linux and real Firefox DOM acceptance still pending.
+
+- [x] Build 138: procedural CSS restoration now undoes only display:none!important still owned by the extension and preserves page styles changed afterward. Restores absent original display property by removal, not an empty declaration.
+- [ ] Full Firefox CSS toggle/reload and local suite acceptance remains pending.

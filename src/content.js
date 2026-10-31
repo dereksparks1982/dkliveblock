@@ -59,7 +59,16 @@
   }catch(_){/* A broken extension must not break the page. */}
  }
  function restoreHidden(){
-  for(const [el,old] of hidden){try{if(el.isConnected)el.style.setProperty("display",old.value,old.priority);}catch(_){}}
+  for(const [el,old] of hidden){
+   try{
+    if(!el.isConnected||
+      el.style.getPropertyValue("display")!=="none"||
+      el.style.getPropertyPriority("display")!=="important")continue;
+    // Undo only our own hide. Do not overwrite a newer site style.
+    if(old.value)el.style.setProperty("display",old.value,old.priority);
+    else el.style.removeProperty("display");
+   }catch(_){}
+  }
   hidden.clear();
  }
  function hideProcedural(){

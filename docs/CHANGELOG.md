@@ -624,3 +624,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.107 / Build 137 (2026-10-31)
 - Extended bounded literal cosmetic procedures to accept `.class` and `#id` selector roots, preserving site scope, exception precedence and invalid-selector rejection. Added parser, matching and validator tests. Firefox acceptance pending.
+
+### 0.3.108 / Build 138 (2026-10-31)
+- Fixed reversible procedural element hiding: disabling a filter no longer overwrites an element's display style if the website has since changed it. Original absent display declarations are removed cleanly. Added a direct restoration contract test.
