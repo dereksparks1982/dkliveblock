@@ -451,3 +451,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 108: preflight *all* indices affected by a YouTube feed-array splice; reject read-only/accessor/hole/nonconfigurable entries before any mutation.
 - [ ] Complete local Node/Python and Firefox acceptance still open.
+
+- [x] Build 109: retain YouTube response generation history only for tabs with active interception. Unrelated navigation clears no longer evict live-tab generation data; completion releases generation tracking, preserving 16/4 stream limits.
+- [ ] Full Node/Python suite and Firefox rapid-tab stress acceptance pending.

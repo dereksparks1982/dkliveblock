@@ -1,0 +1,3 @@
+# Build 109: active-stream scoped YouTube generation history
+
+Unreleased v0.3.79. Old request outcomes must never reappear in a tab's fresh dashboard after navigation. The previous 256-entry bounded generation history could evict a live tab if enough other tabs navigated, potentially letting the old generation match its initial default again. Generation tracking now exists only while the tab has an active Firefox response filter, so unrelated browsing cannot displace it. Final filter completion releases tracking. Regression fixtures simulate over 500 unrelated tab clears, same-tab reuse, late completion and correct fresh results. Full Ubuntu/Firefox acceptance remains open. No Actions or public release.

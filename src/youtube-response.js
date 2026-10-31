@@ -124,10 +124,10 @@ function stats(tab){
 function clear(tab){
  records.delete(tab);
  if(!Number.isInteger(tab)||tab<0)return;
- versions.set(tab,(versions.get(tab)||0)+1);
- // Retain recent generations so an in-flight filter from a previous
- // page cannot recreate its record on the next navigation.
- if(versions.size>256)versions.delete(versions.keys().next().value);
+ // Only active response filters can post a late callback. No active stream
+ // means there is no old generation to retain or evict incorrectly.
+ if((liveByTab.get(tab)||0)>0)versions.set(tab,(versions.get(tab)||0)+1);
+ else versions.delete(tab);
 }
 function attach(details,webRequest,clock=root){
  if(typeof webRequest?.filterResponseData!=="function")return false;
@@ -174,7 +174,11 @@ function attach(details,webRequest,clock=root){
   liveCount=Math.max(0,liveCount-1);
   const remaining=(liveByTab.get(tab)||1)-1;
   if(remaining>0)liveByTab.set(tab,remaining);
-  else liveByTab.delete(tab);
+  else{
+   liveByTab.delete(tab);
+   // All earlier streams ended; a future tab ID reuse starts fresh.
+   versions.delete(tab);
+  }
   try{if(disconnect)filter.disconnect();else filter.close();}
   catch(_){if(!disconnect)try{filter.disconnect();}catch(__){}}
  }

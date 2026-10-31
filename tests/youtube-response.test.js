@@ -270,3 +270,37 @@ test("Build 103 response headers skipped without touching unsupported JSON/media
  assert.equal(R.stats(tab).observed,0);
  R.clear(tab);
 });
+
+test("Build 109 hundreds of unrelated tab clears never revive a prior page response",()=>{
+ const attached=[];
+ const web={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};attached.push(filter);return filter;}};
+ const clock={setTimeout(){return 1;},clearTimeout(){}};
+ const tabId=91001,d={...req(),tabId};
+ assert.equal(R.attach(d,web,clock),true);
+ R.clear(tabId);
+ for(let i=92000;i<92500;i++)R.clear(i);
+ attached[0].ondata({data:Buffer.from('{"videoDetails":{},"adSlots":[{}]}')});
+ attached[0].onstop();
+ assert.equal(R.stats(tabId).observed,0);
+ assert.equal(R.stats(tabId).modified,0);
+ R.observeRequest(tabId,d.url);
+ assert.equal(R.stats(tabId).playerRequests,1);
+ R.clear(tabId);
+});
+test("Build 109 active tab generation survives tab ID reuse and releases after final filter",()=>{
+ const attached=[];
+ const web={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};attached.push(filter);return filter;}};
+ const clock={setTimeout(){return 1;},clearTimeout(){}};
+ const d={...req(),tabId:91002};
+ R.attach({...d,requestId:"old"},web,clock);
+ R.clear(d.tabId);
+ R.attach({...d,requestId:"new"},web,clock);
+ attached[0].onstop();
+ assert.equal(R.stats(d.tabId).observed,0);
+ attached[1].ondata({data:Buffer.from('{"videoDetails":{},"adSlots":[{}]}')});
+ attached[1].onstop();
+ assert.equal(R.stats(d.tabId).modified,1);
+ R.clear(d.tabId);
+});
