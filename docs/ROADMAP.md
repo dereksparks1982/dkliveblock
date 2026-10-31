@@ -541,3 +541,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 138: procedural CSS restoration now undoes only display:none!important still owned by the extension and preserves page styles changed afterward. Restores absent original display property by removal, not an empty declaration.
 - [ ] Full Firefox CSS toggle/reload and local suite acceptance remains pending.
+
+- [x] Build 139: skip redundant procedural DOM writes for already-hidden ad elements, and remember a website's newer inline display if it changes before the next scan.
+- [ ] Complete local suite and Firefox mutation/performance acceptance still pending.

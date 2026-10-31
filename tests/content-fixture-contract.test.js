@@ -42,3 +42,31 @@ test("Build 138 procedural CSS restoration never overwrites later page style cha
  made(new Map([[element,{value:"",priority:""}]]))();
  assert.equal(state.removed,true);
 });
+
+test("Build 139 procedural DOM scan avoids repeated writes and records newer site display",()=>{
+ const src=fs.readFileSync(path.join(root,"src/content.js"),"utf8");
+ const start=src.indexOf(" function hideProcedural(){"),end=src.indexOf(" function restoreAntiHidden(){",start);
+ assert.ok(start>=0&&end>start);
+ const source=src.slice(start,end),hidden=new Map();
+ let writes=0,value="",priority="";
+ const element={isConnected:true,textContent:"Sponsored",
+  style:{
+   getPropertyValue:()=>value,getPropertyPriority:()=>priority,
+   setProperty(_name,v,p){value=v;priority=p;writes++;}
+  }};
+ const document={body:{},documentElement:{},querySelectorAll:()=>[element]};
+ const scan=new Function("active","procedural","document","hidden","DKProcedural",
+  "DKAuthProtection","DKVideoAssist","host",source+" return hideProcedural;")(
+   true,[{selector:".ad-card",mode:"text",text:"Sponsored"}],document,hidden,
+   {matches:()=>true},{isIdentityUI:()=>false},
+   {isStreamingHost:()=>false,playerElement:()=>false},"news.example");
+ scan();
+ assert.equal(writes,1);
+ assert.equal(hidden.get(element).value,"");
+ scan();
+ assert.equal(writes,1,"already hidden element should not write again");
+ value="grid";priority="";
+ scan();
+ assert.equal(writes,2);
+ assert.equal(hidden.get(element).value,"grid");
+});

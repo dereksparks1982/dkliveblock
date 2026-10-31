@@ -80,7 +80,14 @@
     if(el===document.body||el===document.documentElement||!DKProcedural.matches(el,rule)||
       DKAuthProtection.isIdentityUI(el,String(el.textContent||"").slice(0,180))||
       DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(el))continue;
-    if(!hidden.has(el))hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
+    const currentValue=el.style.getPropertyValue("display");
+    const currentPriority=el.style.getPropertyPriority("display");
+    if(hidden.has(el)){
+     // The site may have changed this element since our last scan.
+     // Keep its latest choice to restore after filtering is disabled.
+     if(currentValue==="none"&&currentPriority==="important")continue;
+    }
+    hidden.set(el,{value:currentValue,priority:currentPriority});
     el.style.setProperty("display","none","important");if(hidden.size>800)break;
    }
    if(hidden.size>800)break;

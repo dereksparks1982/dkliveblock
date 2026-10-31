@@ -627,3 +627,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.108 / Build 138 (2026-10-31)
 - Fixed reversible procedural element hiding: disabling a filter no longer overwrites an element's display style if the website has since changed it. Original absent display declarations are removed cleanly. Added a direct restoration contract test.
+
+### 0.3.109 / Build 139 (2026-10-31)
+- Reduced repeated DOM style writes in site-scoped procedural cosmetics. If a page changes an already-tracked element's display between scans, the latest style is retained for later restoration. Added direct content script behavior fixture.

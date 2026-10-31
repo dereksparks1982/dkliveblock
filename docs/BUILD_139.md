@@ -1,0 +1,3 @@
+# Build 139: less DOM churn and better restoration
+
+Unreleased 0.3.109. Repeated page scans previously re-applied `display:none!important` to tracked elements even when nothing changed, unnecessarily touching DOM styles. The matcher now skips a repeat write when an element remains hidden by the extension. If the site modifies an element's inline display between scans, the new value becomes the restoration baseline before the element is hidden again. This cooperates with Build 138's ownership-based restoration to avoid overriding newer site styles. The actual scan function is exercised with a controlled DOM-style fixture. Full Firefox/Ubuntu verification remains outstanding.
