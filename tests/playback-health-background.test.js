@@ -132,3 +132,15 @@ test("Disney+ sibling frames and domain lookalikes cannot forge playback reports
  }
  assert.equal((await hooks.message({action:"getPlaybackHealth",tabId:3})).length,0);
 });
+
+test("verified YouTube top frame can report enforcement without a URL or login detail",async()=>{
+ const {hooks}=await setup();
+ assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"enforcement"},youtube)).ok,true);
+ const snapshot=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(snapshot.ok,true);
+ assert.equal(snapshot.playbackDiagnostics[0].kind,"enforcement");
+ assert.equal(snapshot.playbackDiagnostics[0].blockedMediaNearby,false);
+ assert.doesNotMatch(JSON.stringify(snapshot.playbackDiagnostics),/test-video|token|watch/);
+ assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"enforcement"},
+  {...youtube,frameId:1})).ok,false);
+});

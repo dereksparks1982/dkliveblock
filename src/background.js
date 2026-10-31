@@ -735,6 +735,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    networkRules:data.engine.networkCount||0,cosmeticRules:data.engine.cosmetic.length,
    unsupportedRules:data.engine.unsupportedCount||0,
    recentBlocks:logs,popupHistory:popupEvents,
+   playbackDiagnostics:sameTab&&requestLog&&DKPlaybackHealth.supportsHost(site)?
+    DKPlaybackHealth.recent(data.playbackHealth,id,site).slice(0,30):[],
    customAllowances:DKManualRules.listSiteExceptions(data.settings.customRules,site).slice(0,150),
    requestAllowances:allowance
   };
@@ -777,7 +779,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
      data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
   try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
   catch(_){return {ok:false};}
-  if(msg.kind!=="buffering"&&msg.kind!=="media-error")return {ok:false};
+  if(msg.kind!=="buffering"&&msg.kind!=="media-error"&&msg.kind!=="enforcement")return {ok:false};
   const now=Date.now(),nearby=DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
    .some(row=>row.pageHost===pageHost&&row.type==="media"&&
      now-row.when>=0&&now-row.when<=120000);
@@ -1109,7 +1111,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(!/^https?:\/\//i.test(liveURL)||site!==msg.expectedSite)
    return {error:"The selected tab changed websites. Refresh the dashboard."};
   if(msg.action==="clearSiteDashboardLog"){
-   data.logs.delete(id);data.streamingIssues.delete(id);return {ok:true};
+   data.logs.delete(id);data.streamingIssues.delete(id);DKPlaybackHealth.clear(data.playbackHealth,id);return {ok:true};
   }
   if(!DKManualRules.validHost(msg.host))return {error:"Invalid request hostname."};
   const result=DKManualRules.removeSiteException(data.settings.customRules,site,msg.host);

@@ -3,7 +3,7 @@
 (function(){
  let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
- let lastConsentScan=0,adScanTimer=null;
+ let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
@@ -103,6 +103,17 @@
     el.getAttribute?.("role")==="dialog"||el.getAttribute?.("aria-modal")==="true"||
     computed.position==="fixed"||computed.position==="sticky";
    if(!DKAntiAdblock.shouldHide({text:info,visible,overlay,containsPlayer:false,rootElement:false}))continue;
+   // YouTube's playback-refusal dialog reflects an unresolved server-side
+   // enforcement state. Never hide it and imply playback has resumed.
+   if(isYouTube&&DKAntiAdblock.isPlaybackEnforcement(info)){
+    const now=Date.now();
+    if(playbackHealthEnabled&&window===window.top&&
+      (lastEnforcementReport===0||now-lastEnforcementReport>=20000)){
+     lastEnforcementReport=now;
+     browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:"enforcement"}).catch(()=>{});
+    }
+    continue;
+   }
    if(!overlayRecovery.hide(el))continue;
    removed++;
    overlayRecovery.hideBackdropAround(el);

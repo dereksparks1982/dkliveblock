@@ -3,7 +3,7 @@
    response payloads, or automatic request allowances. */
 (function(root){"use strict";
 const BUFFER_MS=5000,REPORT_INTERVAL=20000,TTL_MS=30*60*1000,MAX=30;
-const KINDS=new Set(["buffering","media-error"]);
+const KINDS=new Set(["buffering","media-error","enforcement"]);
 function isYouTube(host){
  return typeof host==="string"&&/^(?:(?:[a-z0-9-]+\.)*)(?:youtube\.com|youtube-nocookie\.com)$/.test(host);
 }

@@ -2,7 +2,7 @@
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 function setup({text="Ad blocker detected. Please disable your ad blocker.",hasVideo=false,active=true,antiAdblock=true,inline=false,sensitive=false}={}){
- let listener,interval;
+ let listener,interval;const healthReports=[];
  class Style {
   constructor(){this.map=new Map();}
   getPropertyValue(k){return this.map.get(k)?.value||"";}
@@ -19,15 +19,19 @@ function setup({text="Ad blocker detected. Please disable your ad blocker.",hasV
  const modal=new Element(text);
  const root={style:new Style(),scrollHeight:1800,isConnected:true},body={style:new Style(),isConnected:true};
  const state={active,antiAdblock};
- const browser={runtime:{onMessage:{addListener:fn=>{listener=fn;}},sendMessage:async()=>({active:state.active,css:"",youtubeSkip:false,cookieReject:false,antiAdblock:state.antiAdblock,procedural:[]})}};
+ const browser={runtime:{onMessage:{addListener:fn=>{listener=fn;}},sendMessage:async msg=>{
+  if(msg?.action==="reportPlaybackHealth"){healthReports.push(msg);return {ok:true};}
+  return {active:state.active,css:"",youtubeSkip:false,cookieReject:false,antiAdblock:state.antiAdblock,playbackHealthEnabled:true,procedural:[]};
+ }}};
  const document={documentElement:root,body,fullscreenElement:null,querySelectorAll:()=>[modal],querySelector:()=>null};
  const window={innerHeight:700,getComputedStyle:el=>({visibility:"visible",display:"block",position:inline?"static":"fixed",overflowY:el===modal?"visible":"hidden"})};
+ window.top=window;
  const location={hostname:"youtube.com",href:"https://www.youtube.com/watch?v=test"};
  const context=vm.createContext({browser,document,window,location,Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},DKConsent:{cookieContext:()=>false},DKProcedural:{matches:()=>false},DKStreamingWatch:{create:()=>({start(){},stop(){},poke(){}})},DKCosmeticDebug:{create:()=>({restore(){},highlight(){return {ok:true};}}),inspect:()=>[]},});
  for(const name of ["anti-adblock.js","video-assist.js","overlay-recovery.js","auth-protection.js","popup-guard.js","content.js"]){
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
- return {state,modal,root,body,tick:()=>interval(),refresh:async()=>{await listener({action:"refresh"});await new Promise(resolve=>setTimeout(resolve,0));}};
+ return {state,modal,root,body,healthReports,tick:()=>interval(),refresh:async()=>{await listener({action:"refresh"});await new Promise(resolve=>setTimeout(resolve,0));}};
 }
 test("recognizes and hides an anti-adblock popup without removing the video player",async()=>{
  const x=setup();await x.refresh();x.tick();
@@ -66,4 +70,15 @@ test("do not hide login and authentication dialogs that mention adblock",async()
  await login.refresh();login.tick();
  assert.equal(login.modal.style.getPropertyValue("display"),"");
  assert.equal(login.root.style.getPropertyValue("overflow-y"),"");
+});
+
+test("a real YouTube playback refusal is not hidden and has a coarse diagnostic",async()=>{
+ const x=setup({text:"Ad blockers violate YouTube's Terms of Service. Video playback is blocked unless you disable your ad blocker."});
+ await x.refresh();x.tick();
+ assert.equal(x.modal.style.getPropertyValue("display"),"");
+ assert.equal(x.root.style.getPropertyValue("overflow-y"),"");
+ assert.equal(x.healthReports.length,1);
+ assert.deepEqual(Object.keys(x.healthReports[0]).sort(),["action","kind"]);
+ assert.equal(x.healthReports[0].kind,"enforcement");
+ x.tick();assert.equal(x.healthReports.length,1);
 });

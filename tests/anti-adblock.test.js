@@ -37,3 +37,11 @@ test("do not classify articles and unrelated donation or player notices",()=>{
   "Allow ads for an advertising campaign in your newsletter"
  ])assert.equal(isAntiAdblockNotice(msg),false,msg);
 });
+
+test("distinguishes YouTube playback enforcement from ordinary blocker warnings",()=>{
+ const {isPlaybackEnforcement}=require("../src/anti-adblock.js");
+ assert.equal(isPlaybackEnforcement("Ad blockers violate YouTube's Terms of Service"),true);
+ assert.equal(isPlaybackEnforcement("Video playback is blocked unless YouTube is allowlisted or the ad blocker is disabled"),true);
+ assert.equal(isPlaybackEnforcement("Ad blockers are not allowed on YouTube"),true);
+ assert.equal(isPlaybackEnforcement("Ad blocker detected. Please disable your ad blocker."),false);
+});

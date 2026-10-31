@@ -123,3 +123,11 @@ test("Build 57 guards offline, hidden, or inaccessible video DOM",()=>{
  assert.equal(p.scan({...v,getClientRects(){throw Error("broken DOM");}},doc,20000),null);
  assert.equal(p.scan(v,{hidden:true},22000),null);
 });
+
+test("records a bounded coarse enforcement event, never a fake playback success",()=>{
+ const map=new Map();
+ assert.equal(H.record(map,15,"www.youtube.com","enforcement",false,100000),true);
+ assert.equal(H.record(map,15,"www.youtube.com","enforcement",false,101000),false);
+ assert.deepEqual(H.recent(map,15,"www.youtube.com",102000).map(x=>x.kind),["enforcement"]);
+ assert.equal(H.record(map,15,"www.google.com","enforcement",false,105000),false);
+});
