@@ -319,3 +319,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 65: full local Ubuntu test run and live Firefox verification of allowed counters and toggles. Do not claim YouTube playback fixed.
 
 - [x] Build 65 verification follow-up: readable Inspect panel for allowed host/type activity; saved toggles visible without request logging; integration test for GitHub allowlisted resources, exact reversible selective blocks and privacy.
+
+- [x] 2026-10-31 open-source blocker research: study uBlock Origin/uAssets, Ghostery, AdGuard, ABP, and Brave, with scriptlets, first-party response handling and Firefox API constraints. Details: [Engine research](ADBLOCK_ENGINE_RESEARCH_2026-10-31.md).
+- [ ] Diagnose source of repeated first-party YouTube XHR blocks, then stage trusted local scriptlet support and carefully bounded first-party ad-metadata handling. No broad YouTube exceptions or silent pause.
+- [ ] Review MIT commercial-use permissions against stated distribution preference and third-party GPL/MPL obligations before importing code or lists.
