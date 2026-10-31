@@ -409,3 +409,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.38 (Build 68, unreleased)
 - Add bounded embedded Ghostery cosmetic CSS on non-streaming pages; exclude scripting and playback-critical sites.
+
+### 0.3.39 (Build 69, unreleased)
+- Correct Ghostery cosmetic bridge to parse its actual CSS string and grouped selector format, preserving player/streaming exclusions.

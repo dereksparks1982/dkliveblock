@@ -1,0 +1,3 @@
+# Build 69: Real Ghostery stylesheet format
+
+Unreleased v0.3.39. The prebundled Ghostery getCosmeticsFilters() returns a CSS string with comma-separated selector groups, not the CSS array used in our initial mock. The adapter now recognizes the real format and carefully extracts only safe display:none!important selectors, discarding scriptlets and unsafe declarations, skipping video/player elements and all streaming sites. Adds a regression fixture resembling the actual generated stylesheet. No remote Javascript, no new permissions. Full Ubuntu test and live Firefox verification pending. YouTube not fixed.

@@ -1,19 +1,23 @@
 /* Conservative bridge for bundled Ghostery COSMETIC CSS only.
    Does NOT execute the engine's scriptlets, intercept responses, or fetch code. */
 (function(root){"use strict";
-const LIMIT=300,MAX_CSS=120000;
+const LIMIT=300,MAX_CSS=500000;
 const BAD=/\b(?:html|body|main|video|audio|iframe|object|embed|form|input|button|textarea|select|dialog|player|movie_player|ytp-)\b/i;
 function valid(h){return typeof h==="string"&&h.length<254&&h.includes(".")&&
  /^[a-z0-9.-]+$/.test(h)&&!h.includes("..")&&!h.startsWith(".")&&!h.endsWith(".");}
 function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
- if(!Array.isArray(styles))return "";
+ const fragments=typeof styles==="string"?[styles]:Array.isArray(styles)?styles:[];
+ if(!fragments.length)return "";
  const out=[],seen=new Set();
- for(const fragment of styles.slice(0,200)){
+ for(const fragment of fragments.slice(0,200)){
   if(typeof fragment!=="string"||fragment.length>MAX_CSS)continue;
   for(const part of fragment.split("}")){
    const bracket=part.indexOf("{");
    if(bracket<1)continue;
-   const selector=part.slice(0,bracket).trim(),body=part.slice(bracket+1).trim();
+   const selectorGroup=part.slice(0,bracket).trim(),body=part.slice(bracket+1).trim();
+   if(!/^display\s*:\s*none\s*!important\s*;?$/i.test(body))continue;
+   for(const raw of selectorGroup.split(",")){
+   const selector=raw.trim();
    if(!selector||selector.length>320||BAD.test(selector)||
      /[;{}@\\]/.test(selector)||/:(?:has|is|where|not)\(/i.test(selector)||
      !/^[.#a-zA-Z0-9_\- \t>+~:[\]="'.*^$()|]+$/.test(selector)||
@@ -22,6 +26,7 @@ function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
     continue;
    seen.add(selector);out.push(selector+" {display:none!important;}");
    if(out.length>=LIMIT)return out.join("\n");
+   }
   }
  }
  return out.join("\n");

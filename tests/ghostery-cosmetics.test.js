@@ -30,3 +30,17 @@ test("exception, unsupported vendor, malformed host all fail open",()=>{
  assert.equal(G.styles({getCosmeticsFilters:()=>({active:false,styles:[".ads {display:none!important;}"]})},"example.com"),"");
  assert.equal(G.styles({getCosmeticsFilters:()=>({styles:[".ads {display:none!important;}"]})},"example.com/a"),"");
 });
+
+test("real Ghostery output is one CSS stylesheet string with comma-separated selectors",()=>{
+ const vendor={getCosmeticsFilters:()=>({
+  active:true,
+  styles:".ad-card,\n.promoted,\nvideo,\n#player { display: none !important; }\n\n"+
+   ".simple { display: none !important; }\n.bad { opacity: 0; }",
+  scripts:["DO_NOT_EXECUTE();"]
+ })};
+ const css=G.styles(vendor,"news.example");
+ assert.match(css,/\.ad-card/);
+ assert.match(css,/\.promoted/);
+ assert.match(css,/\.simple/);
+ assert.doesNotMatch(css,/video|#player|opacity|DO_NOT_EXECUTE/);
+});

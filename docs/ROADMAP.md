@@ -334,3 +334,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 68: conservative Ghostery stylesheet bridge on non-streaming sites; discard scriptlets and prevent unsafe CSS.
 - [ ] Build 68: full local tests and Firefox visual validation on ordinary sites.
+
+- [x] Build 69: actual Ghostery bundled CSS format and grouped selector parsing with strict safety checks and no scripts.
+- [ ] Real Ghostery integration regression + Firefox visual check required before acceptance.
