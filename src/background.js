@@ -447,7 +447,19 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(DKStreamingRepair.matches(data.streamingAllowances,d.tabId,top,host(d.url),d.type))return {};
  // Allow narrowly identified sign-in assets, never unrelated Google trackers.
  if(DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||""))return {};
- const doc=d.documentUrl||d.originUrl||"",contextHost=host(doc)||top;
+ // The player JSON response must reach our bounded response filter. A generic
+ // EasyList/Ghostery rule cannot cancel this single trusted first-party call,
+ // unless the user explicitly added a manual block above. Not a site allowlist.
+ const doc=d.documentUrl||d.originUrl||"";
+ if(data.settings.youtubeResponseFilter&&d.type==="xmlhttprequest"&&
+    String(d.method||"GET").toUpperCase()==="POST"&&
+    DKYouTubeResponse.validPage(top)&&DKYouTubeResponse.target(d.url)&&
+    (!doc||host(doc)===top)){
+  DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
+   "YouTube player JSON request reserved for response-side filtering");
+  return {};
+ }
+ const contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
  if(!result.block)return {};
  // A manual allowance never overrides popup protection or page navigation.

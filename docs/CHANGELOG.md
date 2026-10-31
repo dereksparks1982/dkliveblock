@@ -431,3 +431,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.44 / Build 74 (2026-10-31)
 - Bundled an independently implemented YouTube player JSON scriptlet in Firefox's MAIN world. Activated via isolated, verified per-site settings. Narrow fetch/XHR handling and reversible hooks; no executable list updates or new third-party packages.
 - Raised Firefox minimum to 128 for supported MAIN-world manifest content scripts. Live browser checks are still required; no parity assertion.
+
+### 0.3.45 / Build 75 (2026-10-31)
+- Integrated narrow first-party player request pass-through with targeted response ad-metadata filtering, while preserving manual blocks and unrelated filtering. Added integration simulation for pass/block/response/disable and safer page hook teardown.
+- Full local tests and live YouTube are still pending, not a public release.

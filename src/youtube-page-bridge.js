@@ -7,9 +7,9 @@ const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const g=window;
 if(g!==g.top||!/(^|\.)youtube\.com$/.test(location.hostname)&&
  !/(^|\.)youtube-nocookie\.com$/.test(location.hostname))return;
-let enabled=false,wrappedFetch=null,oldFetch=null,oldOpen=null,oldSend=null;
+let enabled=false,wrappedFetch=null,oldFetch=null,oldOpen=null,oldSend=null,wrappedOpen=null,wrappedSend=null;
 let oldResponse=null,oldText=null,wrappedResponse=null,wrappedText=null;
-const pending=new WeakMap(),cache=new WeakMap();
+const pending=new WeakMap(),cache=new WeakMap(),decorated=new WeakSet();
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function playable(x){return plain(x)&&(
  plain(x.streamingData)||plain(x.videoDetails)||plain(x.playerResponse));}
@@ -49,7 +49,8 @@ function jsonType(response){
  catch(_){return false;}
 }
 function decorate(response){
- if(!response||response.status!==200||!jsonType(response))return response;
+ if(!response||response.status!==200||!jsonType(response)||decorated.has(response))return response;
+ decorated.add(response);
  try{
   const json=response.json,text=response.text,clone=response.clone;
   if(typeof json==="function")Object.defineProperty(response,"json",{
@@ -89,11 +90,17 @@ function enable(){
  oldOpen=proto.open;oldSend=proto.send;
  oldResponse=Object.getOwnPropertyDescriptor(proto,"response");
  oldText=Object.getOwnPropertyDescriptor(proto,"responseText");
- if(typeof oldOpen==="function")proto.open=function(method,url,...rest){
-  const result=oldOpen.call(this,method,url,...rest);
-  pending.set(this,eligible(method,url));cache.delete(this);return result;
- };
- if(typeof oldSend==="function")proto.send=function(...args){return oldSend.apply(this,args);};
+ if(typeof oldOpen==="function"){
+  wrappedOpen=function(method,url,...rest){
+   const result=oldOpen.call(this,method,url,...rest);
+   pending.set(this,eligible(method,url));cache.delete(this);return result;
+  };
+  proto.open=wrappedOpen;
+ }
+ if(typeof oldSend==="function"){
+  wrappedSend=function(...args){return oldSend.apply(this,args);};
+  proto.send=wrappedSend;
+ }
  function allowed(xhr){
   try{return enabled&&pending.get(xhr)===true&&xhr.readyState===4&&xhr.status===200&&
    /^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(xhr.getResponseHeader("content-type")||"");}
@@ -133,14 +140,14 @@ function disable(){
  if(wrappedFetch&&g.fetch===wrappedFetch)g.fetch=oldFetch;
  const proto=g.XMLHttpRequest?.prototype;
  if(proto){
-  if(proto.open!==oldOpen&&typeof oldOpen==="function")proto.open=oldOpen;
-  if(proto.send!==oldSend&&typeof oldSend==="function")proto.send=oldSend;
+  if(proto.open===wrappedOpen&&typeof oldOpen==="function")proto.open=oldOpen;
+  if(proto.send===wrappedSend&&typeof oldSend==="function")proto.send=oldSend;
   if(oldText&&wrappedText&&Object.getOwnPropertyDescriptor(proto,"responseText")?.get===wrappedText.get)
    try{Object.defineProperty(proto,"responseText",oldText);}catch(_){}
   if(oldResponse&&wrappedResponse&&Object.getOwnPropertyDescriptor(proto,"response")?.get===wrappedResponse.get)
    try{Object.defineProperty(proto,"response",oldResponse);}catch(_){}
  }
- wrappedFetch=null;oldFetch=null;oldOpen=null;oldSend=null;
+ wrappedFetch=null;oldFetch=null;oldOpen=null;oldSend=null;wrappedOpen=null;wrappedSend=null;
  oldText=null;oldResponse=null;wrappedText=null;wrappedResponse=null;
 }
 document.addEventListener(EVENT,event=>{

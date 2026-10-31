@@ -51,7 +51,7 @@
    playbackHealthEnabled=nextHealth;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
-   if(isYouTube&&window===window.top)
+   if(isYouTube&&window===window.top&&typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:youtube-response-control",{
      detail:s.youtubePageAssistEnabled?"enable":"disable"
     }));

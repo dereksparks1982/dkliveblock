@@ -349,3 +349,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 74: first trusted packaged Firefox MAIN-world YouTube scriptlet. Rewrites only known advertising keys returned from eligible first-party fetch/XHR player JSON; avoids generic JS patching, media bytes, unrelated endpoints or account secrets. Runs from document_start but activates only when the isolated controller verifies active site/settings; disable restores native hooks. Requires Firefox >=128.
 - [ ] Build 74 acceptance: verify no YouTube bootstrap timing races, player playback, ad-supported films, no page-context feature leak, clean disable on site pause and alternate player paths.
+
+- [x] Build 75: reserve only direct, same-page, first-party POST YouTube player/get_watch JSON requests for response-side filtering so ordinary network rules cannot prematurely cancel them. Manual user blocks still apply, all unrelated/third-party ad requests remain filtered, site pause still applies. Harden MAIN-world wrapper teardown and add end-to-end VM request/response integration fixture.
+- [ ] Build 75 acceptance: run complete local Node/Python suites and Firefox browser acceptance including strict filter versions; verify low latency and new playback without advertisements or enforcement. Never count a skipped cosmetic notice as playback success.

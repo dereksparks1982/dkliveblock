@@ -56,6 +56,13 @@ test("Build 74 XHR responseText and json are limited to valid response and reset
  xhr.responseType="json";assert.equal(xhr.response.adSlots,undefined);
  p.send("disable");assert.equal(Object.getOwnPropertyDescriptor(proto,"responseText").get,native);
 });
+test("Build 75 safe teardown does not undo somebody else's later XHR hook",()=>{
+ const p=context(),proto=p.window.XMLHttpRequest.prototype;
+ p.send("enable");
+ const external=function(){return 123;};proto.open=external;
+ p.send("disable");
+ assert.equal(proto.open,external);
+});
 test("Build 74 manifest loads MAIN only on YouTube and control follows existing site state",()=>{
  const manifest=JSON.parse(fs.readFileSync(path.resolve(__dirname,"../src/manifest.json"),"utf8"));
  const bridge=manifest.content_scripts.find(x=>x.world==="MAIN");
