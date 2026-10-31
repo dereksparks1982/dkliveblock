@@ -336,3 +336,11 @@ test("Build 121 watch-next API is eligible only for trusted YouTube POST XHR",()
  assert.equal(R.target("https://www.youtube.com/youtubei/v1/next-malicious"),false);
  assert.equal(R.eligible({...req(url),method:"GET"},"www.youtube.com"),false);
 });
+
+test("Build 124 playlists pass through only recognized first-party POST JSON paths",()=>{
+ const url="https://www.youtube.com/youtubei/v1/playlist";
+ assert.equal(R.target(url),true);
+ assert.equal(R.eligible(req(url),"www.youtube.com"),true);
+ assert.equal(R.eligible({...req(url),method:"GET"},"www.youtube.com"),false);
+ assert.equal(R.target(url+"_evil"),false);
+});

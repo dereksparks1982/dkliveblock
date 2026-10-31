@@ -3,7 +3,7 @@
 (function(root){"use strict";
 const MAX_BYTES=1500000,MAX_NODES=6000,MAX_DEPTH=20,MAX_ARRAY=1000,MAX_KEYS=128,MAX_EDGES=10000,MAX_PENDING=12000,MAX_REMOVALS=400;
 const FEED=new Set(["/youtubei/v1/browse","/youtubei/v1/search",
- "/youtubei/v1/next"]);
+ "/youtubei/v1/next","/youtubei/v1/playlist"]);
 const REEL="/youtubei/v1/reel_watch_sequence";
 const ARRAYS=new Set(["contents","items","entries","continuationItems","results"]);
 const ADS=new Set(["adSlotRenderer","promotedVideoRenderer",

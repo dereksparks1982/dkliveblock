@@ -1,0 +1,3 @@
+# Build 124: ad-only filtering on YouTube playlist responses
+
+Unreleased v0.3.94. Some YouTube clients populate playlist video listings via `/youtubei/v1/playlist`, separate from browsing, searching and watch-next recommendations. That route is now recognized by the existing bounded feed scanner in both the Firefox response listener and first-party page-side fetch/XHR helper. Only positive ad renderer entries can be removed; real playlist videos, playback metadata, visitor state and signed media data are retained. Tests distinguish legitimate playlist video entries from explicit ad slots and reject lookalike endpoints. Full live Firefox and offline suite acceptance outstanding.

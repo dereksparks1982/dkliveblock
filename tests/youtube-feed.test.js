@@ -191,3 +191,26 @@ test("Build 122 unknown results arrays without explicit ad renderers remain unto
  assert.equal(F.prune(payload,next).changed,false);
  assert.equal(payload.results.length,2);
 });
+
+test("Build 124 playlist API retains ordinary videos and removes only marked sponsors",()=>{
+ const url="https://www.youtube.com/youtubei/v1/playlist";
+ assert.equal(F.kind(url),"feed");
+ const data={contents:{playlistVideoListRenderer:{contents:[
+  {playlistVideoRenderer:{videoId:"real-a"}},
+  {adSlotRenderer:{adSlotId:"sponsored"}},
+  {playlistVideoRenderer:{videoId:"real-b"}}]}},
+  visitorData:"private"};
+ const changed=F.rewrite(url,JSON.stringify(data));
+ assert.equal(changed.changed,true);
+ assert.equal(changed.items,1);
+ const parsed=JSON.parse(changed.text);
+ assert.deepEqual(parsed.contents.playlistVideoListRenderer.contents.map(x=>x.playlistVideoRenderer.videoId),
+  ["real-a","real-b"]);
+ assert.equal(parsed.visitorData,"private");
+});
+test("Build 124 unknown playlist-like routes do not receive special filtering",()=>{
+ for(const url of ["https://www.youtube.com/youtubei/v1/playlist_hack",
+  "https://youtube.com.evil.example/youtubei/v1/playlist"]){
+  assert.equal(F.kind(url),"");
+ }
+});

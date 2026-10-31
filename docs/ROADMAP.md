@@ -496,3 +496,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 123: improve bundled offline YouTube ad-only cosmetic fallback and bump safe first-party YouTube pack to version 3 for desktop search and mobile ad renderers. Update rollback/version fixtures.
 - [ ] Firefox YouTube visual acceptance and complete local test suite still pending.
+
+- [x] Build 124: bound sponsor-only JSON removal in YouTube `/youtubei/v1/playlist` responses alongside browse, search, watch-next and Shorts, retaining playlist video entries and user tracking fields.
+- [ ] Full Firefox playlist and standard-player playback tests still needed.

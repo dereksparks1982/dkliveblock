@@ -582,3 +582,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.93 / Build 123 (2026-10-31)
 - Expanded built-in first-run YouTube ad-only CSS and maintained data-only compatibility pack v3. Added explicitly marked desktop search, carousel, promoted and mobile ad renderer tags; no broad player or authentication hiding. Versioning, cache and rollback fixtures updated. Browser validation pending.
+
+### 0.3.94 / Build 124 (2026-10-31)
+- Added strictly first-party POST JSON playlist endpoint handling to the bounded feed sponsor renderer filter and Firefox response URL registration, with ordinary playlist item preservation tests. No media byte/DRM modifications. Browser acceptance pending.
