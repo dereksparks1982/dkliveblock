@@ -556,3 +556,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 143: identify explicit Google Ad Manager `data-google-query-id` ad slots in the reversible DOM recognizer, including dynamically assigned attributes. Other query IDs and protected login/form/video contexts remain untouched.
 - [ ] Complete Firefox dynamic ad slot/browser performance and local suite still pending.
+
+- [x] Build 144: reject parameter-removal network rules using request-target scope, denyallow, redirect or other semantics not implemented by the navigation cleaner. Avoid unexpectedly broader query rewrites.
+- [ ] Full local and Firefox signed-link/scope tests still pending.

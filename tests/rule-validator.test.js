@@ -81,3 +81,10 @@ test("Build 137 class/ID procedural selectors are counted accurately",()=>{
  assert.equal(v.counts.procedural,2);
  assert.equal(v.counts.unsupported,0);
 });
+
+test("Build 144 unsupported navigation target options are counted accurately",()=>{
+ const v=V.validate(["*$removeparam=utm_source,to=cdn.example",
+  "*$removeparam=utm_source,domain=shop.example"].join("\n"));
+ assert.equal(v.counts.unsupported,1);
+ assert.equal(v.counts.network,1);
+});

@@ -1,0 +1,3 @@
+# Build 144: do not broaden limited tracking-removal filter rules
+
+Unreleased 0.3.114. Query-parameter removal is applied to top-level navigation and does not operate on arbitrary network request targets. The network parser previously accepted `removeparam` alongside `to=` or `denyallow=` rules, but the navigation cleaner could not implement those target restrictions, potentially deleting parameters more broadly than the filter intended. Those incompatible combinations are now explicitly unsupported and fail open. Domain-scoped, ordinary UTM removal continues to work. Parser and filter-validator tests cover rejected combinations and valid site scoping. Full Firefox and Ubuntu suite acceptance remains pending, with no Actions or release.

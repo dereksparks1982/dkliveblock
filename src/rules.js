@@ -88,6 +88,9 @@ function network(raw){
  if(denyallow&&!scope)return null;
  // Page policies and query cleanup have no resource request method.
  if(methods&&(special||removeparam))return null;
+ // Navigation query cleanup cannot honor request-target scope or denyallow
+ // semantics. Reject instead of silently broadening the author's rule.
+ if(removeparam&&(targetScope||denyallow||redirect||special))return null;
  // Never allow broad, arbitrary, media, navigation or sign-in substitutions.
  if(redirect){
   const kind=redirect==="noop.js"?"script":"stylesheet";

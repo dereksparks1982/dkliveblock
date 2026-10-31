@@ -642,3 +642,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.113 / Build 143 (2026-10-31)
 - Added a specific Google Ad Manager ad-slot signal to the local ad recognizer and mutation observer. Dynamically introduced matching ad slots are detected, while ordinary query IDs, protected player and form elements remain unchanged. Tests added; Firefox acceptance pending.
+
+### 0.3.114 / Build 144 (2026-10-31)
+- Hardened native network filter parsing to refuse incompatible `removeparam` target-scope and denyallow options rather than accepting them but silently ignoring their intended restrictions during navigation cleanup. Added parser/validator regression fixtures. Firefox acceptance pending.

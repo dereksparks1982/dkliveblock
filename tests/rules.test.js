@@ -460,3 +460,16 @@ test("Build 137 class/ID descendant rules still respect exact site exceptions",(
  assert.deepEqual(f.getProcedural("news.example"),[
   {selector:"#sponsor",mode:"has",target:".disclosure"}]);
 });
+
+test("Build 144 reject navigation tracking rules with unsupported target modifiers",()=>{
+ for(const rule of [
+  "*$removeparam=utm_source,to=cdn.example",
+  "*$removeparam=clickid,domain=shop.example,denyallow=secure.example",
+  "||ads.example^$removeparam=utm_source,to=cdn.example",
+  "*$removeparam=utm_*,domain=shop.example,to=cdn.example"
+ ])assert.equal(R.network(rule),null,rule);
+ const allowed=new FilterEngine("*$removeparam=utm_*,domain=shop.example");
+ assert.equal(allowed.cleanNavigation("https://shop.example/?utm_source=campaign&sku=1"),
+  "https://shop.example/?sku=1");
+ assert.equal(allowed.cleanNavigation("https://other.example/?utm_source=campaign"),null);
+});
