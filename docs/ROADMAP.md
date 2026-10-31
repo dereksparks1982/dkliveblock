@@ -472,3 +472,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 115: reject conflicting or excessively numerous YouTube response header entries before JSON interception; continue to record conservative skipped-header outcomes.
 - [ ] Complete local suite and Firefox content-type/header behavior acceptance pending.
+
+- [x] Build 116: deduplicate equivalent per-site procedural rules, preserving exception priority and bounded output before content-side DOM scanning.
+- [ ] Full Node/Python run and Firefox heavy-list profile remain mandatory.

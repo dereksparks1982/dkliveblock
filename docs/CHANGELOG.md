@@ -558,3 +558,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.85 / Build 115 (2026-10-31)
 - Hardened YouTube JSON interception against duplicate Content-Type or Content-Length headers and excessive header counts, avoiding ambiguity before response rewriting. Added header fixtures; browser acceptance pending.
+
+### 0.3.86 / Build 116 (2026-10-31)
+- Deduplicated applicable procedural cosmetic rules before passing them to the page's bounded scan loop. Repeated entries from different subscriptions no longer consume scarce first-50 scan slots or cause duplicate DOM queries. Preserved site exceptions and capped output to 300 entries. Firefox acceptance pending.

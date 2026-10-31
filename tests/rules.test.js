@@ -389,3 +389,25 @@ test("Build 111 campaign family cleanup retains signed and session-like fields",
   "https://shop.example/continue?utm_token=keep&utm_signature=keep&utm_session=keep&UTM_NONCE=keep&sku=15");
  assert.equal(f.cleanNavigation("https://shop.example/?utm_code=keep&utm_auth=keep"),null);
 });
+
+test("Build 116 deduplicates repeated procedural rules before page scan budget",()=>{
+ const repeated=Array.from({length:100},()=> "news.example##article:has-text(Sponsored)").join("\n");
+ const f=new FilterEngine(repeated+"\nnews.example##div:has-text(Promoted)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"article",mode:"text",text:"Sponsored"},
+  {selector:"div",mode:"text",text:"Promoted"}
+ ]);
+});
+test("Build 116 exceptions still remove duplicated scoped rules",()=>{
+ const f=new FilterEngine("news.example##div:has-text(Ad)"+
+  "\nnews.example##div:has-text(Ad)"+
+  "\nnews.example#@#div:has-text(Ad)");
+ assert.deepEqual(f.getProcedural("news.example"),[]);
+});
+test("Build 116 per-site scan output is bounded before background serialization",()=>{
+ const f=new FilterEngine(Array.from({length:340},(_,i)=>
+  "news.example##article:has-text(Advert "+i+")").join("\n"));
+ const rules=f.getProcedural("news.example");
+ assert.equal(rules.length,300);
+ assert.equal(rules[0].text,"Advert 0");
+});

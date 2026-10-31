@@ -1,0 +1,3 @@
+# Build 116: eliminate duplicate DOM work from overlapping filter lists
+
+Unreleased 0.3.86. When multiple imported lists contain the same sponsored-content cosmetic selector, the engine previously sent duplicates to the page. Because the page limits procedural scans to the first 50 rules, those duplicates could crowd out a different valid rule and multiply DOM work. The engine now returns distinct rules in stable first-seen order, after applying per-site exception precedence, with at most 300 serialized entries. Tests cover overlapping list content, exception suppression, ordering and bounds. This does not claim full Firefox acceptance or competitor parity.
