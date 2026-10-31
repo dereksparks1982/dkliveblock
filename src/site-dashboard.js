@@ -447,7 +447,7 @@ function display(d){
   " · "+Model.number(responses.playerRequests)+" player requests passed to filtering"+
   " · "+Model.number(responses.observed)+" eligible responses handled"+
   " · "+Model.number(responses.modified)+" rewritten"+
-  " · "+Model.number(responses.fields)+" ad metadata fields removed"+
+  " · "+Model.number(responses.fields)+" recognized ad structures removed"+
   " · "+Model.number(responses.unchanged)+" unchanged"+
   " · "+Model.number(responses.oversized)+" too large"+
   " · "+Model.number(responses.errors)+" processing errors. "+

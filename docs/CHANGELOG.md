@@ -456,3 +456,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.51 / Build 81 (2026-10-31)
 - Added method-constrained request filtering, native/hybrid propagation and coverage of GET/POST mismatches, exceptions and malformed rules. No external runtime dependency; Firefox acceptance pending.
+
+### 0.3.52 / Build 82 (2026-10-31)
+- Added independent local, bounded YouTube Shorts and sponsored-feed ad-entry filtering to both Firefox response streams and MAIN-world fetch/XHR, with strict positive ad markers, fail-open bounds and matching regression fixtures. Live playback remains unverified.

@@ -408,7 +408,10 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
  if(!activeTab(d.tabId,site)||!DKYouTubeResponse.eligible(d,site))return;
  DKYouTubeResponse.attach(d,browser.webRequest);
 },{urls:["https://*.youtube.com/youtubei/v1/player*",
-         "https://*.youtube.com/youtubei/v1/get_watch*"],
+         "https://*.youtube.com/youtubei/v1/get_watch*",
+         "https://*.youtube.com/youtubei/v1/browse*",
+         "https://*.youtube.com/youtubei/v1/search*",
+         "https://*.youtube.com/youtubei/v1/reel_watch_sequence*"],
    types:["xmlhttprequest"]},["responseHeaders"]);
 browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!/^https?:/i.test(d.url))return {};

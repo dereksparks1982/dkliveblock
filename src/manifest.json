@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.51",
+  "version": "0.3.52",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -66,6 +66,7 @@
       "allowed-activity.js",
       "rule-provenance.js",
       "ghostery-cosmetics.js",
+      "youtube-feed.js",
       "youtube-response.js",
       "redirect-resources.js",
       "background.js"
@@ -115,6 +116,7 @@
         "*://*.youtube-nocookie.com/*"
       ],
       "js": [
+        "youtube-feed.js",
         "youtube-page-bridge.js"
       ],
       "run_at": "document_start",

@@ -1,0 +1,3 @@
+# Build 82: YouTube Shorts and sponsored feed response handling
+
+Version 0.3.52. Extends the trusted YouTube player-response work to JSON for `/youtubei/v1/browse`, `/youtubei/v1/search`, and `/youtubei/v1/reel_watch_sequence`. A locally implemented helper removes only explicitly tagged ad renderers or Shorts entries with `adClientParams.isAd === true`. A full traversal within strict node/array/depth limits must pass before any modifications; unknown or oversized responses are unchanged. Firefox network filtering and MAIN-world fetch/XHR consume the same helper. This is source-level implementation, not verified YouTube ad-free playback. No remote code, DRM or media byte alteration, installation dependencies, Actions or release.

@@ -13,7 +13,8 @@ function target(url){
  try{
   const u=new URL(url);
   if(u.protocol!=="https:"||u.username||u.password||!sub(u.hostname,"youtube.com"))return false;
-  return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch";
+  return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
+   (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(url));
  }catch(_){return false;}
 }
 function eligible(details,pageHost){
@@ -54,7 +55,11 @@ function pruneObject(obj){
  }
  return changed;
 }
-function rewrite(text){
+function rewrite(text,url=""){
+ if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url)){
+  const r=DKYouTubeFeed.rewrite(url,text);
+  return {text:r.text,changed:r.changed,fields:r.items};
+ }
  if(typeof text!=="string"||text.length>MAX_BYTES||text.length<2)return {text,changed:false,fields:0};
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let payload;try{payload=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return {text,changed:false,fields:0};}
@@ -126,7 +131,7 @@ function attach(details,webRequest){
    const bytes=new Uint8Array(length);let offset=0;
    for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
    const original=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
-   const result=rewrite(original);
+   const result=rewrite(original,details.url);
    if(result.changed){
     filter.write(new TextEncoder().encode(result.text));
     note(details.tabId,"modified",result.fields);

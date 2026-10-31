@@ -22,7 +22,9 @@ function pruneObject(x){
  }
  return removed;
 }
-function prune(x){
+function prune(x,url=""){
+ if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
+  return DKYouTubeFeed.prune(x,url).changed;
  if(!plain(x))return false;
  let removed=pruneObject(x);
  if(plain(x.playerResponse))removed+=pruneObject(x.playerResponse);
@@ -34,7 +36,9 @@ function prune(x){
  }
  return removed>0;
 }
-function rewrite(text){
+function rewrite(text,url=""){
+ if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
+  return DKYouTubeFeed.rewrite(url,text).text;
  if(typeof text!=="string"||text.length>MAX||text.length<2)return text;
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let obj;try{obj=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return text;}
@@ -45,7 +49,8 @@ function target(raw){
   const u=new URL(String(raw),location.href);
   if(u.protocol!=="https:"||u.username||u.password||
      !/(^|\.)youtube\.com$/.test(u.hostname))return false;
-  return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch";
+  return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
+  (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(String(raw)));
  }catch(_){return false;}
 }
 function eligible(method,url){return enabled&&String(method||"GET").toUpperCase()==="POST"&&target(url);}
@@ -54,23 +59,23 @@ function jsonType(response){
   typeof response?.headers?.get==="function"?response.headers.get("content-type")||"":"");}
  catch(_){return false;}
 }
-function decorate(response){
+function decorate(response,requestURL=""){
  if(!response||response.status!==200||!jsonType(response)||decorated.has(response))return response;
  decorated.add(response);
  try{
   const json=response.json,text=response.text,clone=response.clone;
   if(typeof json==="function")Object.defineProperty(response,"json",{
    configurable:true,value:function(...args){
-    return Promise.resolve(json.apply(this,args)).then(data=>{if(enabled)prune(data);return data;});
+    return Promise.resolve(json.apply(this,args)).then(data=>{if(enabled)prune(data,requestURL);return data;});
    }
   });
   if(typeof text==="function")Object.defineProperty(response,"text",{
    configurable:true,value:function(...args){
-    return Promise.resolve(text.apply(this,args)).then(body=>enabled?rewrite(body):body);
+    return Promise.resolve(text.apply(this,args)).then(body=>enabled?rewrite(body,requestURL):body);
    }
   });
   if(typeof clone==="function")Object.defineProperty(response,"clone",{
-   configurable:true,value:function(...args){const result=clone.apply(this,args);return result===this?result:decorate(result);}
+   configurable:true,value:function(...args){const result=clone.apply(this,args);return result===this?result:decorate(result,requestURL);}
   });
  }catch(_){/* If a response is locked or non-extensible, leave it untouched. */}
  return response;
@@ -83,7 +88,11 @@ function pruneExistingBootstrap(){
   const own=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
   if(own&&Object.prototype.hasOwnProperty.call(own,"value")&&plain(own.value))
    prune(own.value);
- }catch(_){}
+  const initial=Object.getOwnPropertyDescriptor(g,"ytInitialData");
+  if(initial&&Object.prototype.hasOwnProperty.call(initial,"value")&&plain(initial.value)&&
+     typeof DKYouTubeFeed!=="undefined")
+   DKYouTubeFeed.prune(initial.value,"https://www.youtube.com/youtubei/v1/browse");
+ }catch(_){} 
 }
 function enable(){
  if(enabled)return;enabled=true;
@@ -98,7 +107,7 @@ function enable(){
    }catch(_){}
    const eligibleNow=eligible(method,url);
    const result=oldFetch.apply(this,args);
-   return eligibleNow?Promise.resolve(result).then(decorate):result;
+   return eligibleNow?Promise.resolve(result).then(response=>decorate(response,url)):result;
   };
   g.fetch=wrappedFetch;
  }
@@ -110,7 +119,7 @@ function enable(){
  if(typeof oldOpen==="function"){
   wrappedOpen=function(method,url,...rest){
    const result=oldOpen.call(this,method,url,...rest);
-   pending.set(this,eligible(method,url));cache.delete(this);return result;
+   pending.set(this,eligible(method,url)?String(url):"");cache.delete(this);return result;
   };
   proto.open=wrappedOpen;
  }
@@ -119,7 +128,7 @@ function enable(){
   proto.send=wrappedSend;
  }
  function allowed(xhr){
-  try{return enabled&&pending.get(xhr)===true&&xhr.readyState===4&&xhr.status===200&&
+  try{return enabled&&!!pending.get(xhr)&&xhr.readyState===4&&xhr.status===200&&
    /^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(xhr.getResponseHeader("content-type")||"");}
   catch(_){return false;}
  }
@@ -129,7 +138,7 @@ function enable(){
    get:function(){
     const original=oldText.get.call(this);
     if(!allowed(this)||typeof original!=="string")return original;
-    if(!cache.has(this))cache.set(this,rewrite(original));
+    if(!cache.has(this))cache.set(this,rewrite(original,pending.get(this)));
     return cache.get(this);
    }
   };
@@ -141,9 +150,9 @@ function enable(){
    get:function(){
     const value=oldResponse.get.call(this);
     if(!allowed(this))return value;
-    if(this.responseType==="json"){prune(value);return value;}
+    if(this.responseType==="json"){prune(value,pending.get(this));return value;}
     if((this.responseType===""||this.responseType==="text")&&typeof value==="string"){
-     if(!cache.has(this))cache.set(this,rewrite(value));
+     if(!cache.has(this))cache.set(this,rewrite(value,pending.get(this)));
      return cache.get(this);
     }
     return value;

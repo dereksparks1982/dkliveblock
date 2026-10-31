@@ -370,3 +370,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 81: native `$method=POST|GET|~HEAD` rule matching with constrained method validation and exception precedence; propagate Firefox request method to native and hybrid filters and maintain rule-validator compatibility.
 - [ ] Build 81 acceptance: cross-engine differential verification plus full on-device and browser regressions. Method matching is only one part of ABP/uBO parity.
+
+- [x] Build 82: independently written, bounded ad-only entry processing for YouTube browse, search and reel_watch_sequence JSON. Only positive ad renderer and explicit Shorts isAd markers are removed; traversal gathers all changes before committing and leaves unsupported/oversized data intact.
+- [ ] Build 82 acceptance: complete Ubuntu and Firefox tests including Shorts, feeds, search, ordinary videos and free movies. No ad-free claim without actual playback evidence.

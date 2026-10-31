@@ -16,7 +16,7 @@ test("Build 73 selects only direct first-party YouTube player JSON",()=>{
   {name:"Content-Type",value:"application/json; charset=UTF-8"}]}),true);
  assert.equal(R.eligible(req("https://www.youtube.com/youtubei/v1/get_watch"),"www.youtube.com"),true);
  assert.equal(R.eligible(req("https://youtube.com.evil.test/youtubei/v1/player"),"www.youtube.com"),false);
- assert.equal(R.eligible(req("https://www.youtube.com/youtubei/v1/browse"),"www.youtube.com"),false);
+ assert.equal(R.eligible(req("https://www.youtube.com/youtubei/v1/browse"),"www.youtube.com"),true);
  assert.equal(R.eligible({...req(),method:"GET"},"www.youtube.com"),false);
  assert.equal(R.eligible({...req(),type:"media"},"www.youtube.com"),false);
  assert.equal(R.eligible({...req(),statusCode:403},"www.youtube.com"),false);
