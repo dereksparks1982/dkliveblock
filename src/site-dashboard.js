@@ -1,6 +1,7 @@
 "use strict";
 const $=id=>document.getElementById(id),Model=DKSiteDashboardModel;
 let current=null,requestToken=0,loading=false,busy=false;
+let focusBlockedRequests=location.hash==="#blocked-requests";
 function tabHost(url){
  try{return /^https?:\/\//i.test(url||"")?Model.hostname(new URL(url).hostname.toLowerCase()):"";}
  catch(_){return "";}
@@ -174,6 +175,12 @@ function display(d){
    line(row.host+" · "+row.type+" · "+row.scope+
     (row.scope==="temporary"?" (expires "+time(row.expires)+")":""),
     "Revoke",()=>revokeRequest(row)));
+ if(focusBlockedRequests){
+  focusBlockedRequests=false;
+  const section=$("blockedRequestsSection");
+  section.scrollIntoView?.({block:"start"});
+  section.focus?.({preventScroll:true});
+ }
  $("dashboardFilterDetails").textContent=d.filterBackend+" · "+
   Model.number(d.networkRules).toLocaleString()+" network filters · "+
   Model.number(d.cosmeticRules).toLocaleString()+" element-hiding filters · "+

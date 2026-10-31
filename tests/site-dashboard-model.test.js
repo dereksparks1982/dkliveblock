@@ -37,3 +37,12 @@ test("Build 59 badges never display NaN, negative or absurd counters",()=>{
  assert.equal(M.number(Infinity),0);
  assert.equal(M.number(1e20),9999999);
 });
+
+test("Build 62 retained host-only records show all nine blocks and cap at 250",()=>{
+ const rows=Array.from({length:9},(_,index)=>({host:"ads.example",type:"script",when:index+1}));
+ const full=M.requestRows({requestLog:true,recentBlocks:rows});
+ assert.equal(full.length,9);
+ assert.equal(full[8].when,9);
+ assert.equal(M.requestRows({requestLog:true,recentBlocks:Array.from({length:300},(_,index)=>({host:"ad.example",type:"image",when:index+1}))}).length,250);
+ assert.equal(M.requestRows({requestLog:false,recentBlocks:rows}).length,0);
+});

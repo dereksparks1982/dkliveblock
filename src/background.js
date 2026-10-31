@@ -619,7 +619,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    return {error:"Choose a normal HTTP(S) website tab."};
   const sameTab=data.hosts.get(id)===site;
   const requestLog=data.settings.requestLog===true;
-  const logs=sameTab&&requestLog?(data.logs.get(id)||[]).slice(-12).reverse().map(row=>({
+  const logs=sameTab&&requestLog?(data.logs.get(id)||[]).slice(-250).reverse().map(row=>({
    host:DKManualRules.validHost(row.host)?row.host:"",
    type:String(row.type||"").slice(0,30),
    when:Number.isFinite(row.when)?row.when:0

@@ -29,8 +29,8 @@
 </div>
 <p id="dashboardModeNote">Allowlisting turns off all protection for the site and subdomains. Pausing just this tab leaves other tabs alone. Cookie and distraction settings do not switch off network ad blocking.</p>
 </section>
-<section><h2>Recent blocked requests</h2>
-<p>The temporary log stores only destination hostnames, resource types and a coarse timestamp. It does not reveal exactly what the server tried to do. Empty when private request logging is disabled.</p>
+<section id="blockedRequestsSection" tabindex="-1"><h2>Blocked requests for this tab</h2>
+<p>Shows up to the last 250 blocked requests for this tab, including repeated blocks. Only destination hostnames, resource types and coarse timestamps are retained, never private URLs or payloads. The counter can exceed this history; an empty list means request logging is disabled or no events have been retained.</p>
 <div class="network-monitor-controls">
 <button id="dashboardMonitor" type="button">Open detailed Network Monitor</button>
 <button id="dashboardClearLog" type="button">Clear recent blocked-request log</button></div>

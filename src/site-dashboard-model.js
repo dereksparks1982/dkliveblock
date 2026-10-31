@@ -23,7 +23,7 @@ function hostname(value){
 function number(value){return Number.isFinite(value)&&value>=0?Math.min(9999999,Math.floor(value)):0;}
 function requestRows(data){
  if(!data?.requestLog)return [];
- return (Array.isArray(data.recentBlocks)?data.recentBlocks:[]).slice(0,12).flatMap(row=>{
+ return (Array.isArray(data.recentBlocks)?data.recentBlocks:[]).slice(0,250).flatMap(row=>{
   const host=hostname(row?.host),type=String(row?.type||"");
   if(!host||!RESOURCE_TYPES.has(type))return [];
   return [{host,type,when:Number.isFinite(row.when)?row.when:0}];

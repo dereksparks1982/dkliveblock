@@ -111,3 +111,9 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
  .site-dashboard .dashboard-metrics{grid-template-columns:1fr}
  .site-dashboard .dashboard-line{align-items:flex-start;flex-direction:column}
 }
+
+/* Build 62: a visible count-to-details action, without changing popup width. */
+.popup .metric{display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left}
+.popup .metric>span{min-width:0}
+.popup .metric #viewBlocked{white-space:nowrap;flex-shrink:0;padding:8px 11px;font-size:12px}
+.site-dashboard #blockedRequestsSection:focus{outline:2px solid #13ad98;outline-offset:2px}

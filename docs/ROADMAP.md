@@ -280,3 +280,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 61: maintain a self-checking complete Node/Python test inventory, require manifest/package version consistency and document first-test stop conditions.
 - [x] Build 61 offline acceptance: on-device Ubuntu checkout passed all 437 JavaScript tests, Python companion suites, script inventory and packaging audit (October 30, 2026).
 - [ ] Build 61 browser acceptance: temporary Firefox installation, real-site controls, YouTube/Disney+ playback and long-session stability. No test-candidate ZIP, public release or ABP parity assertion until verified.
+
+- [x] Build 62: add a direct View blocked button alongside the tab blocked count, open same-tab history on Site Dashboard and display up to 250 bounded hostname-only records.

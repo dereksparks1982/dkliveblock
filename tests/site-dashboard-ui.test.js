@@ -40,3 +40,16 @@ test("Build 60 rejects stale site actions and protects dashboard interaction",()
  assert.match(js,/clearSiteDashboardLog/);
  assert.match(bg,/site!==msg\.expectedSite/);
 });
+
+test("Build 62 view-blocked action sits beside popup count and focuses same-tab history",()=>{
+ const popup=fs.readFileSync(path.join(root,"src/popup.html"),"utf8");
+ const logic=fs.readFileSync(path.join(root,"src/popup.js"),"utf8");
+ const page=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const script=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ assert.match(popup,/<div class="metric">[^]*?id="count"[^]*?id="viewBlocked"/);
+ assert.match(logic,/viewBlocked"\)\.addEventListener\("click"/);
+ assert.match(logic,/#blocked-requests/);
+ assert.match(page,/id="blockedRequestsSection"/);
+ assert.match(script,/focusBlockedRequests/);
+ assert.match(script,/scrollIntoView/);
+});

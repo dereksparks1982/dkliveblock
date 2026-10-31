@@ -68,6 +68,7 @@ async function load(){
  [tab]=await browser.tabs.query({active:true,currentWindow:true});
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
+ $("viewBlocked").disabled=!Number.isInteger(tab?.id)||!current.host;
  $("issues").textContent=String(current.networkIssueCount||0);
  $("popups").textContent=String(current.popupHiddenCount||0);
  $("strictPopupRow").hidden=!current.strictPopupAvailable||!current.strictPopupEnabled;
@@ -162,6 +163,9 @@ $("mediaRecovery").addEventListener("click",async()=>{
   await load();
  }catch(e){$("info").textContent=e.message;}finally{$("mediaRecovery").disabled=false;}
 });
+$("viewBlocked").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("site-dashboard.html?tab="+encodeURIComponent(tab.id)+"#blocked-requests")
+}));
 $("siteDashboard").addEventListener("click",()=>browser.tabs.create({
  url:browser.runtime.getURL("site-dashboard.html"+(Number.isInteger(tab?.id)?"?tab="+tab.id:""))
 }));
