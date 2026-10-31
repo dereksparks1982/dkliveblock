@@ -13,3 +13,7 @@
 **Scope and evidence limitation:** The development runtime cannot reach GitHub directly or materialize the connector's entire repository as a local checkout. Source syntax/static and focused isolated checks can be done, but the complete real Node/Python suite, on-device Firefox installation, live YouTube/Disney+ playback and long-session memory tests must still be run from a proper local checkout. Do not mark them passed or generate a package automatically.
 
 No GitHub Actions, new permission, external dependency, test download, signing or public release.
+
+## Follow-up: first real Ubuntu QA results
+
+The initial offline structural phase ran 115 cases: 112 passes and three obsolete pinned-version assertions. Corrected the three tests to compare package.json dynamically and added a regression guard against future hard-coded version expectations. The complete suite is still awaiting another desktop run. This is a QA fix, not a new release.

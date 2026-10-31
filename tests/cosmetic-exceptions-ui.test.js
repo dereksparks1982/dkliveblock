@@ -4,7 +4,7 @@ const fs=require("node:fs"),path=require("node:path"),root=path.resolve(__dirnam
 test("Build 52 only adds strict exact-host cosmetic exceptions",()=>{
  const m=JSON.parse(fs.readFileSync(path.join(root,"manifest.json"),"utf8"));
  const bg=fs.readFileSync(path.join(root,"background.js"),"utf8");
- assert.equal(m.version,"0.3.23");
+ assert.equal(m.version,JSON.parse(fs.readFileSync(path.join(root,"../package.json"),"utf8")).version);
  assert.ok(m.background.scripts.indexOf("cosmetic-exceptions.js")<
   m.background.scripts.indexOf("background.js"));
  const start=bg.indexOf('if(msg.action==="getCosmeticSiteExceptions"');

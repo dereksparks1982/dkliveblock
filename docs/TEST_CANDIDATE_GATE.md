@@ -39,3 +39,11 @@ Record results as PASS / FAIL / NOT RUN, with a non-sensitive reproduction note 
 - **Public release:** separate authorization, passing Firefox acceptance, parity review, final accepted snapshot, annotated tag, Mozilla review/signing and license disclosures.
 
 **No build ZIP, no GitHub Actions and no request for the user to test yet.**
+
+## First real Ubuntu run, October 30, 2026
+
+Desktop fast-forwarded to Build 61. Previous locally modified Ghostery vendor file was saved in a Git stash. Do not reapply that stash over the current bundled engine until reviewed.
+
+The first phase passed suite inventory (90 Node test files and nine Python scripts) and JavaScript syntax checks. It executed 115 structural tests: **112 passed, 3 failed**. All three were historical manifest-version assertions in cosmetic-exceptions-ui, notification-protection-ui and video-quality tests. These assertions now compare against package.json, and a version-contract test guards against future hard-coded manifest versions.
+
+**These corrections must be rerun locally.** The Python, offline regression, packaging, Firefox, streaming and performance gates have not passed yet.

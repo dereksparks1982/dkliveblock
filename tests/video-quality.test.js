@@ -16,7 +16,7 @@ test("Build 25 toolbar exposes explicit formats, progress and cancel",()=>{
 });
 test("Build 25 background sends fixed fields over native port and constrains progress",()=>{
  const bg=read("background.js"),m=JSON.parse(read("manifest.json"));
- assert.equal(m.version,"0.2.6");
+ assert.equal(m.version,JSON.parse(fs.readFileSync(path.join(root,"../package.json"),"utf8")).version);
  assert.ok(m.optional_permissions.includes("nativeMessaging"));
  assert.ok(!m.permissions.includes("nativeMessaging"));
  assert.match(bg,/runtime\.connectNative\("dk_live_block_companion"\)/);
