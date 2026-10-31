@@ -267,7 +267,7 @@
    });
    overlayObserver.observe(document.documentElement,{
     childList:true,subtree:true,attributes:true,
-    attributeFilter:["class","style","hidden","aria-hidden","open","id",
+    attributeFilter:["class","style","hidden","aria-hidden","open","id","name",
      "data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label"]
    });
   }catch(_){overlayObserver=null;}

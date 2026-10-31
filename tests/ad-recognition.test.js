@@ -232,3 +232,23 @@ test("Build 143 dynamic Google ad slot attributes trigger bounded scans",()=>{
  const protectedSlot=ad({tag:"div",cls:"",attrs:[["data-google-query-id","123"]],closest:true});
  assert.equal(A.safe(protectedSlot,documentFor([protectedSlot])),false);
 });
+
+test("Build 146 Google Ad Manager iframe names are strongly identified",()=>{
+ const frame=ad({tag:"iframe",cls:"",id:"",attrs:[["name","google_ads_iframe_76543"]]});
+ const normal=ad({tag:"iframe",cls:"",id:"",attrs:[["name","google_user_iframe_76543"]]});
+ assert.equal(A.hasStrongSignal(frame),true);
+ assert.equal(A.hasStrongSignal(normal),false);
+ const scanner=A.create(documentFor([frame,normal]),{});
+ assert.equal(scanner.scan(),1);
+ assert.equal(normal.style.getPropertyValue("display"),"");
+ scanner.restore();
+});
+test("Build 146 dynamic iframe name changes trigger ad scans but protect sign-in",()=>{
+ const frame=ad({tag:"iframe",cls:"",attrs:[["name","google_ads_iframe_5"]]});
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"name",target:frame}),true);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"name",target:
+  ad({tag:"iframe",cls:"",attrs:[["name","editorial_player"]]})}),false);
+ const protectedFrame=ad({tag:"iframe",cls:"",closest:true,
+  attrs:[["name","google_ads_iframe_5"]]});
+ assert.equal(A.safe(protectedFrame,documentFor([protectedFrame])),false);
+});

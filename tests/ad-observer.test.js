@@ -28,6 +28,7 @@ test("Build 56 debounce only schedules one scan and keeps site pause functional"
  assert.equal(scans,1);
  assert.ok(watchers[0].attributeFilter.includes("data-ad-slot"));
  assert.ok(watchers[0].attributeFilter.includes("data-google-query-id"));
+ assert.ok(watchers[0].attributeFilter.includes("name"));
  const event=[{type:"childList",addedNodes:[{}]}];
  mutation(event);mutation(event);
  assert.equal(timers.length,1);

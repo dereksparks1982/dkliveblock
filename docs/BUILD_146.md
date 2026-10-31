@@ -1,0 +1,3 @@
+# Build 146: detect Google Ad Manager ad iframes by name
+
+Unreleased 0.3.116. Google advertising frames can use an iframe name beginning with `google_ads_iframe_` even when the ID does not carry that marker. The bounded DOM ad recognizer now matches a constrained pattern for explicit ad frames and observes subsequent changes to iframe names. Generic named iframes, editorial content, forms, sign-in dialogs and video players retain the existing safety gates. Tests exercise named ads, normal iframe names, dynamic name changes and protected containers. No external filter or script download. Real Firefox and full offline acceptance remain pending.

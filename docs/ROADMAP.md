@@ -562,3 +562,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 145: first-party privacy cleaner now removes bounded custom `utm_` campaign variants by default, without waiting for an external subscription. Whole-URL signing/auth safeguards remain authoritative.
 - [ ] Real Firefox signed navigation and full offline suite acceptance pending.
+
+- [x] Build 146: detect Google Ad Manager iframe name-based ad slots and attribute changes, with strict naming and protected-sign-in/media safety.
+- [ ] Full Firefox dynamic iframe and local suite acceptance remains pending.

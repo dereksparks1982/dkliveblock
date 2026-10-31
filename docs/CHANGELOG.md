@@ -648,3 +648,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.115 / Build 145 (2026-10-31)
 - Extended built-in tracking-parameter cleanup to recognize bounded custom UTM campaign tags, not only a fixed set of standard identifiers, while preserving entire signed/login URLs. Added targeted privacy and crossfeature regression tests. Firefox acceptance pending.
+
+### 0.3.116 / Build 146 (2026-10-31)
+- Expanded exact advertising iframe recognition to include Google Ad Manager frame names as well as IDs, and watch name attribute updates. Ordinary video/login frames remain protected. Added positive/negative fixtures; Firefox acceptance pending.

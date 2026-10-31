@@ -7,6 +7,7 @@ const CANDIDATES=[
  "[data-ad-client][data-ad-slot]","[data-ad-unit][data-ad-slot]",
  "[data-google-query-id]",
  "[id^='div-gpt-ad-']","iframe[id^='google_ads_iframe_']",
+ "iframe[name^='google_ads_iframe_']",
  "[data-testid*='ad-slot' i]","[data-testid='advertisement' i]",
  "[data-testid='ad-container' i]","[data-testid='ad-banner' i]",
  "[aria-label='Advertisement' i]","[aria-label='Sponsored advertisement' i]",
@@ -28,6 +29,8 @@ function hasStrongSignal(element){
   if(element.hasAttribute?.("data-google-query-id"))return true;
   if(/^div-gpt-ad-[a-z0-9_-]{1,90}$/i.test(id))return true;
   if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_-]{1,90}$/i.test(id))return true;
+  if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_-]{1,90}$/i.test(
+   String(element.getAttribute?.("name")||"")))return true;
   if(/^(?:ad|ad slot|advertisement|paid advertisement|sponsored advertisement)$/.test(aria))return true;
   if(element.hasAttribute?.("data-testid")){
    const testid=String(element.getAttribute("data-testid")||"").toLowerCase();
@@ -78,7 +81,7 @@ function collectScopes(document){
 function relevantMutation(record){
  if(!record)return false;
  if(record.type==="attributes"){
-  if(!["class","id","data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label"].includes(record.attributeName))return false;
+  if(!["class","id","name","data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label"].includes(record.attributeName))return false;
   return hasStrongSignal(record.target);
  }
  if(record.type!=="childList")return false;
