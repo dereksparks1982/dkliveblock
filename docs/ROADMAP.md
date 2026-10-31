@@ -544,3 +544,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 139: skip redundant procedural DOM writes for already-hidden ad elements, and remember a website's newer inline display if it changes before the next scan.
 - [ ] Complete local suite and Firefox mutation/performance acceptance still pending.
+
+- [x] Build 140: automatic DOM ad recognition now refreshes the stored rollback style whenever a website changes and the extension re-hides a tracked ad container, aligning with procedural cosmetic restoration.
+- [ ] Complete Linux suite and live Firefox dynamic-ad DOM acceptance pending.

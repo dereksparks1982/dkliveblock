@@ -198,3 +198,15 @@ test("Build 129 explicit ad slots still cannot hide controls or forms",()=>{
  const item=ad({tag:"div",aria:"Paid advertisement",excluded:true});
  assert.equal(A.safe(item,documentFor([item])),false);
 });
+
+test("Build 140 rehidden ad containers restore the site's most recent display",()=>{
+ const element=ad(),scanner=A.create(documentFor([element]),{});
+ element.style.setProperty("display","grid");
+ assert.equal(scanner.scan(),1);
+ element.style.setProperty("display","inline-flex","important");
+ assert.equal(scanner.scan(),1);
+ assert.equal(element.style.getPropertyValue("display"),"none");
+ scanner.restore();
+ assert.equal(element.style.getPropertyValue("display"),"inline-flex");
+ assert.equal(element.style.getPropertyPriority("display"),"important");
+});

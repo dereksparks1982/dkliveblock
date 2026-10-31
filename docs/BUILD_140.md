@@ -1,0 +1,3 @@
+# Build 140: preserve newer website styles when ad containers reappear
+
+Unreleased 0.3.110. Advertising scripts can change inline display properties on already hidden ad containers. When the recognizer re-hid such an element, it previously retained the original pre-first-hide display as the rollback baseline. Turning off protection could then override the website's newer display value. Now every legitimate re-hide refreshes that snapshot to the site's currently visible style, while repeated scans that find `display:none!important` perform no extra write. Tests cover re-hiding and safe restoration of the updated value. Firefox dynamic-DOM and full offline acceptance remain outstanding, no Actions or release.

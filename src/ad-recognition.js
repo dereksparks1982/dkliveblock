@@ -144,7 +144,9 @@ function create(document,window,limit=60){
     if(!tracked&&hidden.size>=max)continue;
     if(tracked&&el.style.getPropertyValue("display")==="none"&&
       el.style.getPropertyPriority("display")==="important")continue;
-    if(!tracked)hidden.set(el,{value:el.style.getPropertyValue("display"),
+    // If the site changed a previously hidden slot, preserve its newest
+    // inline display for rollback rather than restoring an outdated style.
+    hidden.set(el,{value:el.style.getPropertyValue("display"),
       priority:el.style.getPropertyPriority("display")});
     el.style.setProperty("display","none","important");removed++;
    }catch(_){}

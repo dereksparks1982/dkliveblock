@@ -630,3 +630,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.109 / Build 139 (2026-10-31)
 - Reduced repeated DOM style writes in site-scoped procedural cosmetics. If a page changes an already-tracked element's display between scans, the latest style is retained for later restoration. Added direct content script behavior fixture.
+
+### 0.3.110 / Build 140 (2026-10-31)
+- Fixed automatic ad-recognizer rollback on dynamic sites: a re-hidden ad container now remembers its newest live inline style rather than restoring an obsolete original value. Added regression fixture.
