@@ -540,3 +540,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.79 / Build 109 (2026-10-31)
 - Fixed an edge case where 256+ unrelated tab clears could evict a still-active YouTube request generation and allow old metrics into a new page. Generations now exist only for active response filters and are dropped on final completion. Added navigation flood fixtures. Browser acceptance pending.
+
+### 0.3.80 / Build 110 (2026-10-31)
+- Bounded the YouTube feed/Shorts scanner's queued traversal nodes and total eligible deletions. Oversized synthetic ad arrays remain completely unchanged rather than partially stripped; normal small sponsored arrays still filter. Added regression fixtures; Firefox testing pending.

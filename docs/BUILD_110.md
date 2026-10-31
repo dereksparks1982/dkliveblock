@@ -1,0 +1,3 @@
+# Build 110: bound work pending inside YouTube feed scanning
+
+Unreleased v0.3.80. In addition to existing response byte/depth/array/object limits, the JSON feed scanner now caps its pending traversal queue at 12,000 and the number of ad entries selected for removal at 400 per response. Exceeding either aborts the operation before applying any edits. Normal responses continue to have clearly labeled ads removed; unusual oversized responses stay unchanged. This is a safety/performance improvement, not a guarantee of ad-free YouTube or browser compatibility. Full offline and Firefox acceptance remain pending.

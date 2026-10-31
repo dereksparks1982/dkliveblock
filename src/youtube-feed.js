@@ -1,7 +1,7 @@
 /* Bounded and independent YouTube feed/Shorts ad entry filter.
    No media bytes, remote scripts, browsing history, or account data. */
 (function(root){"use strict";
-const MAX_BYTES=1500000,MAX_NODES=6000,MAX_DEPTH=20,MAX_ARRAY=1000,MAX_KEYS=128,MAX_EDGES=10000;
+const MAX_BYTES=1500000,MAX_NODES=6000,MAX_DEPTH=20,MAX_ARRAY=1000,MAX_KEYS=128,MAX_EDGES=10000,MAX_PENDING=12000,MAX_REMOVALS=400;
 const FEED=new Set(["/youtubei/v1/browse","/youtubei/v1/search"]);
 const REEL="/youtubei/v1/reel_watch_sequence";
 const ARRAYS=new Set(["contents","items","entries","continuationItems"]);
@@ -35,6 +35,7 @@ function prune(payload,url){
    const {node,depth}=queue.pop();
    if(!node||typeof node!=="object")continue;
    if(++inspected>MAX_NODES||depth>MAX_DEPTH)return {changed:false,items:0};
+   if(queue.length>MAX_PENDING)return {changed:false,items:0};
    if(seen.has(node))continue;
    seen.add(node);
    if(Array.isArray(node)){
@@ -54,7 +55,11 @@ function prune(payload,url){
       if(adEntry(child[i],mode))indices.push(i);
       else queue.push({node:child[i],depth:depth+1});
      }
-     if(indices.length){total+=indices.length;jobs.push({array:child,indices});}
+     if(indices.length){
+      total+=indices.length;
+      if(total>MAX_REMOVALS)return {changed:false,items:0};
+      jobs.push({array:child,indices});
+     }
     }else queue.push({node:child,depth:depth+1});
    }
   }
@@ -89,7 +94,7 @@ function rewrite(url,text){
  return r.changed?{text:prefix+JSON.stringify(obj),changed:true,items:r.items}:
   {text,changed:false,items:0};
 }
-const API=Object.freeze({kind,adEntry,prune,rewrite,MAX_BYTES,MAX_NODES,MAX_DEPTH,MAX_ARRAY,MAX_KEYS,MAX_EDGES});
+const API=Object.freeze({kind,adEntry,prune,rewrite,MAX_BYTES,MAX_NODES,MAX_DEPTH,MAX_ARRAY,MAX_KEYS,MAX_EDGES,MAX_PENDING,MAX_REMOVALS});
 root.DKYouTubeFeed=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

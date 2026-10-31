@@ -454,3 +454,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 109: retain YouTube response generation history only for tabs with active interception. Unrelated navigation clears no longer evict live-tab generation data; completion releases generation tracking, preserving 16/4 stream limits.
 - [ ] Full Node/Python suite and Firefox rapid-tab stress acceptance pending.
+
+- [x] Build 110: explicitly cap pending YouTube feed JSON traversal work and total ad-entry edits per response; fail open on excessive ad lists rather than growing queues or mutating only some entries.
+- [ ] Browser CPU/memory profiling and full local regression suite pending.

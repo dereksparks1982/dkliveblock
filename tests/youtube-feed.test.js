@@ -86,3 +86,20 @@ test("Build 108 refuses sparse/accessor arrays instead of partially splicing the
  assert.equal(F.prune({contents:sparse},browse).changed,false);
  assert.equal(sparse.length,3);
 });
+
+test("Build 110 declines excessive ad removals without modifying anything",()=>{
+ const ad=()=>({adSlotRenderer:{id:1}});
+ const data={contents:Array.from({length:F.MAX_REMOVALS+1},ad)};
+ const before=data.contents.length;
+ const result=F.prune(data,browse);
+ assert.equal(result.changed,false);
+ assert.equal(data.contents.length,before);
+});
+test("Build 110 normal modest sponsored feeds remain eligible for filtering",()=>{
+ const data={contents:[{videoRenderer:{id:1}},{adSlotRenderer:{id:2}},
+  {videoRenderer:{id:3}},{promotedVideoRenderer:{id:4}}]};
+ const result=F.prune(data,browse);
+ assert.equal(result.changed,true);
+ assert.equal(result.items,2);
+ assert.equal(data.contents.length,2);
+});
