@@ -1257,6 +1257,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   }
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
   if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
+  if(typeof s.youtubeResponseFilter==="boolean")data.settings.youtubeResponseFilter=s.youtubeResponseFilter;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
   if(typeof s.rememberVideos==="boolean")data.settings.rememberVideos=s.rememberVideos;
   if(typeof s.strictPopupSites==="boolean"){

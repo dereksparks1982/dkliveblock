@@ -361,3 +361,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 78: bound nested serialized YouTube player JSON ad-only field removal and synchronize MAIN-world readiness with the isolated controller to resolve startup races.
 - [ ] Build 78 acceptance: Ubuntu suite, Firefox MAIN/ISOLATED event handshake and real YouTube normal/film playback tests.
+
+- [x] Build 79: repair saved YouTube response-filter toggle propagation, preserving the opt-out and restoring native per-resource rule behavior. Integration tests assert off/on persisted values and request cancellation changes. Refresh master competitor-parity delta, explicitly distinguishing source implementations from real Firefox evidence.
+- [ ] Build 79 acceptance: complete on-device suite and live Firefox toggle, playback and enforcement verification; no uBlock-equivalence claim.

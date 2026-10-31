@@ -446,3 +446,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.48 / Build 78 (2026-10-31)
 - Added fail-open nested player JSON handling to both response handlers, and a one-shot MAIN-world readiness handshake for activation timing. Actual Firefox playback is still unverified.
+
+### 0.3.49 / Build 79 (2026-10-31)
+- Fixed a missing Settings-to-background propagation for YouTube JSON filtering. Added persisted off/on checks in the background integration fixture and updated the competitor-parity implementation ledger.
+- All post-Build72 browser acceptance remains pending.

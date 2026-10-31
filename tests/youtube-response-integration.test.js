@@ -54,7 +54,12 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  assert.equal(metrics.youtubeResponse.modified,1);
  assert.equal(metrics.youtubeResponse.fields,3);
  await listeners.message({action:"saveSettings",settings:{youtubeResponseFilter:false}});
+ assert.equal(stored.settings.youtubeResponseFilter,false,"choice must persist");
+ assert.equal((await listeners.message({action:"getSettings"})).settings.youtubeResponseFilter,false);
  assert.equal(listeners.before(player).cancel,true,"turning off filtering restores ordinary rule matching");
+ await listeners.message({action:"saveSettings",settings:{youtubeResponseFilter:true}});
+ assert.equal(stored.settings.youtubeResponseFilter,true,"re-enabling must persist");
+ assert.equal(listeners.before(player).cancel,undefined,"player JSON is reachable once filtering is re-enabled");
  const paused=await listeners.message({action:"setSiteAllowed",tabId:1,allowed:true});
  assert.equal(paused.ok,true);
  assert.equal(listeners.before(player).cancel,undefined,"allowlisting still works");

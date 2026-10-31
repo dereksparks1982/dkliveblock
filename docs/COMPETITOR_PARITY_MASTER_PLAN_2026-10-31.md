@@ -48,3 +48,16 @@
 A phase is not **accepted** until (1) source and README accurately reflect limitations, (2) regression suite passes on Ubuntu, (3) significant browser-facing features are validated in Firefox and tested against normal login and media, (4) reproducible accepted snapshot -> local commit + annotated tag -> GitHub push + verify, and (5) owner authorizes release. Research and commits here are development, NOT acceptance.
 
 Technical honesty: YouTube may change its defenses again, so permanent 100% ad-free compatibility is not guaranteed. Broad resource blocking, silently showing ads, or hiding a refusal behind a black player is **never** a success.
+
+## Development implementation delta: Builds 73–79 (2026-10-31)
+
+The original 25-milestone acceptance table remains the release contract. The following **source-level implementations** are now present but **NOT accepted as working in live Firefox**:
+
+- **Milestone 05, scriptlets:** one static, trusted YouTube-only MAIN-world JSON hook. **Not** general scriptlet filter syntax, catalog or comprehensive uBO compatibility. Page-world JavaScript can observe/alter page hooks; DOM control events are **not** a security boundary against a hostile website.
+- **Milestone 06, redirects:** only the two inert, local resources `noop.js` and `empty.css`, with explicit type guards. More redirect resources remain.
+- **Milestone 07, response transformation:** bounded Firefox response filtering for a small set of direct YouTube player JSON responses, with unknown/oversized responses passed through. Does **not** touch media bytes or every player schema.
+- **Milestone 08, YouTube:** player request pass-through for known eligible calls, a constrained fetch/XHR bridge, initial player-data handling and nested stringified JSON support. Ad-supported films, player refusal and anti-detection **remain failing in user-observed baseline** until live retesting demonstrates otherwise.
+- **Milestone 10, diagnostics:** one-click YouTube-specific TXT/JSON export and limited response-filter counters. Counts aren't proof of success; overall capture/performance still partial.
+- **Milestone 12, controls:** persisted on/off for YouTube response filter, plus existing site/request toggles. Tested in mock integration only.
+
+**Current source baseline:** v0.3.49, Build 79. No full post-72 Node/Python on-device run, and no real Firefox/YouTube acceptance. No release or competitor-parity assertion. Next work is broad rules/scriptlets, differential regression suite, real browser acceptance, security review and performance. Do not solicit premature routine user tests or publish a release.
