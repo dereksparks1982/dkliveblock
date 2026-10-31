@@ -510,3 +510,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.69 / Build 99 (2026-10-31)
 - Added bounded multi-site procedural cosmetic scopes and site-specific exceptions. Live browser validation pending.
+
+### 0.3.70 / Build 100 (2026-10-31)
+- Added subdomain exclusion in bounded multi-site literal procedural rules, preserving individual site exceptions and refusing negative-only global text scanning. Added parser/engine/validator tests. Firefox acceptance remains outstanding.

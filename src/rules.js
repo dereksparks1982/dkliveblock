@@ -110,8 +110,13 @@ function procedural(line){
  const standard=match[2]==="##"||match[2]==="#@#";
  if(standard&&!/:has-text\(/i.test(raw))return null;
  const sites=scope.split(",");
- if(sites.length>8||sites.some(h=>h.length>253||h.includes("..")||
-  !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part))))
+ const included=sites.filter(h=>!h.startsWith("~"));
+ if(!included.length||sites.length>16||
+   sites.some(item=>{
+    const h=item.startsWith("~")?item.slice(1):item;
+    return !h||h.length>253||h.includes("..")||
+     !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part));
+   }))
   return null;
  const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains&&!/[{};\\]/.test(contains[2]))

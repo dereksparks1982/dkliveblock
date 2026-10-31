@@ -1,0 +1,3 @@
+# Build 100: bounded domain-aware text cosmetic filters
+
+Unreleased 0.3.70. Multi-site literal text and descendant cosmetic rules now support up to 16 explicit positive and negative host scopes. For example, `news.example,~pay.news.example##article:has-text(Sponsored)` applies on the news site but not the excluded paid subdomain. Negative-only scopes are refused, preventing unbounded global text matching, and each positive domain is indexed separately. Site exceptions remain effective. Added validator/engine scenarios for exclusions, negative-only rejection and specificity. This is not full uBO filter parity or proof of live YouTube ad-free playback. Full offline and real Firefox tests remain open.

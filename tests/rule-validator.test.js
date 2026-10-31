@@ -45,3 +45,10 @@ test("Build 98 validator reports unsupported advanced cosmetics accurately",()=>
  assert.equal(r.counts.unsupported,2);
  assert.equal(r.counts.cosmetic,1);
 });
+
+test("Build 100 multi-site exclusions classify as supported, negative-only does not",()=>{
+ const r=V.validate("news.example,~pay.news.example##article:has-text(Sponsored)"+
+  "\n~pay.news.example##article:has-text(Sponsored)");
+ assert.equal(r.counts.procedural,1);
+ assert.equal(r.counts.unsupported,1);
+});

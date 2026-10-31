@@ -424,3 +424,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 99: procedural cosmetic rules accept up to eight named sites and respect individual site exceptions; indexed by site.
 - [ ] Full suite and Firefox DOM tests pending.
+
+- [x] Build 100: safe procedural cosmetics support up to 16 explicit positive/negative site scopes. At least one positive host is required; excluded subdomains never receive an unrelated site's literal matching. No global text scans.
+- [ ] Build 100 acceptance: full Node/Python regression suite and Firefox multi-site/embedded-page DOM tests.

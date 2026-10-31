@@ -327,3 +327,18 @@ test("Build 99 procedural domain lists and scoped exceptions",()=>{
  assert.equal(f.getProcedural("other.example").length,0);
  assert.equal(R.procedural("news.example,##div:has-text(Sponsored)"),null);
 });
+
+test("Build 100 procedural site exclusions protect opted-out subdomains",()=>{
+ const f=new FilterEngine("news.example,~pay.news.example##article:has-text(Sponsored)");
+ assert.equal(f.getProcedural("news.example").length,1);
+ assert.equal(f.getProcedural("www.news.example").length,1);
+ assert.equal(f.getProcedural("pay.news.example").length,0);
+ assert.equal(f.getProcedural("sub.pay.news.example").length,0);
+});
+test("Build 100 negative-only scopes remain unsupported to avoid global text scans",()=>{
+ assert.equal(R.procedural("~pay.news.example##article:has-text(Sponsored)"),null);
+ assert.equal(R.procedural("news.example,~##article:has-text(Sponsored)"),null);
+ const f=new FilterEngine("news.example,~pay.news.example##article:has-text(Sponsored)"+
+  "\npay.news.example##article:has-text(Sponsored)");
+ assert.equal(f.getProcedural("pay.news.example").length,1);
+});
