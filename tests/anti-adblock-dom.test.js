@@ -23,7 +23,7 @@ function setup({text="Ad blocker detected. Please disable your ad blocker.",hasV
  const document={documentElement:root,body,fullscreenElement:null,querySelectorAll:()=>[modal],querySelector:()=>null};
  const window={innerHeight:700,getComputedStyle:el=>({visibility:"visible",display:"block",position:inline?"static":"fixed",overflowY:el===modal?"visible":"hidden"})};
  const location={hostname:"youtube.com",href:"https://www.youtube.com/watch?v=test"};
- const context=vm.createContext({browser,document,window,location,Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},DKConsent:{cookieContext:()=>false},DKProcedural:{matches:()=>false}});
+ const context=vm.createContext({browser,document,window,location,Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},DKConsent:{cookieContext:()=>false},DKProcedural:{matches:()=>false},DKStreamingWatch:{create:()=>({start(){},stop(){},poke(){}})},DKCosmeticDebug:{create:()=>({restore(){},highlight(){return {ok:true};}}),inspect:()=>[]},});
  for(const name of ["anti-adblock.js","video-assist.js","overlay-recovery.js","auth-protection.js","popup-guard.js","content.js"]){
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
  }

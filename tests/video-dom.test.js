@@ -24,6 +24,7 @@ function create({host="www.youtube.com",active=true,skip=true,label="Skip Ad",cl
   CSS:{},Date,console,MutationObserver:class{constructor(fn){this.fn=fn;observers.push(this);}observe(_,options){this.options=options;}disconnect(){this.disconnected=true;}},
   setTimeout:fn=>{const id=++timerSerial;timers.set(id,fn);return id;},clearTimeout:id=>timers.delete(id),
   DKConsent:{},DKProcedural:{},DKPaywall:{},DKAntiAdblock:{},
+  DKCosmeticDebug:{create:()=>({restore(){},highlight(){return {ok:true};}}),inspect:()=>[]},
   setInterval:fn=>{interval=fn;return 1;}
  });
  for(const file of ["video-assist.js","streaming-watch.js","overlay-recovery.js","auth-protection.js","popup-guard.js","content.js"])

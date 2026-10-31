@@ -15,3 +15,7 @@
 Run the full offline suite and real Firefox manual tests on YouTube (preroll, midroll, SPA, signed-in/out and localized settings) and Disney+ with an authorized account. Verify genuine video remains watchable, no false clicks, no new login/checkout errors, and no unrequested network allowances.
 
 This is **not** proof of YouTube ad elimination or Adblock Plus Premium parity. No Actions, new permissions, external dependencies, download or release.
+
+## QA fixture reconciliation
+
+Existing Node VM tests for the content script were missing the newer cosmetic-debug interface, and the older YouTube anti-adblock fixture also missed the streaming watcher. These fixtures now supply inert test doubles matching their intended behaviors. A source-level contract test protects against repeating the missing-module setup. This is test maintenance, not a new production permission or feature claim.

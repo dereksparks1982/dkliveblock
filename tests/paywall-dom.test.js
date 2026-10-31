@@ -47,7 +47,8 @@ function setup({loaded=true,text="Subscribe to continue reading",paywallPopups=t
  const context=vm.createContext({
   browser,document,window,location:{hostname:"www.wsj.com",href:"https://www.wsj.com/articles/story"},
   Element,console,CSS:{},MutationObserver:class{},Date,setInterval:fn=>{interval=fn;},
-  DKConsent:{},DKProcedural:{}
+  DKConsent:{},DKProcedural:{},
+  DKCosmeticDebug:{create:()=>({restore(){},highlight(){return {ok:true};}}),inspect:()=>[]},
  });
  for(const name of ["paywall.js","video-assist.js","overlay-recovery.js","auth-protection.js","popup-guard.js","content.js"])
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});

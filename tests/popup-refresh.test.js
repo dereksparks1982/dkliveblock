@@ -20,6 +20,7 @@ test("late settings replies cannot undo newer popup protection state",async()=>{
   DKOverlayRecovery:{create:()=>recovery},DKVideoAssist:{createController:()=>({scan(){}}),isStreamingHost:()=>false},
   DKPopupGuard:{shouldInspectMutation:()=>false,protectedDialog:()=>false},
   DKConsent:{},DKPaywall:{},DKAntiAdblock:{},DKProcedural:{},
+  DKCosmeticDebug:{create:()=>({restore(){},highlight(){return {ok:true};}}),inspect:()=>[]},
   MutationObserver:class{observe(){}disconnect(){}},setInterval:()=>{}
  });
  vm.runInContext(fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8"),context);

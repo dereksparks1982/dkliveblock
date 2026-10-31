@@ -257,3 +257,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 57: exact multilingual YouTube ad-skip recognition; conflicting accessible and visible labels refuse clicks; link/form/toggle protection and SPA cooldown reset.
 - [x] Build 57: expanded multilingual watcher selectors, avoid reporting ordinary video stalls during ad playback/offline/hidden documents, and require valid hostnames for streaming diagnostics/temporary manual repairs.
 - [ ] Build 57 acceptance: full local Node/Python suite, real Firefox YouTube preroll/midroll (including localized labels), genuine content and controls, Disney+ authorized playback, safety and performance acceptance.
+
+- [x] Build 57 QA: synchronize six browser-simulation fixtures with the cosmetic debug module and required YouTube watcher; add an explicit test-fixture contract check to the local regression suite.
