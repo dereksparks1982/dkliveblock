@@ -433,3 +433,12 @@ test("Build 119 text predicates reject mismatched quotes and regex flags",()=>{
  assert.equal(R.procedural("news.example##article:has-text('Sponsored')").text,"Sponsored");
  assert.equal(R.procedural('news.example##article:has-text("Promoted")').text,"Promoted");
 });
+
+test("Build 128 offline fallback AMP ad selectors remain simple reversible CSS",()=>{
+ const f=new FilterEngine("##amp-ad\n##amp-auto-ads\n##ins.adsbygoogle");
+ const selectors=f.getSelectors("news.example");
+ assert.ok(selectors.includes("amp-ad"));
+ assert.ok(selectors.includes("amp-auto-ads"));
+ assert.ok(selectors.includes("ins.adsbygoogle"));
+ assert.equal(f.getProcedural("news.example").length,0);
+});

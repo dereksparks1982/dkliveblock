@@ -508,3 +508,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 127: recognize dedicated AMP ad elements in bounded reversible DOM ad detection on news/mobile pages, preserving editorial AMP components and protected forms/media/player regions.
 - [ ] Full offline suite and AMP-enabled Firefox site acceptance pending.
+
+- [x] Build 128: bundle AMP ad-only CSS selectors in the offline fallback, complementing reversible DOM recognition and avoiding delayed visible AMP ads before a scan.
+- [ ] Verify CSS injection and on/off restoration across Firefox AMP news pages in full browser acceptance.

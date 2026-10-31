@@ -1,0 +1,3 @@
+# Build 128: hide AMP ad containers immediately without a script roundtrip
+
+Unreleased 0.3.98. After Build 127 introduced safe, reversible AMP ad recognition, the built-in filter seed now includes the dedicated CSS selectors `amp-ad` and `amp-auto-ads`. This means supported AMP advertisement elements can be hidden during initial stylesheet injection, without waiting for a JavaScript mutation scan or an external subscription download. Normal AMP articles, videos, forms and page controls are not selected. Existing global/site disable controls and cosmetic exceptions remain in effect. Full offline suite and real Firefox AMP page verification remain outstanding.
