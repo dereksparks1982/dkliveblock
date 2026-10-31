@@ -29,3 +29,12 @@ test("bounds input, line count and diagnostics output",()=>{
  const result=V.validate(Array.from({length:70},()=>"invalid words").join("\n"));
  assert.ok(result.examples.length<=V.MAX_EXAMPLES);
 });
+
+test("Build 90 validator categorizes uBO literal has-text and rejects generic use",()=>{
+ const v=V.validate(["news.example##div:has-text(Sponsored)",
+  "news.example#@#div:has-text(Sponsored)","news.example##.advert",
+  "##div:has-text(Sponsored)"].join("\n"));
+ assert.equal(v.counts.procedural,2);
+ assert.equal(v.counts.cosmetic,1);
+ assert.equal(v.counts.unsupported,1);
+});

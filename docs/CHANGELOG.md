@@ -480,3 +480,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.59 / Build 89 (2026-10-31)
 - Limited concurrent buffered YouTube JSON responses to 16 across Firefox and 4 per tab. Further requests pass through unmodified rather than allocating more 1.5 MB buffers. Added cap-skipped counters to diagnostics and deterministic tests for slot exhaustion and cleanup. Complete Firefox and local suite acceptance remains pending.
+
+### 0.3.60 / Build 90 (2026-10-31)
+- Implemented a safe site-scoped literal subset of uBO cosmetic `##:has-text` and `#@#:has-text` syntax through the existing procedural text engine, with local validator support and regression fixtures. Global text scanning, regex and script execution are not supported. Browser tests outstanding.

@@ -276,3 +276,18 @@ test("Build 81 rejects invalid, contradictory or non-request method options",()=
   "||ads.example^$~method=GET","@@||ads.example^$document,method=GET",
   "*$removeparam=utm_source,method=GET"])assert.equal(R.network(line),null,line);
 });
+
+test("Build 90 recognizes scoped literal has-text and matching exceptions",()=>{
+ const f=new FilterEngine("news.example##article:has-text(Sponsored)"+
+  "\nnews.example#@#article:has-text(Sponsored)"+
+  "\nnews.example##article:has-text(Promoted)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"article",mode:"text",text:"Promoted"}]);
+ assert.deepEqual(f.getProcedural("other.example"),[]);
+ assert.equal(R.cosmetic("news.example##article:has-text(Promoted)"),null);
+ assert.equal(R.procedural("##article:has-text(Sponsored)"),null);
+ assert.equal(R.procedural("news.example##article:has-text(alert(1))"),null);
+ const native=new FilterEngine("news.example##article:has(.sponsor)");
+ assert.deepEqual(native.getProcedural("news.example"),[]);
+ assert.deepEqual(native.getSelectors("news.example"),["article:has(.sponsor)"]);
+});

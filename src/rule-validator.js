@@ -22,7 +22,9 @@ function validate(source){
    if(text.includes("#?#")||text.includes("#@?#")){
     parsed=DKRules.procedural(text);type="procedural";
    }else if(text.includes("##")||text.includes("#@#")){
-    parsed=DKRules.cosmetic(text);type="cosmetic";
+    parsed=DKRules.procedural(text);
+    if(parsed)type="procedural";
+    else{parsed=DKRules.cosmetic(text);type="cosmetic";}
    }else{
     parsed=DKRules.network(text);type="network";
    }

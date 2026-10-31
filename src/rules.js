@@ -101,16 +101,18 @@ function network(raw){
 function cosmetic(line){
  const m=/^([^#]*)(#@#|##)(.+)$/.exec(line.trim());if(!m)return null;
  const scope=m[1].toLowerCase(),selector=m[3].trim();
- if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:style\(|:remove\(/i.test(selector))return null;
+ if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:has-text\(|:style\(|:remove\(/i.test(selector))return null;
  return {scope,selector,exception:m[2]==="#@#"};
 }
 function procedural(line){
- const match=/^([^#]+)(#@\?#|#\?#)(.+)$/.exec(line.trim());if(!match)return null;
+ const match=/^([^#]+)(#@\?#|#\?#|#@#|##)(.+)$/.exec(line.trim());if(!match)return null;
  const scope=match[1].toLowerCase(),raw=match[3].trim();
+ const standard=match[2]==="##"||match[2]==="#@#";
+ if(standard&&!/:has-text\(/i.test(raw))return null;
  if(!/^[a-z0-9.-]+$/.test(scope))return null;
  const contains=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains&&!/[{};\\]/.test(contains[2]))
-  return {scope,selector:contains[1].trim(),mode:"text",text:contains[2],exception:match[2]==="#@?#"};
+  return {scope,selector:contains[1].trim(),mode:"text",text:contains[2],exception:match[2]==="#@?#"||match[2]==="#@#"};
  const has=/^([a-z][\w.#>[\]="'\s:-]{0,160})(?::-abp-has|:has)\(([^()]{1,150})\)$/i.exec(raw);
  if(has&&/^[a-zA-Z.#\[][a-zA-Z0-9_.#>[\]="'\s:*-]*$/.test(has[2])&&!/[{};\\]/.test(has[2]))
   return {scope,selector:has[1].trim(),mode:"has",target:has[2].trim(),exception:match[2]==="#@?#"};

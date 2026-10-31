@@ -1,0 +1,3 @@
+# Build 90: site-specific literal uBO cosmetic text filtering
+
+Unreleased 0.3.60. The independent parser now accepts safe literal text predicates such as `news.example##article:has-text(Sponsored)` and matching `#@#` exceptions. Existing bounded, reversible procedural code performs the matching. Generic global matches and unsupported text syntax are rejected instead of emitted as invalid CSS; normal native CSS `:has(...)` is unaffected. The validator reports these as procedural filters. No remote code, scriptlets or arbitrary regex matching. Full Node/Python and Firefox acceptance remain open; no GitHub Actions or release.

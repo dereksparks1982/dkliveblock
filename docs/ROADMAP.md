@@ -394,3 +394,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 89: cap concurrent YouTube response streams at 16 globally / 4 per tab to protect resource-limited systems, decrement on all filter exit paths, and surface skipped-memory-limit counts in dashboard and exports.
 - [ ] Build 89 acceptance: 8 GB Ubuntu memory profiling, long-session Firefox playback and full Node/Python suite. Busy responses are intentionally not modified; no ad-free claim.
+
+- [x] Build 90: site-scoped uBO-style literal `##:has-text` rules and exceptions; reject generic/unsafe selectors and preserve native `:has()` CSS. Include parser, engine and validator regression coverage.
+- [ ] Build 90 acceptance: full local suite, Firefox DOM testing, and performance/accessibility review. Advanced uBO procedural compatibility remains incomplete.
