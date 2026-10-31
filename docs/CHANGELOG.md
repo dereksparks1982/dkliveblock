@@ -525,3 +525,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.74 / Build 104 (2026-10-31)
 - Fixed mixed-case UTM exception handling so case variation does not cause an explicitly excepted campaign query key to be stripped. Added focused regression. Browser testing pending.
+
+### 0.3.75 / Build 105 (2026-10-31)
+- Added a bounded text length limit and exception handling to the independent procedural sponsored-text matcher; unusually large page text is left untouched rather than repeatedly scanned. Added performance and error fixtures. Firefox validation pending.

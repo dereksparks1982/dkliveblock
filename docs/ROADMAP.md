@@ -439,3 +439,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 104: case-insensitive matching of exact UTM query exceptions during UTM-family cleanup, leaving non-UTM query keys untouched.
 - [ ] Build 104 acceptance: Firefox navigation, full regression suite and signed-link checks.
+
+- [x] Build 105: cap literal sponsored-text scans at 32,000 characters per candidate and fail open on untrusted text getters, preventing rule-matcher work on enormous page bodies.
+- [ ] Build 105 acceptance: full offline tests, Firefox DOM performance and accessibility checks.

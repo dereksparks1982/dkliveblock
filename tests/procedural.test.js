@@ -40,3 +40,12 @@ test("Build 102 :contains aliases share literal procedural matching",()=>{
  assert.equal(matches({textContent:"Paid Advert placement"},r),true);
  assert.equal(matches({textContent:"Editorial coverage"},r),false);
 });
+
+test("Build 105 bounded literal text matching avoids huge article bodies",()=>{
+ const P=require("../src/procedural.js");
+ const rule={selector:"article",mode:"text",text:"Sponsored"};
+ assert.equal(P.matches({textContent:"Sponsored card"},rule),true);
+ assert.equal(P.matches({textContent:"x".repeat(P.MAX_TEXT_CHARS+1)+"Sponsored"},rule),false);
+ assert.equal(P.matches({get textContent(){throw Error("unusual page getter");}},rule),false);
+ assert.equal(P.matches({textContent:"Sponsored"},{...rule,text:""}),false);
+});

@@ -1,0 +1,3 @@
+# Build 105: bounded sponsored-text matching for heavy pages
+
+Unreleased 0.3.75. A site-specific literal text cosmetic filter previously accessed the entire candidate element's text and performed a substring search with no size limit. The matcher now skips candidates exceeding 32,000 characters and handles unusual text-property errors without disrupting the page. Typical short sponsored cards continue to match. This reduces worst-case comparison work on heavy pages but may conservatively leave a very large ad container visible. Complete Linux and browser performance tests remain outstanding. No Actions or release.
