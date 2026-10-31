@@ -285,3 +285,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 63: one-click per-event blocked request details, observed resource type, event sequence, nonessential/essential caveats, known operator hints, privacy-preserving external research links and user-opt-in RDAP lookup.
 - [ ] Build 63 acceptance: verify all link behavior, registered organization availability, no network lookups before consent, details match the selected live tab and all 91+ test files pass.
+
+- [x] Build 63: remove recognizable website VPN nag banners, including observed Russian RUTUBE text, with reversible distraction cleanup and no changes to VPN routing or settings.
+- [x] Build 63: recognize the RUTUBE paid-subscription promotional dialog without disabling checkout, login, media or security UI.
+- [ ] Build 63 acceptance: on-device v0.3.33 full suite, live RUTUBE, Firefox popup icon and optional RDAP details.

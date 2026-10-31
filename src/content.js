@@ -161,7 +161,15 @@
    "[class*='newsletter' i]","[id*='newsletter' i]",
    "[class*='survey' i]","[id*='survey' i]",
    "[class*='mailing-list' i]","[class*='floating-ad' i]",
-   "[class*='corner-ad' i]","[data-testid*='newsletter' i]"
+   "[class*='corner-ad' i]","[data-testid*='newsletter' i]",
+   "[class*='banner' i]","[id*='banner' i]",
+   "[class*='notice' i]","[class*='notification' i]",
+   "[class*='toast' i]","[class*='alert' i]",
+   "[class*='vpn' i]","[id*='vpn' i]",
+   "[class*='popup' i]","[class*='modal' i]",
+   "[role='alert']","[role='status']",
+   "[data-testid*='banner' i]","[data-testid*='notice' i]",
+   "[style*='position:fixed' i]","[style*='position: fixed' i]"
   ].join(",");
   let nodes;try{nodes=document.querySelectorAll(selector);}catch(_){return;}
   let inspected=0,removed=0;
@@ -183,7 +191,8 @@
       el.getAttribute?.("aria-modal")==="true";
     const positioned=style.position==="fixed"||style.position==="sticky";
     const overlay=explicit||positioned&&
-      /(?:popup|modal|overlay|newsletter|survey|floating|corner-ad)/i.test(marker);
+      (/(?:popup|modal|overlay|newsletter|survey|floating|corner-ad|banner|toast|notice|notification|alert|vpn)/i.test(marker)||
+       DKDistractions.vpnNotice(text)||DKDistractions.sitePromotion(text,host));
     const category=DKDistractions.classify({text,labelText:marker,
       overlay,visible,hasPlayer,hasMediaFrame:hasFrame,hasSensitive:sensitive,
       fullscreen:!!document.fullscreenElement,host});

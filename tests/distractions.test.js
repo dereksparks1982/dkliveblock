@@ -45,3 +45,30 @@ test("Build 54 leaves a newsletter or survey visible while the user edits it",()
  const editor={localName:"div",isContentEditable:true};
  assert.equal(D.userEngaged({contains:n=>n===editor},editor),true);
 });
+
+test("Build 63 suppresses Russian and English VPN nags plus RUTUBE paid subscription promotion",()=>{
+ for(const line of [
+  "VPN лучше выключить: RUTUBE будет работать быстрее, а доступных видео станет больше.",
+  "Отключите VPN для просмотра видео",
+  "Please disable your VPN to continue watching.",
+  "Turn off your VPN for a better experience.",
+  "VPN detected. Please disconnect to continue."
+ ]){
+  assert.equal(D.vpnNotice(line),true,line);
+  assert.equal(D.classify({...visible,text:line,host:"rutube.ru"}),"vpn-notice",line);
+ }
+ const offer="Осень без рекламы. 30 дней подписки RUTUBE за 1 ₽. Самое время устроиться поудобнее. Подключить за 1 ₽.";
+ assert.equal(D.classify({...visible,text:offer,host:"rutube.ru"}),"site-promotion");
+ assert.equal(D.classify({...visible,text:offer,host:"unrelated.example"}),"");
+});
+test("VPN articles, genuine account challenges, players and hidden UI are preserved",()=>{
+ const text="Turn off your VPN for a better experience.";
+ for(const override of [{visible:false},{overlay:false},{hasPlayer:true},
+  {hasSensitive:true},{fullscreen:true}]){
+  assert.equal(D.classify({...visible,...override,text}),"");
+ }
+ for(const line of ["VPN technology and privacy research","Read our VPN comparison",
+  "Please sign in and turn off your VPN to access your account","Your VPN settings"]){
+  assert.equal(D.classify({...visible,text:line}),"",line);
+ }
+});

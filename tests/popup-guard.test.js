@@ -54,3 +54,9 @@ test("malformed or unexpected nodes are handled conservatively without throwing"
  const hostile={matches:()=>{throw Error("inaccessible element")}};
  assert.equal(G.protectedDialog(hostile),true);
 });
+
+test("Build 63 banner or VPN notification insertions trigger overlay scanning",()=>{
+ assert.equal(G.likelyOverlay(el({id:"vpn-warning"})),true);
+ assert.equal(G.likelyOverlay(el({cls:"bottom-banner"})),true);
+ assert.equal(G.shouldInspectMutation({type:"childList",addedNodes:[el({cls:"vpn-notification"})]}),true);
+});

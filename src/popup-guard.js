@@ -2,8 +2,8 @@
    Never inspect form values or collect text from protected inputs. */
 (function(root){"use strict";
 const SENSITIVE='input[type="password"], input[autocomplete="one-time-code"], input[autocomplete="cc-number"], input[type="file"], [data-sitekey], [class*="captcha" i], [id*="captcha" i], [class*="hcaptcha" i], [class*="recaptcha" i], [autocomplete="current-password"], [autocomplete="new-password"]';
-const OVERLAY='dialog, [role="dialog"], [aria-modal="true"], [class*="modal" i], [id*="modal" i], [class*="popup" i], [class*="overlay" i], [class*="paywall" i], [class*="subscribe" i], [class*="adblock" i], [id*="adblock" i], [class*="gateway" i], [class*="newsletter" i], [class*="survey" i], [class*="floating-ad" i], ytd-enforcement-message-view-model';
-const SIGNATURE=/(?:^|[\s_-])(?:modal|dialog|popup|overlay|paywall|subscribe|newsletter|survey|floating-ad|corner-ad|adblock|antiad|enforcement|gateway|scrim|backdrop)(?:$|[\s_-])/i;
+const OVERLAY='dialog, [role="dialog"], [aria-modal="true"], [class*="modal" i], [id*="modal" i], [class*="popup" i], [class*="overlay" i], [class*="paywall" i], [class*="subscribe" i], [class*="adblock" i], [id*="adblock" i], [class*="gateway" i], [class*="newsletter" i], [class*="survey" i], [class*="floating-ad" i], [class*="vpn" i], [id*="vpn" i], [class*="banner" i], [class*="toast" i], [class*="notification" i], [role="alert"], [role="status"], ytd-enforcement-message-view-model';
+const SIGNATURE=/(?:^|[\s_-])(?:modal|dialog|popup|overlay|paywall|subscribe|newsletter|survey|floating-ad|corner-ad|adblock|antiad|enforcement|gateway|scrim|backdrop|banner|toast|notice|notification|vpn)(?:$|[\s_-])/i;
 const SENSITIVE_TEXT=/\b(?:enter\s+(?:your\s+)?password|verification\s+code|two.factor\s+authentication|complete\s+(?:your\s+)?purchase|confirm\s+(?:your\s+)?payment|human\s+verification|security\s+challenge)\b/i;
 function protectedDialog(el,text=""){
  if(!el)return true;

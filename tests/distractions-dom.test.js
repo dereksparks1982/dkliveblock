@@ -38,3 +38,16 @@ test("Build 55 cookie safety delegates to bounded open-shadow helper",()=>{
  assert.match(helper,/isSubmit:!!form&&type==="submit"/);
  assert.match(content,/typeof button\.click!=="function"/);
 });
+
+test("Build 63 RUTUBE VPN and subscription notices have bounded, reversible scanning",()=>{
+ const content=fs.readFileSync(path.join(src,"content.js"),"utf8");
+ const guard=fs.readFileSync(path.join(src,"popup-guard.js"),"utf8");
+ assert.match(content,/\[class\*='banner' i\]/);
+ assert.match(content,/\[role='alert'\]/);
+ assert.match(content,/DKDistractions\.vpnNotice\(text\)/);
+ assert.match(content,/DKDistractions\.sitePromotion\(text,host\)/);
+ assert.match(content,/overlayRecovery\.hide\(el\)/);
+ assert.match(content,/distractionControl&&!nextDistractions/);
+ assert.match(guard,/\[class\*="banner" i\]/);
+ assert.match(guard,/\[class\*="vpn" i\]/);
+});
