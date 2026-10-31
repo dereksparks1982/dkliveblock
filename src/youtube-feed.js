@@ -5,7 +5,7 @@ const MAX_BYTES=1500000,MAX_NODES=6000,MAX_DEPTH=20,MAX_ARRAY=1000,MAX_KEYS=128,
 const FEED=new Set(["/youtubei/v1/browse","/youtubei/v1/search",
  "/youtubei/v1/next"]);
 const REEL="/youtubei/v1/reel_watch_sequence";
-const ARRAYS=new Set(["contents","items","entries","continuationItems"]);
+const ARRAYS=new Set(["contents","items","entries","continuationItems","results"]);
 const ADS=new Set(["adSlotRenderer","promotedVideoRenderer",
  "promotedSparklesWebRenderer","inFeedAdLayoutRenderer","displayAdRenderer",
  "promotedSparklesTextSearchRenderer","compactPromotedVideoRenderer",

@@ -490,3 +490,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 121: include the first-party `/youtubei/v1/next` watch-next API in bounded JSON ad-only response handling, preserving ordinary recommendations, tracking and video metadata; the Firefox listener now registers that route.
 - [ ] Full Ubuntu/Firefox watch-next/sidebar ad tests remain required.
+
+- [x] Build 122: complete watch-next support by admitting the bounded `results` array family in feed ad-only traversal, preserving ordinary compact videos and private tracking data. This closes the missing traversal gap after Build 121.
+- [ ] Full Firefox watch-next/sidebars and complete Ubuntu tests still pending.

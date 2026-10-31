@@ -1,0 +1,3 @@
+# Build 122: finish the watch-next data structure support
+
+Unreleased 0.3.92. After adding the `/youtubei/v1/next` request route, review identified that YouTube watch-next recommendations are often in nested arrays named `results`, which the existing ad-entry deletion scheduler did not recognize. The bounded scanner now includes such arrays. The exact ad-only renderer checks, maximum response size, maximum nodes, depth, array length, removal count and read-only safeguards remain in force. Normal video recommendations and unrelated tracking information are retained. Regression tests assert actual deletion from nested `results`, not merely request eligibility. Full Firefox/Ubuntu acceptance is still outstanding, and the extension remains unreleased.

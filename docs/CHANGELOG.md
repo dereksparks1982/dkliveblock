@@ -576,3 +576,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.91 / Build 121 (2026-10-31)
 - Added YouTube watch-next recommendations API coverage to the bounded feed/sidebar ad response filter, with Firefox request registration and fixtures preserving organic recommendations. No broad companion video/player removal. Live browser acceptance pending.
+
+### 0.3.92 / Build 122 (2026-10-31)
+- Completed watch-next sidebar JSON handling: explicit ad entries inside nested `results` lists are now removable. The previous Build 121 route registration alone was insufficient because the parser only traversed contents/items/entries arrays. Added positive and negative fixtures. Browser acceptance pending.

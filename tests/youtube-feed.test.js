@@ -171,3 +171,23 @@ test("Build 121 watch-next recommendations remove ad renderers while retaining o
  assert.equal(data.contents.twoColumnWatchNextResults.secondaryResults.secondaryResults.results[0].compactVideoRenderer.videoId,"organic");
  assert.equal(data.trackingParams,"opaque");
 });
+
+test("Build 122 explicitly traverses watch-next results without losing organic entries",()=>{
+ const next="https://www.youtube.com/youtubei/v1/next";
+ const payload={contents:{twoColumnWatchNextResults:{secondaryResults:{
+  secondaryResults:{results:[{compactVideoRenderer:{videoId:"real-a"}},
+  {compactPromotedVideoRenderer:{adId:"sponsored"}},
+  {compactVideoRenderer:{videoId:"real-b"}}]}}}},playbackTracking:{token:"opaque"}};
+ const out=F.rewrite(next,JSON.stringify(payload));
+ assert.equal(out.changed,true);
+ assert.equal(out.items,1);
+ const nextResults=JSON.parse(out.text).contents.twoColumnWatchNextResults.secondaryResults.secondaryResults.results;
+ assert.deepEqual(nextResults.map(x=>x.compactVideoRenderer.videoId),["real-a","real-b"]);
+ assert.deepEqual(JSON.parse(out.text).playbackTracking,payload.playbackTracking);
+});
+test("Build 122 unknown results arrays without explicit ad renderers remain untouched",()=>{
+ const next="https://www.youtube.com/youtubei/v1/next";
+ const payload={results:[{videoRenderer:{id:1}},{compactVideoRenderer:{id:2}}]};
+ assert.equal(F.prune(payload,next).changed,false);
+ assert.equal(payload.results.length,2);
+});
