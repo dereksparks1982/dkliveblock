@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.58, Build 88.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.59, Build 89.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -13,7 +13,7 @@
 - Lets users allowlist websites, manage subscriptions, edit filters, pick elements to hide and restore unwanted hiding.
 - Stops many unwanted popups, new tabs, cookie prompts, newsletter distractions, short VPN nag banners, recognized RUTUBE promotional offers and tracking parameters.
 - Includes a **Site Dashboard** to inspect the selected tab's protection state, up to 250 individual blocked events with TXT/JSON one-click export, privacy-safe matched filter source attribution, service-operator hints, explicit RDAP registration research and active exceptions, with clear controls to revoke allowances. Permitted completed requests are counted separately, exported as local TXT/JSON reports (all groups or one inspected destination); voluntary combined TXT/JSON diagnostics cover up to 25 currently open website tabs, grouped by hostname/type, and can be selectively blocked and unblocked with explicit toggles, including on otherwise allowlisted websites. Detailed network inspection and playback diagnostics include site refusal, buffering, media errors, and a coarse YouTube first-party blocked-request triage.
-- Adds bounded Firefox-only first-party YouTube player-response ad metadata filtering plus a bundled, setting-gated MAIN-world scriptlet for first-party player JSON via fetch/XHR, with a reversible setting and per-tab request-to-response diagnostic counters and a dedicated one-click YouTube TXT/JSON compatibility report. Known advertisement metadata in the existing initial player bootstrap is also pruned when activated. Matching first-party player JSON requests are permitted through ordinary network rules so response filters can operate, while explicit user blocks and unrelated advertising rules still apply. This is an experimental compatibility improvement, not proven live ad-free playback.
+- Adds bounded Firefox-only first-party YouTube player-response ad metadata filtering plus a bundled, setting-gated MAIN-world scriptlet for first-party player JSON via fetch/XHR, with a reversible setting, memory-limited concurrent response filters and per-tab request-to-response diagnostic counters and a dedicated one-click YouTube TXT/JSON compatibility report. Known advertisement metadata in the existing initial player bootstrap is also pruned when activated. Matching first-party player JSON requests are permitted through ordinary network rules so response filters can operate, while explicit user blocks and unrelated advertising rules still apply. This is an experimental compatibility improvement, not proven live ad-free playback.
 - Offers optional video watch-later features and Linux companion integrations; optional features are still under development.
 
 ## What makes it different

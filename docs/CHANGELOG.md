@@ -477,3 +477,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.58 / Build 88 (2026-10-31)
 - Added private, bounded per-tab YouTube player/feed/Shorts API request, response and modification counts to the dashboard and compatibility TXT/JSON export; no URL, video identifier or token storage. Added source, background and report fixtures. Full offline and browser validation pending.
+
+### 0.3.59 / Build 89 (2026-10-31)
+- Limited concurrent buffered YouTube JSON responses to 16 across Firefox and 4 per tab. Further requests pass through unmodified rather than allocating more 1.5 MB buffers. Added cap-skipped counters to diagnostics and deterministic tests for slot exhaustion and cleanup. Complete Firefox and local suite acceptance remains pending.

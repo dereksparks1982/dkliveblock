@@ -391,3 +391,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 88: category-specific YouTube API counts for player, browse/search and reel_watch_sequence requests and modifications, retaining old totals. Reporting uses data-only snapshots, capped values and tab isolation.
 - [ ] Build 88 acceptance: full Linux regression suite and real Firefox YouTube playback/ad-free test, with response-to-request ratio.
+
+- [x] Build 89: cap concurrent YouTube response streams at 16 globally / 4 per tab to protect resource-limited systems, decrement on all filter exit paths, and surface skipped-memory-limit counts in dashboard and exports.
+- [ ] Build 89 acceptance: 8 GB Ubuntu memory profiling, long-session Firefox playback and full Node/Python suite. Busy responses are intentionally not modified; no ad-free claim.

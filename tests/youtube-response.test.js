@@ -175,3 +175,43 @@ test("Build 88 counts YouTube player, feed and Shorts API paths without storing 
  assert.equal(R.stats(74).byKind.player.requests,1);
  R.clear(74);
 });
+
+test("Build 89 caps active interceptors per tab and frees slots after completion",()=>{
+ let active=[];
+ const api={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};
+  active.push(filter);return filter;
+ }};
+ const clock={setTimeout(){return 11;},clearTimeout(){}};
+ const details={...req(),tabId:510};
+ for(let i=0;i<R.MAX_PER_TAB;i++)
+  assert.equal(R.attach({...details,requestId:"test"+i},api,clock),true);
+ assert.equal(R.attach({...details,requestId:"extra"},api,clock),false);
+ assert.equal(active.length,R.MAX_PER_TAB,"rejected requests must not open a filter");
+ assert.equal(R.stats(510).skippedBusy,1);
+ active[0].onstop();
+ assert.equal(R.attach({...details,requestId:"available"},api,clock),true);
+ for(const filter of active.slice(1))filter.onerror();
+ assert.equal(R.stats(510).skippedBusy,1);
+ R.clear(510);
+});
+test("Build 89 globally caps active response filters to bounded memory",()=>{
+ const filters=[];
+ const api={filterResponseData(){
+  const filter={write(){},close(){},disconnect(){}};
+  filters.push(filter);return filter;
+ }};
+ const clock={setTimeout(){return 12;},clearTimeout(){}};
+ for(let i=0;i<R.MAX_FILTERS;i++){
+  const tabId=610+Math.floor(i/R.MAX_PER_TAB);
+  assert.equal(R.attach({...req(),tabId,requestId:"global-"+i},api,clock),true);
+ }
+ assert.equal(R.attach({...req(),tabId:777},api,clock),false);
+ assert.equal(R.stats(777).skippedBusy,1);
+ assert.equal(filters.length,R.MAX_FILTERS);
+ for(const filter of filters)filter.onerror();
+ assert.equal(R.attach({...req(),tabId:778},api,clock),true);
+ filters[filters.length-1].onstop();
+ for(let id=610;id<610+R.MAX_FILTERS/R.MAX_PER_TAB;id++)R.clear(id);
+ R.clear(777);R.clear(778);
+});

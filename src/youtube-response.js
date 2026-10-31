@@ -2,7 +2,8 @@
    Independently written. No media bytes, DRM, OAuth, remote JS, page scripts,
    ad-unblocking fallback or browsing-history storage. */
 (function(root){"use strict";
-const MAX_BYTES=1500000,MAX_TABS=100,MAX_DELAY_MS=4000;
+const MAX_BYTES=1500000,MAX_TABS=100,MAX_DELAY_MS=4000,MAX_FILTERS=16,MAX_PER_TAB=4;
+const liveByTab=new Map();let liveCount=0;
 // Load the same bounded feed helper in Firefox's background global and in
 // direct Node tests. Optional at runtime: fail open, never block playback.
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
@@ -13,7 +14,7 @@ function category(url){
  const feed=Feed?.kind(url);if(feed)return feed;
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,byKind:kinds()});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,byKind:kinds()});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -123,7 +124,19 @@ function stats(tab){
 function clear(tab){records.delete(tab);}
 function attach(details,webRequest,clock=root){
  if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
+ const tab=details.tabId;
+ if(!Number.isInteger(tab)||tab<0)return false;
+ if(liveCount>=MAX_FILTERS||(liveByTab.get(tab)||0)>=MAX_PER_TAB){
+  const v=records.get(tab)||EMPTY();
+  v.skippedBusy++;
+  if(records.has(tab))records.delete(tab);
+  records.set(tab,v);
+  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+  return false;
+ }
  let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){note(details.tabId,"error",0,details.url);return false;}
+ liveCount++;
+ liveByTab.set(tab,(liveByTab.get(tab)||0)+1);
  let chunks=[],length=0,overflow=false,ended=false,deadline=null;
  function clearDeadline(){
   if(deadline!==null&&typeof clock?.clearTimeout==="function")try{clock.clearTimeout(deadline);}catch(_){}
@@ -135,6 +148,10 @@ function attach(details,webRequest,clock=root){
  }
  function finish(disconnect=false){
   if(ended)return;ended=true;clearDeadline();chunks=[];
+  liveCount=Math.max(0,liveCount-1);
+  const remaining=(liveByTab.get(tab)||1)-1;
+  if(remaining>0)liveByTab.set(tab,remaining);
+  else liveByTab.delete(tab);
   try{if(disconnect)filter.disconnect();else filter.close();}
   catch(_){if(!disconnect)try{filter.disconnect();}catch(__){}}
  }
@@ -188,7 +205,7 @@ function attach(details,webRequest,clock=root){
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
+const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,MAX_FILTERS,MAX_PER_TAB,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

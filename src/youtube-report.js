@@ -3,7 +3,7 @@
 (function(root){"use strict";
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
-const COUNTERS=["playerRequests","observed","modified","fields","unchanged","oversized","timedOut","errors"];
+const COUNTERS=["playerRequests","observed","modified","fields","unchanged","oversized","timedOut","errors","skippedBusy"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
 function build(s,now=Date.now()){

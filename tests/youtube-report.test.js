@@ -13,6 +13,7 @@ test("Build 77 single YouTube report exports modified-response counters and safe
    rawUrl:"https://www.youtube.com/watch?v=secret"}],
   title:"private-video-title",password:"private-password"});
  assert.equal(report.responseFiltering.modified,1);
+ assert.equal(report.responseFiltering.skippedBusy,0);
  assert.equal(report.responseFiltering.fields,3);
  assert.equal(report.responseFiltering.byKind.player.requests,2);
  assert.match(Report.asText(report),/player JSON: 2 requested/);
