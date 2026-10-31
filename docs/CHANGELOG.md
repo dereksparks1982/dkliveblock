@@ -552,3 +552,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.83 / Build 113 (2026-10-31)
 - Fixed stale strict popup claims and one-time allowances after tab closure to avoid incorrect blocking when Firefox reuses a tab ID. Added background integration fixtures. Browser acceptance pending.
+
+### 0.3.84 / Build 114 (2026-10-31)
+- Hardened pop-up claim cleanup for clock rollback or invalid expiry state, and repaired the closed-source integration fixture to remove the source from the fake browser before simulating a tab close. Firefox testing pending.

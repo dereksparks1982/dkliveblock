@@ -167,7 +167,8 @@ test("Build 113 tab closure invalidates old strict-popunder claim before ID reus
   "reused tab ID must not inherit the already closed popunder's claim");
 });
 test("Build 113 a closed tab cannot keep an old one-time popup grant",async()=>{
- const {callbacks,removed,flush}=await environment();
+ const {callbacks,removed,flush,originalUrls}=await environment();
+ originalUrls.delete(3);
  callbacks.removed(3);
  callbacks.created({id:76,openerTabId:3,url:"about:blank"});
  await flush();

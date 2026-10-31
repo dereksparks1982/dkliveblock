@@ -36,7 +36,7 @@ function claim(claims,newTabId,sourceTabId,now=Date.now()){
  if(!Number.isInteger(newTabId)||newTabId<0||
     !Number.isInteger(sourceTabId)||sourceTabId<0||sourceTabId===newTabId)return false;
  for(const [key,entry] of claims){
-  if(now-entry.when>CLAIM_MS)claims.delete(key);
+  if(!Number.isFinite(entry?.when)||now<entry.when||now-entry.when>CLAIM_MS)claims.delete(key);
  }
  if(claims.has(newTabId))return false;
  claims.set(newTabId,{sourceTabId,when:now});

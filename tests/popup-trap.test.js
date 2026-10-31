@@ -32,3 +32,11 @@ test("global disable or paused site never enables strict trap",()=>{
  assert.equal(Trap.shouldBlock("1337x.to",true,false),false);
  assert.equal(Trap.shouldBlock("example.org",true,true),false);
 });
+
+test("Build 114 rollback or invalid claim timestamps are not treated as active",()=>{
+ const claims=new Map([[21,{sourceTabId:1,when:1000}],
+  [22,{sourceTabId:1,when:NaN}]]);
+ assert.equal(Trap.claim(claims,23,1,900),true);
+ assert.equal(claims.has(21),false);
+ assert.equal(claims.has(22),false);
+});

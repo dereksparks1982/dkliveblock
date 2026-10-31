@@ -1,0 +1,3 @@
+# Build 114: reliable pop-up claim expiry and realistic closed-tab fixtures
+
+Unreleased 0.3.84. Strict popup protection now treats claims with invalid timestamps or timestamps later than the current wall clock as expired rather than allowing stale claim state to linger. This is paired with a correction to the preceding browser mock: closing a source tab must also remove it from the fake browser's tab listing before subsequent popup events are evaluated. Tests cover the rollback and closed-source cases. No changes to legitimate user-selected exceptions, permission scope or visual UI geometry. Full local and live Firefox acceptance remain pending.
