@@ -51,6 +51,10 @@
    playbackHealthEnabled=nextHealth;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
+   if(isYouTube&&window===window.top)
+    document.dispatchEvent(new CustomEvent("dk-live-block:youtube-response-control",{
+     detail:s.youtubePageAssistEnabled?"enable":"disable"
+    }));
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){/* A broken extension must not break the page. */}
  }

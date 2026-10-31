@@ -427,3 +427,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Added first-party YouTube JSON advertising metadata filtering using Firefox's built-in bounded response stream API, plus safety gates and an independent test suite.
 - Added reversible settings control and per-tab handled/modified/error/oversize metrics in Site Dashboard. No media bytes, DRM, account content, or downloaded JavaScript are transformed.
 - This is unverified in live Firefox. Green source checks do not prove that YouTube enforcement is bypassed or that all ads are removed.
+
+### 0.3.44 / Build 74 (2026-10-31)
+- Bundled an independently implemented YouTube player JSON scriptlet in Firefox's MAIN world. Activated via isolated, verified per-site settings. Narrow fetch/XHR handling and reversible hooks; no executable list updates or new third-party packages.
+- Raised Firefox minimum to 128 for supported MAIN-world manifest content scripts. Live browser checks are still required; no parity assertion.

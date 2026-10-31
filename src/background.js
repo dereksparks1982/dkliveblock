@@ -1071,6 +1071,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
+   youtubePageAssistEnabled:active&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
