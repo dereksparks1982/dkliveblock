@@ -18,7 +18,7 @@ test("Build 77 single YouTube report exports modified-response counters and safe
  const data=JSON.stringify(report),text=Report.asText(report);
  for(const leak of ["private-secret","private-video-title","private-password",
   "watch?v=secret"])assert.equal(data.includes(leak)||text.includes(leak),false,leak);
- assert.match(text,/Player JSON modified: 1/);
+ assert.match(text,/YouTube JSON modified: 1/);
  assert.match(data,/googlevideo\.com/);
 });
 test("Build 77 YouTube export refuses hostile and unrelated hostnames",()=>{

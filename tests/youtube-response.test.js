@@ -75,13 +75,21 @@ test("Build 84 preserves denied outer response even when nested player metadata 
 test("Build 73 stream filter handles split chunks, oversize, invalid JSON and closes without a black player",()=>{
  const enc=new TextEncoder(),dec=new TextDecoder();
  function simulate(body,chop=20){
-  const output=[],filter={closed:0,write(b){output.push(Buffer.from(b));},close(){this.closed++;},disconnect(){this.closed++;}};
+  const output=[],filter={closed:0,disconnected:0,
+   write(b){output.push(Buffer.from(b));},
+   close(){this.closed++;},disconnect(){this.disconnected++;}};
   const api={filterResponseData(){return filter;}},d=req();
   assert.equal(R.attach(d,api),true);
   const bytes=enc.encode(body);
-  for(let i=0;i<bytes.length;i+=chop)filter.ondata({data:bytes.slice(i,i+chop)});
+  for(let i=0;i<bytes.length;i+=chop){
+   const chunk=bytes.slice(i,i+chop);
+   // Firefox forwards remaining bytes after the extension disconnects.
+   if(filter.disconnected)output.push(Buffer.from(chunk));
+   else filter.ondata({data:chunk});
+  }
   filter.onstop();
-  assert.equal(filter.closed,1);
+  assert.equal(filter.closed+filter.disconnected,1);
+  assert.equal(filter.disconnected,bytes.length>R.MAX_BYTES?1:0);
   return dec.decode(Buffer.concat(output));
  }
  const valid=JSON.stringify(player());

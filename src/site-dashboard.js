@@ -444,7 +444,7 @@ function display(d){
  $("dashboardYouTubeResponse").textContent=responses?
   "YouTube JSON advertising response filtering: "+(responses.enabled?"enabled":"disabled")+
   (responses.supported?" · Firefox API available":" · Firefox API unavailable")+
-  " · "+Model.number(responses.playerRequests)+" player requests passed to filtering"+
+  " · "+Model.number(responses.playerRequests)+" YouTube JSON requests passed to filtering"+
   " · "+Model.number(responses.observed)+" eligible responses handled"+
   " · "+Model.number(responses.modified)+" rewritten"+
   " · "+Model.number(responses.fields)+" recognized ad structures removed"+

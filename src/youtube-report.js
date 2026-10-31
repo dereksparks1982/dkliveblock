@@ -42,7 +42,7 @@ function asText(report){
   "Permitted count: "+report.permittedCount,
   "Player-response filtering enabled: "+report.responseFiltering.enabled,
   "Firefox response filter available: "+report.responseFiltering.supported];
- for(const key of COUNTERS)lines.push("Player JSON "+key+": "+report.responseFiltering[key]);
+ for(const key of COUNTERS)lines.push("YouTube JSON "+key+": "+report.responseFiltering[key]);
  lines.push("","PLAYBACK HEALTH");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
  if(!report.playback.length)lines.push("No player health observations.");

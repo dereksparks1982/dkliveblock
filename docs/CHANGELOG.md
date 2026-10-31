@@ -471,3 +471,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.56 / Build 86 (2026-10-31)
 - Hardened first-party YouTube response interception with a shared HTTPS origin check. Only recognized POST XHR from a matching YouTube document receives the selective network rule exemption; unknown initiators and unrelated websites remain subject to ordinary filters. Added integration regressions. Browser testing pending.
+
+### 0.3.57 / Build 87 (2026-10-31)
+- Corrected the oversized YouTube response regression harness to model Firefox ownership of remaining bytes after disconnect; the old fixture would falsely expect callback delivery from a detached stream. Corrected diagnostic wording to reflect player, feed/search and Shorts requests. Real Firefox and full local suite are still outstanding.

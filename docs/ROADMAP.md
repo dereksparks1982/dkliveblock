@@ -385,3 +385,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 86: unify Firefox first-party YouTube JSON request eligibility across pre-request pass-through and response interception. Require HTTPS matching origin and reject unknown/unrelated contexts; preserve default network filtering otherwise. Add source tests for unrelated pages and no originating document.
 - [ ] Build 86 acceptance: full offline suite and real Firefox request/response consistency, embeds, Shorts and movie-with-ads playback checks.
+
+- [x] Build 87: fix stale oversized-stream test to model browser forwarding after disconnect, preserve normal split-stream and missing-response checks, and correctly name YouTube API JSON request counters in dashboard/export.
+- [ ] Browser-level verification of stream disconnect, complete offline suite and actual YouTube ad-free playback remains required.
