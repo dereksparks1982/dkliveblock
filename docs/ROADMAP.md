@@ -303,3 +303,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] YouTube blocked-request field-test cleanup: show the actual selected site when opening the popup over DK Site Dashboard, distinguish current tab count from historical events, and expose only privacy-safe matched network rule evidence per request.
 - [ ] Review any blocked first-party YouTube/Google image in live Firefox using matched pattern and network monitor, then isolate the black-screen cause. Do not assume Google or YouTube image blocks are malicious or automatically exempt all first-party services.
+
+- [x] Popup dashboard-context routing regression: executable test resolves our selected YouTube tab and rejects foreign extension URLs, invalid selections and non-HTTP targets.
