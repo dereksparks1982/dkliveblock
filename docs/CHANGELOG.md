@@ -564,3 +564,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.87 / Build 117 (2026-10-31)
 - Protected signed URLs and authentication callbacks from query rewriting. Presence of known cryptographic, token or state keys now prevents all tracking-parameter modifications, because changing unrelated query keys can invalidate whole-URL signatures. Updated earlier regression expectations and added signed-download/checkout fixtures. Browser acceptance pending.
+
+### 0.3.88 / Build 118 (2026-10-31)
+- Allowed YouTube m/www/music HTTPS first-party subdomains to share the bounded JSON response filter without weakening protection against lookalike or third-party origins. Exact-host restrictions remain for youtube-nocookie contexts. Added acceptance fixtures, browser testing pending.

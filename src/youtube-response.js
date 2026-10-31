@@ -34,7 +34,12 @@ function requestEligible(details,pageHost){
  const source=details.documentUrl||details.originUrl||"";
  try{
   const page=new URL(source);
-  return page.protocol==="https:"&&!page.username&&!page.password&&page.hostname===pageHost;
+  // YouTube's m/www/music frontends can legitimately issue calls to a
+  // different youtube.com subdomain. Never extend this to lookalikes or
+  // unrelated origins, and preserve exact-host rules on no-cookie embeds.
+  const sameYouTubeFamily=sub(page.hostname,"youtube.com")&&sub(pageHost,"youtube.com");
+  return page.protocol==="https:"&&!page.username&&!page.password&&
+   validPage(page.hostname)&&(page.hostname===pageHost||sameYouTubeFamily);
  }catch(_){return false;}
 }
 function eligible(details,pageHost){

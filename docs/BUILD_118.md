@@ -1,0 +1,3 @@
+# Build 118: properly recognize YouTube's own first-party frontends
+
+Unreleased 0.3.88. A legitimate YouTube mobile or music frontend can request player JSON from a different youtube.com subdomain. Strict hostname equality previously skipped filtering even though both origin hosts belonged to YouTube. The centralized request eligibility check now recognizes first-party HTTPS youtube.com subdomains while continuing to reject arbitrary sites, insecure pages, user-info URLs, and lookalike domains. It does not grant unrelated websites a network-rule exception or override user blocks. Added unit fixtures. Full Linux/Firefox acceptance pending.

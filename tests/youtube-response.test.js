@@ -15,6 +15,10 @@ test("Build 73 selects only direct first-party YouTube player JSON",()=>{
  assert.equal(R.requestEligible({...req(),documentUrl:"",originUrl:"https://www.youtube.com/watch"},"www.youtube.com"),true);
  assert.equal(R.requestEligible({...req(),documentUrl:"https://unrelated.test/watch"},"www.youtube.com"),false);
  assert.equal(R.requestEligible({...req(),documentUrl:"http://www.youtube.com/watch"},"www.youtube.com"),false);
+ assert.equal(R.requestEligible({...req(),documentUrl:"https://m.youtube.com/watch"},"www.youtube.com"),true);
+ assert.equal(R.requestEligible({...req(),documentUrl:"https://music.youtube.com/watch"},"www.youtube.com"),true);
+ assert.equal(R.requestEligible({...req(),documentUrl:"https://www.youtube.com.evil.example/watch"},"www.youtube.com"),false);
+ assert.equal(R.requestEligible({...req(),documentUrl:"https://www.youtube.com/watch"},"youtube-nocookie.com"),false);
  assert.equal(R.safeHeaders({...req(),responseHeaders:[
   {name:"Content-Type",value:"application/json; charset=windows-1252"}]}),false);
  assert.equal(R.safeHeaders({...req(),responseHeaders:[
@@ -312,4 +316,15 @@ test("Build 115 refuses duplicate or ambiguous response headers without attachin
   {name:"Content-Length",value:"25"},{name:"content-length",value:"26"}]}),false);
  assert.equal(R.safeHeaders({...d,responseHeaders:Array.from({length:101},()=>({name:"Other",value:"x"}))}),false);
  assert.equal(R.safeHeaders({...d,responseHeaders:[type,{name:"Content-Length",value:"25"}]}),true);
+});
+
+test("Build 118 permits first-party YouTube subdomain API calls but not external iframe initiators",()=>{
+ const d={...req(),documentUrl:"https://m.youtube.com/watch?v=signed"};
+ assert.equal(R.requestEligible(d,"www.youtube.com"),true);
+ assert.equal(R.eligible(d,"www.youtube.com"),true);
+ for(const documentUrl of ["https://untrusted.example/watch",
+  "https://youtube.com.evil.example/watch","http://music.youtube.com/watch",
+  "https://youtube.com@evil.example/watch"]){
+  assert.equal(R.requestEligible({...d,documentUrl},"www.youtube.com"),false,documentUrl);
+ }
 });
