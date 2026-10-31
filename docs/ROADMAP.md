@@ -337,3 +337,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 69: actual Ghostery bundled CSS format and grouped selector parsing with strict safety checks and no scripts.
 - [ ] Real Ghostery integration regression + Firefox visual check required before acceptance.
+
+- [x] Build 70: opt-in current-open-tab combined privacy-bounded TXT/JSON reporting, max 25 tabs.
+- [ ] Build 70 acceptance: Firefox download/consent and all tabs cross-window privacy test.

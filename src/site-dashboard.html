@@ -11,6 +11,11 @@
 <button id="dashboardRefreshTabs" type="button">Refresh tabs</button>
 <button id="dashboardRefresh" type="button">Refresh status</button>
 <button id="dashboardReport" type="button">Report a problem</button></div>
+<div class="network-monitor-controls">
+<button id="dashboardSessionExportText" type="button">Export open websites (.txt)</button>
+<button id="dashboardSessionExportJSON" type="button">Export open websites (.json)</button>
+</div>
+<p>Combined export is voluntary and includes up to 25 currently open website tabs. It records only privacy-limited hostnames and available request summaries, not page addresses or browsing history.</p>
 <p id="dashboardMessage" role="status" aria-live="polite">Choose a website tab.</p>
 <section id="dashboardSiteSection">
 <h2 id="dashboardSite">No site selected</h2>
@@ -105,5 +110,6 @@
 <script src="site-dashboard-model.js"></script>
 <script src="blocked-export.js"></script>
 <script src="allowed-export.js"></script>
+<script src="session-export.js"></script>
 <script src="site-dashboard.js"></script>
 </body></html>

@@ -162,6 +162,30 @@ $("dashboardExportAllowedText").addEventListener("click",()=>exportAllowed("txt"
 $("dashboardExportAllowedJSON").addEventListener("click",()=>exportAllowed("json"));
 $("allowedExportText").addEventListener("click",()=>exportAllowed("txt",true));
 $("allowedExportJSON").addEventListener("click",()=>exportAllowed("json",true));
+async function exportAllOpenSites(format){
+ if(loading||busy){notice("An action is already in progress.");return;}
+ if(!window.confirm("Export the hostname and captured request details for up to 25 currently open website tabs? The file may reveal which websites you use."))return;
+ busy=true;setButtons(current);
+ try{
+  const tabs=(await browser.tabs.query({}))
+   .filter(t=>Number.isInteger(t.id)&&/^https?:\/\//i.test(t.url||""))
+   .slice(0,DKSessionExport.MAX_TABS);
+  const snapshots=[];
+  for(const t of tabs){
+   try{
+    const d=await browser.runtime.sendMessage({action:"getSiteDashboard",tabId:t.id});
+    const still=await browser.tabs.get(t.id);
+    if(d?.ok&&tabHost(still?.url)===d.site)snapshots.push(d);
+   }catch(_){/* Closed or changed tab: simply omit it. */}
+  }
+  const report=DKSessionExport.build(snapshots);
+  const saved=DKSessionExport.download(report,format);
+  notice("Saved "+saved.sites+" current website tab(s) as "+saved.filename);
+ }catch(error){notice(error?.message||"No open site report was created.");}
+ finally{busy=false;setButtons(current);}
+}
+$("dashboardSessionExportText").addEventListener("click",()=>exportAllOpenSites("txt"));
+$("dashboardSessionExportJSON").addEventListener("click",()=>exportAllOpenSites("json"));
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -180,6 +204,8 @@ function setButtons(d){
  const hasPermitted=!!(d?.ok&&Model.permittedRows(d).length);
  $("dashboardExportAllowedText").disabled=busy||!hasPermitted;
  $("dashboardExportAllowedJSON").disabled=busy||!hasPermitted;
+ $("dashboardSessionExportText").disabled=busy;
+ $("dashboardSessionExportJSON").disabled=busy;
  $("dashboardAllowlist").textContent=d?.sitePaused?"Remove from allowlist":"Allowlist website";
  $("dashboardPause").textContent=d?.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("dashboardCookie").textContent=d?.cookieRejectPaused?"Resume cookie rejection here":"Pause cookie rejection here";

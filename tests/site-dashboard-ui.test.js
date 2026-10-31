@@ -130,3 +130,14 @@ test("permitted requests have TXT/JSON exports, both all-groups and single desti
  assert.match(src,/createObjectURL\(blob\)/);
  assert.doesNotMatch(src,/\bfetch\(|XMLHttpRequest|sendBeacon|innerHTML\s*=/);
 });
+
+test("multi-tab export requires user confirmation and never requests a full page URL",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ for(const id of ["dashboardSessionExportText","dashboardSessionExportJSON"])
+  assert.ok(html.includes('id="'+id+'"'),id);
+ assert.match(js,/window\.confirm\("Export the hostname/);
+ assert.match(js,/DKSessionExport\.build\(snapshots\)/);
+ assert.match(js,/DKSessionExport\.download\(report,format\)/);
+ assert.ok(html.indexOf('src="session-export.js"')<html.indexOf('src="site-dashboard.js"'));
+});
