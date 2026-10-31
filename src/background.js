@@ -295,6 +295,67 @@ browser.webRequest.onCompleted?.addListener(d=>{
 browser.webRequest.onBeforeRedirect?.addListener(d=>{
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
 },{urls:["<all_urls>"]});
+/* Domain registration is fetched ONLY after an explicit inspector click.
+   Registrar != registered organization != actual operator of a request. */
+function rdapEntityCompany(entity,allowName=false){
+ const properties=Array.isArray(entity?.vcardArray?.[1])?entity.vcardArray[1]:[];
+ for(const field of ["org",...(allowName?["fn"]:[])]){
+  const match=properties.find(row=>Array.isArray(row)&&row[0]===field&&typeof row[3]==="string");
+  if(match&&match[3].length<=140&&match[3].trim())return match[3].trim();
+ }
+ return "";
+}
+function rdapRole(data,role,allowName=false){
+ const queue=Array.isArray(data?.entities)?data.entities.slice(0,30):[];
+ let visited=0;
+ while(queue.length&&visited++<60){
+  const entity=queue.shift();
+  if(Array.isArray(entity.roles)&&entity.roles.includes(role)){
+   const org=rdapEntityCompany(entity,allowName);
+   if(org)return org;
+  }
+  if(Array.isArray(entity.entities))queue.push(...entity.entities.slice(0,15));
+ }
+ return "";
+}
+async function lookupBlockedDomain(id,target,expectedSite){
+ if(!Number.isInteger(id)||id<0||typeof expectedSite!=="string"||
+  !DKManualRules.validHost(target)||!DKManualRules.validHost(expectedSite)||
+  data.settings.requestLog!==true)return {error:"No recorded blocked hostname is available for lookup."};
+ let site="";
+ try{const tab=await browser.tabs.get(id);site=DKSiteAllowlist.host(tab?.url||"");}
+ catch(_){return {error:"Website tab no longer exists."};}
+ if(site!==expectedSite||data.hosts.get(id)!==site||
+  !(data.logs.get(id)||[]).some(row=>row.host===target))
+  return {error:"This hostname is not in the selected tab's current blocked-request history."};
+ const domain=DKPublicSuffix.registrable(target);
+ if(!DKSubscriptions.publicHost(domain)||!domain.includes("."))
+  return {error:"This is not a public registrable domain."};
+ const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),9000);
+ try{
+  // No background polling and no browser, cookie, page URL, or request details are sent.
+  const response=await fetch("https://rdap.org/domain/"+encodeURIComponent(domain),{
+   method:"GET",credentials:"omit",cache:"no-store",redirect:"follow",
+   signal:controller.signal,headers:{"Accept":"application/rdap+json, application/json"}
+  });
+  if(!response.ok||response.url&&!(new URL(response.url).protocol==="https:"))
+   return {error:"Public registration lookup is unavailable (HTTP "+response.status+")."};
+  const length=Number(response.headers?.get?.("content-length")||0);
+  if(length>200000)return {error:"Registration response exceeds privacy-safe limit."};
+  const body=await response.text();
+  if(body.length>200000)return {error:"Registration response exceeds privacy-safe limit."};
+  const registration=JSON.parse(body);
+  if(!registration||typeof registration!=="object")
+   return {error:"Registration service returned invalid data."};
+  const expiration=(Array.isArray(registration.events)?registration.events:[])
+   .find(event=>event.eventAction==="expiration"&&typeof event.eventDate==="string");
+  return {ok:true,domain,
+   organization:rdapRole(registration,"registrant"),
+   registrar:rdapRole(registration,"registrar",true),
+   expires:expiration?.eventDate?.slice(0,10)||""};
+ }catch(_){return {error:"Registration lookup could not be completed. Use the links below for a manual search."};}
+ finally{clearTimeout(timer);}
+}
 function recordBlock(tabId,url,type,rule){
  if(tabId<0)return;
  if(type==="popup")DKNetworkMonitor.syntheticBlock(data.networkMonitors,tabId,data.hosts.get(tabId)||"",url,type);
@@ -607,6 +668,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="videoDownloadStatus")return jobStatus();
  if(msg.action==="startVideoDownload")return startVideoDownload(msg);
  if(msg.action==="cancelVideoDownload")return cancelVideoDownload(msg);
+ if(msg.action==="lookupBlockedDomain"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  return lookupBlockedDomain(id,String(msg.host||"").toLowerCase(),msg.expectedSite);
+ }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
