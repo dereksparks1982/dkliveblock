@@ -546,3 +546,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.81 / Build 111 (2026-10-31)
 - Added explicit sensitive-key safeguards to the optional UTM family query cleanup so similarly named session and signature values survive. Added focused navigation regression fixture. Browser acceptance pending.
+
+### 0.3.82 / Build 112 (2026-10-31)
+- Fixed duplicate removal when separate YouTube response branches alias the same feed array. Only one removal job is scheduled per array identity, preserving organic items and existing bounds. Added shared/independent reference fixtures. Firefox testing pending.

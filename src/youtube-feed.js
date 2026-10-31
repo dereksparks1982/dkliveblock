@@ -28,7 +28,7 @@ function adEntry(x,kindName){
 function prune(payload,url){
  const mode=kind(url);
  if(!mode||!plain(payload))return {changed:false,items:0};
- const queue=[{node:payload,depth:0}],seen=new WeakSet(),jobs=[];
+ const queue=[{node:payload,depth:0}],seen=new WeakSet(),selectedArrays=new WeakSet(),jobs=[];
  let inspected=0,total=0,edges=0;
  try{
   while(queue.length){
@@ -50,6 +50,10 @@ function prune(payload,url){
     if(!child||typeof child!=="object")continue;
     if(ARRAYS.has(name)&&Array.isArray(child)){
      if(child.length>MAX_ARRAY)return {changed:false,items:0};
+     // Two response paths can alias the same contents array. A second
+     // splice would delete the next organic item after the first ad removal.
+     if(selectedArrays.has(child))continue;
+     selectedArrays.add(child);
      const indices=[];
      for(let i=0;i<child.length;i++){
       if(adEntry(child[i],mode))indices.push(i);

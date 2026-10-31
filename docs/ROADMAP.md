@@ -460,3 +460,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 111: protect token, authentication, signature, nonce and session-like keys from UTM-family query stripping while still allowing ordinary campaign tags to be removed.
 - [ ] Full local suite and browser checkout/sign-in link compatibility pending.
+
+- [x] Build 112: deduplicate shared YouTube `contents`/`entries` arrays before scheduling ad removal; aliased data is rewritten only once so ordinary adjacent video items survive.
+- [ ] Full suite and Firefox shared-reference/frozen-feed acceptance pending.

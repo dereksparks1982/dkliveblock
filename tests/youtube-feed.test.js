@@ -103,3 +103,25 @@ test("Build 110 normal modest sponsored feeds remain eligible for filtering",()=
  assert.equal(result.items,2);
  assert.equal(data.contents.length,2);
 });
+
+test("Build 112 aliased feed arrays remove each ad only once",()=>{
+ const shared=[{adSlotRenderer:{id:"ad"}},{videoRenderer:{videoId:"organic"}}];
+ const data={left:{contents:shared},right:{contents:shared}};
+ const result=F.prune(data,browse);
+ assert.equal(result.changed,true);
+ assert.equal(result.items,1);
+ assert.equal(shared.length,1);
+ assert.equal(shared[0].videoRenderer.videoId,"organic");
+ assert.equal(data.left.contents,data.right.contents);
+});
+test("Build 112 independent arrays still remove independent advertised entries",()=>{
+ const data={left:{contents:[{adSlotRenderer:{id:"first"}},
+  {videoRenderer:{videoId:"organic-1"}}]},
+  right:{contents:[{adSlotRenderer:{id:"second"}},
+   {videoRenderer:{videoId:"organic-2"}}]}};
+ const result=F.prune(data,browse);
+ assert.equal(result.changed,true);
+ assert.equal(result.items,2);
+ assert.equal(data.left.contents[0].videoRenderer.videoId,"organic-1");
+ assert.equal(data.right.contents[0].videoRenderer.videoId,"organic-2");
+});

@@ -1,0 +1,3 @@
+# Build 112: avoid repeated deletion from shared YouTube feed arrays
+
+Unreleased v0.3.82. A JSON-derived network response cannot alias object arrays, but YouTube's page-world JavaScript objects can. If two branches pointed to the same contents array, previous traversal scheduled two splice jobs against that array. The second job could delete an ordinary video after the first deleted the ad. Selected arrays are now deduplicated by object identity using a WeakSet, with only one deletion job per array. Other independently allocated feed lists are still processed. Tests cover shared and independent references. Full Firefox and offline test acceptance pending. No Actions or released package.
