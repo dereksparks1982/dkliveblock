@@ -1,0 +1,3 @@
+# Build 135: atomic preflight of nested YouTube page objects
+
+Unreleased 0.3.105. The page-world player hook previously verified each JS object only when processing that object. It might therefore remove outer player ad metadata before encountering a read-only nested playerResponse field, leaving the object graph inconsistently edited. This build preflights outer and nested structures and declines processing when a nested ad field cannot be removed or a stringified child cannot be written back. Fetch and XHR safety guards still fail open without rejecting the original response. Tests cover nonconfigurable nested fields and a nonwritable stringified playerResponse. Full browser and Ubuntu acceptance remain outstanding; no release or Actions.

@@ -235,3 +235,27 @@ test("Build 97 site-relative player JSON still removes only recognized ad fields
  const ignored=await p.window.fetch("/youtubei/v1/player",{method:"GET"});
  assert.equal((await ignored.json()).adSlots.length,1);
 });
+
+test("Build 135 read-only nested player data prevents partial outer modification",()=>{
+ const p=context();
+ const nested={videoDetails:{title:"safe"},streamingData:{formats:["signed"]},
+  adPlacements:[{}]};
+ Object.defineProperty(nested,"adPlacements",{configurable:false,writable:true,value:[{}]});
+ p.window.ytInitialPlayerResponse={videoDetails:{title:"safe"},
+  streamingData:{formats:["signed"]},adSlots:[{}],playerResponse:nested};
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ assert.equal(p.window.ytInitialPlayerResponse.playerResponse.adPlacements.length,1);
+ p.send("disable");
+});
+test("Build 135 does not remove outer ads if stringified player cannot be written back",()=>{
+ const p=context();
+ const outer={streamingData:{formats:["signed"]},videoDetails:{title:"safe"},adSlots:[{}]};
+ Object.defineProperty(outer,"playerResponse",{configurable:true,writable:false,
+  value:JSON.stringify({videoDetails:{title:"nested"},adPlacements:[{}]})});
+ p.window.ytInitialPlayerResponse=outer;
+ p.send("enable");
+ assert.equal(outer.adSlots.length,1);
+ assert.equal(JSON.parse(outer.playerResponse).adPlacements.length,1);
+ p.send("disable");
+});

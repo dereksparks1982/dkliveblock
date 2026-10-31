@@ -529,3 +529,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 134: fix possible duplicate buffered response chunks when an intercepted Firefox stream write fails after earlier chunks were accepted. Track committed flush progress; fail open and preserve normal playback where possible.
 - [ ] Full local Node/Python and Firefox stream-error integration remains necessary.
+
+- [x] Build 135: preflight outer and nested page-world player objects for read-only ad fields and stringified child writeback before any deletion, avoiding partial modifications in ordinary video responses.
+- [ ] Real Firefox player-object security and full local suite still pending.

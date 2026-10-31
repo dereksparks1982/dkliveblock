@@ -615,3 +615,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.104 / Build 134 (2026-10-31)
 - Corrected original-byte fallback streaming to avoid replaying already attempted buffered chunks after a partial write error. Added deterministic simulated Firefox writer exception regression. Actual browser acceptance pending.
+
+### 0.3.105 / Build 135 (2026-10-31)
+- Prevented partial MAIN-world player JSON changes when nested ad fields are nonconfigurable or a nested stringified response cannot be written back. Outer/child eligibility is checked before deleting any fields; read-only fixtures added.

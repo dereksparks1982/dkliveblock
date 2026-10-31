@@ -13,6 +13,16 @@ const pending=new WeakMap(),cache=new WeakMap(),decorated=new WeakSet();
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function playable(x){return plain(x)&&(
  plain(x.streamingData)||plain(x.videoDetails)||plain(x.playerResponse));}
+function safeToPrune(x){
+ if(!playable(x))return true;
+ if(x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")return true;
+ for(const field of AD_FIELDS){
+  if(!Object.prototype.hasOwnProperty.call(x,field)||
+    !(Array.isArray(x[field])||plain(x[field])))continue;
+  if(!Object.getOwnPropertyDescriptor(x,field)?.configurable)return false;
+ }
+ return true;
+}
 function pruneObject(x){
  if(!playable(x)||x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")return 0;
  let removed=0;
@@ -31,6 +41,15 @@ function prune(x,url=""){
  if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
   return DKYouTubeFeed.prune(x,url).changed;
  if(!plain(x))return false;
+ // Preflight nested and outer objects before deleting any ad property.
+ // Otherwise a non-configurable nested field can leave only the outer
+ // structure modified, and break playback data consistency.
+ if(!safeToPrune(x))return false;
+ if(plain(x.playerResponse)&&!safeToPrune(x.playerResponse))return false;
+ if(typeof x.playerResponse==="string"&&x.playerResponse.length<=MAX/2){
+  const desc=Object.getOwnPropertyDescriptor(x,"playerResponse");
+  if(desc&&!desc.writable)return false;
+ }
  let removed=pruneObject(x);
  if(plain(x.playerResponse))removed+=pruneObject(x.playerResponse);
  else if(typeof x.playerResponse==="string"&&x.playerResponse.length<=MAX/2){
