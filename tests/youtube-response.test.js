@@ -304,3 +304,12 @@ test("Build 109 active tab generation survives tab ID reuse and releases after f
  assert.equal(R.stats(d.tabId).modified,1);
  R.clear(d.tabId);
 });
+
+test("Build 115 refuses duplicate or ambiguous response headers without attaching",()=>{
+ const d=req(),type={name:"Content-Type",value:"application/json"};
+ assert.equal(R.safeHeaders({...d,responseHeaders:[type,{name:"content-type",value:"text/html"}]}),false);
+ assert.equal(R.safeHeaders({...d,responseHeaders:[type,
+  {name:"Content-Length",value:"25"},{name:"content-length",value:"26"}]}),false);
+ assert.equal(R.safeHeaders({...d,responseHeaders:Array.from({length:101},()=>({name:"Other",value:"x"}))}),false);
+ assert.equal(R.safeHeaders({...d,responseHeaders:[type,{name:"Content-Length",value:"25"}]}),true);
+});

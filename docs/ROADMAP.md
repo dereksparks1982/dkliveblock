@@ -469,3 +469,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 114: ensure popup-claim TTL cleanup handles clock rollback and invalid entries; correct closed-source mock in Firefox popup simulation.
 - [ ] Full suite and real Firefox popup/legitimate-tab behavior still require acceptance.
+
+- [x] Build 115: reject conflicting or excessively numerous YouTube response header entries before JSON interception; continue to record conservative skipped-header outcomes.
+- [ ] Complete local suite and Firefox content-type/header behavior acceptance pending.

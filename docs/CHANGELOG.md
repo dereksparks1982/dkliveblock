@@ -555,3 +555,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.84 / Build 114 (2026-10-31)
 - Hardened pop-up claim cleanup for clock rollback or invalid expiry state, and repaired the closed-source integration fixture to remove the source from the fake browser before simulating a tab close. Firefox testing pending.
+
+### 0.3.85 / Build 115 (2026-10-31)
+- Hardened YouTube JSON interception against duplicate Content-Type or Content-Length headers and excessive header counts, avoiding ambiguity before response rewriting. Added header fixtures; browser acceptance pending.

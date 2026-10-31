@@ -46,7 +46,14 @@ function header(headers,name){
  return typeof row?.value==="string"?row.value:"";
 }
 function safeHeaders(details){
- const headers=details.responseHeaders||[];
+ const headers=details?.responseHeaders||[];
+ if(!Array.isArray(headers)||headers.length>100)return false;
+ const types=headers.filter(x=>
+  typeof x?.name==="string"&&x.name.toLowerCase()==="content-type");
+ const lengths=headers.filter(x=>
+  typeof x?.name==="string"&&x.name.toLowerCase()==="content-length");
+ // Conflicting MIME/length headers must not be interpreted as JSON.
+ if(types.length!==1||lengths.length>1)return false;
  const mime=header(headers,"content-type");
  if(!/^\s*(?:application\/json|text\/json)\s*(?:;|$)/i.test(mime))return false;
  const charset=/;\s*charset\s*=\s*["']?([a-z0-9_-]+)/i.exec(mime)?.[1];

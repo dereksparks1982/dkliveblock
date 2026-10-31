@@ -1,0 +1,3 @@
+# Build 115: refuse ambiguous response metadata
+
+Unreleased 0.3.85. The Firefox response filter previously read the first Content-Type/Content-Length field and could disregard contradictory duplicates. It now requires exactly one content type, no more than one content length, and at most 100 total response header entries. A response with ambiguous metadata is passed through and counted as skipped rather than subject to risky JSON rewriting. Normal single-header YouTube responses remain eligible. Unit fixtures added; full Firefox playback and offline suite still require acceptance. No Actions or released installer.
