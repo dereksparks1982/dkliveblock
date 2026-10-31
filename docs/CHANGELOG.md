@@ -654,3 +654,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.117 / Build 147 (2026-10-31)
 - Added four commonly used advertising click identifiers to the narrow built-in tracking-key list, including search/social referral parameters. Ordinary product and page query fields remain intact, and signed/auth links are exempt. Regression cases added; browser acceptance pending.
+
+### 0.3.118 / Build 148 (2026-10-31)
+- Corrected overly narrow Google Ad Manager iframe naming detection to accept slash-separated inventory IDs while retaining strict prefix/character/length bounds and protected player/form checks. Added positive/negative fixtures; browser acceptance pending.

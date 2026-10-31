@@ -1,0 +1,3 @@
+# Build 148: recognize real-world slash-separated Google ad iframe names
+
+Unreleased 0.3.118. Google Ad Manager frequently names its ad iframe slots using a slash-separated inventory path after `google_ads_iframe_`. Earlier rules recognized the candidate with a starts-with selector, but the final exact matcher rejected the slashes, so the advertising container was never hidden. The matcher now permits a bounded inventory-style suffix containing letters, numbers, underscores, dashes and forward slashes, while refusing arbitrary special characters and unrelated iframe names. It still avoids sign-in, form and media/player regions. Tests cover common slash-form IDs and names and deliberate lookalikes. Full Firefox/Linux acceptance remains a gate.

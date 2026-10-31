@@ -568,3 +568,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 147: built-in private navigation cleaner recognizes additional exact search/social click identifiers (`srsltid`, `twclid`, `li_fat_id`, `epik`), retaining signing and authentication protection and ordinary query fields.
 - [ ] Complete Firefox click-link tests and full offline suite pending.
+
+- [x] Build 148: recognize slash-form Google Ad Manager frame IDs and names, including path-like advertising inventory identifiers, while retaining exact `google_ads_iframe_` prefix and short bounded character set.
+- [ ] Real Firefox Google ad iframe and full local suite tests pending.

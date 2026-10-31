@@ -252,3 +252,17 @@ test("Build 146 dynamic iframe name changes trigger ad scans but protect sign-in
   attrs:[["name","google_ads_iframe_5"]]});
  assert.equal(A.safe(protectedFrame,documentFor([protectedFrame])),false);
 });
+
+test("Build 148 accepts slash-form Google Ad Manager iframe IDs and names",()=>{
+ const legitimate=[
+  ad({tag:"iframe",id:"google_ads_iframe_/12345/desktop_0",cls:""}),
+  ad({tag:"iframe",cls:"",attrs:[["name","google_ads_iframe_/2160/news-header_0"]]}),
+  ad({tag:"iframe",cls:"",attrs:[["name","google_ads_iframe_76543"]]})
+ ];
+ for(const frame of legitimate)assert.equal(A.hasStrongSignal(frame),true);
+ for(const malformed of [
+  ad({tag:"iframe",id:"google_ads_iframe_/123 45/",cls:""}),
+  ad({tag:"iframe",id:"not_google_ads_iframe_/12345",cls:""}),
+  ad({tag:"iframe",cls:"",attrs:[["name","google_ads_iframe_/../normal?"]]})
+ ])assert.equal(A.hasStrongSignal(malformed),false);
+});

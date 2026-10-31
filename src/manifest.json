@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.117",
+  "version": "0.3.118",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {

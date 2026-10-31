@@ -28,8 +28,8 @@ function hasStrongSignal(element){
   if(element.hasAttribute?.("data-ad-unit")&&element.hasAttribute?.("data-ad-slot"))return true;
   if(element.hasAttribute?.("data-google-query-id"))return true;
   if(/^div-gpt-ad-[a-z0-9_-]{1,90}$/i.test(id))return true;
-  if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_-]{1,90}$/i.test(id))return true;
-  if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_-]{1,90}$/i.test(
+  if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_\/-]{1,140}$/i.test(id))return true;
+  if(tag==="iframe"&&/^google_ads_iframe_[a-z0-9_\/-]{1,140}$/i.test(
    String(element.getAttribute?.("name")||"")))return true;
   if(/^(?:ad|ad slot|advertisement|paid advertisement|sponsored advertisement)$/.test(aria))return true;
   if(element.hasAttribute?.("data-testid")){
