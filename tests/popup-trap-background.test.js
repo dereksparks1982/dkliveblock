@@ -136,3 +136,21 @@ test("content scripts cannot read or erase popup history",async()=>{
   assert.match(result.error,/extension interface/i);
  }
 });
+
+test("Build 58 stale cached source cannot authorize closing new tab",async()=>{
+ const {callbacks,originalUrls,removed,flush}=await environment();
+ originalUrls.set(1,"https://news.example.org/");
+ callbacks.created({id:145,openerTabId:1,url:"about:blank"});
+ await flush();
+ assert.equal(removed.includes(145),false);
+});
+test("Build 58 strict blocked count persists across same-site reload",async()=>{
+ const {callbacks,originalUrls,flush}=await environment();
+ callbacks.created({id:146,openerTabId:1,url:"about:blank"});
+ await flush();
+ let s=await callbacks.message({action:"status",tabId:1,url:originalUrls.get(1)});
+ assert.equal(s.strictPopupBlocked,1);
+ callbacks.updated(1,{status:"loading"},{url:originalUrls.get(1)});
+ s=await callbacks.message({action:"status",tabId:1,url:originalUrls.get(1)});
+ assert.equal(s.strictPopupBlocked,1);
+});

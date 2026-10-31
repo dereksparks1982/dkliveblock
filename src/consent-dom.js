@@ -36,6 +36,43 @@ function findBanners(doc){
  }
  return out;
 }
+function inspectBanner(banner,view){
+ if(!banner||!banner.isConnected)return false;
+ try{
+  const style=view.getComputedStyle(banner);
+  return !!banner.getClientRects?.().length&&style?.display!=="none"&&
+   style?.visibility!=="hidden"&&style?.visibility!=="collapse"&&
+   Number(style?.opacity??1)>0&&!protectedAncestor(banner);
+ }catch(_){return false;}
+}
+function collectControls(banner){
+ if(!banner)return {buttons:[],context:""};
+ const scopes=[banner],seen=new Set(),buttons=[],texts=[];
+ let roots=0,nodes=0;
+ while(scopes.length&&roots<=6&&nodes<250&&buttons.length<35){
+  const scope=scopes.shift();
+  if(!scope||seen.has(scope))continue;
+  seen.add(scope);
+  try{
+   texts.push(String(scope.textContent||"").slice(0,1500));
+   for(const button of scope.querySelectorAll?.("button,[role='button']")||[]){
+    if(!buttons.includes(button))buttons.push(button);
+    if(buttons.length>=35)break;
+   }
+  }catch(_){}
+  const queue=[scope];
+  for(let i=0;i<queue.length&&nodes<250&&roots<6;i++){
+   const node=queue[i];nodes++;
+   try{
+    if(node?.shadowRoot?.mode==="open"&&!seen.has(node.shadowRoot)){
+     scopes.push(node.shadowRoot);roots++;
+    }
+    if(node?.children)for(let j=0;j<node.children.length&&queue.length<250;j++)queue.push(node.children[j]);
+   }catch(_){}
+  }
+ }
+ return {buttons,context:texts.join(" ").slice(0,1500)};
+}
 function protectedAncestor(el){
  for(let hops=0;el&&hops<6;hops++){
   try{
@@ -76,7 +113,7 @@ function userEngaged(banner,doc){
    (doc.activeElement&&banner.contains?.(doc.activeElement)));
  }catch(_){return true;}
 }
-const api=Object.freeze({findBanners,inspectButton,userEngaged});
+const api=Object.freeze({findBanners,inspectButton,userEngaged,inspectBanner,collectControls});
 root.DKConsentDOM=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -29,3 +29,13 @@ test("wrong kinds and non-network URLs are rejected or masked",()=>{
  assert.equal(P.add(store,-1,"a.test",1,"https://site.test/","strict"),false);
  P.clear(store,3);assert.equal(P.getRecent(store,3,"a.test").length,0);
 });
+
+test("Build 58 rejects future timestamps and invalid popup history times",()=>{
+ const table=new Map();
+ assert.equal(P.add(table,1,"1337x.to",50,"about:blank","strict",1000),true);
+ assert.equal(P.getRecent(table,1,"1337x.to",900).length,0);
+ assert.equal(P.add(table,1,"1337x.to",51,"about:blank","strict",1500),true);
+ assert.equal(P.enrich(table,1,51,"https://bad.test/",1400),false);
+ assert.equal(P.enrich(table,1,51,"https://bad.test/",1600),true);
+ assert.equal(P.add(table,1,"1337x.to",52,"about:blank","strict",NaN),false);
+});

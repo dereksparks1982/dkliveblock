@@ -45,3 +45,22 @@ test("Build 55 does not auto-act on ordinary or shadow-root focused dialogs",()=
  assert.equal(D.userEngaged(simple,{activeElement:outside}),false);
  assert.equal(D.userEngaged(shadow,{activeElement:outside}),true);
 });
+
+test("Build 58 nested open-shadow reject controls are bounded",()=>{
+ const reject={textContent:"Reject all"};
+ const inner={mode:"open",textContent:"Reject all",children:[reject],querySelectorAll:()=>[reject]};
+ const outer={mode:"open",textContent:"We use cookies",children:[{children:[],shadowRoot:inner}],querySelectorAll:()=>[]};
+ const banner={textContent:"",children:[],shadowRoot:outer,querySelectorAll:()=>[]};
+ const result=D.collectControls(banner);
+ assert.equal(result.buttons[0],reject);
+ assert.equal(C.cookieContext(result.context),true);
+ const many=Array.from({length:100},()=>({}));
+ assert.equal(D.collectControls({querySelectorAll:()=>many}).buttons.length,35);
+});
+test("Build 58 invisible consent root cannot be acted on",()=>{
+ const el={isConnected:true,getClientRects:()=>[1],closest:()=>null,getRootNode:()=>({host:null})};
+ const view={getComputedStyle:()=>({display:"block",visibility:"visible",opacity:1})};
+ assert.equal(D.inspectBanner(el,view),true);
+ assert.equal(D.inspectBanner({...el,closest:()=>({})},view),false);
+ assert.equal(D.inspectBanner({...el,getClientRects:()=>[]},view),false);
+});

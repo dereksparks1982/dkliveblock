@@ -25,6 +25,10 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(state.tabBlocked,1);
  const cleaned=listeners.network({url:"https://site.test/?utm_source=mail&post=42",type:"main_frame",tabId:1});
  assert.equal(cleaned.redirectUrl,"https://site.test/?post=42");
+ assert.equal(listeners.network({url:"https://site.test/?utm_source=x",tabId:1,
+  type:"main_frame",method:"POST"}).redirectUrl,undefined);
+ assert.equal(listeners.network({url:"https://site.test/?sig=abc&utm_source=x",tabId:1,
+  type:"main_frame",method:"GET"}).redirectUrl,undefined);
  assert.equal(state.ready,true);
  listeners.networkError({requestId:"unrelated",url:"https://img.site.test/photo.png?private=secret",type:"image",error:"NS_ERROR_UNKNOWN_HOST",tabId:1});
  const issueStatus=await listeners.message({action:"status",tabId:1,url:"https://site.test"});

@@ -243,11 +243,12 @@
   for(const root of roots){
    if(++checked>20)break;
    try{
-    if(clickedRejectRoots.has(root)||DKConsentDOM.userEngaged(root,document))continue;
-    const info=String(root.textContent||"").slice(0,1500);
+    if(clickedRejectRoots.has(root)||DKConsentDOM.userEngaged(root,document)||
+       !DKConsentDOM.inspectBanner(root,window))continue;
+    const {buttons,context:info}=DKConsentDOM.collectControls(root);
     if(!DKConsent.cookieContext(info)||DKPopupGuard.protectedDialog(root,info))continue;
     let inspected=0;
-    for(const button of root.querySelectorAll("button,[role='button']")){
+    for(const button of buttons){
      if(++inspected>35)break;
      if(clickedRejectButtons.has(button))continue;
      const state=DKConsentDOM.inspectButton(button,window);

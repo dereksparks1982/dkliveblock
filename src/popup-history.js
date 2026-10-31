@@ -15,8 +15,8 @@ function validHost(host){return typeof host==="string"&&host.length<=253&&
  /^[a-z0-9.-]+$/.test(host)&&!host.includes("..");}
 function getRecent(history,sourceId,siteHost,now=Date.now()){
  const session=history.get(sourceId);
- if(!session||session.siteHost!==siteHost)return [];
- session.rows=session.rows.filter(x=>now-x.when<TTL);
+ if(!session||session.siteHost!==siteHost||!Number.isFinite(now))return [];
+ session.rows=session.rows.filter(x=>x&&Number.isFinite(x.when)&&now>=x.when&&now-x.when<TTL);
  if(!session.rows.length){history.delete(sourceId);return [];}
  return session.rows.slice().reverse().map(r=>({
   when:r.when,sourceHost:r.sourceHost,destinationHost:r.destinationHost||"",
@@ -25,12 +25,12 @@ function getRecent(history,sourceId,siteHost,now=Date.now()){
  }));
 }
 function add(history,sourceId,siteHost,newTabId,targetUrl,reason,now=Date.now()){
- if(!Number.isInteger(sourceId)||sourceId<0||!validHost(siteHost)||!REASONS.has(reason))return false;
+ if(!Number.isInteger(sourceId)||sourceId<0||!validHost(siteHost)||!REASONS.has(reason)||!Number.isFinite(now))return false;
  let session=history.get(sourceId);
  if(!session||session.siteHost!==siteHost){
   session={siteHost,rows:[]};history.set(sourceId,session);
  }
- session.rows=session.rows.filter(x=>now-x.when<TTL);
+ session.rows=session.rows.filter(x=>x&&Number.isFinite(x.when)&&now>=x.when&&now-x.when<TTL);
  if(session.rows.some(r=>r.newTabId===newTabId&&Number.isInteger(newTabId)&&newTabId>=0))return false;
  session.rows.push({newTabId:Number.isInteger(newTabId)?newTabId:-1,
   sourceHost:siteHost,destinationHost:hostname(targetUrl),reason,when:now});
@@ -39,8 +39,8 @@ function add(history,sourceId,siteHost,newTabId,targetUrl,reason,now=Date.now())
 }
 function enrich(history,sourceId,newTabId,targetUrl,now=Date.now()){
  const target=hostname(targetUrl),session=history.get(sourceId);
- if(!target||!session||!Number.isInteger(newTabId)||newTabId<0)return false;
- const row=session.rows.find(r=>r.newTabId===newTabId&&now-r.when<TTL);
+ if(!target||!session||!Number.isInteger(newTabId)||newTabId<0||!Number.isFinite(now))return false;
+ const row=session.rows.find(r=>r.newTabId===newTabId&&now>=r.when&&now-r.when<TTL);
  if(!row||row.destinationHost)return false;
  row.destinationHost=target;return true;
 }

@@ -315,7 +315,8 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
  if(!data.ready||!data.settings.enabled)return {};
  if(d.type==="main_frame"){
-  if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url)))return {};
+  if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url))||
+     d.method&&String(d.method).toUpperCase()!=="GET")return {};
   const ruleCleaned=data.engine.cleanNavigation(d.url)||d.url;
   const cleaned=DKPrivacy.stripTrackingParameters(ruleCleaned)||(ruleCleaned!==d.url?ruleCleaned:null);
   if(cleaned)DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
@@ -360,7 +361,10 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
  const approvedUntil=data.popupTrapAllowed.get(newTabId);
  if(approvedUntil&&approvedUntil>now)return "allowed";
  if(popupTrapClaimActive(newTabId))return "blocked";
- let sourceHost=data.hosts.get(sourceTabId)||"";
+ // Cached source identity is useful for early detection, but only Firefox's
+ // current source-tab URL may authorize destructive tab removal.
+ const cachedHost=data.hosts.get(sourceTabId)||"";
+ let sourceHost=cachedHost;
  if(!DKPopupTrap.protectedHost(sourceHost)){
   try{sourceHost=host((await browser.tabs.get(sourceTabId))?.url||"");}
   catch(_){return "not-applicable";}
@@ -377,6 +381,20 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
   return "allowed";
  }
  if(!DKPopupTrap.claim(data.popupTrapClaims,newTabId,sourceTabId))return "blocked";
+ // A cached source tab can navigate before the removal is attempted.
+ // Verify the live hostname before closing a possibly legitimate new tab.
+ try{
+  const liveHost=host((await browser.tabs.get(sourceTabId))?.url||"");
+  if(!DKPopupTrap.shouldBlock(liveHost,data.settings.strictPopupSites,
+    activeTab(sourceTabId,liveHost))){
+   data.popupTrapClaims.delete(newTabId);
+   return "not-applicable";
+  }
+  sourceHost=liveHost;
+ }catch(_){
+  data.popupTrapClaims.delete(newTabId);
+  return "not-applicable";
+ }
  try{
   await browser.tabs.remove(newTabId);
   data.popupTrapCounts.set(sourceTabId,(data.popupTrapCounts.get(sourceTabId)||0)+1);
@@ -427,7 +445,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   const session=data.networkMonitors.get(id);
   if(info.url&&session&&host(info.url)!==session.siteHost)DKNetworkMonitor.remove(data.networkMonitors,id);
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
-  if(info.status==="loading")data.popupTrapCounts.delete(id);
+  // Keep the per-site popup count across reloads; host changes clear it above.
   DKPlaybackHealth.clear(data.playbackHealth,id);
   autoVideoTimes.delete(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });

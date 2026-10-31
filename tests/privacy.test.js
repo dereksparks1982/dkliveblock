@@ -16,3 +16,13 @@ test("ignore nonweb and invalid URLs",()=>{
  assert.equal(stripTrackingParameters("javascript:alert(1)"),null);
  assert.equal(stripTrackingParameters(""),null);
 });
+
+test("Build 58 leaves signed and authentication query strings intact",()=>{
+ for(const url of ["https://cdn.test/?X-Amz-Signature=abc&utm_source=x",
+  "https://login.test/callback?code=abc&state=xyz&fbclid=1",
+  "https://sso.test/?SAMLResponse=xyz&RelayState=one&utm_campaign=ad",
+  "https://files.test/?sig=abc&utm_medium=ad"])
+  assert.equal(stripTrackingParameters(url),null,url);
+ assert.equal(stripTrackingParameters("https://news.test/?utm_source=x&article=3"),
+  "https://news.test/?article=3");
+});

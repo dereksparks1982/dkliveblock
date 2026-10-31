@@ -261,3 +261,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 57 QA: synchronize six browser-simulation fixtures with the cosmetic debug module and required YouTube watcher; add an explicit test-fixture contract check to the local regression suite.
 
 - [x] Build 57 QA: align popup-refresh fixture distraction setting with its stated expectation and rerun simulated browser regression scenarios.
+
+- [x] Build 58: revalidate the originating tab before destructive strict popup closure, while preserving the existing fast blank-first navigation claim.
+- [x] Build 58: keep strict popup counters on same-site reloads; expire future/invalid popup history; preserve signed/authentication query strings and non-GET forms.
+- [x] Build 58: bounded nested open-shadow cookie rejection buttons, with visibility checks and no accept-all fallback.
+- [ ] Build 58 acceptance: full local tests plus real Firefox popup races, signed-link compatibility, nested consent interfaces, YouTube/Disney+ streaming and accessibility.
