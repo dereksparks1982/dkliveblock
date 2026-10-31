@@ -67,7 +67,8 @@
   },
   "browser_action": {
     "default_title": "DK Live Block",
-    "default_popup": "popup.html"
+    "default_popup": "popup.html",
+    "default_icon": "icons/dk-live-block.png"
   },
   "devtools_page": "devtools.html",
   "options_ui": {
@@ -99,5 +100,10 @@
       "run_at": "document_start",
       "all_frames": true
     }
-  ]
+  ],
+  "icons": {
+    "48": "icons/dk-live-block.png",
+    "96": "icons/dk-live-block.png",
+    "128": "icons/dk-live-block.png"
+  }
 }

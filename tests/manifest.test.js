@@ -109,3 +109,11 @@ test("Build 59 dashboard scripts exist, load locally, and keep extension permiss
  assert.ok(!manifest.permissions.includes("notifications"));
  assert.ok(!manifest.permissions.includes("clipboardRead"));
 });
+
+test("approved DK image is used for Firefox toolbar and add-ons icons",()=>{
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"manifest.json"),"utf8"));
+ assert.equal(manifest.browser_action.default_icon,"icons/dk-live-block.png");
+ assert.equal(manifest.icons["48"],"icons/dk-live-block.png");
+ assert.equal(manifest.icons["96"],"icons/dk-live-block.png");
+ assert.ok(fs.statSync(path.join(root,"icons/dk-live-block.png")).size>100000);
+});
