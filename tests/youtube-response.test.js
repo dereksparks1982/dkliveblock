@@ -42,6 +42,18 @@ test("Build 73 does not conceal enforcement, alter unknown schemas or edit other
  const xssi=")]}'\n"+JSON.stringify(player());
  assert.equal(R.rewrite(xssi).text.startsWith(")]}'\n"),true);
 });
+test("Build 78 nested string player JSON removes ad fields but preserves video",()=>{
+ const original={playerResponse:JSON.stringify(player()),visitorData:"sensitive"};
+ const result=R.rewrite(JSON.stringify(original));
+ assert.equal(result.changed,true);assert.equal(result.fields,3);
+ const value=JSON.parse(result.text);
+ assert.equal(value.visitorData,"sensitive");
+ const parsed=JSON.parse(value.playerResponse);
+ assert.equal(parsed.adSlots,undefined);
+ assert.deepEqual(parsed.streamingData,player().streamingData);
+ const refused={playerResponse:JSON.stringify({...player(),playabilityStatus:{status:"LOGIN_REQUIRED"}})};
+ assert.equal(R.rewrite(JSON.stringify(refused)).changed,false);
+});
 test("Build 73 stream filter handles split chunks, oversize, invalid JSON and closes without a black player",()=>{
  const enc=new TextEncoder(),dec=new TextDecoder();
  function simulate(body,chop=20){

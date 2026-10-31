@@ -56,6 +56,16 @@ test("Build 74 XHR responseText and json are limited to valid response and reset
  xhr.responseType="json";assert.equal(xhr.response.adSlots,undefined);
  p.send("disable");assert.equal(Object.getOwnPropertyDescriptor(proto,"responseText").get,native);
 });
+test("Build 78 page script nested reply handling and ready handshake",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse={playerResponse:JSON.stringify({
+  streamingData:{formats:[1]},videoDetails:{title:"private"},adSlots:[{}]})};
+ p.send("enable");
+ assert.equal(JSON.parse(p.window.ytInitialPlayerResponse.playerResponse).adSlots,undefined);
+ assert.match(source,/youtube-response-ready/);
+ const c=fs.readFileSync(path.resolve(__dirname,"../src/content.js"),"utf8");
+ assert.match(c,/bridgeReadySeen/);
+});
 test("Build 77 removes known ad fields from an already loaded initial player bootstrap",()=>{
  const p=context();
  p.window.ytInitialPlayerResponse={streamingData:{formats:["signed"]},videoDetails:{title:"private"},

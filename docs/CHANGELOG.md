@@ -443,3 +443,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.47 / Build 77 (2026-10-31)
 - Added conservative existing YouTube player bootstrap ad metadata pruning and user-triggered TXT/JSON YouTube compatibility export, available without requiring blocked-request history. Added dedicated privacy and UI tests.
 - Full regression and Firefox playback unverified.
+
+### 0.3.48 / Build 78 (2026-10-31)
+- Added fail-open nested player JSON handling to both response handlers, and a one-shot MAIN-world readiness handshake for activation timing. Actual Firefox playback is still unverified.

@@ -366,6 +366,13 @@
    return Promise.resolve({position:seconds});
   }
  });
+ if(isYouTube&&window===window.top&&document.addEventListener){
+  let bridgeReadySeen=false;
+  document.addEventListener("dk-live-block:youtube-response-ready",()=>{
+   if(bridgeReadySeen)return;
+   bridgeReadySeen=true;refresh();
+  },false);
+ }
  refresh();
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){

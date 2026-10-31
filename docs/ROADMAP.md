@@ -358,3 +358,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 77: prune existing known ad-only fields in YouTube's initial player bootstrap data property after verified activation; no global property rewrite or page hook bypass. One-click dedicated YouTube JSON/TXT compatibility export showing response-filter counts, safe blocked/allowed host/type rows, and player-refusal signals without URLs or titles.
 - [ ] Build 77 acceptance: full local suite and Firefox actual delivery, initial bootstrap race/verification, free films and normal videos signed in/out, privacy inspection of exports.
+
+- [x] Build 78: bound nested serialized YouTube player JSON ad-only field removal and synchronize MAIN-world readiness with the isolated controller to resolve startup races.
+- [ ] Build 78 acceptance: Ubuntu suite, Firefox MAIN/ISOLATED event handshake and real YouTube normal/film playback tests.

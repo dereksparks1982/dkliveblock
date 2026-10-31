@@ -26,6 +26,12 @@ function prune(x){
  if(!plain(x))return false;
  let removed=pruneObject(x);
  if(plain(x.playerResponse))removed+=pruneObject(x.playerResponse);
+ else if(typeof x.playerResponse==="string"&&x.playerResponse.length<=MAX/2){
+  try{
+   const child=JSON.parse(x.playerResponse),count=pruneObject(child);
+   if(count){x.playerResponse=JSON.stringify(child);removed+=count;}
+  }catch(_){}
+ }
  return removed>0;
 }
 function rewrite(text){
@@ -165,4 +171,6 @@ document.addEventListener(EVENT,event=>{
  if(event.detail==="enable")enable();
  else if(event.detail==="disable")disable();
 },false);
+if(typeof Event==="function"&&document.dispatchEvent)
+ document.dispatchEvent(new Event("dk-live-block:youtube-response-ready"));
 })();

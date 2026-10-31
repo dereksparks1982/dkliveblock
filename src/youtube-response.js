@@ -58,6 +58,13 @@ function rewrite(text){
  // Only known ad-only fields on a recognized playable response.
  let fields=pruneObject(payload);
  if(plain(payload.playerResponse))fields+=pruneObject(payload.playerResponse);
+ else if(typeof payload.playerResponse==="string"&&payload.playerResponse.length<=MAX_BYTES/2){
+  try{
+   const child=JSON.parse(payload.playerResponse);
+   const count=pruneObject(child);
+   if(count){payload.playerResponse=JSON.stringify(child);fields+=count;}
+  }catch(_){/* Unknown child: leave unchanged. */}
+ }
  if(!fields)return {text,changed:false,fields:0};
  return {text:prefix+JSON.stringify(payload),changed:true,fields};
 }
