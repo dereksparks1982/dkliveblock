@@ -292,3 +292,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 63 offline acceptance: Ubuntu desktop checkout at `123f8bd` passed 126/126 structural, 324/324 regression, Python companion and Firefox packaging checks; 450 JS passes, zero failures.
 - [ ] Build 63 live Firefox acceptance: reload extension, confirm custom icon, inspect individually blocked events and optional RDAP, verify RUTUBE promotion and VPN nags disappear without playback damage, and run YouTube/Disney+ compatibility.
+
+- [x] Firefox popup branding: place the bundled cyan DK emblem immediately before DK LIVE BLOCK in the popup header, preserve the existing 340px popup and Development build label. Awaiting Firefox visual confirmation.

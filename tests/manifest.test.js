@@ -117,3 +117,13 @@ test("approved DK image is used for Firefox toolbar and add-ons icons",()=>{
  assert.equal(manifest.icons["96"],"icons/dk-live-block.png");
  assert.ok(fs.statSync(path.join(root,"src/icons/dk-live-block.png")).size>100000);
 });
+
+test("Popup header displays the bundled DK icon before its title",()=>{
+ const html=fs.readFileSync(path.join(root,"src/popup.html"),"utf8");
+ const css=fs.readFileSync(path.join(root,"src/style.css"),"utf8");
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ assert.match(html,/<header><span class="popup-brand"><img src="icons\/dk-live-block\.png"[^>]*><strong>DK LIVE BLOCK<\/strong><\/span><small>Development build<\/small><\/header>/);
+ assert.equal(manifest.browser_action.default_icon,"icons/dk-live-block.png");
+ assert.ok(fs.statSync(path.join(root,"src/icons/dk-live-block.png")).size>0);
+ assert.match(css,/\.popup header \.popup-brand/);
+});

@@ -130,3 +130,9 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 @media(max-width:600px){.site-dashboard #blockDetailFields{grid-template-columns:1fr;gap:3px}}
 
 .site-dashboard #blockRdapResult{white-space:pre-wrap;overflow-wrap:anywhere}
+
+/* Popup title: show the bundled DK mark before the name, without changing geometry. */
+.popup header .popup-brand{display:inline-flex;align-items:center;gap:8px;min-width:0;flex-shrink:0}
+.popup header .popup-brand img{display:block;width:24px;height:24px;object-fit:contain;flex:none}
+.popup header .popup-brand strong{white-space:nowrap}
+.popup header>small{white-space:nowrap;font-size:12px}
