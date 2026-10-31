@@ -42,3 +42,30 @@ test("Build 82 oversized unknown data produces no partial changes",()=>{
  assert.equal(obj.contents.length,1);
  assert.equal(F.rewrite(browse,"x".repeat(F.MAX_BYTES+1)).changed,false);
 });
+
+test("Build 93 fails open when a YouTube JSON object has too many fields",()=>{
+ const obj={contents:[{adSlotRenderer:{adId:"paid"}}]};
+ for(let i=0;i<F.MAX_KEYS;i++)obj["metadata"+i]={};
+ const original=JSON.stringify(obj);
+ const outcome=F.prune(obj,browse);
+ assert.equal(outcome.changed,false);
+ assert.equal(obj.contents.length,1);
+ assert.equal(JSON.stringify(obj),original);
+});
+test("Build 93 will not partly mutate a feed when another targeted array is frozen",()=>{
+ const frozen=Object.freeze([{adSlotRenderer:{id:2}}]);
+ const data={a:{contents:[{videoRenderer:{id:1}},{adSlotRenderer:{id:1}}]},
+  b:{contents:frozen}};
+ const result=F.prune(data,browse);
+ assert.equal(result.changed,false);
+ assert.equal(data.a.contents.length,2,"writable array must also stay unchanged");
+ assert.equal(data.b.contents.length,1);
+});
+test("Build 93 does not modify sealed arrays or new unknown wrapper structures",()=>{
+ const items=Object.seal([{adSlotRenderer:{id:1}}]);
+ assert.equal(F.prune({contents:items},browse).changed,false);
+ assert.equal(items.length,1);
+ const normal={contents:[{videoRenderer:{videoId:"safe"}}]};
+ assert.equal(F.prune(normal,browse).changed,false);
+ assert.equal(normal.contents.length,1);
+});

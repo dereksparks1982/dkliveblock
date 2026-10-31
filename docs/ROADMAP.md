@@ -403,3 +403,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 92: reprocess newly replaced YouTube SPA player/feed bootstrap on explicit refresh, with idempotent hooks and disabled-state isolation.
 - [ ] Build 92 acceptance: real Firefox SPA navigation/player/feed and full offline regression suite.
+
+- [x] Build 93: cap YouTube feed parser object fields/edges and preflight all targeted arrays before changes, refusing frozen/sealed arrays without partial mutation; preserve normal items and fail-open unknown schema behavior.
+- [ ] Build 93 acceptance: live Firefox read-only page data, heavy feed/Shorts and complete local regression suite.
