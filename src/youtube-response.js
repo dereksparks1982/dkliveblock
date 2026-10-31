@@ -2,13 +2,13 @@
    Independently written. No media bytes, DRM, OAuth, remote JS, page scripts,
    ad-unblocking fallback or browsing-history storage. */
 (function(root){"use strict";
-const MAX_BYTES=1500000,MAX_TABS=100;
+const MAX_BYTES=1500000,MAX_TABS=100,MAX_DELAY_MS=4000;
 // Load the same bounded feed helper in Firefox's background global and in
 // direct Node tests. Optional at runtime: fail open, never block playback.
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,errors:0});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -89,6 +89,7 @@ function note(tab,outcome){
  if(outcome==="modified")v.modified++;
  else if(outcome==="unchanged")v.unchanged++;
  else if(outcome==="oversized")v.oversized++;
+ else if(outcome==="timedOut")v.timedOut++;
  else v.errors++;
  v.observed++;if(outcome==="modified")v.fields+=arguments[2]||0;
  if(records.has(tab))records.delete(tab);records.set(tab,v);
@@ -104,17 +105,22 @@ function observeRequest(tab){
 }
 function stats(tab){return {...(records.get(tab)||EMPTY())};}
 function clear(tab){records.delete(tab);}
-function attach(details,webRequest){
+function attach(details,webRequest,clock=root){
  if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
  let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){note(details.tabId,"error");return false;}
- let chunks=[],length=0,overflow=false,ended=false;
+ let chunks=[],length=0,overflow=false,ended=false,deadline=null;
+ function clearDeadline(){
+  if(deadline!==null&&typeof clock?.clearTimeout==="function")try{clock.clearTimeout(deadline);}catch(_){}
+  deadline=null;
+ }
  function writeOriginal(){
   for(const chunk of chunks)filter.write(chunk);
   chunks=[];
  }
- function finish(){
-  if(ended)return;ended=true;
-  try{filter.close();}catch(_){try{filter.disconnect();}catch(_){}}
+ function finish(disconnect=false){
+  if(ended)return;ended=true;clearDeadline();chunks=[];
+  try{if(disconnect)filter.disconnect();else filter.close();}
+  catch(_){if(!disconnect)try{filter.disconnect();}catch(__){}}
  }
  filter.ondata=event=>{
   if(ended)return;
@@ -122,12 +128,13 @@ function attach(details,webRequest){
    const chunk=new Uint8Array(event.data);
    if(overflow){filter.write(chunk);return;}
    if(length+chunk.byteLength>MAX_BYTES){
-    overflow=true;writeOriginal();filter.write(chunk);note(details.tabId,"oversized");return;
+    overflow=true;writeOriginal();filter.write(chunk);
+    note(details.tabId,"oversized");finish(true);return;
    }
    chunks.push(chunk);length+=chunk.byteLength;
   }catch(_){
-   try{writeOriginal();filter.disconnect();}catch(__){finish();}
-   ended=true;note(details.tabId,"error");
+   try{writeOriginal();}catch(__){}
+   note(details.tabId,"error");finish(true);
   }
  };
  filter.onstop=()=>{
@@ -149,12 +156,23 @@ function attach(details,webRequest){
  };
  filter.onerror=()=>{
   if(ended)return;
-  try{writeOriginal();filter.disconnect();}catch(_){finish();}
-  ended=true;note(details.tabId,"error");
+  try{writeOriginal();}catch(_){}
+  note(details.tabId,"error");finish(true);
  };
+ // Firefox keeps the response suspended until the extension finishes it.
+ if(typeof clock?.setTimeout==="function"){
+  try{
+   deadline=clock.setTimeout(()=>{
+    if(ended)return;
+    try{writeOriginal();}catch(_){}
+    note(details.tabId,"timedOut");finish(true);
+   },MAX_DELAY_MS);
+   deadline?.unref?.();
+  }catch(_){deadline=null;}
+ }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,AD_FIELDS,validPage,target,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
+const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,AD_FIELDS,validPage,target,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

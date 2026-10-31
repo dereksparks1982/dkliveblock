@@ -450,6 +450,7 @@ function display(d){
   " · "+Model.number(responses.fields)+" recognized ad structures removed"+
   " · "+Model.number(responses.unchanged)+" unchanged"+
   " · "+Model.number(responses.oversized)+" too large"+
+  " · "+Model.number(responses.timedOut)+" stream deadlines reached"+
   " · "+Model.number(responses.errors)+" processing errors. "+
   "These counts are not evidence of ad-free playback.":"";
  const playback=Array.isArray(d.playbackDiagnostics)?d.playbackDiagnostics.filter(row=>

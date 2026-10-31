@@ -465,3 +465,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.54 / Build 84 (2026-10-31)
 - Repaired incomplete local runner inventory: all six previously omitted YouTube/redirect test files are now included. Corrected stale /browse background integration expectations and verified known ad-only feed entry transformation in test fixtures. Denied outer player responses are preserved intact even if nested data contains ad fields. No release or live browser validation yet.
+
+### 0.3.55 / Build 85 (2026-10-31)
+- Added a fail-open four-second deadline to Firefox YouTube JSON response filtering, immediate pass-through on oversized JSON and dashboard timeout diagnostics. Added controlled timer tests. Full Firefox and Node/Python acceptance still pending.

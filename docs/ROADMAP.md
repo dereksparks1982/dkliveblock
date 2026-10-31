@@ -379,3 +379,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 84: add the six omitted YouTube/redirect test files to the local runner (110/110 listed), update background integration expectations to correctly test browse response rewriting and normal video retention, and preserve outer playback refusal status even with nested player data. Offline full-suite and Firefox acceptance remain explicitly open.
 - [ ] Build 84 acceptance: full Ubuntu local Node/Python suite, real playback and ad-free verification in ordinary/Shorts/movie-with-ads modes.
+
+- [x] Build 85: time-bound the Firefox YouTube JSON response stream at four seconds, flush original bytes and disconnect on timeout; immediately stream oversized responses through rather than waiting onstop. Expose timeout counts in the local dashboard and TXT/JSON report; add deterministic timeout/oversize regression tests.
+- [ ] Build 85 acceptance: full offline suite and real Firefox playback, no stalled players or phantom success; deadline checks are not ad-free playback verification.

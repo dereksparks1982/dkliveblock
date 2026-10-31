@@ -110,3 +110,41 @@ test("Build 83 standalone response module loads bundled feed helper and preserve
  assert.equal(payload.entries.length,1);
  assert.deepEqual(payload.playbackTracking,original.playbackTracking);
 });
+
+test("Build 85 bounded stream releases buffered bytes on deadline",()=>{
+ let callback,filter,disconnected=0,closed=0;
+ const chunks=[],removed=[];
+ const clock={setTimeout(fn,ms){assert.equal(ms,R.MAX_DELAY_MS);callback=fn;return 99;},
+  clearTimeout(id){removed.push(id);}};
+ const api={filterResponseData(){filter={write(b){chunks.push(Buffer.from(b));},
+  disconnect(){disconnected++;},close(){closed++;}};return filter;}};
+ assert.equal(R.attach({...req(),tabId:42},api,clock),true);
+ filter.ondata({data:Buffer.from("partial")});
+ assert.equal(chunks.length,0);
+ callback();
+ assert.equal(Buffer.concat(chunks).toString(),"partial");
+ assert.equal(disconnected,1);
+ assert.equal(closed,0);
+ assert.deepEqual(removed,[99]);
+ filter.onstop();
+ assert.equal(R.stats(42).timedOut,1);
+ assert.equal(R.stats(42).observed,1);
+ R.clear(42);
+});
+test("Build 85 oversized reply passes captured bytes and disconnects immediately",()=>{
+ let filter,disconnected=0;
+ const chunks=[];
+ const api={filterResponseData(){filter={write(b){chunks.push(Buffer.from(b));},
+  disconnect(){disconnected++;},close(){throw Error("should disconnect");}};return filter;}};
+ const clock={setTimeout(){return 2;},clearTimeout(){}};
+ R.attach({...req(),tabId:43},api,clock);
+ const bytes=Buffer.from("x".repeat(R.MAX_BYTES+10));
+ filter.ondata({data:bytes.subarray(0,R.MAX_BYTES)});
+ filter.ondata({data:bytes.subarray(R.MAX_BYTES)});
+ assert.equal(disconnected,1);
+ assert.equal(Buffer.concat(chunks).equals(bytes),true);
+ filter.onstop();
+ assert.equal(R.stats(43).oversized,1);
+ assert.equal(R.stats(43).observed,1);
+ R.clear(43);
+});
