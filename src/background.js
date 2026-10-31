@@ -118,7 +118,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -151,7 +151,9 @@ function badge(id){
  browser.browserAction.setBadgeTextColor?.({tabId:id,color:"#ffffff"})?.catch?.(()=>{});
 }
 function scheduleSave(){if(data.saveTimer)return;data.saveTimer=setTimeout(()=>{data.saveTimer=null;persistSettings().catch(console.warn);},60000);}
-function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),allowlistMatch:DKSiteAllowlist.match(data.settings.paused,h),temporarilyPaused:data.tempPaused.has(id),
+function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data.ready,host:h,
+ allowedRequests:data.settings.requestLog?DKAllowedActivity.snapshot(data.allowedActivity,id,h).total:0,
+ selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,h).length,enabled:data.settings.enabled,siteActive:activeTab(id,h),sitePaused:data.settings.paused.some(x=>DKRules.sub(h,x)),allowlistMatch:DKSiteAllowlist.match(data.settings.paused,h),temporarilyPaused:data.tempPaused.has(id),
  popupProtectionAvailable:!!h&&(data.settings.antiAdblock||data.settings.paywallPopups),
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
  cookieRejectPaused:data.settings.cookieRejectPaused.some(x=>DKRules.sub(h,x)),
@@ -296,6 +298,10 @@ browser.webRequest.onErrorOccurred?.addListener(d=>{
 },{urls:["<all_urls>"]});
 browser.webRequest.onCompleted?.addListener(d=>{
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"allowed",{statusCode:d.statusCode});
+ if(data.ready&&data.settings.requestLog&&Number.isInteger(d.tabId)&&d.tabId>=0){
+  const site=data.hosts.get(d.tabId)||"";
+  if(site)DKAllowedActivity.observe(data.allowedActivity,d.tabId,site,d.url,d.type);
+ }
 },{urls:["<all_urls>"]});
 browser.webRequest.onBeforeRedirect?.addListener(d=>{
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"redirected");
@@ -397,6 +403,16 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   return cleaned?{redirectUrl:cleaned}:{};
  }
  const top=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url);
+ // Explicit, user-selected host+type blocks remain effective on allowlisted
+ // sites; never block main navigation, auth-critical assets, or global-off tabs.
+ if(data.settings.enabled&&!data.tempPaused.has(d.tabId)&&
+   DKAllowedActivity.matches(data.manualBlocks,top,host(d.url),d.type)&&
+   !DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||"")){
+  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
+  rememberOwnBlock(d.requestId);
+  recordBlock(d.tabId,d.url,d.type,{p:"[User-selected block]"});
+  return {cancel:true};
+ }
  if(!activeTab(d.tabId,top))return {};
  // Opt-in rescue: only media requests on the specifically selected streaming site.
  // No script, XHR, tracking, or navigation requests are exempted.
@@ -521,13 +537,13 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   // Keep the per-site popup count across reloads; host changes clear it above.
   DKPlaybackHealth.clear(data.playbackHealth,id);
-  autoVideoTimes.delete(id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
+  autoVideoTimes.delete(id);DKAllowedActivity.clear(data.allowedActivity,id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapCounts.delete(id);
- DKNetworkMonitor.remove(data.networkMonitors,id);DKPlaybackHealth.clear(data.playbackHealth,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
+ DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);DKPlaybackHealth.clear(data.playbackHealth,id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
@@ -686,6 +702,35 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
   return lookupBlockedDomain(id,String(msg.host||"").toLowerCase(),msg.expectedSite);
  }
+ if(msg.action==="setSelectiveBlock"){
+  if(fromContent||!Number.isInteger(id)||id<0||typeof msg.expectedSite!=="string")
+   return {error:"Extension interface and live website tab required."};
+  let liveSite="";
+  try{
+   const tab=await browser.tabs.get(id);
+   if(!/^https?:\/\//i.test(tab?.url||""))return {error:"Choose a normal website tab."};
+   liveSite=host(tab.url);
+  }catch(_){return {error:"Website tab unavailable."};}
+  if(!liveSite||liveSite!==msg.expectedSite||data.hosts.get(id)!==liveSite)
+   return {error:"The selected tab changed websites. Refresh before changing controls."};
+  if(typeof msg.block!=="boolean"||!DKAllowedActivity.hostname(msg.host)||
+     !DKAllowedActivity.TYPES.has(msg.type))return {error:"Invalid request-control choice."};
+  if(msg.block){
+   if(!data.settings.enabled||data.tempPaused.has(id)||msg.confirm!==true)
+    return {error:"Enable protection and explicitly confirm the selective block."};
+   const rows=DKAllowedActivity.snapshot(data.allowedActivity,id,liveSite).groups;
+   if(!rows.some(r=>r.host===msg.host&&r.type===msg.type))
+    return {error:"That destination and type were not observed on the selected tab."};
+  }
+  const outcome=DKAllowedActivity.toggle(data.manualBlocks,liveSite,msg.host,msg.type,msg.block);
+  if(outcome.error)return outcome;
+  if(outcome.changed){
+   data.manualBlocks=outcome.rows;
+   await browser.storage.local.set({manualBlocks:data.manualBlocks});
+  }
+  return {ok:true,blocked:outcome.blocked,changed:outcome.changed,
+   count:DKAllowedActivity.list(data.manualBlocks,liveSite).length};
+ }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
@@ -714,6 +759,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    expires:Number.isFinite(row.expires)?row.expires:0
   }));
   const pausedOn=DKSiteAllowlist.match(data.settings.paused,site);
+  const permitted=sameTab&&requestLog?DKAllowedActivity.snapshot(data.allowedActivity,id,site):{total:0,groups:[]};
   return {
    ok:true,tabId:id,site,
    globalEnabled:data.settings.enabled===true,
@@ -731,7 +777,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    distractionPaused:data.settings.distractionPaused.some(h=>DKRules.sub(site,h)),
    popupCleanupEnabled:data.settings.antiAdblock||data.settings.paywallPopups,
    popupCleanupPaused:data.settings.popupProtectionPaused.some(h=>DKRules.sub(site,h)),
-   requestLog,filterBackend:String(data.engine.backend||"Local").slice(0,64),
+   requestLog,allowedRequests:permitted.total,allowedGroups:permitted.groups,
+   selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,site),
+   filterBackend:String(data.engine.backend||"Local").slice(0,64),
    networkRules:data.engine.networkCount||0,cosmeticRules:data.engine.cosmetic.length,
    unsupportedRules:data.engine.unsupportedCount||0,
    recentBlocks:logs,popupHistory:popupEvents,
@@ -1182,7 +1230,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.allowedActivity.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused)){
    if(s.paused.length>DKSiteAllowlist.LIMIT||
@@ -1203,7 +1251,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
 });
 async function boot(){
  try{
-  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload","requestAllowances"]);
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload","requestAllowances","manualBlocks"]);
   if(videoJob.state==="idle"){
    const previous=restoreVideoJob(stored.lastVideoDownload);
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
@@ -1213,6 +1261,7 @@ async function boot(){
    data.settings.enabled&&data.settings.blockNotificationPrompts);
   await DKContextMenu.sync(browser,data.settings.showContextMenu);
   data.requestControls.remember=DKRequestControls.restore(stored.requestAllowances);
+  data.manualBlocks=DKAllowedActivity.restore(stored.manualBlocks);
   const built=DKSettings.restoreLists(stored.lists,Object.keys(SOURCES));
   const custom=DKSettings.restoreLists(stored.customLists,data.settings.customSubscriptions,50000000);
   data.lists=built.lists;data.customLists=custom.lists;

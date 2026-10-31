@@ -2,6 +2,7 @@
 const $=id=>document.getElementById(id),Model=DKSiteDashboardModel,Details=DKBlockDetails;
 let current=null,requestToken=0,loading=false,busy=false;
 let focusBlockedRequests=location.hash==="#blocked-requests";
+let focusAllowedRequests=location.hash==="#allowed-requests";
 let selectedBlock=null,blockLookupToken=0;
 const registrationCache=new Map();
 function tabHost(url){
@@ -152,6 +153,9 @@ function setButtons(d){
  $("dashboardCookie").disabled=busy||!d?.ok||!d.siteActive||!d.cookieRejectEnabled;
  $("dashboardDistraction").disabled=busy||!d?.ok||!d.siteActive||!d.distractionEnabled;
  $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
+ $("dashboardAllowedList").querySelectorAll("input[type=checkbox]").forEach(input=>{
+  input.disabled=busy||!d?.ok||!d.globalEnabled||d.temporarilyPaused;
+ });
  $("dashboardMonitor").disabled=busy||!d?.ok;
  const hasRows=!!(d?.ok&&d.requestLog&&Model.requestRows(d).length);
  $("dashboardExportText").disabled=busy||!hasRows;
@@ -166,11 +170,12 @@ function clearDisplay(message){
  $("dashboardSite").textContent="No site selected";
  $("dashboardShield").textContent="No website selected";
  $("dashboardExplanation").textContent=message;
- for(const id of ["dashboardBlocked","dashboardOverlays","dashboardTabsStopped"])
+ for(const id of ["dashboardBlocked","dashboardAllowed","dashboardAllowedCount","dashboardAllowedGroups","dashboardSelectiveCount","dashboardOverlays","dashboardTabsStopped"])
   $(id).textContent="0";
  for(const id of ["dashboardRecent","dashboardPopupHistory","dashboardCustomAllowances",
-  "dashboardRequestAllowances","dashboardPlaybackEvents"])$(id).replaceChildren();
+  "dashboardRequestAllowances","dashboardPlaybackEvents","dashboardAllowedList"])$(id).replaceChildren();
  $("dashboardLogState").textContent="";
+ $("dashboardAllowedState").textContent="";
  $("dashboardPlaybackState").textContent="";
  $("dashboardFilterDetails").textContent="";
  notice(message);
@@ -236,6 +241,42 @@ async function revokeRequest(row){
   await refresh();
  });
 }
+async function toggleSelectiveRequest(row,checked,input){
+ const previous=!checked;
+ await withAction(async()=>{
+  if(!current?.ok)throw Error("Choose a site before changing a request.");
+  const snapshot=current;
+  await verifyCurrentTab(snapshot);
+  if(checked&&!window.confirm("Block future "+row.type+" requests to "+row.host+
+    " on "+snapshot.site+"? This can break website features."))
+   {input.checked=previous;return;}
+  const reply=await browser.runtime.sendMessage({action:"setSelectiveBlock",
+   tabId:snapshot.tabId,expectedSite:snapshot.site,
+   host:row.host,type:row.type,block:checked,confirm:checked});
+  if(!reply?.ok)throw Error(reply?.error||"Could not change this request.");
+  await refresh();
+  notice((checked?"Blocking":"Allowing")+" future "+row.type+" requests to "+row.host+
+   " on "+snapshot.site+". Reload the website to test.");
+ }).catch?.(()=>{});
+ // If the action failed or user cancelled, the current display reverts on refresh.
+ if(current?.ok)await refresh();
+}
+function permittedLine(row,siteStatus){
+ const div=document.createElement("div");div.className="dashboard-line allowed-request-line";
+ const label=document.createElement("label");label.className="allowed-request-label";
+ const desc=document.createElement("span");
+ desc.textContent=row.host+" · "+row.type+" · "+row.count+" completed"+
+  (row.observed?"":" (saved choice)");
+ const checkbox=document.createElement("input");checkbox.type="checkbox";
+ checkbox.checked=row.block;checkbox.disabled=busy||!siteStatus.globalEnabled||siteStatus.temporarilyPaused;
+ checkbox.setAttribute("aria-label","Block future "+row.type+" requests to "+row.host);
+ checkbox.addEventListener("change",()=>{
+  const desired=checkbox.checked;
+  checkbox.disabled=true;
+  toggleSelectiveRequest(row,desired,checkbox).catch(error=>notice(error?.message||"Could not update."));
+ });
+ label.append(desc,checkbox);div.appendChild(label);return div;
+}
 function display(d){
  if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
  closeBlock();current=d;setButtons(d);
@@ -244,6 +285,16 @@ function display(d){
  $("dashboardShield").textContent=summary.label;
  $("dashboardExplanation").textContent=summary.detail;
  $("dashboardBlocked").textContent=Model.number(d.blocked).toLocaleString();
+ $("dashboardAllowed").textContent=Model.number(d.allowedRequests).toLocaleString();
+ $("dashboardAllowedCount").textContent=Model.number(d.allowedRequests).toLocaleString();
+ $("dashboardSelectiveCount").textContent=String((d.selectiveBlocks||[]).length);
+ const permitted=Model.permittedRows(d);
+ $("dashboardAllowedGroups").textContent=String(permitted.filter(row=>row.observed).length);
+ $("dashboardAllowedState").textContent=!d.requestLog?
+  "Private request logging is off. Enable it in Settings to see newly permitted requests.":
+  permitted.length?permitted.length+" destination/type controls available.":
+  "No permitted requests observed yet. Reload the website and refresh this dashboard.";
+ render("dashboardAllowedList",permitted,"No permitted requests recorded.",row=>permittedLine(row,d));
  $("dashboardOverlays").textContent=Model.number(d.popupHidden).toLocaleString();
  $("dashboardTabsStopped").textContent=Model.number(d.scamTabsBlocked).toLocaleString();
  const requests=Model.requestRows(d);
@@ -265,6 +316,10 @@ function display(d){
    line(row.host+" · "+row.type+" · "+row.scope+
     (row.scope==="temporary"?" (expires "+time(row.expires)+")":""),
     "Revoke",()=>revokeRequest(row)));
+ if(focusAllowedRequests){
+  focusAllowedRequests=false;
+  const section=$("allowedRequestsSection");section.scrollIntoView?.({block:"start"});section.focus?.({preventScroll:true});
+ }
  if(focusBlockedRequests){
   focusBlockedRequests=false;
   const section=$("blockedRequestsSection");
@@ -307,7 +362,7 @@ $("dashboardTab").addEventListener("change",()=>{if(!busy)refresh();});
 $("dashboardRefresh").addEventListener("click",()=>{if(!busy)refresh();});
 $("dashboardRefreshTabs").addEventListener("click",()=>{if(!busy)selectTabs();});
 $("dashboardAllowlist").addEventListener("click",()=>perform("setSiteAllowed",
- current?.sitePaused?null:"Allowlist "+current?.site+" and its subdomains? This turns OFF ALL blocking there.",true));
+ current?.sitePaused?null:"Allowlist "+current?.site+" and its subdomains? Automatic blocking turns OFF; manually selected hostname/type blocks stay enabled.",true));
 $("dashboardPause").addEventListener("click",()=>perform("toggleTabPause",null,true));
 $("dashboardCookie").addEventListener("click",()=>toggleFeature("cookieReject"));
 $("dashboardDistraction").addEventListener("click",()=>toggleFeature("distractionControl"));

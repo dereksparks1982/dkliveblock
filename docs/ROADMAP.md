@@ -313,3 +313,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 64: analyze real YouTube JSON: three DoubleClick blocks expected, first-party YouTube and Google images inconclusive, no blocked media resources recorded. Do not grant broad CDN exceptions.
 - [x] Build 64: preserve explicit YouTube playback-refusal notices instead of merely hiding them; retain sanitized, bounded enforcement diagnostics in Site Dashboard and TXT/JSON exports.
 - [ ] Build 64: complete offline Ubuntu suite, test real Firefox, investigate player black screen and ad-free compatibility; distinguish platform refusal from native and Ghostery image false positives.
+
+- [x] Build 65: count completed permitted subrequests and display host/type activity for each tab; allow controlled user-selected exact hostname/type blocking even when website automatic filtering is allowlisted. Strict auth and main-frame safety. User toggles stored locally and reversible.
+- [x] Fix prior Build 64 icon-state test ordering assumption after rule-evidence script was added, as surfaced by the user’s 145/146 passing test output.
+- [ ] Build 65: full local Ubuntu test run and live Firefox verification of allowed counters and toggles. Do not claim YouTube playback fixed.

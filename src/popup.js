@@ -82,6 +82,8 @@ async function load(){
 
  current=await browser.runtime.sendMessage({action:"status",tabId:tab.id,url:tab.url});
  $("count").textContent=(current.tabBlocked||0).toLocaleString();
+ $("allowedCount").textContent=(current.allowedRequests||0).toLocaleString();
+ $("viewAllowed").disabled=!Number.isInteger(tab?.id)||!current.host;
  $("countScope").textContent=tab?.id!==undefined&&focused?.id!==tab.id?
   "blocked on selected website tab":"blocked on this tab";
  $("viewBlocked").disabled=!Number.isInteger(tab?.id)||!current.host;
@@ -107,9 +109,9 @@ async function load(){
  $("siteDistraction").disabled=!current.siteActive||!current.settings?.distractionControl;$("site").textContent=current.host||"Browser page";
  $("toggle").textContent=current.sitePaused?"Remove from allowlist":"Allowlist this website";
  $("allowlistNotice").textContent=current.sitePaused?
-  "Protection is OFF for "+(current.allowlistMatch||current.host)+
-   " and its subdomains. Remove it to restore blocking.":
-  "Allowlisting this website turns off blocking for its hostname and subdomains. Other sites remain protected.";
+  "Automatic filters are OFF for "+(current.allowlistMatch||current.host)+
+   " and its subdomains. "+(current.selectiveBlocks||0)+" selective blocks remain active. Remove from allowlist to restore filters.":
+  "Allowlisting disables automatic filters here; manually selected blocks stay active. Other sites remain protected.";
  $("toggle").disabled=!current.host||!current.enabled;
  $("temporary").textContent=current.temporarilyPaused?"Resume this tab":"Pause this tab";
  $("temporary").disabled=!current.host||!current.enabled||current.sitePaused;
@@ -179,6 +181,9 @@ $("mediaRecovery").addEventListener("click",async()=>{
   await load();
  }catch(e){$("info").textContent=e.message;}finally{$("mediaRecovery").disabled=false;}
 });
+$("viewAllowed").addEventListener("click",()=>browser.tabs.create({
+ url:browser.runtime.getURL("site-dashboard.html?tab="+encodeURIComponent(tab.id)+"#allowed-requests")
+}));
 $("viewBlocked").addEventListener("click",()=>browser.tabs.create({
  url:browser.runtime.getURL("site-dashboard.html?tab="+encodeURIComponent(tab.id)+"#blocked-requests")
 }));

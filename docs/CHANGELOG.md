@@ -394,3 +394,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Keep explicit YouTube playback enforcement notices visible rather than hiding unresolved refusals.
 - Report coarse playback enforcement separately from buffering and media errors in Site Dashboard and TXT/JSON export.
 - Mark YouTube and Google image importance as unverified.
+
+### 0.3.35 (Build 65, unreleased)
+- Add per-tab permitted request count and View allowed button. Site Dashboard shows completed allowed destination/type groups and toggle controls for future requests.
+- Explicit selective blocks stay active on allowlisted websites; global disable/tab pause and essential authentication resources override them.
+- Correct brittle icon-state test ordering after additional background modules.

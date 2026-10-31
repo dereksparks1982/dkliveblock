@@ -18,6 +18,7 @@
 <p id="dashboardExplanation">Nothing is being changed.</p>
 <div class="dashboard-metrics">
 <div>Blocked requests <strong id="dashboardBlocked">0</strong></div>
+<div>Permitted requests <strong id="dashboardAllowed">0</strong></div>
 <div>Overlays suppressed <strong id="dashboardOverlays">0</strong></div>
 <div>Unwanted tabs stopped <strong id="dashboardTabsStopped">0</strong></div>
 </div>
@@ -27,7 +28,15 @@
 <button id="dashboardCookie" type="button">Pause cookie rejection here</button>
 <button id="dashboardDistraction" type="button">Pause distraction cleanup here</button>
 </div>
-<p id="dashboardModeNote">Allowlisting turns off all protection for the site and subdomains. Pausing just this tab leaves other tabs alone. Cookie and distraction settings do not switch off network ad blocking.</p>
+<p id="dashboardModeNote">Allowlisting disables automatic filtering for this site and its subdomains. Any selective host/type blocks you switch on remain effective. Pausing just this tab suspends both. Cookie and distraction settings do not switch off network ad blocking.</p>
+</section>
+<section id="allowedRequestsSection" tabindex="-1">
+<h2>Permitted requests on this tab</h2>
+<p>Completed HTTP(S) subresource requests that DK Live Block did not block, grouped by destination hostname and request type. The count is requests, not distinct companies. An allowed request is not automatically safe or advertising. No URLs, paths, cookies, or request contents are recorded. The list resets when this tab reloads and only tracks activity while private request logging is enabled.</p>
+<p><strong id="dashboardAllowedCount">0</strong> completed permitted requests; <strong id="dashboardAllowedGroups">0</strong> destination/type groups; <strong id="dashboardSelectiveCount">0</strong> manual blocking choices.</p>
+<p id="dashboardAllowedState" role="status"></p>
+<div id="dashboardAllowedList" aria-label="Permitted request destinations and individual block toggles"></div>
+<p>Turn a switch ON to block future requests to that exact hostname and resource type on this website. Turn it OFF to allow them again. Changes are remembered, but already loaded resources cannot be undone; refresh the website to test. Sign-in-critical requests and main page navigation are never blocked by these switches. The global protection switch and Pause this tab override manual blocks.</p>
 </section>
 <section id="blockedRequestsSection" tabindex="-1"><h2>Blocked requests for this tab</h2>
 <p>Shows up to the last 250 blocked requests for this tab, including repeated blocks. Only destination hostnames, resource types and coarse timestamps are retained, never private URLs or payloads. The counter can exceed this history; an empty list means request logging is disabled or no events have been retained. Export saves these details locally; domain registration data is included only for lookups you explicitly performed in this dashboard session.</p>

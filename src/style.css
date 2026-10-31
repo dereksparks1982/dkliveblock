@@ -143,3 +143,9 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 /* Blocked-request export controls wrap cleanly on smaller dashboard windows. */
 .site-dashboard #blockedRequestsSection .network-monitor-controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 .site-dashboard #dashboardBlockDetails .network-monitor-controls{margin-top:14px}
+
+/* Site Dashboard selective subresource controls; do not shift the popup shell. */
+.site-dashboard .allowed-request-line{align-items:stretch}
+.site-dashboard .allowed-request-label{display:flex;align-items:center;justify-content:space-between;gap:14px;width:100%;cursor:pointer}
+.site-dashboard .allowed-request-label span{overflow-wrap:anywhere}
+.site-dashboard .allowed-request-label input{flex-shrink:0;min-width:18px;min-height:18px}

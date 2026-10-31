@@ -57,7 +57,9 @@ test("icon variants are cached and applied only on tab state change or navigatio
 });
 test("icon controller loads from Firefox background manifest before normal logic",()=>{
  const m=JSON.parse(fs.readFileSync(path.resolve(__dirname,"../src/manifest.json"),"utf8"));
- assert.equal(m.background.scripts.at(-2),"icon-state.js");
+ assert.ok(m.background.scripts.indexOf("icon-state.js")>=0);
+ assert.ok(m.background.scripts.indexOf("icon-state.js")<m.background.scripts.indexOf("background.js"));
+ assert.ok(m.background.scripts.indexOf("rule-evidence.js")<m.background.scripts.indexOf("background.js"));
  assert.equal(m.background.scripts.at(-1),"background.js");
  assert.equal(m.browser_action.default_icon,I.SOURCE);
 });

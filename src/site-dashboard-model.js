@@ -8,7 +8,7 @@ function status(data){
  if(!data.globalEnabled)return {label:"Protection disabled globally",
   detail:"Blocking is off everywhere until enabled in settings."};
  if(data.sitePaused)return {label:"Website allowlisted",
-  detail:"All blocking is disabled for this hostname and its subdomains."};
+  detail:"Automatic filters are off for this website; explicitly selected request blocks can remain active."};
  if(data.temporarilyPaused)return {label:"Tab temporarily paused",
   detail:"This tab is paused; other tabs remain protected."};
  if(!data.siteActive)return {label:"Protection unavailable",
@@ -58,7 +58,24 @@ function allowances(data){
    expires:Number.isFinite(row.expires)?row.expires:0}];
  });
 }
-const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances});
+function permittedRows(data){
+ if(!data?.requestLog)return [];
+ const seen=new Map();
+ for(const row of (Array.isArray(data.allowedGroups)?data.allowedGroups:[]).slice(0,150)){
+  const host=hostname(row?.host),type=String(row?.type||"");
+  if(!host||!RESOURCE_TYPES.has(type)||type==="popup")continue;
+  seen.set(host+"|"+type,{host,type,count:number(row.count),last:Number.isFinite(row.last)?row.last:0,observed:true,block:false});
+ }
+ for(const row of (Array.isArray(data.selectiveBlocks)?data.selectiveBlocks:[]).slice(0,300)){
+  const host=hostname(row?.host),type=String(row?.type||"");
+  if(!host||!RESOURCE_TYPES.has(type)||type==="popup")continue;
+  const key=host+"|"+type;
+  const value=seen.get(key)||{host,type,count:0,last:0,observed:false,block:false};
+  value.block=true;seen.set(key,value);
+ }
+ return [...seen.values()];
+}
+const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances,permittedRows});
 root.DKSiteDashboardModel=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
