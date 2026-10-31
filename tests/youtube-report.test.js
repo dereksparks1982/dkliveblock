@@ -5,7 +5,7 @@ const Report=require("../src/youtube-report.js");
 test("Build 77 single YouTube report exports modified-response counters and safe network evidence",()=>{
  const report=Report.build({ok:true,site:"www.youtube.com",tabId:12,globalEnabled:true,
   requestLog:true,blocked:4,allowedRequests:2,filterBackend:"hybrid",
-  youtubeResponse:{enabled:true,supported:true,observed:2,modified:1,fields:3,unchanged:1},
+  youtubeResponse:{enabled:true,supported:true,observed:2,modified:1,fields:3,unchanged:1,byKind:{player:{requests:2,seen:2,changed:1}}},
   recentBlocks:[{host:"www.youtube.com",type:"xmlhttprequest",when:1000,
    ruleEvidence:{subscription:"EasyList",pattern:"/watch?v=private-secret"}}],
   allowedGroups:[{host:"r1---sn.googlevideo.com",type:"media",count:2,last:1000}],
@@ -14,6 +14,8 @@ test("Build 77 single YouTube report exports modified-response counters and safe
   title:"private-video-title",password:"private-password"});
  assert.equal(report.responseFiltering.modified,1);
  assert.equal(report.responseFiltering.fields,3);
+ assert.equal(report.responseFiltering.byKind.player.requests,2);
+ assert.match(Report.asText(report),/player JSON: 2 requested/);
  assert.equal(report.playback[0].kind,"enforcement");
  const data=JSON.stringify(report),text=Report.asText(report);
  for(const leak of ["private-secret","private-video-title","private-password",

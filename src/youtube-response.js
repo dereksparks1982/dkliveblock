@@ -8,7 +8,12 @@ const MAX_BYTES=1500000,MAX_TABS=100,MAX_DELAY_MS=4000;
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0});
+const kinds=()=>({player:{requests:0,seen:0,changed:0},feed:{requests:0,seen:0,changed:0},shorts:{requests:0,seen:0,changed:0}});
+function category(url){
+ const feed=Feed?.kind(url);if(feed)return feed;
+ return target(url)?"player":"";
+}
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,byKind:kinds()});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -87,31 +92,38 @@ function rewrite(text,url=""){
  if(!fields)return {text,changed:false,fields:0};
  return {text:prefix+JSON.stringify(payload),changed:true,fields};
 }
-function note(tab,outcome){
+function note(tab,outcome,fields=0,url=""){
  if(!Number.isInteger(tab)||tab<0)return;
  const v=records.get(tab)||EMPTY();
+ const entry=v.byKind[category(url)];
+ if(entry){entry.seen++;if(outcome==="modified")entry.changed++;}
  if(outcome==="modified")v.modified++;
  else if(outcome==="unchanged")v.unchanged++;
  else if(outcome==="oversized")v.oversized++;
  else if(outcome==="timedOut")v.timedOut++;
  else v.errors++;
- v.observed++;if(outcome==="modified")v.fields+=arguments[2]||0;
+ v.observed++;if(outcome==="modified")v.fields+=fields;
  if(records.has(tab))records.delete(tab);records.set(tab,v);
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
 }
-function observeRequest(tab){
+function observeRequest(tab,url=""){
  if(!Number.isInteger(tab)||tab<0)return;
  const v=records.get(tab)||EMPTY();
  v.playerRequests=Math.min(1000000000,v.playerRequests+1);
+ const entry=v.byKind[category(url)];
+ if(entry)entry.requests=Math.min(1000000000,entry.requests+1);
  if(records.has(tab))records.delete(tab);
  records.set(tab,v);
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
 }
-function stats(tab){return {...(records.get(tab)||EMPTY())};}
+function stats(tab){
+ const v=records.get(tab)||EMPTY();
+ return {...v,byKind:{player:{...v.byKind.player},feed:{...v.byKind.feed},shorts:{...v.byKind.shorts}}};
+}
 function clear(tab){records.delete(tab);}
 function attach(details,webRequest,clock=root){
  if(!safeHeaders(details)||typeof webRequest?.filterResponseData!=="function")return false;
- let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){note(details.tabId,"error");return false;}
+ let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){note(details.tabId,"error",0,details.url);return false;}
  let chunks=[],length=0,overflow=false,ended=false,deadline=null;
  function clearDeadline(){
   if(deadline!==null&&typeof clock?.clearTimeout==="function")try{clock.clearTimeout(deadline);}catch(_){}
@@ -133,12 +145,12 @@ function attach(details,webRequest,clock=root){
    if(overflow){filter.write(chunk);return;}
    if(length+chunk.byteLength>MAX_BYTES){
     overflow=true;writeOriginal();filter.write(chunk);
-    note(details.tabId,"oversized");finish(true);return;
+    note(details.tabId,"oversized",0,details.url);finish(true);return;
    }
    chunks.push(chunk);length+=chunk.byteLength;
   }catch(_){
    try{writeOriginal();}catch(__){}
-   note(details.tabId,"error");finish(true);
+   note(details.tabId,"error",0,details.url);finish(true);
   }
  };
  filter.onstop=()=>{
@@ -151,17 +163,17 @@ function attach(details,webRequest,clock=root){
    const result=rewrite(original,details.url);
    if(result.changed){
     filter.write(new TextEncoder().encode(result.text));
-    note(details.tabId,"modified",result.fields);
-   }else{writeOriginal();note(details.tabId,"unchanged");}
+    note(details.tabId,"modified",result.fields,details.url);
+   }else{writeOriginal();note(details.tabId,"unchanged",0,details.url);}
   }catch(_){
    try{writeOriginal();}catch(__){}
-   note(details.tabId,"error");
+   note(details.tabId,"error",0,details.url);
   }finally{chunks=[];finish();}
  };
  filter.onerror=()=>{
   if(ended)return;
   try{writeOriginal();}catch(_){}
-  note(details.tabId,"error");finish(true);
+  note(details.tabId,"error",0,details.url);finish(true);
  };
  // Firefox keeps the response suspended until the extension finishes it.
  if(typeof clock?.setTimeout==="function"){
@@ -169,7 +181,7 @@ function attach(details,webRequest,clock=root){
    deadline=clock.setTimeout(()=>{
     if(ended)return;
     try{writeOriginal();}catch(_){}
-    note(details.tabId,"timedOut");finish(true);
+    note(details.tabId,"timedOut",0,details.url);finish(true);
    },MAX_DELAY_MS);
    deadline?.unref?.();
   }catch(_){deadline=null;}

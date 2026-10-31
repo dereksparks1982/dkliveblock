@@ -456,7 +456,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"";
  if(data.settings.youtubeResponseFilter&&typeof browser.webRequest.filterResponseData==="function"&&
     DKYouTubeResponse.requestEligible(d,top)){
-  DKYouTubeResponse.observeRequest(d.tabId);
+  DKYouTubeResponse.observeRequest(d.tabId,d.url);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
    "YouTube player JSON request reserved for response-side filtering");
   return {};

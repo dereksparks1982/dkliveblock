@@ -474,3 +474,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.57 / Build 87 (2026-10-31)
 - Corrected the oversized YouTube response regression harness to model Firefox ownership of remaining bytes after disconnect; the old fixture would falsely expect callback delivery from a detached stream. Corrected diagnostic wording to reflect player, feed/search and Shorts requests. Real Firefox and full local suite are still outstanding.
+
+### 0.3.58 / Build 88 (2026-10-31)
+- Added private, bounded per-tab YouTube player/feed/Shorts API request, response and modification counts to the dashboard and compatibility TXT/JSON export; no URL, video identifier or token storage. Added source, background and report fixtures. Full offline and browser validation pending.

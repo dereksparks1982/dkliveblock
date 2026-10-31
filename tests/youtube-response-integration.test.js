@@ -56,6 +56,9 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  assert.deepEqual(result.streamingData.formats[0].url,"signed-video");
  const metrics=await listeners.message({action:"getSiteDashboard",tabId:1});
  assert.equal(metrics.youtubeResponse.playerRequests,2);
+ assert.equal(metrics.youtubeResponse.byKind.player.requests,1);
+ assert.equal(metrics.youtubeResponse.byKind.feed.requests,1);
+ assert.equal(metrics.youtubeResponse.byKind.shorts.requests,0);
  assert.equal(metrics.youtubeResponse.modified,1);
  assert.equal(metrics.youtubeResponse.fields,3);
  listeners.headers({...browse,requestId:"b1",statusCode:200,
@@ -69,6 +72,8 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  assert.equal(resultFeed.contents[0].videoRenderer.videoId,"organic");
  const feedStats=await listeners.message({action:"getSiteDashboard",tabId:1});
  assert.equal(feedStats.youtubeResponse.modified,2);
+ assert.equal(feedStats.youtubeResponse.byKind.player.changed,1);
+ assert.equal(feedStats.youtubeResponse.byKind.feed.changed,1);
  assert.equal(feedStats.youtubeResponse.fields,4);
  await listeners.message({action:"saveSettings",settings:{youtubeResponseFilter:false}});
  assert.equal(stored.settings.youtubeResponseFilter,false,"choice must persist");

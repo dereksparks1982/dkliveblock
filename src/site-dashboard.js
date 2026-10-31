@@ -445,6 +445,9 @@ function display(d){
   "YouTube JSON advertising response filtering: "+(responses.enabled?"enabled":"disabled")+
   (responses.supported?" · Firefox API available":" · Firefox API unavailable")+
   " · "+Model.number(responses.playerRequests)+" YouTube JSON requests passed to filtering"+
+  " · "+Model.number(responses.byKind?.player?.requests)+" player"+
+  " / "+Model.number(responses.byKind?.feed?.requests)+" feed/search"+
+  " / "+Model.number(responses.byKind?.shorts?.requests)+" Shorts"+
   " · "+Model.number(responses.observed)+" eligible responses handled"+
   " · "+Model.number(responses.modified)+" rewritten"+
   " · "+Model.number(responses.fields)+" recognized ad structures removed"+

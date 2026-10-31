@@ -161,3 +161,17 @@ test("Build 85 oversized reply passes captured bytes and disconnects immediately
  assert.equal(R.stats(43).observed,1);
  R.clear(43);
 });
+
+test("Build 88 counts YouTube player, feed and Shorts API paths without storing the URL",()=>{
+ const urls=["https://www.youtube.com/youtubei/v1/player?private=SECRET",
+ "https://www.youtube.com/youtubei/v1/browse?private=SECRET",
+ "https://www.youtube.com/youtubei/v1/reel_watch_sequence?private=SECRET"];
+ for(const url of urls)R.observeRequest(74,url);
+ const state=R.stats(74);
+ assert.equal(state.playerRequests,3);
+ for(const kind of ["player","feed","shorts"])assert.equal(state.byKind[kind].requests,1);
+ assert.equal(JSON.stringify(state).includes("SECRET"),false);
+ state.byKind.player.requests=999;
+ assert.equal(R.stats(74).byKind.player.requests,1);
+ R.clear(74);
+});

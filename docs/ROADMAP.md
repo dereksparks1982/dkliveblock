@@ -388,3 +388,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 87: fix stale oversized-stream test to model browser forwarding after disconnect, preserve normal split-stream and missing-response checks, and correctly name YouTube API JSON request counters in dashboard/export.
 - [ ] Browser-level verification of stream disconnect, complete offline suite and actual YouTube ad-free playback remains required.
+
+- [x] Build 88: category-specific YouTube API counts for player, browse/search and reel_watch_sequence requests and modifications, retaining old totals. Reporting uses data-only snapshots, capped values and tab isolation.
+- [ ] Build 88 acceptance: full Linux regression suite and real Firefox YouTube playback/ad-free test, with response-to-request ratio.

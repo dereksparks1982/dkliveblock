@@ -1,0 +1,3 @@
+# Build 88: actionable YouTube response diagnostics
+
+Unreleased 0.3.58. The Site Dashboard and one-click YouTube TXT/JSON compatibility reports now separate ordinary player, feed/search and Shorts request totals, recognized response observations and ad-structure modifications. Values are capped, local, per-tab counts and never include URLs, path/query parameters, video IDs or browsing history. Diagnostic counters cannot on their own establish that video ads were blocked, that a movie played or that anti-adblock enforcement was prevented. Firefox and full Node/Python acceptance remain open. No actions or released package.
