@@ -291,3 +291,21 @@ test("Build 90 recognizes scoped literal has-text and matching exceptions",()=>{
  assert.deepEqual(native.getProcedural("news.example"),[]);
  assert.deepEqual(native.getSelectors("news.example"),["article:has(.sponsor)"]);
 });
+
+test("Build 95 UTM family stripping preserves product and signed data",()=>{
+ const f=new FilterEngine("*$removeparam=utm_*");
+ assert.equal(f.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=10&signature=signed"),
+  "https://shop.example/?sku=10&signature=signed");
+ assert.equal(R.network("*$removeparam=*"),null);
+ assert.equal(R.network("*$removeparam=token*"),null);
+});
+test("Build 95 UTM family respects exact and site exceptions",()=>{
+ const f=new FilterEngine("*$removeparam=utm_*"+
+  "\n@@*$removeparam=utm_source"+
+  "\n@@||shop.example/private^$removeparam=utm_*");
+ assert.equal(f.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=1"),
+  "https://shop.example/?utm_source=a&sku=1");
+ assert.equal(f.cleanNavigation("https://shop.example/private?utm_medium=b"),null);
+ const x=new FilterEngine("*$removeparam=utm_source\n@@*$removeparam=utm_*");
+ assert.equal(x.cleanNavigation("https://shop.example/?utm_source=x"),null);
+});

@@ -56,7 +56,7 @@ function network(raw){
   if(o.startsWith("removeparam=")&&!neg){
    if(removeparam)return null;
    removeparam=o.slice(12);
-   if(!/^[a-zA-Z0-9_.~-]{1,64}$/.test(removeparam))return null;
+   if(removeparam!=="utm_*"&&!/^[a-zA-Z0-9_.~-]{1,64}$/.test(removeparam))return null;
    continue;
   }
   if(o.startsWith("method=")&&!neg){

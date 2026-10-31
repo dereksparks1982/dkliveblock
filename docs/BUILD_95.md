@@ -1,0 +1,3 @@
+# Build 95: safe UTM query tracking cleanup
+
+Unreleased 0.3.65. Network filter lists can now request removal of the standard `utm_*` family on navigation while preserving product and signed fields, respecting individual and path-scoped exceptions, and rejecting unrestricted wildcards. Existing signed-link protections remain active. Corrected the previous frozen `json()` fixture: a separate text response is parsed independently and can be filtered, so it should not be expected to retain the same ad properties as a frozen JS object. Complete Linux and Firefox acceptance is outstanding. No downloads, user commands or Actions.

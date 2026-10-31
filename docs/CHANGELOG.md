@@ -495,3 +495,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.64 / Build 94 (2026-10-31)
 - Protected the YouTube MAIN-world video player bridge against frozen and nonconfigurable ad fields; preflight removals and treat page-object errors as unchanged data rather than rejecting fetch().json(), fetch().text() or XHR reads. Added read-only regression fixtures. Firefox tests pending.
+
+### 0.3.65 / Build 95 (2026-10-31)
+- Added constrained UTM family tracking-parameter removal with site and individual key exceptions, refusing unrestricted wildcard patterns. Repaired the prior frozen JSON response text test. Full Firefox/local acceptance pending.

@@ -65,7 +65,18 @@ class FilterEngine {
   }
   let changed=false;
   for(const key of remove){
-   if(except.has(key)||reserved.has(key.toLowerCase())||!url.searchParams.has(key))continue;
+   if(key==="utm_*"){
+    if(except.has(key))continue;
+    for(const name of [...new Set(url.searchParams.keys())]){
+     if(!/^utm_[a-z0-9_]+$/i.test(name)||except.has(name)||
+        reserved.has(name.toLowerCase()))continue;
+     url.searchParams.delete(name);changed=true;
+    }
+    continue;
+   }
+   if(except.has(key)||reserved.has(key.toLowerCase())||
+      except.has("utm_*")&&/^utm_[a-z0-9_]+$/i.test(key)||
+      !url.searchParams.has(key))continue;
    url.searchParams.delete(key);changed=true;
   }
   return changed?url.toString():null;

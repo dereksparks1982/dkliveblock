@@ -197,7 +197,8 @@ test("Build 94 page bridge never rejects a valid fetch JSON because its player o
  p.send("enable");
  const response=await p.window.fetch("/youtubei/v1/player",{method:"POST"});
  assert.equal((await response.json()).adSlots.length,1);
- assert.equal(JSON.parse(await response.text()).adSlots.length,1);
+ assert.equal(JSON.parse(await response.text()).adSlots,undefined,
+  "text JSON is separately parsed and mutable even when json() returns a frozen object");
 });
 test("Build 94 frozen initial player object remains unchanged instead of breaking initialization",()=>{
  const p=context();

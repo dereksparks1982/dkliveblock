@@ -409,3 +409,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 94: MAIN-world video JSON hooks fail open on frozen/nonconfigurable data and do not reject fetch/XHR responses due to page-defined object restrictions. Check all targeted fields before mutation, retaining signed video data and playback status.
 - [ ] Build 94 acceptance: complete local tests and live Firefox signed playback, immutable objects and browser compatibility.
+
+- [x] Build 95: narrowly support `$removeparam=utm_*` for common campaign tracking keys, with exact and broad exceptions and signed URL safeguards. Correct frozen-json fixture: parsed text is independent of a read-only JS result.
+- [ ] Build 95 acceptance: full suite plus live Firefox signed and purchase links.
