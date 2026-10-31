@@ -415,3 +415,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.40 (Build 70, unreleased)
 - Explicit confirmation before combined current-open-websites blocked/permitted TXT and JSON export.
+
+### 0.3.41 (Build 71, unreleased)
+- Add YouTube-specific diagnostics separating blocked first-party XHR, images, media and ad-network requests, without exposing private URLs.

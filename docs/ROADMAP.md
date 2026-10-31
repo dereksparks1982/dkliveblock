@@ -340,3 +340,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 70: opt-in current-open-tab combined privacy-bounded TXT/JSON reporting, max 25 tabs.
 - [ ] Build 70 acceptance: Firefox download/consent and all tabs cross-window privacy test.
+
+- [x] Build 71: count first-party YouTube XHR/media false-positive suspects and identify their safe rule sources in dashboard/exports.
+- [ ] Build 71 Firefox triage: capture next YouTube enforcement run and inspect source-specific first-party blocking; ad-free playback remains unverified.

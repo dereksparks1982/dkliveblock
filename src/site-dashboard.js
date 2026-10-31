@@ -224,6 +224,8 @@ function clearDisplay(message){
  $("dashboardLogState").textContent="";
  $("dashboardAllowedState").textContent="";
  $("dashboardPlaybackState").textContent="";
+ $("dashboardYouTubeTriage").hidden=true;
+ $("dashboardYouTubeTriage").textContent="";
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -415,6 +417,14 @@ function display(d){
   section.scrollIntoView?.({block:"start"});
   section.focus?.({preventScroll:true});
  }
+ const triage=DKYouTubeTriage.summarize(d);
+ $("dashboardYouTubeTriage").hidden=!triage.applicable;
+ $("dashboardYouTubeTriage").textContent=triage.applicable?
+  "YouTube compatibility evidence: "+triage.firstPartyXHR+" first-party background request blocks, "+
+  triage.firstPartyImage+" first-party image blocks, "+triage.mediaBlocked+
+  " media blocks, "+triage.advertisingInfrastructure+" ad-network blocks. "+
+  triage.interpretation+" Matched first-party sources: "+
+  (triage.firstPartySources.join(", ")||"none recorded"):"";
  const playback=Array.isArray(d.playbackDiagnostics)?d.playbackDiagnostics.filter(row=>
   ["enforcement","buffering","media-error"].includes(row?.kind)).slice(0,30):[];
  $("dashboardPlaybackState").textContent=!d.requestLog?

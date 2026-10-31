@@ -141,3 +141,11 @@ test("multi-tab export requires user confirmation and never requests a full page
  assert.match(js,/DKSessionExport\.download\(report,format\)/);
  assert.ok(html.indexOf('src="session-export.js"')<html.indexOf('src="site-dashboard.js"'));
 });
+
+test("YouTube request diagnosis appears as a coarse summary without page URLs",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const js=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ assert.match(html,/id="dashboardYouTubeTriage"/);
+ assert.ok(html.indexOf('src="youtube-triage.js"')<html.indexOf('src="site-dashboard.js"'));
+ assert.match(js,/DKYouTubeTriage\.summarize\(d\)/);
+});

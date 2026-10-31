@@ -103,3 +103,15 @@ test("exports YouTube refusal and buffering separately, never private media URLs
  assert.match(E.asText(result),/enforcement/);
  assert.doesNotMatch(JSON.stringify(result),/PRIVATE_VIDEO/);
 });
+
+test("YouTube false-positive triage is in the blocked export but contains no video URL",()=>{
+ const f=fixture();
+ f.recentBlocks.push({host:"www.youtube.com",type:"xmlhttprequest",sequence:99,
+  ruleEvidence:{source:"Native network filter (original list not determined)",subscription:"EasyPrivacy"},
+  url:"https://www.youtube.com/players?videoId=SECRET_VIDEO"});
+ const r=E.build(f);
+ assert.equal(r.youtubeCompatibility.firstPartyXHR,1);
+ assert.ok(r.youtubeCompatibility.firstPartySources.includes("EasyPrivacy"));
+ assert.doesNotMatch(JSON.stringify(r),/SECRET_VIDEO/);
+ assert.match(E.asText(r),/YOUTUBE COMPATIBILITY EVIDENCE/);
+});

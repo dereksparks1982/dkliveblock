@@ -4,6 +4,7 @@
 (function(root){"use strict";
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Details=root.DKBlockDetails||typeof require==="function"&&require("./block-details.js");
+const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
 const NOTE="Only destination hostnames, resource types, safe filter evidence and optional explicitly requested RDAP information are exported. No raw request URLs, paths, query strings, cookies or payloads. A blocked request is not proof of malware or a cause of playback failure.";
 function short(value,limit=200){
  return String(value??"").replace(/[\u0000-\u001f\u007f-\u009f]/g," ").trim().slice(0,limit);
@@ -61,7 +62,7 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
   scope:only?"individual request":"all retained blocked requests",
   totalBlockedOnTab:Model.number(snapshot.blocked),retainedRecords:all.length,
   exportedRecords:records.length,filterBackend:short(snapshot.filterBackend||"Unknown",70),
-  privacyNotice:NOTE,
+  privacyNotice:NOTE,youtubeCompatibility:Triage.summarize(snapshot),
   playbackDiagnostics:Array.isArray(snapshot.playbackDiagnostics)?snapshot.playbackDiagnostics.slice(0,30).flatMap(row=>{
    if(!["enforcement","buffering","media-error"].includes(row?.kind))return [];
    return [{kind:row.kind,when:safeDate(row.when),blockedMediaNearby:row.blockedMediaNearby===true}];
@@ -76,6 +77,16 @@ function asText(report){
   "Exported requests: "+report.exportedRecords,
   "Filtering backend: "+report.filterBackend,"",report.privacyNotice,"",
   "PLAYBACK DIAGNOSTICS (not proof of a filtering-rule cause)"];
+ if(report.youtubeCompatibility?.applicable){
+  const t=report.youtubeCompatibility;
+  lines.push("YOUTUBE COMPATIBILITY EVIDENCE",
+   "First-party blocked XHR: "+t.firstPartyXHR,
+   "First-party blocked image: "+t.firstPartyImage,
+   "Blocked media: "+t.mediaBlocked,
+   "Advertising-network blocks: "+t.advertisingInfrastructure,
+   "Matched first-party rule sources: "+t.firstPartySources.join(", "),
+   t.interpretation,"");
+ }
  if(!report.playbackDiagnostics?.length)lines.push("No playback diagnostics recorded.");
  else for(const event of report.playbackDiagnostics)
   lines.push(event.when+" · "+event.kind+(event.blockedMediaNearby?" · blocked media nearby":""));
