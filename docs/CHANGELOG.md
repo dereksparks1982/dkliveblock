@@ -639,3 +639,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.112 / Build 142 (2026-10-31)
 - Hardened the YouTube MAIN-world player-data helper to avoid executing accessor getters for ad markers, player bootstrap and nested responses. Uses property descriptors and fail-open checks; tests cover hostile getters and explicit playback denial.
+
+### 0.3.113 / Build 143 (2026-10-31)
+- Added a specific Google Ad Manager ad-slot signal to the local ad recognizer and mutation observer. Dynamically introduced matching ad slots are detected, while ordinary query IDs, protected player and form elements remain unchanged. Tests added; Firefox acceptance pending.

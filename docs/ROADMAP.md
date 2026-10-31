@@ -553,3 +553,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 142: MAIN-world player JSON inspection now reads known own data descriptors rather than invoking page-defined getter properties, preserving refusal status and signed media fields.
 - [ ] Full Firefox playback and Linux regression suite remain open.
+
+- [x] Build 143: identify explicit Google Ad Manager `data-google-query-id` ad slots in the reversible DOM recognizer, including dynamically assigned attributes. Other query IDs and protected login/form/video contexts remain untouched.
+- [ ] Complete Firefox dynamic ad slot/browser performance and local suite still pending.

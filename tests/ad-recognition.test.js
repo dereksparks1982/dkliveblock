@@ -210,3 +210,25 @@ test("Build 140 rehidden ad containers restore the site's most recent display",(
  assert.equal(element.style.getPropertyValue("display"),"inline-flex");
  assert.equal(element.style.getPropertyPriority("display"),"important");
 });
+
+test("Build 143 recognizes Google Ad Manager query-ID ad slots",()=>{
+ const slot=ad({tag:"div",cls:"",attrs:[["data-google-query-id","CM4BEAE"]]});
+ const normal=ad({tag:"div",cls:"",attrs:[["data-query-id","article-id"]]});
+ assert.equal(A.hasStrongSignal(slot),true);
+ assert.equal(A.hasStrongSignal(normal),false);
+ const scanner=A.create(documentFor([slot,normal]),{});
+ assert.equal(scanner.scan(),1);
+ assert.equal(slot.style.getPropertyValue("display"),"none");
+ assert.equal(normal.style.getPropertyValue("display"),"");
+ scanner.restore();
+ assert.equal(slot.style.getPropertyValue("display"),"");
+});
+test("Build 143 dynamic Google ad slot attributes trigger bounded scans",()=>{
+ const slot=ad({tag:"div",cls:"",attrs:[["data-google-query-id","123"]]});
+ assert.equal(A.relevantMutation({type:"attributes",
+  attributeName:"data-google-query-id",target:slot}),true);
+ assert.equal(A.relevantMutation({type:"attributes",
+  attributeName:"data-query-id",target:slot}),false);
+ const protectedSlot=ad({tag:"div",cls:"",attrs:[["data-google-query-id","123"]],closest:true});
+ assert.equal(A.safe(protectedSlot,documentFor([protectedSlot])),false);
+});
