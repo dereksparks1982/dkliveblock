@@ -1,6 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
+const backgroundScripts=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8")).background.scripts;
 test("background blocks seeded ads, logs host-only requests, then pauses the site",async()=>{
  const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;},removeListener(fn){if(listeners[name]===fn)delete listeners[name];}});
  let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup\n*$removeparam=utm_source"}};
@@ -15,7 +16,7 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","language-lists.js","manual-rules.js","site-allowlist.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","notification-protection.js","context-menu.js","video-assist.js","streaming-diagnostics.js","playback-health.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","ghostery-vendor.js","hybrid-engine.js","background.js"]){
+ for(const name of backgroundScripts){
   vm.runInContext(fs.readFileSync(path.resolve(__dirname,"../src",name),"utf8"),context,{filename:name});
  }
  await new Promise(resolve=>setTimeout(resolve,20));

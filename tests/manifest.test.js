@@ -127,3 +127,17 @@ test("Popup header displays the bundled DK icon before its title",()=>{
  assert.ok(fs.statSync(path.join(root,"src/icons/dk-live-block.png")).size>0);
  assert.match(css,/\.popup header \.popup-brand/);
 });
+
+test("background VM fixtures use the exact Firefox manifest script list",()=>{
+ // New modules must be visible in every integration VM as soon as they ship.
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ for(const name of ["rule-provenance.js","allowed-activity.js","rule-evidence.js"])
+  assert.ok(manifest.background.scripts.includes(name),"Missing production module "+name);
+ for(const filename of ["auth-background.test.js","background.test.js",
+  "network-background.test.js","youtube-background.test.js"]){
+  const source=fs.readFileSync(path.join(root,"tests",filename),"utf8");
+  assert.match(source,/manifest\.json/,"Fixture must read manifest: "+filename);
+  assert.match(source,/background\.scripts/,"Fixture must load manifest scripts: "+filename);
+  assert.doesNotMatch(source,/for\(const name of \[/,"Stale manually maintained script list: "+filename);
+ }
+});

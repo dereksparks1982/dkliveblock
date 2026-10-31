@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.41, Build 71.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.42, Build 72.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 

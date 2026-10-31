@@ -2,6 +2,10 @@
 
 Source history retained from the former README. A feature description is not proof of successful Firefox testing. The roadmap remains the acceptance authority.
 
+## Build 72: offline test harness dependency repair (0.3.42)
+
+Four background integration test fixtures loaded stale hardcoded script lists, causing 11 early `DKRuleProvenance is not defined` errors despite the actual Firefox manifest including that module. The fixtures now load the exact production background script list, and a manifest regression check protects against the same omission. The YouTube fixture includes the UTF-8 VM primitive used by the bundled engine. No ad-blocking rules, permissions, external dependencies, telemetry or GitHub Actions were added. The next full Ubuntu local suite run and live Firefox streaming acceptance are still outstanding. See [Build 72](BUILD_72.md).
+
 ## Build 55: conservative open-shadow cookie dialogs (0.3.26)
 
 The optional cookie-rejection assistant can now discover familiar consent dialogs within bounded **open Shadow DOM** scopes, including nested web components. It skips focused dialogs, disabled/hidden controls, links, forms and toggles, and never falls back to Accept All. Consent scans are throttled and only one opt-out action is attempted per dialog instance. No permissions, accounts, dependencies or promotional messages were added. Closed shadow roots and some consent managers remain unsupported; full Firefox validation remains outstanding. See [Build 55 details](docs/BUILD_55.md).

@@ -1,6 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
+const backgroundScripts=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8")).background.scripts;
 test("versioned YouTube rules update, survive failure, roll back, and never reinstall rejected version",async()=>{
  const listeners={},on=name=>({
   addListener:fn=>{listeners[name]=fn;},
@@ -32,11 +33,9 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const timers=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
- const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextDecoder,
+ const ctx=vm.createContext({browser,URL,console,Date,AbortController,TextEncoder,TextDecoder,
   fetch,setTimeout:timers,clearTimeout});
- for(const name of ["public-suffix.js","rules.js","engine.js","privacy.js","subscriptions.js","language-lists.js",
-  "manual-rules.js","site-allowlist.js","network-recovery.js","list-io.js","subscription-cache.js","settings.js","notification-protection.js","context-menu.js",
-  "video-assist.js","streaming-diagnostics.js","playback-health.js","streaming-repair.js","request-monitor.js","request-controls.js","popup-trap.js","popup-history.js","auth-protection.js","youtube-maintenance.js","video-library.js","background.js"])
+ for(const name of backgroundScripts)
   vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),ctx,{filename:name});
  await new Promise(resolve=>setTimeout(resolve,25));
  assert.equal((await listeners.message({action:"status",url:"https://www.youtube.com",tabId:1})).youtubeRules.version,0);
