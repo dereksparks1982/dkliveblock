@@ -186,3 +186,35 @@ test("Build 92 disabled mode leaves new initial data unchanged",()=>{
  p.send("disable");
  assert.equal(p.window.ytInitialData.contents.length,2);
 });
+
+test("Build 94 page bridge never rejects a valid fetch JSON because its player object is frozen",async()=>{
+ const p=context();
+ const readOnly=Object.freeze({videoDetails:{title:"safe"},
+  streamingData:{formats:["signed"]},adSlots:[{id:1}]});
+ p.window.fetch=async()=>({status:200,headers:{get:()=> "application/json"},
+  json:async()=>readOnly,text:async()=>JSON.stringify(readOnly),
+  clone(){return this;}});
+ p.send("enable");
+ const response=await p.window.fetch("/youtubei/v1/player",{method:"POST"});
+ assert.equal((await response.json()).adSlots.length,1);
+ assert.equal(JSON.parse(await response.text()).adSlots.length,1);
+});
+test("Build 94 frozen initial player object remains unchanged instead of breaking initialization",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse=Object.freeze({videoDetails:{title:"safe"},
+  streamingData:{formats:["signed"]},adSlots:[{}]});
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ assert.equal(p.window.ytInitialPlayerResponse.streamingData.formats[0],"signed");
+ p.send("disable");
+});
+test("Build 94 nonconfigurable ad field cannot cause partial removal of other fields",()=>{
+ const p=context();
+ const player={videoDetails:{title:"safe"},streamingData:{formats:["signed"]},
+  adPlacements:[{}],adSlots:[{}]};
+ Object.defineProperty(player,"adSlots",{configurable:false,writable:true,value:[{}]});
+ p.window.ytInitialPlayerResponse=player;
+ p.send("enable");
+ assert.equal(player.adSlots.length,1);
+ assert.equal(player.adPlacements.length,1);
+});

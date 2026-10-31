@@ -492,3 +492,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.63 / Build 93 (2026-10-31)
 - Hardened feed/Shorts response traversal with object-field and total-edge limits. Preflight all targeted arrays for frozen/sealed/nonwritable state before any removal, reducing risk of partial page mutation. Added adversarial-size and read-only fixtures; real browser acceptance pending.
+
+### 0.3.64 / Build 94 (2026-10-31)
+- Protected the YouTube MAIN-world video player bridge against frozen and nonconfigurable ad fields; preflight removals and treat page-object errors as unchanged data rather than rejecting fetch().json(), fetch().text() or XHR reads. Added read-only regression fixtures. Firefox tests pending.

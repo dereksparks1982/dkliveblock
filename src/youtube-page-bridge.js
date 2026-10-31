@@ -16,10 +16,13 @@ function playable(x){return plain(x)&&(
 function pruneObject(x){
  if(!playable(x)||x.playabilityStatus?.status&&x.playabilityStatus.status!=="OK")return 0;
  let removed=0;
- for(const field of AD_FIELDS){
-  if(Object.prototype.hasOwnProperty.call(x,field)&&
-     (Array.isArray(x[field])||plain(x[field]))){delete x[field];removed++;}
- }
+ const fields=AD_FIELDS.filter(field=>
+  Object.prototype.hasOwnProperty.call(x,field)&&
+  (Array.isArray(x[field])||plain(x[field])));
+ // A frozen/non-configurable player payload must not break fetch().json().
+ for(const field of fields)if(!Object.getOwnPropertyDescriptor(x,field)?.configurable)
+  return 0;
+ for(const field of fields){delete x[field];removed++;}
  return removed;
 }
 function prune(x,url=""){
@@ -44,7 +47,8 @@ function rewrite(text,url=""){
  if(typeof text!=="string"||text.length>MAX||text.length<2)return text;
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let obj;try{obj=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return text;}
- return prune(obj)?prefix+JSON.stringify(obj):text;
+ try{return prune(obj)?prefix+JSON.stringify(obj):text;}
+ catch(_){return text;}
 }
 function normalize(raw){
  try{return new URL(String(raw),location.href).href;}catch(_){return "";}
@@ -71,12 +75,12 @@ function decorate(response,requestURL=""){
   const json=response.json,text=response.text,clone=response.clone;
   if(typeof json==="function")Object.defineProperty(response,"json",{
    configurable:true,value:function(...args){
-    return Promise.resolve(json.apply(this,args)).then(data=>{if(enabled)prune(data,requestURL);return data;});
+    return Promise.resolve(json.apply(this,args)).then(data=>{if(enabled)try{prune(data,requestURL);}catch(_){}return data;});
    }
   });
   if(typeof text==="function")Object.defineProperty(response,"text",{
    configurable:true,value:function(...args){
-    return Promise.resolve(text.apply(this,args)).then(body=>enabled?rewrite(body,requestURL):body);
+    return Promise.resolve(text.apply(this,args)).then(body=>{try{return enabled?rewrite(body,requestURL):body;}catch(_){return body;}});
    }
   });
   if(typeof clone==="function")Object.defineProperty(response,"clone",{
@@ -161,7 +165,7 @@ function enable(){
    get:function(){
     const value=oldResponse.get.call(this);
     if(!allowed(this))return value;
-    if(this.responseType==="json"){prune(value,pending.get(this));return value;}
+    if(this.responseType==="json"){try{prune(value,pending.get(this));}catch(_){}return value;}
     if((this.responseType===""||this.responseType==="text")&&typeof value==="string"){
      if(!cache.has(this))cache.set(this,rewrite(value,pending.get(this)));
      return cache.get(this);

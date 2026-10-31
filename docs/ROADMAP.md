@@ -406,3 +406,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 93: cap YouTube feed parser object fields/edges and preflight all targeted arrays before changes, refusing frozen/sealed arrays without partial mutation; preserve normal items and fail-open unknown schema behavior.
 - [ ] Build 93 acceptance: live Firefox read-only page data, heavy feed/Shorts and complete local regression suite.
+
+- [x] Build 94: MAIN-world video JSON hooks fail open on frozen/nonconfigurable data and do not reject fetch/XHR responses due to page-defined object restrictions. Check all targeted fields before mutation, retaining signed video data and playback status.
+- [ ] Build 94 acceptance: complete local tests and live Firefox signed playback, immutable objects and browser compatibility.
