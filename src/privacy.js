@@ -13,6 +13,11 @@ const SIGNED_KEYS=new Set([
 ]);
 function signedOrAuth(url){
  if(url.username||url.password)return true;
+ // Some OAuth/SSO flows deliver authorization state in the fragment,
+ // including hash-router callback URLs. Do not alter even unrelated query
+ // parameters during these redirects.
+ if(/(?:^|[&#?])(?:access_token|id_token|oauth_token|code|state|session_state|samlresponse|relaystate)=/i.test(url.hash||""))
+  return true;
  for(const key of url.searchParams.keys())
   if(SIGNED_KEYS.has(key.toLowerCase()))return true;
  return false;

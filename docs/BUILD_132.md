@@ -1,0 +1,3 @@
+# Build 132: safeguard fragment-based login redirects
+
+Unreleased 0.3.102. Some sites complete sign-in using OAuth or SSO callback state stored in the URL fragment (`#access_token=...`, `#id_token=...` or hash-router `?state=...`). Even removing unrelated marketing parameters from the query could disrupt such flows. The shared privacy guard now treats explicit fragment authentication assignments as protected and declines to rewrite the entire navigation. Ordinary editorial links using `#section` remain eligible for tracking cleanup. No fragment or token value is stored or exported. Full Firefox and local suite acceptance pending, with no GitHub Actions or release.

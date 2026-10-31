@@ -606,3 +606,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.101 / Build 131 (2026-10-31)
 - Closed a signed URL preservation gap across the independent and built-in tracking cleaners. Recognized UTM-prefixed signing/authorization keys now cause both to leave the entire URL untouched, preventing invalid signatures from unrelated UTM removal. Added cross-layer regression tests. Firefox validation pending.
+
+### 0.3.102 / Build 132 (2026-10-31)
+- Protected fragment-based authentication callbacks from unrelated query rewrites. Recognizes explicit OAuth/SSO token, code and state assignments in URL fragments while preserving ordinary article fragment cleanup. Added regression tests; Firefox acceptance pending.

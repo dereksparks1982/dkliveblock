@@ -520,3 +520,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 131: align the separate built-in privacy tracker remover with the engine's signed-query safeguards. Preserve entire URLs containing UTM-prefixed signature/session/token/state and additional cloud signing markers, not only the signature keys themselves.
 - [ ] Complete regression and browser checkout/authentication/download safety acceptance pending.
+
+- [x] Build 132: protect fragment-based OAuth/SSO callback URLs before marketing-parameter cleanup, including hash-router code/state/token flows; retain normal article tracking cleanup.
+- [ ] Full Linux suite and browser authentication callback acceptance outstanding.

@@ -56,3 +56,19 @@ test("Build 131 privacy and network tracking layers both preserve UTM-adjacent s
  assert.equal(preserveNavigation(normal),false);
  assert.equal(stripTrackingParameters(normal),"https://news.example/story?view=full");
 });
+
+test("Build 132 never strips marketing query tags on fragment-based login callbacks",()=>{
+ const {preserveNavigation}=require("../src/privacy.js");
+ for(const url of [
+  "https://login.example/#access_token=opaque&utm_source=ad",
+  "https://login.example/callback?utm_source=ad#id_token=opaque",
+  "https://login.example/#/callback?state=opaque&step=done",
+  "https://account.example/?utm_campaign=mail#code=opaque"
+ ]){
+  assert.equal(preserveNavigation(url),true,url);
+  assert.equal(stripTrackingParameters(url),null,url);
+ }
+ assert.equal(preserveNavigation("https://news.example/story?utm_source=ad#section"),false);
+ assert.equal(stripTrackingParameters("https://news.example/story?utm_source=ad#section"),
+  "https://news.example/story#section");
+});

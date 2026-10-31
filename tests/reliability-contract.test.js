@@ -91,3 +91,10 @@ test("Build 131 signed query preservation is enforced before either cleanup laye
   assert.equal(Privacy.stripTrackingParameters(link),null);
  }
 });
+
+test("Build 132 browser privacy cleaner does not rewrite OAuth fragment redirects",()=>{
+ const P=require("../src/privacy.js");
+ const original="https://login.example/callback?utm_source=ad#access_token=opaque";
+ assert.equal(P.preserveNavigation(original),true);
+ assert.equal(P.stripTrackingParameters(original),null);
+});
