@@ -3,6 +3,9 @@
    ad-unblocking fallback or browsing-history storage. */
 (function(root){"use strict";
 const MAX_BYTES=1500000,MAX_TABS=100;
+// Load the same bounded feed helper in Firefox's background global and in
+// direct Node tests. Optional at runtime: fail open, never block playback.
+const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
 const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,errors:0});
@@ -14,7 +17,7 @@ function target(url){
   const u=new URL(url);
   if(u.protocol!=="https:"||u.username||u.password||!sub(u.hostname,"youtube.com"))return false;
   return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
-   (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(url));
+   (Feed&&!!Feed.kind(url));
  }catch(_){return false;}
 }
 function eligible(details,pageHost){
@@ -56,8 +59,8 @@ function pruneObject(obj){
  return changed;
 }
 function rewrite(text,url=""){
- if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url)){
-  const r=DKYouTubeFeed.rewrite(url,text);
+ if(url&&Feed&&Feed.kind(url)){
+  const r=Feed.rewrite(url,text);
   return {text:r.text,changed:r.changed,fields:r.items};
  }
  if(typeof text!=="string"||text.length>MAX_BYTES||text.length<2)return {text,changed:false,fields:0};

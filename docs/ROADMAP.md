@@ -373,3 +373,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 82: independently written, bounded ad-only entry processing for YouTube browse, search and reel_watch_sequence JSON. Only positive ad renderer and explicit Shorts isAd markers are removed; traversal gathers all changes before committing and leaves unsupported/oversized data intact.
 - [ ] Build 82 acceptance: complete Ubuntu and Firefox tests including Shorts, feeds, search, ordinary videos and free movies. No ad-free claim without actual playback evidence.
+
+- [x] Build 83: repair standalone Node/Firefox shared feed-helper resolution. Tests now load the complete MAIN-world script group in manifest order, cover YouTube initial sponsored feed data and actual Shorts response rewriting through the exported response module.
+- [ ] Build 83 acceptance: full offline suite and live Firefox behavior. Do not treat manifest presence or successful module imports as proof of YouTube ad removal.

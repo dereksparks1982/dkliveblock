@@ -459,3 +459,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.52 / Build 82 (2026-10-31)
 - Added independent local, bounded YouTube Shorts and sponsored-feed ad-entry filtering to both Firefox response streams and MAIN-world fetch/XHR, with strict positive ad markers, fail-open bounds and matching regression fixtures. Live playback remains unverified.
+
+### 0.3.53 / Build 83 (2026-10-31)
+- Fixed direct-test feed helper module loading and added integration tests for Firefox MAIN-world order, initial sponsored feed data, and Shorts response filtering without touching playback/account fields. Full Ubuntu/browser acceptance remains pending.

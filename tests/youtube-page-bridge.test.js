@@ -20,7 +20,10 @@ function context(){
  const window={fetch:originalFetch,XMLHttpRequest:XHR};
  window.top=window;
  const location={hostname:"www.youtube.com",href:"https://www.youtube.com/watch?v=private"};
- vm.runInNewContext(source,{window,document,location,URL,Promise,WeakMap,Object,Array,JSON,String});
+ const context=vm.createContext({window,document,location,URL,Promise,WeakMap,Object,Array,JSON,String});
+ const feed=fs.readFileSync(path.resolve(__dirname,"../src/youtube-feed.js"),"utf8");
+ vm.runInContext(feed,context,{filename:"youtube-feed.js"});
+ vm.runInContext(source,context,{filename:"youtube-page-bridge.js"});
  return {window,document,requests,originalFetch,send:flag=>listeners[EVENT]({detail:flag})};
 }
 test("Build 74 MAIN-world script waits for explicit activation and restores fetch",async()=>{
@@ -55,6 +58,16 @@ test("Build 74 XHR responseText and json are limited to valid response and reset
  assert.equal(JSON.parse(xhr.responseText).adSlots,undefined);
  xhr.responseType="json";assert.equal(xhr.response.adSlots,undefined);
  p.send("disable");assert.equal(Object.getOwnPropertyDescriptor(proto,"responseText").get,native);
+});
+test("Build 83 initial feed ad handling runs after activation in MAIN world",()=>{
+ const p=context();
+ p.window.ytInitialData={contents:[
+  {videoRenderer:{videoId:"normal"}},
+  {adSlotRenderer:{adId:"paid"}}
+ ]};
+ p.send("enable");
+ assert.equal(p.window.ytInitialData.contents.length,1);
+ assert.equal(p.window.ytInitialData.contents[0].videoRenderer.videoId,"normal");
 });
 test("Build 78 page script nested reply handling and ready handshake",()=>{
  const p=context();

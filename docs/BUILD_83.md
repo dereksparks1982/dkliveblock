@@ -1,0 +1,3 @@
+# Build 83: feed/Shorts cross-layer integration
+
+Version 0.3.53. The browser background loads youtube-feed.js before youtube-response.js, while isolated Node tests directly import youtube-response.js. The response module now resolves the same bundled helper in both environments. Tests create one MAIN-world context and load the production helper and bridge in manifest order, then check explicit activation of existing feed sponsored entries. A separate response module test verifies Shorts ad entry filtering while preserving non-ad entries and tracking metadata. Source integration is now coherent; full local suite and real Firefox ad-free video acceptance remain open.

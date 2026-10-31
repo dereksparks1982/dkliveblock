@@ -87,3 +87,17 @@ test("Build 73 stream filter handles split chunks, oversize, invalid JSON and cl
  R.clear(7);assert.equal(R.stats(7).observed,0);
  assert.equal(R.stats(7).playerRequests,0);
 });
+
+test("Build 83 standalone response module loads bundled feed helper and preserves ordinary items",()=>{
+ const url="https://www.youtube.com/youtubei/v1/reel_watch_sequence";
+ assert.equal(R.target(url),true);
+ const original={entries:[
+  {command:{reelWatchEndpoint:{videoId:"normal"}}},
+  {command:{reelWatchEndpoint:{videoId:"paid",adClientParams:{isAd:true}}}}
+ ],playbackTracking:{token:"private"}};
+ const filtered=R.rewrite(JSON.stringify(original),url);
+ assert.equal(filtered.changed,true);assert.equal(filtered.fields,1);
+ const payload=JSON.parse(filtered.text);
+ assert.equal(payload.entries.length,1);
+ assert.deepEqual(payload.playbackTracking,original.playbackTracking);
+});
