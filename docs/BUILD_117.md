@@ -1,0 +1,3 @@
+# Build 117: do not break signed downloads, payments and login redirects
+
+Unreleased 0.3.87. An earlier rule preserved signing values but still removed separate UTM or click tags from the URL. That can invalidate a signature covering the whole original query or disrupt payment/login callbacks. The navigation cleaner now refuses to rewrite any query containing recognized signing, token, authorization, session or callback fields, including AWS/Google signed URL parameters and protected UTM-prefixed keys. Ordinary unsigned tracking links are still cleaned. Prior tests were updated to assert full signed-link preservation. This is a conservative compatibility safeguard, not proof of full Firefox browser acceptance. No GitHub Actions or new dependencies.

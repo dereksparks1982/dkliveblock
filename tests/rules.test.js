@@ -121,7 +121,7 @@ test("named removeparam rules clean top-level navigation only",()=>{
 });
 test("removeparam respects site restrictions, exceptions and important signed keys",()=>{
  const f=new FilterEngine("*$removeparam=clickid,domain=shop.example\n@@||shop.example/private^$removeparam=clickid\n*$removeparam=signature");
- assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&signature=x"),"https://shop.example/item?signature=x");
+ assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&signature=x"),null);
  assert.equal(f.cleanNavigation("https://shop.example/private?clickid=123"),null);
  assert.equal(f.cleanNavigation("https://other.example/item?clickid=123"),null);
  assert.equal(R.network("*$removeparam=/unsafe-regexp/"),null);
@@ -294,8 +294,7 @@ test("Build 90 recognizes scoped literal has-text and matching exceptions",()=>{
 
 test("Build 95 UTM family stripping preserves product and signed data",()=>{
  const f=new FilterEngine("*$removeparam=utm_*");
- assert.equal(f.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=10&signature=signed"),
-  "https://shop.example/?sku=10&signature=signed");
+ assert.equal(f.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=10&signature=signed"),null);
  assert.equal(R.network("*$removeparam=*"),null);
  assert.equal(R.network("*$removeparam=token*"),null);
 });
@@ -385,8 +384,8 @@ test("Build 111 campaign family cleanup retains signed and session-like fields",
  const f=new FilterEngine("*$removeparam=utm_*");
  const url="https://shop.example/continue?utm_source=remove&utm_campaign=remove"+
   "&utm_token=keep&utm_signature=keep&utm_session=keep&UTM_NONCE=keep&sku=15";
- assert.equal(f.cleanNavigation(url),
-  "https://shop.example/continue?utm_token=keep&utm_signature=keep&utm_session=keep&UTM_NONCE=keep&sku=15");
+ assert.equal(f.cleanNavigation(url),null,
+  "a potentially signed link must remain byte-for-byte unchanged");
  assert.equal(f.cleanNavigation("https://shop.example/?utm_code=keep&utm_auth=keep"),null);
 });
 
@@ -410,4 +409,18 @@ test("Build 116 per-site scan output is bounded before background serialization"
  const rules=f.getProcedural("news.example");
  assert.equal(rules.length,300);
  assert.equal(rules[0].text,"Advert 0");
+});
+
+test("Build 117 keeps complete signed download and checkout query strings intact",()=>{
+ const f=new FilterEngine("*$removeparam=utm_*\n*$removeparam=clickid");
+ const cases=[
+  "https://cdn.example/object?utm_source=promo&X-Amz-Signature=abc&X-Amz-Credential=k",
+  "https://video.example/play?utm_medium=email&X-Goog-Signature=abc",
+  "https://shop.example/checkout?clickid=123&signature=abc&total=99",
+  "https://login.example/callback?utm_source=ref&state=opaque&code=abc",
+  "https://site.example/file?utm_source=ad&UTM_TOKEN=secret"
+ ];
+ for(const url of cases)assert.equal(f.cleanNavigation(url),null,url);
+ assert.equal(f.cleanNavigation("https://shop.example/item?clickid=123&utm_source=ad&sku=7"),
+  "https://shop.example/item?sku=7");
 });

@@ -66,6 +66,17 @@ class FilterEngine {
   const protectedCampaignKeys=new Set(["utm_token","utm_auth","utm_signature",
    "utm_sig","utm_state","utm_code","utm_key","utm_expires",
    "utm_session","utm_nonce"]);
+  // Retaining a signing field alone is insufficient: a cryptographic URL
+  // signature may cover the entire original query and its exact ordering.
+  // Do not rewrite any part of these access, callback or signed URLs.
+  const protectedQuery=new Set([...reserved,
+   "x-amz-signature","x-amz-credential","x-amz-security-token",
+   "x-goog-signature","x-goog-credential","x-goog-algorithm",
+   "googleaccessid","policy","signature","sig"]);
+  for(const key of url.searchParams.keys()){
+   const lower=key.toLowerCase();
+   if(protectedQuery.has(lower)||protectedCampaignKeys.has(lower))return null;
+  }
   const utmExceptions=new Set([...except].filter(name=>
    /^utm_[a-z0-9_]+$/i.test(name)).map(name=>name.toLowerCase()));
   let changed=false;

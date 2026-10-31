@@ -561,3 +561,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.86 / Build 116 (2026-10-31)
 - Deduplicated applicable procedural cosmetic rules before passing them to the page's bounded scan loop. Repeated entries from different subscriptions no longer consume scarce first-50 scan slots or cause duplicate DOM queries. Preserved site exceptions and capped output to 300 entries. Firefox acceptance pending.
+
+### 0.3.87 / Build 117 (2026-10-31)
+- Protected signed URLs and authentication callbacks from query rewriting. Presence of known cryptographic, token or state keys now prevents all tracking-parameter modifications, because changing unrelated query keys can invalidate whole-URL signatures. Updated earlier regression expectations and added signed-download/checkout fixtures. Browser acceptance pending.

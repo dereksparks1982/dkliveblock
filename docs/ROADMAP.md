@@ -475,3 +475,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 116: deduplicate equivalent per-site procedural rules, preserving exception priority and bounded output before content-side DOM scanning.
 - [ ] Full Node/Python run and Firefox heavy-list profile remain mandatory.
+
+- [x] Build 117: fail-open on entire signed/download/callback query strings before applying optional tracking parameter cleanup; keeping a signature key while editing other signed fields is not safe.
+- [ ] Complete local suite and Firefox signed payment/authentication/download acceptance outstanding.
