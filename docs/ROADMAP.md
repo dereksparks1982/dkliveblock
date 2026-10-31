@@ -421,3 +421,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 98: reject advanced pseudo-selectors that are not supported by native CSS or the bounded DK procedural engine, instead of counting them as working filters. Retain native :has and :not.
 - [ ] Build 98 acceptance: full Node/Python and Firefox selector tests.
+
+- [x] Build 99: procedural cosmetic rules accept up to eight named sites and respect individual site exceptions; indexed by site.
+- [ ] Full suite and Firefox DOM tests pending.

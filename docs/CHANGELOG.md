@@ -507,3 +507,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.68 / Build 98 (2026-10-31)
 - Hardened cosmetic parsing and compatibility counts by rejecting unsupported advanced selector expressions instead of inserting invalid CSS. Native selectors remain supported. Added parser/validator fixtures; browser acceptance pending.
+
+### 0.3.69 / Build 99 (2026-10-31)
+- Added bounded multi-site procedural cosmetic scopes and site-specific exceptions. Live browser validation pending.

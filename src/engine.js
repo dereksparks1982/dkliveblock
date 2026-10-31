@@ -7,7 +7,7 @@ class FilterEngine {
   this.hostIndex=new Map();this.tokenIndex=new Map();this.generic=[];this.special=[];this.paramRules=[];this.cosmetic=[];this.procedural=[];this.cosmeticGlobal=[];this.cosmeticByHost=new Map();this.proceduralByHost=new Map();this.networkCount=0;this.unsupportedCount=0;
   const pending=[],disabled=new Set();
   for(const raw of text.split(/\r?\n/)){const line=raw.trim();if(!line||line[0]==="!"||line[0]==="[")continue;
-   const p=R.procedural(line);if(p){this.procedural.push(p);this.addIndex(this.proceduralByHost,p.scope,p);continue;}
+   const p=R.procedural(line);if(p){this.procedural.push(p);for(const domain of p.scope.split(","))this.addIndex(this.proceduralByHost,domain,p);continue;}
    const c=R.cosmetic(line);if(c){
     this.cosmetic.push(c);
     const parts=c.scope.split(",").map(x=>x.trim()).filter(x=>x&&!x.startsWith("~"));

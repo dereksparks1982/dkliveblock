@@ -318,3 +318,12 @@ test("Build 98 refuses advanced pseudo-classes that Firefox CSS does not impleme
  assert.ok(R.cosmetic("news.example##div:has(.paid)"));
  assert.ok(R.cosmetic("news.example##div:not(.editorial)"));
 });
+
+test("Build 99 procedural domain lists and scoped exceptions",()=>{
+ const f=new FilterEngine("news.example,media.example##div:has-text(Sponsored)"+
+ "\nmedia.example#@#div:has-text(Sponsored)");
+ assert.equal(f.getProcedural("news.example").length,1);
+ assert.equal(f.getProcedural("media.example").length,0);
+ assert.equal(f.getProcedural("other.example").length,0);
+ assert.equal(R.procedural("news.example,##div:has-text(Sponsored)"),null);
+});
