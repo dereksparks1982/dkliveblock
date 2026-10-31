@@ -66,3 +66,9 @@ User-supplied terminal log from Ubuntu desktop, checkout `main` at `4948729`: **
 2. Select `$HOME/DKLab/Projects/dkliveblock/src/manifest.json`. Firefox's temporary extension disappears on browser restart. No ZIP, signing, GitHub Actions, extra install or native companion is needed for base blocking.
 3. Verify DK Live Block appears under **Temporary Extensions**, with no red load error. Open the toolbar and Site Dashboard. Test on a benign ordinary website first. Compare with other installed ad blockers disabled for the test, ideally using an isolated test profile.
 4. Record: `LOAD PASS/FAIL`, `TOOLBAR PASS/FAIL`, `SITE DASHBOARD PASS/FAIL`, `COMMON PAGE PASS/FAIL`, and any browser error text or screenshot. Do not begin long video/Disney+ compatibility tests until basic UI works.
+
+## Build 63 (v0.3.33): all offline gates PASSED, October 30, 2026
+
+Ubuntu desktop pulled GitHub `main` at `123f8bd` and executed `bash scripts/test-local.sh`. User-provided stdout confirms **126/126 structural Node tests and 324/324 offline regression Node tests**, six successful Python companion invocations, 93-of-93 Node test files and nine Python script inventory checks, JavaScript syntax checks, and Firefox package audit v0.3.33. No GitHub Actions found. **0 failures out of 450 JavaScript tests**.
+
+The icon, click-through individual blocked-item Details and user-triggered RDAP endpoint have passed offline unit/structural checks. The VPN/RUTUBE classifications passed offline source checks. This is not a live Firefox/RUTUBE demonstration or independent domain-registry availability check. Browser test gate remains OPEN: verify toolbar icon instead of puzzle piece, View blocked list and individual Details for real blocked requests, research links and explicitly requested RDAP, ad promo/VPN notice removal without changing VPN or video playback. Do not publish.

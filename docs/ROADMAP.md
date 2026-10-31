@@ -289,3 +289,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 63: remove recognizable website VPN nag banners, including observed Russian RUTUBE text, with reversible distraction cleanup and no changes to VPN routing or settings.
 - [x] Build 63: recognize the RUTUBE paid-subscription promotional dialog without disabling checkout, login, media or security UI.
 - [ ] Build 63 acceptance: on-device v0.3.33 full suite, live RUTUBE, Firefox popup icon and optional RDAP details.
+
+- [x] Build 63 offline acceptance: Ubuntu desktop checkout at `123f8bd` passed 126/126 structural, 324/324 regression, Python companion and Firefox packaging checks; 450 JS passes, zero failures.
+- [ ] Build 63 live Firefox acceptance: reload extension, confirm custom icon, inspect individually blocked events and optional RDAP, verify RUTUBE promotion and VPN nags disappear without playback damage, and run YouTube/Disney+ compatibility.
