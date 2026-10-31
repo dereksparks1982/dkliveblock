@@ -418,3 +418,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 97: correct relative YouTube page-bridge integration fixture to return unique Response objects per fetch and independently validate player/browse/Shorts responses and unknown endpoint pass-through. Prevent false regressions from reusing a decorated mock Response across unrelated routes.
 - [ ] Build 97 acceptance: complete local suite and Firefox relative-API playback tests.
+
+- [x] Build 98: reject advanced pseudo-selectors that are not supported by native CSS or the bounded DK procedural engine, instead of counting them as working filters. Retain native :has and :not.
+- [ ] Build 98 acceptance: full Node/Python and Firefox selector tests.

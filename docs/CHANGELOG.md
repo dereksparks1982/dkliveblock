@@ -504,3 +504,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.67 / Build 97 (2026-10-31)
 - Repaired a misleading relative YouTube API regression test that reused the same Response object for multiple fetches, confusing endpoint-specific wrapping. Added distinct response instances, normal-player POST/GET fixtures, and organic Shorts/feed integrity checks. Browser acceptance remains open.
+
+### 0.3.68 / Build 98 (2026-10-31)
+- Hardened cosmetic parsing and compatibility counts by rejecting unsupported advanced selector expressions instead of inserting invalid CSS. Native selectors remain supported. Added parser/validator fixtures; browser acceptance pending.

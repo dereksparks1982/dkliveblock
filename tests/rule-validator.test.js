@@ -38,3 +38,10 @@ test("Build 90 validator categorizes uBO literal has-text and rejects generic us
  assert.equal(v.counts.cosmetic,1);
  assert.equal(v.counts.unsupported,1);
 });
+
+test("Build 98 validator reports unsupported advanced cosmetics accurately",()=>{
+ const r=V.validate(["news.example##div:matches-css(color:red)",
+  "news.example##div:upward(2)","news.example##.normal"].join("\n"));
+ assert.equal(r.counts.unsupported,2);
+ assert.equal(r.counts.cosmetic,1);
+});

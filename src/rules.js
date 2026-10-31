@@ -101,7 +101,7 @@ function network(raw){
 function cosmetic(line){
  const m=/^([^#]*)(#@#|##)(.+)$/.exec(line.trim());if(!m)return null;
  const scope=m[1].toLowerCase(),selector=m[3].trim();
- if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:has-text\(|:style\(|:remove\(/i.test(selector))return null;
+ if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:has-text\(|:style\(|:remove\(|:matches-css\(|:matches-attr\(|:upward\(|:xpath\(|:contains\(|:watch-attr\(/i.test(selector))return null;
  return {scope,selector,exception:m[2]==="#@#"};
 }
 function procedural(line){

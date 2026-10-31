@@ -1,0 +1,3 @@
+# Build 98: accurate advanced cosmetic compatibility
+
+Unreleased 0.3.68. Filter-list rules such as `:matches-css`, `:matches-attr`, `:upward`, `:xpath`, `:contains` and `:watch-attr` cannot run as ordinary browser CSS. Earlier they could be accepted and counted despite doing nothing. The independent parser now rejects these unsupported selectors until a reviewed bounded implementation is available. Native `:has`, `:not` and site-scoped literal `:has-text` continue to work through their appropriate paths. Added parser and validator tests. Full Linux/Firefox acceptance pending. No Actions or download.

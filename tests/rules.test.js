@@ -309,3 +309,12 @@ test("Build 95 UTM family respects exact and site exceptions",()=>{
  const x=new FilterEngine("*$removeparam=utm_source\n@@*$removeparam=utm_*");
  assert.equal(x.cleanNavigation("https://shop.example/?utm_source=x"),null);
 });
+
+test("Build 98 refuses advanced pseudo-classes that Firefox CSS does not implement",()=>{
+ for(const expression of [":matches-css(color:red)",":matches-attr(data-x=1)",
+  ":upward(2)",":xpath(//div)",":contains(Advert)",":watch-attr(style)"]){
+  assert.equal(R.cosmetic("news.example##div"+expression),null,expression);
+ }
+ assert.ok(R.cosmetic("news.example##div:has(.paid)"));
+ assert.ok(R.cosmetic("news.example##div:not(.editorial)"));
+});
