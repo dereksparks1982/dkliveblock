@@ -60,6 +60,7 @@ test("Build 74 manifest loads MAIN only on YouTube and control follows existing 
  const manifest=JSON.parse(fs.readFileSync(path.resolve(__dirname,"../src/manifest.json"),"utf8"));
  const bridge=manifest.content_scripts.find(x=>x.world==="MAIN");
  assert.ok(bridge);assert.deepEqual(bridge.js,["youtube-page-bridge.js"]);
+ assert.equal(manifest.content_scripts[0].world||"ISOLATED","ISOLATED");
  assert.equal(bridge.all_frames,false);
  assert.equal(bridge.run_at,"document_start");
  assert.ok(bridge.matches.every(x=>x.includes("youtube")));

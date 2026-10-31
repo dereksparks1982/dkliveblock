@@ -84,20 +84,6 @@
   "content_scripts": [
     {
       "matches": [
-        "*://youtube.com/*",
-        "*://*.youtube.com/*",
-        "*://youtube-nocookie.com/*",
-        "*://*.youtube-nocookie.com/*"
-      ],
-      "js": [
-        "youtube-page-bridge.js"
-      ],
-      "run_at": "document_start",
-      "all_frames": false,
-      "world": "MAIN"
-    },
-    {
-      "matches": [
         "<all_urls>"
       ],
       "js": [
@@ -119,6 +105,20 @@
       ],
       "run_at": "document_start",
       "all_frames": true
+    },
+    {
+      "matches": [
+        "*://youtube.com/*",
+        "*://*.youtube.com/*",
+        "*://youtube-nocookie.com/*",
+        "*://*.youtube-nocookie.com/*"
+      ],
+      "js": [
+        "youtube-page-bridge.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": false,
+      "world": "MAIN"
     }
   ],
   "icons": {
