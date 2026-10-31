@@ -11,9 +11,9 @@ function create(text,vendorApi=root.DKGhosteryVendor){
   getSelectors:(host,policy)=>native.getSelectors(host,policy),
   getProcedural:(host,policy)=>native.getProcedural(host,policy),
   cleanNavigation:url=>native.cleanNavigation(url),
-  shouldBlock(url,type,origin,policy){return this.checkRequest(url,type,origin,policy).block;},
-  checkRequest(url,type,origin,policy={}){
-   const own=native.checkRequest(url,type,origin,policy);
+  shouldBlock(url,type,origin,policy,method){return this.checkRequest(url,type,origin,policy,method).block;},
+  checkRequest(url,type,origin,policy={},method=""){
+   const own=native.checkRequest(url,type,origin,policy,method);
    // Preserve all existing user/site exception behavior.
    // Preserve native blocks, site/page allows and generic-block exclusions.
    // Avoid expensive duplicate vendor matching on already decided requests.
@@ -25,7 +25,7 @@ function create(text,vendorApi=root.DKGhosteryVendor){
    try{
     const sourceUrl=/^https?:\/\//i.test(origin||"")?origin:
       DKRules.validDomains(origin||"")&&!(origin||"").includes("|")?"https://"+origin+"/":"";
-    const request=vendorApi.Request.fromRawDetails({url,type:type||"other",sourceUrl});
+    const request=vendorApi.Request.fromRawDetails({url,type:type||"other",sourceUrl,method});
     const verdict=this.vendor.match(request);
     if(verdict?.exception)return own; // Never override DK rules with third-party allows.
     // Do not apply remote scriptlets, replacements or URL rewrites.

@@ -453,3 +453,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.50 / Build 80 (2026-10-31)
 - Added private, per-tab counts of YouTube player requests that enter response filtering, distinct from response bodies seen or rewritten. Hardened capability/charset checks and clone behavior. Browser tests remain pending.
+
+### 0.3.51 / Build 81 (2026-10-31)
+- Added method-constrained request filtering, native/hybrid propagation and coverage of GET/POST mismatches, exceptions and malformed rules. No external runtime dependency; Firefox acceptance pending.

@@ -74,12 +74,17 @@ class FilterEngine {
   for(const r of this.special)if(R.domains(h,r.scope)&&(!r.anchor||R.sub(h,r.anchor))&&r.compiled.test(url))policy[r.special]=true;
   return policy;
  }
- checkRequest(url,type,docHost,policy={}){
+ checkRequest(url,type,docHost,policy={},method=""){
   if(typeof url!=="string"||url.length>16384||!/^https?:/i.test(url)||policy.document)return {block:false,rule:null};
   const target=R.host(url),kind=R.TYPE[type]||type||"other";
   let block=null,allow=null,important=null;
   for(const r of this.candidates(url)){
    if(kind==="popup"&&!r.include.has("popup"))continue;
+   if(r.methods){
+    const m=typeof method==="string"?method.toUpperCase():"";
+    if(!m||r.methods.no.has(m)||
+       r.methods.yes.size&&!r.methods.yes.has(m))continue;
+   }
    if(policy.genericblock&&!r.scope&&!r.exception)continue;
    if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.domains(docHost,r.scope))continue;
    if(r.targetScope&&!R.domains(target,r.targetScope))continue;
@@ -90,7 +95,7 @@ class FilterEngine {
   }
   return important?{block:true,rule:important}:allow?{block:false,rule:allow}:{block:!!block,rule:block};
  }
- shouldBlock(url,type,docHost,policy){return this.checkRequest(url,type,docHost,policy).block;}
+ shouldBlock(url,type,docHost,policy,method){return this.checkRequest(url,type,docHost,policy,method).block;}
  getProcedural(h,policy={}){
   if(policy.document||policy.elemhide)return [];
   const matching=this.byHost(this.proceduralByHost,h).filter(x=>R.domains(h,x.scope,","));

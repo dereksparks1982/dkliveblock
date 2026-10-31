@@ -2,11 +2,11 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.50, Build 80.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.51, Build 81.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
-- Blocks common display ads and trackers with bundled Ghostery technology and configurable EasyList/EasyPrivacy subscriptions. Conservatively applies additional local Ghostery cosmetic CSS on non-streaming websites.
+- Blocks common display ads and trackers with bundled Ghostery technology and configurable EasyList/EasyPrivacy subscriptions. Native rules can distinguish HTTP methods to avoid treating POST-only and GET-only requests as interchangeable. Conservatively applies additional local Ghostery cosmetic CSS on non-streaming websites.
 - Adds narrowly scoped script and stylesheet substitutions using two bundled inert resources. Rules must explicitly match the resource type, and no external replacement scripts are executed.
 - Adds conservative automatic ad-slot recognition for explicitly labelled ads, including dynamically added and open-shadow components.
 - Lets users allowlist websites, manage subscriptions, edit filters, pick elements to hide and restore unwanted hiding.

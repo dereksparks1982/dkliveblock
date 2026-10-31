@@ -66,3 +66,13 @@ test("already-blocked requests never invoke the additional vendor matcher",()=>{
  assert.equal(e.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
  assert.equal(calls,0);
 });
+
+test("Build 81 hybrid forwards request method and keeps native method restrictions",()=>{
+ const seen=[];
+ const provider={FiltersEngine:{parse:()=>({match:req=>{seen.push(req.method);return {match:false};}})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("||ads.example^$xmlhttprequest,method=POST",provider);
+ assert.equal(e.checkRequest("https://ads.example/a","xmlhttprequest","news.example",{},"POST").block,true);
+ assert.equal(e.checkRequest("https://ads.example/a","xmlhttprequest","news.example",{},"GET").block,false);
+ assert.deepEqual(seen,["GET"]);
+});

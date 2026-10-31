@@ -43,7 +43,7 @@ function network(raw){
  let p=line,opts=[],i=line.lastIndexOf("$");
  if(i>0&&/^[a-z0-9~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
  if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
- const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="",redirect="";
+ const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="",redirect="",methods=null;
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
   if((o.startsWith("domain=")||o.startsWith("from="))&&!neg){
    if(scope)return null;
@@ -58,6 +58,17 @@ function network(raw){
    removeparam=o.slice(12);
    if(!/^[a-zA-Z0-9_.~-]{1,64}$/.test(removeparam))return null;
    continue;
+  }
+  if(o.startsWith("method=")&&!neg){
+   if(methods)return null;
+   const entries=o.slice(7).toUpperCase().split("|");
+   const known=new Set(["GET","POST","HEAD","PUT","PATCH","DELETE","OPTIONS"]);
+   if(!entries.length||entries.length>7||
+      entries.some(x=>!known.has(x.startsWith("~")?x.slice(1):x)))return null;
+   const yes=new Set(entries.filter(x=>!x.startsWith("~")));
+   const no=new Set(entries.filter(x=>x.startsWith("~")).map(x=>x.slice(1)));
+   if([...yes].some(x=>no.has(x)))return null;
+   methods={yes,no};continue;
   }
   if(o.startsWith("redirect=")&&!neg){
    const name=o.slice(9);
@@ -74,6 +85,8 @@ function network(raw){
   if(RES.has(resource)){(neg?exclude:include).add(resource);continue;}return null;
  }
  if(denyallow&&!scope)return null;
+ // Page policies and query cleanup have no resource request method.
+ if(methods&&(special||removeparam))return null;
  // Never allow broad, arbitrary, media, navigation or sign-in substitutions.
  if(redirect){
   const kind=redirect==="noop.js"?"script":"stylesheet";
@@ -82,7 +95,7 @@ function network(raw){
  }
  const compiled=regex(p,matchCase);if(!compiled)return null;
  let anchor="";if(p.startsWith("||")){const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?*: ]|$)/i.exec(p);if(m)anchor=m[1].toLowerCase();}
- return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,redirect,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
+ return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,redirect,methods,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 
 function cosmetic(line){

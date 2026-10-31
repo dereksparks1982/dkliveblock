@@ -462,7 +462,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   return {};
  }
  const contextHost=host(doc)||top;
- const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc));
+ const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc),d.method||"");
  if(!result.block)return {};
  // A manual allowance never overrides popup protection or page navigation.
  // It matches one exact site, destination hostname and Firefox resource type.

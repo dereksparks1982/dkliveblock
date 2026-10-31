@@ -253,3 +253,26 @@ test("Build 34 safe descendant has alias remains site-scoped and reversible",()=
  assert.equal(R.procedural("page.test#?#div:has(+js(evil))"),null);
  assert.equal(R.procedural("page.test#?#div:has(.ad;body)"),null);
 });
+
+test("Build 81 method rules apply only to known matching HTTP methods and honor exceptions",()=>{
+ const f=new FilterEngine("||ads.example^$xmlhttprequest,method=POST"+
+  "\n@@||ads.example/allow^$xmlhttprequest,method=POST");
+ assert.equal(f.shouldBlock("https://ads.example/pixel","xmlhttprequest","news.example",{},"POST"),true);
+ assert.equal(f.shouldBlock("https://ads.example/pixel","xmlhttprequest","news.example",{},"GET"),false);
+ assert.equal(f.shouldBlock("https://ads.example/pixel","xmlhttprequest","news.example"),false);
+ assert.equal(f.shouldBlock("https://ads.example/allow?x=1","xmlhttprequest","news.example",{},"POST"),false);
+});
+test("Build 81 includes and excludes HTTP methods with safe bounds",()=>{
+ const f=new FilterEngine("||ads.example^$method=POST|PUT|~DELETE,script");
+ for(const method of ["POST","PUT"])assert.equal(f.shouldBlock("https://ads.example/x","script","news.example",{},method),true);
+ for(const method of ["GET","DELETE","HEAD",""])assert.equal(f.shouldBlock("https://ads.example/x","script","news.example",{},method),false);
+ const neg=new FilterEngine("||ads.example^$method=~GET");
+ assert.equal(neg.shouldBlock("https://ads.example/x","image","news.example",{},"POST"),true);
+ assert.equal(neg.shouldBlock("https://ads.example/x","image","news.example",{},"GET"),false);
+});
+test("Build 81 rejects invalid, contradictory or non-request method options",()=>{
+ for(const line of ["||ads.example^$method=TRACE","||ads.example^$method=",
+  "||ads.example^$method=POST|~POST","||ads.example^$method=POST,method=GET",
+  "||ads.example^$~method=GET","@@||ads.example^$document,method=GET",
+  "*$removeparam=utm_source,method=GET"])assert.equal(R.network(line),null,line);
+});

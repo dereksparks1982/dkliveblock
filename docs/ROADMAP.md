@@ -367,3 +367,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 80: tab-scoped count of player request attempts compared with responses handled and modified; no bypass when Firefox lacks response-filter support, strict UTF-8 decoding gate, and pathological fetch clone recursion avoidance.
 - [ ] Build 80 acceptance: full on-device regression suite, live YouTube playback and filtering metrics. A missing response or blocked player remains a failure.
+
+- [x] Build 81: native `$method=POST|GET|~HEAD` rule matching with constrained method validation and exception precedence; propagate Firefox request method to native and hybrid filters and maintain rule-validator compatibility.
+- [ ] Build 81 acceptance: cross-engine differential verification plus full on-device and browser regressions. Method matching is only one part of ABP/uBO parity.
