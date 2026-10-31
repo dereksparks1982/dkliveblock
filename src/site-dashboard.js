@@ -425,6 +425,18 @@ function display(d){
   " media blocks, "+triage.advertisingInfrastructure+" ad-network blocks. "+
   triage.interpretation+" Matched first-party sources: "+
   (triage.firstPartySources.join(", ")||"none recorded"):"";
+ const responses=d.youtubeResponse;
+ $("dashboardYouTubeResponse").hidden=!responses;
+ $("dashboardYouTubeResponse").textContent=responses?
+  "YouTube JSON advertising response filtering: "+(responses.enabled?"enabled":"disabled")+
+  (responses.supported?" · Firefox API available":" · Firefox API unavailable")+
+  " · "+Model.number(responses.observed)+" eligible responses handled"+
+  " · "+Model.number(responses.modified)+" rewritten"+
+  " · "+Model.number(responses.fields)+" ad metadata fields removed"+
+  " · "+Model.number(responses.unchanged)+" unchanged"+
+  " · "+Model.number(responses.oversized)+" too large"+
+  " · "+Model.number(responses.errors)+" processing errors. "+
+  "These counts are not evidence of ad-free playback.":"";
  const playback=Array.isArray(d.playbackDiagnostics)?d.playbackDiagnostics.filter(row=>
   ["enforcement","buffering","media-error"].includes(row?.kind)).slice(0,30):[];
  $("dashboardPlaybackState").textContent=!d.requestLog?

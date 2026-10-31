@@ -422,3 +422,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.41 (Build 71, unreleased)
 - Add YouTube-specific diagnostics separating blocked first-party XHR, images, media and ad-network requests, without exposing private URLs.
+
+### 0.3.43 / Build 73 (2026-10-31)
+- Added first-party YouTube JSON advertising metadata filtering using Firefox's built-in bounded response stream API, plus safety gates and an independent test suite.
+- Added reversible settings control and per-tab handled/modified/error/oversize metrics in Site Dashboard. No media bytes, DRM, account content, or downloaded JavaScript are transformed.
+- This is unverified in live Firefox. Green source checks do not prove that YouTube enforcement is bypassed or that all ads are removed.

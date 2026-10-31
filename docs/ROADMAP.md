@@ -343,3 +343,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 71: count first-party YouTube XHR/media false-positive suspects and identify their safe rule sources in dashboard/exports.
 - [ ] Build 71 Firefox triage: capture next YouTube enforcement run and inspect source-specific first-party blocking; ad-free playback remains unverified.
+
+- [x] Build 73: first independently implemented, bounded Firefox MV2 YouTube player/get_watch JSON ad-field filtering. Only known fields on recognized playable responses, original-byte pass-through on unknown/oversized/malformed content, explicit opt-out, on-tab summary counters, no remote JS or video/DRM mutation.
+- [ ] Build 73 acceptance: on-device complete tests, live YouTube normal video and ad-funded film tests with modified-vs-passed counters, enforcement checks and long-session safety. This is NOT yet validated against current YouTube and does not establish uBlock parity.

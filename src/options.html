@@ -50,6 +50,10 @@
 <p id="filterListNotice" role="status">Loading built-in filter lists…</p>
 <label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
 <p id="updated"></p><button id="update" type="button">Update all enabled lists</button></section>
+<section id="youtube-player-response"><h2>YouTube player advertising metadata</h2>
+<label><input id="youtubeResponseFilter" type="checkbox"> Remove known ad placements from eligible YouTube player JSON responses</label>
+<p>On by default. Firefox-only, limited to first-party YouTube player/get_watch JSON. Does not change video bytes, DRM, login, or unrecognized responses. It may stop working if YouTube changes its format and can be turned off if playback breaks. A response modification is not proof that a video played without ads.</p>
+</section>
 <section id="youtube-maintenance"><h2>YouTube compatibility updates</h2>
 <p>Data-only YouTube rule packs can update without requiring a new extension version. Downloads come from the DK Live Block public GitHub repository. Firefox add-on updates remain necessary for changes to executable code.</p>
 <label><input id="autoYouTubeRules" type="checkbox"> Automatically check DK's YouTube compatibility pack when updating filters</label>

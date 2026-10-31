@@ -6,7 +6,7 @@ const listKeys=[...primaryKeys,...regionKeys];
 const listNames={...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,item.name])),easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
  cookies:"EasyList Cookie: cookie notices",annoyances:"Fanboy Annoyances: distractions",
  social:"Fanboy Social: social widgets"};
-const flagKeys=["autoUpdate","autoYouTubeRules","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
+const flagKeys=["autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
