@@ -18,7 +18,8 @@ test("opt-in RDAP registration lookup is restricted to actually blocked live-tab
  const rdap={entities:[
   {roles:["registrant"],vcardArray:["vcard",[["org",{},"text","Registrant Example LLC"]]]},
   {roles:["registrar"],vcardArray:["vcard",[["fn",{},"text","Sample Registrar"]]]}
- ],events:[{eventAction:"expiration",eventDate:"2030-01-01T00:00:00Z"}]};
+ ],events:[{eventAction:"expiration",eventDate:"2030-01-01T00:00:00Z"},{eventAction:"registration",eventDate:"2023-01-01T00:00:00Z"}],
+  nameservers:[{ldhName:"ns1.example.net"}],status:["active"]};
  const fetch=async(url,options)=>{
   calls.push({url,options});return {ok:true,status:200,url:"https://rdap.example/api/domain/doubleclick.net",
    headers:{get:()=>null},text:async()=>JSON.stringify(rdap)};
@@ -41,6 +42,9 @@ test("opt-in RDAP registration lookup is restricted to actually blocked live-tab
  assert.equal(allowed.domain,"doubleclick.net");
  assert.equal(allowed.organization,"Registrant Example LLC");
  assert.equal(allowed.registrar,"Sample Registrar");
+ assert.equal(allowed.registered,"2023-01-01");
+ assert.equal(allowed.expires,"2030-01-01");
+ assert.equal(allowed.nameservers[0],"ns1.example.net");
  assert.equal(calls.length,1);
  assert.equal(calls[0].url,"https://rdap.org/domain/doubleclick.net");
  assert.equal(calls[0].options.credentials,"omit");

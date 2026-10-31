@@ -38,11 +38,12 @@ function summary(host,type,site,ruleType){
   operatorUrl:item?item[3]:"",purpose,importance,why,
   access:"Observed a browser network request. This does not imply access to your computer, files, camera, microphone or passwords."};
 }
-function researchLinks(host){
+function researchLinks(host,registeredDomain=host){
  if(!valid(host))return [];
  const domain=encodeURIComponent(host);
+ const registration=encodeURIComponent(valid(registeredDomain)?registeredDomain:host);
  return [
-  {label:"Domain registration (RDAP)",url:"https://rdap.org/domain/"+domain},
+  {label:"Domain registration (RDAP)",url:"https://rdap.org/domain/"+registration},
   {label:"ICANN Lookup",url:"https://lookup.icann.org/en/lookup"},
   {label:"VirusTotal domain report",url:"https://www.virustotal.com/gui/domain/"+domain+"/details"},
   {label:"urlscan.io domain activity",url:"https://urlscan.io/domain/"+domain}

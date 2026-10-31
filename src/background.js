@@ -347,12 +347,17 @@ async function lookupBlockedDomain(id,target,expectedSite){
   const registration=JSON.parse(body);
   if(!registration||typeof registration!=="object")
    return {error:"Registration service returned invalid data."};
-  const expiration=(Array.isArray(registration.events)?registration.events:[])
-   .find(event=>event.eventAction==="expiration"&&typeof event.eventDate==="string");
+  const events=Array.isArray(registration.events)?registration.events:[];
+  const eventDate=action=>events.find(event=>event.eventAction===action&&typeof event.eventDate==="string")?.eventDate?.slice(0,10)||"";
+  const nameservers=(Array.isArray(registration.nameservers)?registration.nameservers:[])
+   .slice(0,8).map(item=>String(item?.ldhName||"").toLowerCase()).filter(DKManualRules.validHost);
+  const statuses=(Array.isArray(registration.status)?registration.status:[])
+   .slice(0,8).filter(value=>typeof value==="string"&&value.length<=70);
   return {ok:true,domain,
    organization:rdapRole(registration,"registrant"),
    registrar:rdapRole(registration,"registrar",true),
-   expires:expiration?.eventDate?.slice(0,10)||""};
+   registered:eventDate("registration"),updated:eventDate("last changed"),
+   expires:eventDate("expiration"),nameservers,statuses};
  }catch(_){return {error:"Registration lookup could not be completed. Use the links below for a manual search."};}
  finally{clearTimeout(timer);}
 }
@@ -689,7 +694,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    type:String(row.type||"").slice(0,30),
    when:Number.isFinite(row.when)?row.when:0,
    sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=1?row.sequence:0,
-   ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine"
+   ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine",
+   registeredDomain:DKPublicSuffix.registrable(row.host)
   })):[];
   const popupEvents=sameTab&&requestLog?
    DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];

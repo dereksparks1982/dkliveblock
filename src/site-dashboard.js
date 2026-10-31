@@ -76,6 +76,7 @@ function showBlock(row){
  $("blockDetailFields").replaceChildren();
  addDetail("Event",row.sequence?"Blocked request #"+row.sequence:"Recorded blocked request");
  addDetail("Destination hostname",info.host);
+ addDetail("Public registration domain",row.registeredDomain||"Unknown");
  addDetail("Website tab",current.site);
  addDetail("When",time(row.when));
  addDetail("Request type",info.resource+" ("+row.type+")");
@@ -88,7 +89,7 @@ function showBlock(row){
  addDetail("Scope of evidence",info.access);
  $("blockRdapResult").textContent="Registration details are not fetched unless you click the lookup button.";
  const links=$("blockDetailLinks");links.replaceChildren();
- const items=[...Details.researchLinks(row.host)];
+ const items=[...Details.researchLinks(row.host,row.registeredDomain)];
  if(info.operatorUrl)items.unshift({label:"Service operator website",url:info.operatorUrl});
  for(const item of items){
   const link=document.createElement("a");link.href=item.url;link.target="_blank";
@@ -112,8 +113,12 @@ async function lookupBlockRegistration(){
    "Registered domain: "+response.domain+" · Registered organization: "+
    (response.organization||"Not publicly disclosed")+" · Registrar: "+
    (response.registrar||"Not disclosed")+
+   "\nRegistered: "+(response.registered||"Not disclosed")+
+   " · Updated: "+(response.updated||"Not disclosed")+
    " · Expires: "+(response.expires||"Not disclosed")+
-   ". Registration is not proof of who operated this request.";
+   "\nNameservers: "+(Array.isArray(response.nameservers)&&response.nameservers.length?response.nameservers.join(", "):"Not disclosed")+
+   "\nDomain statuses: "+(Array.isArray(response.statuses)&&response.statuses.length?response.statuses.join(", "):"Not disclosed")+
+   "\nRegistration is not proof of who operated this request.";
  }catch(error){if(selectedBlock?.token===token)
   result.textContent="Could not retrieve RDAP: "+String(error.message||error).slice(0,140);
  }finally{button.disabled=false;}
