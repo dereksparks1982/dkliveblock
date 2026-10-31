@@ -579,3 +579,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.92 / Build 122 (2026-10-31)
 - Completed watch-next sidebar JSON handling: explicit ad entries inside nested `results` lists are now removable. The previous Build 121 route registration alone was insufficient because the parser only traversed contents/items/entries arrays. Added positive and negative fixtures. Browser acceptance pending.
+
+### 0.3.93 / Build 123 (2026-10-31)
+- Expanded built-in first-run YouTube ad-only CSS and maintained data-only compatibility pack v3. Added explicitly marked desktop search, carousel, promoted and mobile ad renderer tags; no broad player or authentication hiding. Versioning, cache and rollback fixtures updated. Browser validation pending.

@@ -493,3 +493,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 122: complete watch-next support by admitting the bounded `results` array family in feed ad-only traversal, preserving ordinary compact videos and private tracking data. This closes the missing traversal gap after Build 121.
 - [ ] Full Firefox watch-next/sidebars and complete Ubuntu tests still pending.
+
+- [x] Build 123: improve bundled offline YouTube ad-only cosmetic fallback and bump safe first-party YouTube pack to version 3 for desktop search and mobile ad renderers. Update rollback/version fixtures.
+- [ ] Firefox YouTube visual acceptance and complete local test suite still pending.

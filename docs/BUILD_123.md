@@ -1,0 +1,3 @@
+# Build 123: offline-first YouTube advertising cosmetics
+
+Unreleased 0.3.93. The bundled fallback rules hide more explicitly advertising-only YouTube elements immediately without relying on a remote compatibility pack. The optional, versioned first-party YouTube data-only pack advances to version 3 and adds desktop search-PYV, carousel, compact promotion, and mobile feed/display ad elements. Its validator still forbids network allow-rules, executable scriptlets, arbitrary DOM deletion, broad player selectors and sign-in controls. Regression fixtures were upgraded for the new pack sequence and rollback. Complete local testing and real Firefox playback/ad-free acceptance remain outstanding.

@@ -6,7 +6,7 @@ const SOURCE="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main
 const MAX_LENGTH=120000,MAX_RULES=300;
 const HOSTS=new Set(["youtube.com","youtube-nocookie.com"]);
 const SELECTOR=/^(?:[.#][a-zA-Z_][a-zA-Z0-9_-]{1,110}|[a-z][a-z0-9-]{2,110})$/;
-const AD_WORD=/(?:\bads?\b|ad-slot|ad-overlay|display-ad|video-ad|promot|promo|sponsor|masthead|advertis)/i;
+const AD_WORD=/(?:\bads?\b|ad-slot|ad-overlay|display-ad|video-ad|search-pyv|promot|promo|sponsor|masthead|advertis)/i;
 function validate(input){
  if(typeof input!=="string"||input.length<80||input.length>MAX_LENGTH||input.includes("\u0000"))
   throw Error("Invalid YouTube compatibility pack size");

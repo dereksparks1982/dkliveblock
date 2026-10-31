@@ -1,6 +1,6 @@
 [Adblock Plus 2.0]
 ! Title: DK Live Block YouTube compatibility rules
-! DKLB-YouTube-Pack: 2
+! DKLB-YouTube-Pack: 3
 ! Source: https://github.com/dereksparks1982/dkliveblock/blob/main/filters/youtube.txt
 ! A data-only compatibility pack for extension versions that understand the format.
 ! Keep every selector simple, ad-specific, and scoped to youtube.com or youtube-nocookie.com.
@@ -18,3 +18,9 @@ youtube.com##ytd-action-companion-ad-renderer
 youtube.com##ytd-promoted-sparkles-text-search-renderer
 youtube.com##ytm-ad-slot-renderer
 youtube.com##ytm-promoted-video-renderer
+youtube.com##ytd-compact-promoted-video-renderer
+youtube.com##ytd-carousel-ad-renderer
+youtube.com##ytd-search-pyv-renderer
+youtube.com##ytm-in-feed-ad-layout-renderer
+youtube.com##ytm-display-ad-renderer
+youtube.com##ytm-promoted-sparkles-web-renderer

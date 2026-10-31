@@ -12,9 +12,9 @@ const make=(version,lines=[
  "youtube.com##ytd-promoted-video-renderer",
  "youtube.com##.ytp-ad-overlay-container"
 ])=>"[Adblock Plus 2.0]\n! DKLB-YouTube-Pack: "+version+"\n"+lines.join("\n")+"\n";
-test("public version 2 pack is valid, bounded and data-only",()=>{
+test("public version 3 pack is valid, bounded and data-only",()=>{
  const parsed=Y.validate(raw);
- assert.equal(parsed.version,2);
+ assert.equal(parsed.version,3);
  assert.equal(Y.status(null,null,0,"",false).remoteEnabled,false);
  assert.ok(parsed.count>=5);
  assert.ok(raw.length<120000);
@@ -34,7 +34,7 @@ test("only simple YouTube-specific cosmetic rules are accepted",()=>{
   "youtube.com##script",
   "||googlevideo.com^$media",
   "@@||doubleclick.net^",
-  "youtube.com##.ad-slot\n! DKLB-YouTube-Pack: 3",
+  "youtube.com##.ad-slot\n! DKLB-YouTube-Pack: 4",
   "youtube.com##.sponsored-overlay,body"
  ];
  for(const entry of malicious)assert.throws(()=>Y.validate(make(2,[
@@ -43,31 +43,41 @@ test("only simple YouTube-specific cosmetic rules are accepted",()=>{
 });
 test("duplicate selectors and malformed version headers reject the entire pack",()=>{
  assert.throws(()=>Y.validate(make(2,["youtube.com##.ytp-ad-overlay-container","youtube.com##.ytp-ad-overlay-container","youtube.com##ytd-ad-slot-renderer"])),/Duplicate/);
- assert.throws(()=>Y.validate(raw.replace("DKLB-YouTube-Pack: 2","DKLB-YouTube-Pack: 0")),/version/);
- assert.throws(()=>Y.validate(raw.replace("DKLB-YouTube-Pack: 2","DKLB-YouTube-Pack: 3\n! DKLB-YouTube-Pack: 4")),/version/);
+ assert.throws(()=>Y.validate(raw.replace("DKLB-YouTube-Pack: 3","DKLB-YouTube-Pack: 0")),/version/);
+ assert.throws(()=>Y.validate(raw.replace("DKLB-YouTube-Pack: 3","DKLB-YouTube-Pack: 4\n! DKLB-YouTube-Pack: 5")),/version/);
  assert.throws(()=>Y.validate("<!doctype html>"+raw),/header/);
 });
 test("cache restoration validates content and metadata independently",()=>{
- const good={version:2,text:raw,updated:9,checked:10,etag:'"v1"'};
- assert.equal(Y.restore(good).version,2);
+ const good={version:3,text:raw,updated:9,checked:10,etag:'"v1"'};
+ assert.equal(Y.restore(good).version,3);
  assert.equal(Y.restore({...good,version:1}),null);
  assert.equal(Y.restore({...good,text:"bad"}),null);
  assert.equal(Y.restore(null),null);
 });
 test("updates must increment version; bad or rolled-back versions cannot reactivate",()=>{
- const one=Y.validate(raw),two=Y.validate(raw.replace("DKLB-YouTube-Pack: 2","DKLB-YouTube-Pack: 3"));
+ const one=Y.validate(raw),two=Y.validate(raw.replace("DKLB-YouTube-Pack: 3","DKLB-YouTube-Pack: 4"));
  assert.equal(Y.transition(one,one.text).changed,false);
  assert.equal(Y.transition(one,two.text).changed,true);
  assert.throws(()=>Y.transition(two,one.text),/downgrade/);
  assert.throws(()=>Y.transition(one,one.text.replace("ytd-ad-slot-renderer","ytd-promoted-ad-renderer")),/without a new version/);
- assert.throws(()=>Y.transition(null,two.text,3),/rolled back/);
- const three=two.text.replace("DKLB-YouTube-Pack: 3","DKLB-YouTube-Pack: 4");
- assert.equal(Y.transition(one,three,3).changed,true);
+ assert.throws(()=>Y.transition(null,two.text,4),/rolled back/);
+ const three=two.text.replace("DKLB-YouTube-Pack: 4","DKLB-YouTube-Pack: 5");
+ assert.equal(Y.transition(one,three,4).changed,true);
 });
 test("safe pack rules avoid every media/player and login-control CSS target",()=>{
  const parsed=Y.validate(raw);
  for(const line of parsed.text.split("\n").filter(x=>x.startsWith("youtube"))){
   const selector=line.split("##")[1];
   assert.ok(!["video","audio","body","#movie_player",".g_id_signin"].includes(selector));
+ }
+});
+
+test("Build 123 extended pack remains safe and explicitly advertising-only",()=>{
+ const parsed=Y.validate(raw);
+ assert.equal(parsed.version,3);
+ assert.ok(parsed.count>=19);
+ for(const tag of ["ytd-search-pyv-renderer","ytd-carousel-ad-renderer",
+  "ytm-in-feed-ad-layout-renderer","ytm-display-ad-renderer"]){
+  assert.ok(raw.includes("youtube.com##"+tag),tag);
  }
 });
