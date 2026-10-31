@@ -660,3 +660,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.119 / Build 149 (2026-10-31)
 - Tightened filter parser handling of `removeparam` rules so script-only, third-party-only, and document-excluded modifiers are rejected rather than accepted but never honored by navigation cleanup. Document and first-party rules remain supported. Parser/validator tests included.
+
+### 0.3.120 / Build 150 (2026-10-31)
+- Consolidated recent engine, playback, ad recognition and privacy safety into the existing offline cross-feature regression contract. Covers modern Google ad-frame markers, bounded sponsored-text syntax, signed-link safeguards, YouTube fail-open response handling and malformed charset headers. Full regression and real Firefox acceptance still pending.

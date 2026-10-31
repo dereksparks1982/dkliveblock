@@ -112,3 +112,53 @@ test("Build 147 common paid-click IDs are removed only on ordinary navigation",(
   "https://news.example/?article=5");
  assert.equal(P.stripTrackingParameters("https://files.example/?srsltid=paid&X-Amz-Signature=opaque"),null);
 });
+
+test("Build 150 class/ID procedural rules remain site-limited and reversible",()=>{
+ const f=new FilterEngine("news.example##.sponsor-card:has-text(Sponsored)"+
+  "\nnews.example#?##banner:has(.paid-badge)"+
+  "\nnews.example#@?#banner:has(.paid-badge)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:".sponsor-card",mode:"text",text:"Sponsored"}]);
+ assert.deepEqual(f.getProcedural("unrelated.example"),[]);
+ assert.equal(Rules.procedural("news.example##.:has-text(Sponsored)"),null);
+});
+test("Build 150 feed scanner never invokes getters and preserves refused next replies",()=>{
+ const url="https://www.youtube.com/youtubei/v1/next";
+ let accessed=0;
+ const data={results:[{videoRenderer:{videoId:"real"}},
+  {compactPromotedVideoRenderer:{id:1}}]};
+ Object.defineProperty(data,"suspicious",{enumerable:true,get(){accessed++;throw Error("getter");}});
+ assert.equal(Feed.prune(data,url).changed,false);
+ assert.equal(accessed,0);
+ assert.equal(data.results.length,2);
+ const refusal=JSON.stringify({playabilityStatus:{status:"LOGIN_REQUIRED"},
+  results:[{compactPromotedVideoRenderer:{id:1}}]});
+ assert.equal(Feed.rewrite(url,refusal).text,refusal);
+});
+test("Build 150 first-run ad-slot recognition includes Google inventory path frames",()=>{
+ const A=require("../src/ad-recognition.js");
+ assert.equal(A.hasStrongSignal({localName:"iframe",id:"google_ads_iframe_/12345/news_0"}),true);
+ const legit={localName:"iframe",id:"video_player_frame"};
+ assert.equal(A.hasStrongSignal(legit),false);
+ const slot={localName:"div",hasAttribute:k=>k==="data-google-query-id",
+  getAttribute:()=>null};
+ assert.equal(A.hasStrongSignal(slot),true);
+});
+test("Build 150 query privacy leaves signed links and rejects unsupported cleanup rules",()=>{
+ const Privacy=require("../src/privacy.js");
+ assert.equal(Privacy.stripTrackingParameters("https://news.example/?twclid=a&utm_custom_channel=b&article=9"),
+  "https://news.example/?article=9");
+ assert.equal(Privacy.stripTrackingParameters(
+  "https://login.example/callback?utm_campaign=paid#access_token=secret"),null);
+ assert.equal(Rules.network("*$removeparam=utm_source,script"),null);
+ assert.equal(Rules.network("*$removeparam=utm_source,to=other.example"),null);
+});
+test("Build 150 YouTube JSON stream guard declines ambiguous charsets",()=>{
+ const request={responseHeaders:[{name:"Content-Type",
+  value:"application/json; charset=utf-8; charset=windows-1252"}]};
+ assert.equal(Y.safeHeaders(request),false);
+ assert.equal(Y.safeHeaders({responseHeaders:[{name:"Content-Type",
+  value:"application/json; charset=utf-8"}]}),true);
+ assert.ok(Y.MAX_DELAY_MS<=4000);
+ assert.ok(Y.MAX_FILTERS<=16);
+});

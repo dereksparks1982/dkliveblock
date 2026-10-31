@@ -574,3 +574,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 149: reject request-only resource-type and third-party constraints attached to top-level `$removeparam` rules, avoiding silently ignored modifiers. Preserve document/first-party-compatible query cleanup.
 - [ ] Firefox and complete offline filter suite pending.
+
+- [x] Build 150: extend local cross-feature regression contract for class/ID cosmetic exceptions, getter-safe and refused YouTube JSON, exact ad-frame recognition, private tracking cleanup and ambiguous-charset stream protection.
+- [ ] **Release gate remains blocked:** full Ubuntu Node/Python suite, live Firefox YouTube/Disney+ (video, Shorts, free-with-ads films), resource use, security, and owner-approved snapshot/tag/release.
