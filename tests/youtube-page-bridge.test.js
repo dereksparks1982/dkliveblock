@@ -127,13 +127,17 @@ test("Build 74 manifest loads MAIN only on YouTube and control follows existing 
 
 test("Build 91 supports site-relative YouTube API fetch calls without affecting unrelated paths",async()=>{
  const p=context();
- const response={status:200,headers:{get:()=> "application/json"},
-  json:async()=>({contents:[{videoRenderer:{videoId:"organic"}},
-   {adSlotRenderer:{slot:"paid"}}]}),
-  text:async()=>JSON.stringify({entries:[{command:{reelWatchEndpoint:{videoId:"organic"}}},
-   {command:{reelWatchEndpoint:{videoId:"paid",adClientParams:{isAd:true}}}}]}),
-  clone(){return this;}};
- p.window.fetch=async()=>response;
+ p.window.fetch=async()=>{
+  // Each browser fetch gets a distinct Response, even for identical URLs.
+  return {status:200,headers:{get:()=> "application/json"},
+   json:async()=>({contents:[{videoRenderer:{videoId:"organic"}},
+    {adSlotRenderer:{slot:"paid"}}]}),
+   text:async()=>JSON.stringify({entries:[
+    {command:{reelWatchEndpoint:{videoId:"organic"}}},
+    {command:{reelWatchEndpoint:{videoId:"paid",adClientParams:{isAd:true}}}}
+   ]}),
+   clone(){return this;}};
+ };
  p.send("enable");
  const feed=await p.window.fetch("/youtubei/v1/browse",{method:"POST"});
  const parsed=await feed.json();
@@ -142,8 +146,9 @@ test("Build 91 supports site-relative YouTube API fetch calls without affecting 
  const shorts=await p.window.fetch("/youtubei/v1/reel_watch_sequence",{method:"POST"});
  const sequence=JSON.parse(await shorts.text());
  assert.equal(sequence.entries.length,1);
+ assert.equal(sequence.entries[0].command.reelWatchEndpoint.videoId,"organic");
  const other=await p.window.fetch("/youtubei/v1/unknown",{method:"POST"});
- assert.equal(other,response,"unrelated endpoints are not decorated");
+ assert.equal((await other.json()).contents.length,2,"unknown endpoint is unchanged");
 });
 test("Build 91 relative XHR browse calls preserve organic entries and remove clearly marked ads",()=>{
  const p=context(),proto=p.window.XMLHttpRequest.prototype;
@@ -218,4 +223,15 @@ test("Build 94 nonconfigurable ad field cannot cause partial removal of other fi
  p.send("enable");
  assert.equal(player.adSlots.length,1);
  assert.equal(player.adPlacements.length,1);
+});
+
+test("Build 97 site-relative player JSON still removes only recognized ad fields",async()=>{
+ const p=context();
+ p.send("enable");
+ const response=await p.window.fetch("/youtubei/v1/player",{method:"POST"});
+ const payload=await response.json();
+ assert.equal(payload.adSlots,undefined);
+ assert.deepEqual(Array.from(payload.streamingData.formats),[1]);
+ const ignored=await p.window.fetch("/youtubei/v1/player",{method:"GET"});
+ assert.equal((await ignored.json()).adSlots.length,1);
 });

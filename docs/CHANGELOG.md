@@ -501,3 +501,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.66 / Build 96 (2026-10-31)
 - Added per-tab generation isolation to intercepted YouTube response completion, error and timeout metrics. Old requests finishing after page changes can no longer revive stale dashboard data for the new page. Added deterministic tab reuse and deadline fixtures; Firefox verification pending.
+
+### 0.3.67 / Build 97 (2026-10-31)
+- Repaired a misleading relative YouTube API regression test that reused the same Response object for multiple fetches, confusing endpoint-specific wrapping. Added distinct response instances, normal-player POST/GET fixtures, and organic Shorts/feed integrity checks. Browser acceptance remains open.

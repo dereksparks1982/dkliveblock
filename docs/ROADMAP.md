@@ -415,3 +415,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 96: generation-scoped YouTube response counters prevent in-flight requests from a prior tab page from rebuilding stale stats after navigation, tab removal or tab ID reuse. Slots still release and limits remain in effect.
 - [ ] Build 96 acceptance: full local suite and Firefox rapid-navigation playback, tab reuse and error/deadline stress.
+
+- [x] Build 97: correct relative YouTube page-bridge integration fixture to return unique Response objects per fetch and independently validate player/browse/Shorts responses and unknown endpoint pass-through. Prevent false regressions from reusing a decorated mock Response across unrelated routes.
+- [ ] Build 97 acceptance: complete local suite and Firefox relative-API playback tests.

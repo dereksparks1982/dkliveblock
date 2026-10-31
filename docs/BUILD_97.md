@@ -1,0 +1,3 @@
+# Build 97: real fetch response semantics in YouTube integration tests
+
+Unreleased 0.3.67. The earlier relative fetch fixture returned one shared Response instance for player, feed and Shorts calls. In real Firefox, distinct fetch calls produce distinct response objects, and the MAIN-world bridge decorates each with its original endpoint. The shared fake response could make a valid Shorts filter test fail or misattribute an ordinary feed result. It now creates a fresh response for each request, verifies organic feed and Shorts entries survive, verifies an unknown API endpoint remains untouched, and covers player POST vs GET. This is a reliability test correction, not a claim of successful live ads removal. Full Firefox and Node/Python suite pending.
