@@ -3,7 +3,8 @@
    Reversible, bounded and avoids players, authentication, payments, and articles. */
 (function(root){"use strict";
 const CANDIDATES=[
- "ins.adsbygoogle","[data-ad-client][data-ad-slot]","[data-ad-unit][data-ad-slot]",
+ "ins.adsbygoogle","amp-ad","amp-auto-ads",
+ "[data-ad-client][data-ad-slot]","[data-ad-unit][data-ad-slot]",
  "[id^='div-gpt-ad-']","iframe[id^='google_ads_iframe_']",
  "[data-testid*='ad-slot' i]","[data-testid='advertisement' i]",
  "[aria-label='Advertisement' i]","[aria-label='Sponsored advertisement' i]",
@@ -17,6 +18,7 @@ function hasStrongSignal(element){
   const cls=typeof element.className==="string"?element.className:"";
   const id=String(element.id||"");
   const aria=String(element.getAttribute?.("aria-label")||"").trim().toLowerCase();
+  if(tag==="amp-ad"||tag==="amp-auto-ads")return true;
   if(tag==="ins"&&/(?:^|\s)adsbygoogle(?:\s|$)/.test(cls))return true;
   if(element.hasAttribute?.("data-ad-client")&&element.hasAttribute?.("data-ad-slot"))return true;
   if(element.hasAttribute?.("data-ad-unit")&&element.hasAttribute?.("data-ad-slot"))return true;

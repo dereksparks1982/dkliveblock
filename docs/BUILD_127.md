@@ -1,0 +1,3 @@
+# Build 127: AMP news-site advertising elements
+
+Unreleased 0.3.97. AMP-enabled mobile and news pages can represent advertising with dedicated `<amp-ad>` or `<amp-auto-ads>` tags rather than ordinary ad classes. The existing local DOM ad recognizer now treats those explicit tags as strong ad signals, while preserving its established protection of ordinary articles, navigation, active controls, forms, media players and sign-in dialogs. A reversible inline display style is used only on visible eligible containers. Mutation detection also recognizes newly added AMP ads. Tests verify ads, editorial elements, protected contexts and restoration. Full Firefox and Linux acceptance remain open.

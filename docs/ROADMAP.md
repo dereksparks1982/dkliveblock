@@ -505,3 +505,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 126: split privacy-limited per-tab YouTube JSON diagnostics into player, feed/search, Up Next, playlist and Shorts, including request/response/modified counts, without storing request URLs or video identifiers.
 - [ ] Full suite and live Firefox diagnostic correlation/accurate ad-blocking acceptance outstanding.
+
+- [x] Build 127: recognize dedicated AMP ad elements in bounded reversible DOM ad detection on news/mobile pages, preserving editorial AMP components and protected forms/media/player regions.
+- [ ] Full offline suite and AMP-enabled Firefox site acceptance pending.

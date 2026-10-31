@@ -591,3 +591,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.96 / Build 126 (2026-10-31)
 - Expanded per-tab, URL-free YouTube JSON request diagnostics to distinguish watch-next and playlist calls from general feeds/search, with site dashboard and manual TXT/JSON report support and regression fixtures. Browser acceptance pending.
+
+### 0.3.97 / Build 127 (2026-10-31)
+- Extended conservative locally executed ad-container recognition to explicit AMP ad elements, retaining focused/form/article/player safeguards and reversible styling. Added positive/negative/mutation fixtures; browser verification pending.

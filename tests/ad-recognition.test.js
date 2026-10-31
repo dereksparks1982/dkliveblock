@@ -155,3 +155,27 @@ test("Build 56 respects shadow discovery work caps on large pages",()=>{
  assert.equal(A.collectScopes(doc).length,1);
  assert.equal(A.create(doc,{}).scan(),0);
 });
+
+test("Build 127 recognizes dedicated AMP ad elements but not editorial AMP content",()=>{
+ const visible=ad({tag:"amp-ad",cls:""}),auto=ad({tag:"amp-auto-ads",cls:""});
+ const article=ad({tag:"amp-story",cls:""}),video=ad({tag:"amp-video",cls:""});
+ assert.equal(A.hasStrongSignal(visible),true);
+ assert.equal(A.hasStrongSignal(auto),true);
+ assert.equal(A.hasStrongSignal(article),false);
+ assert.equal(A.hasStrongSignal(video),false);
+ const doc=documentFor([visible,article,auto]);
+ const scanner=A.create(doc,{});
+ assert.equal(scanner.scan(),2);
+ assert.equal(visible.style.getPropertyValue("display"),"none");
+ assert.equal(auto.style.getPropertyValue("display"),"none");
+ assert.equal(article.style.getPropertyValue("display"),"");
+ scanner.restore();
+ assert.equal(visible.style.getPropertyValue("display"),"");
+});
+test("Build 127 AMP ad containers within protected form/player remain untouched",()=>{
+ const embedded=ad({tag:"amp-ad",cls:"",closest:true});
+ const doc=documentFor([embedded]);
+ assert.equal(A.safe(embedded,doc),false);
+ assert.equal(A.create(doc,{}).scan(),0);
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:[ad({tag:"amp-ad",cls:""})]}),true);
+});
