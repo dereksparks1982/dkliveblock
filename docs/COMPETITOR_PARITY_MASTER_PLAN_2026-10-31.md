@@ -61,3 +61,7 @@ The original 25-milestone acceptance table remains the release contract. The fol
 - **Milestone 12, controls:** persisted on/off for YouTube response filter, plus existing site/request toggles. Tested in mock integration only.
 
 **Current source baseline:** v0.3.49, Build 79. No full post-72 Node/Python on-device run, and no real Firefox/YouTube acceptance. No release or competitor-parity assertion. Next work is broad rules/scriptlets, differential regression suite, real browser acceptance, security review and performance. Do not solicit premature routine user tests or publish a release.
+
+## Source progress through Build 107
+
+Recent source work adds bounded YouTube player/feed/Shorts handling, relative request support, SPA refreshes, timeout and memory safeguards, per-tab diagnostics, narrow UTM query cleanup, safe multi-site literal procedural cosmetics, and a cross-feature local regression contract. The complete local suite now registers 111 JS files, but the full Node/Python suite and actual Firefox video/ad-blocking acceptance remain open. This work does not establish competitor parity or authorize a release.

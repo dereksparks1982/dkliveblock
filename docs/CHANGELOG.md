@@ -531,3 +531,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.76 / Build 106 (2026-10-31)
 - Hardened independent network regex ingestion against nested counted repetition patterns that can trigger heavy backtracking. Added adversarial and ordinary regex fixtures. Full Firefox/Ubuntu acceptance pending.
+
+### 0.3.77 / Build 107 (2026-10-31)
+- Added whole-project regression contract and registered its test in the 111-file local-only runner, guarding major YouTube and filter-engine compatibility invariants. Actual browser acceptance pending.

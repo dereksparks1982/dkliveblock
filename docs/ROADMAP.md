@@ -445,3 +445,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 106: reject another class of nested counted regex repetitions during list ingestion to reduce browser CPU risk. Keep ordinary safe regex and hostname ad filters available.
 - [ ] Build 106 acceptance: full suite and multi-list regex/performance differential profiling.
+
+- [x] Build 107: cross-feature reliability contract covering manifest, cosmetics and YouTube response safety; complete local runner now includes 111 unique JS test files.
+- [ ] Full Ubuntu/Firefox acceptance remains necessary.
