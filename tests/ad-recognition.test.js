@@ -106,3 +106,52 @@ test("recognizer will not hide labelled ads nested in protected article or playe
   assert.equal(A.create(doc,{}).scan(),0);
  }
 });
+
+test("Build 56 recognizes and restores ad slots across nested open shadows",()=>{
+ const first=ad(),second=ad({cls:"ad-slot",tag:"div"}),closed=ad();
+ const nested={mode:"open",children:[second],querySelectorAll:()=>[second]};
+ const open={mode:"open",children:[first,{children:[],shadowRoot:nested}],querySelectorAll:()=>[first]};
+ const secret={mode:"closed",children:[closed],querySelectorAll:()=>[closed]};
+ const doc={body:{},documentElement:{children:[{children:[],shadowRoot:open},{children:[],shadowRoot:secret}]},querySelectorAll:()=>[]};
+ const scanner=A.create(doc,{});
+ assert.equal(scanner.scan(),2);
+ assert.equal(first.style.getPropertyValue("display"),"none");
+ assert.equal(second.style.getPropertyValue("display"),"none");
+ assert.equal(closed.style.getPropertyValue("display"),"");
+ scanner.restore();
+ assert.equal(first.style.getPropertyValue("display"),"");
+ assert.equal(second.style.getPropertyValue("display"),"");
+});
+test("Build 56 never hide focused or protected-shadow advertisements",()=>{
+ const node=ad(),focus={};node.contains=x=>x===focus;
+ const doc=documentFor([node]);doc.activeElement=focus;
+ assert.equal(A.safe(node,doc),false);
+ doc.activeElement=null;
+ node.getRootNode=()=>({host:{closest:()=>({}),getRootNode:()=>({host:null})}});
+ assert.equal(A.safe(node,doc),false);
+});
+test("Build 56 mutation trigger ignores CSS feedback and ordinary page updates",()=>{
+ const known=ad(),normal=ad({tag:"div",cls:"normal-content"});
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:[known]}),true);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"id",target:known}),true);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"style",target:known}),false);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"class",target:normal}),false);
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:[normal]}),false);
+});
+test("Build 56 existing hidden slots can be re-hidden at tracking capacity",()=>{
+ const a=ad(),b=ad({tag:"div",cls:"ad-slot"}),scanner=A.create(documentFor([a,b]),{},1);
+ assert.equal(scanner.scan(),1);
+ a.style.setProperty("display","block");
+ assert.equal(scanner.scan(),1);
+ assert.equal(a.style.getPropertyValue("display"),"none");
+ assert.equal(b.style.getPropertyValue("display"),"");
+ scanner.restore();
+});
+test("Build 56 respects shadow discovery work caps on large pages",()=>{
+ const tree={children:[]};let cur=tree;
+ for(let i=0;i<950;i++){const child={children:[]};cur.children=[child];cur=child;}
+ cur.shadowRoot={mode:"open",children:[],querySelectorAll:()=>[ad()]};
+ const doc={documentElement:tree,body:{},querySelectorAll:()=>[]};
+ assert.equal(A.collectScopes(doc).length,1);
+ assert.equal(A.create(doc,{}).scan(),0);
+});

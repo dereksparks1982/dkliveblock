@@ -1,0 +1,66 @@
+<!doctype html><html lang="en"><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DK Live Block Synthetic QA</title>
+<style>
+body{font:16px system-ui;max-width:920px;margin:2rem auto;padding:0 1rem;background:#f7f9fb;color:#182126}
+section,article,form{background:white;padding:1rem;margin:1rem 0;border:1px solid #abc;border-radius:7px}
+.fixture-ad{display:block;padding:1rem;margin:.5rem;background:#ffdfa0;border:2px dotted #b86}
+button,input{padding:.5rem;font:inherit}#status{white-space:pre-wrap}
+</style>
+<h1>DK Live Block: Synthetic Visual QA</h1>
+<p>No ad networks, tracking, third-party requests or protected media. Compare the fixtures with blocking enabled and paused.</p>
+<section><h2>Static ad markers</h2>
+<ins class="adsbygoogle fixture-ad">Google-style ad marker (hide)</ins>
+<div class="ad-slot fixture-ad">Ad-slot marker (hide)</div>
+<div id="div-gpt-ad-123" class="fixture-ad">GPT marker (hide)</div>
+<div data-ad-client="ca-pub-fixture" data-ad-slot="123" class="fixture-ad">Paired ad attributes (hide)</div>
+</section>
+<section><h2>Dynamic ad</h2><button type="button" id="insert">Insert dynamic ad</button><div id="dynamic"></div></section>
+<section><h2>Shadow DOM</h2><div id="openShadow"></div><div id="nestedShadow"></div><div id="closedShadow"></div>
+<p>The open-shadow fixtures should hide. The closed-shadow fixture should remain.</p></section>
+<article><h2>Protected article</h2>
+<p>Research about sponsored content must remain readable.</p>
+<div class="ad-slot fixture-ad">Marker inside article (must stay)</div></article>
+<section><h2>Protected login and media</h2>
+<form id="login"><label>Username <input name="username" autocomplete="off"></label>
+<button type="submit">Sign in (simulated)</button>
+<div class="ad-slot fixture-ad">Marker inside form (must stay)</div></form>
+<video controls preload="none"></video><p>Media controls must stay visible.</p>
+</section>
+<section><h2>Cookie consent fixture</h2>
+<div id="cookie-banner-example" role="dialog" aria-label="Cookie consent">We use cookies to remember preferences.
+<button type="button" id="rejectAll">Reject all</button>
+<button type="button" id="acceptAll">Accept all</button></div>
+<p id="choice">No choice recorded.</p></section>
+<section><h2>Local observations</h2><p id="status">Visual verification requires the extension in Firefox.</p></section>
+<script>
+"use strict";
+const status=document.getElementById("status");
+document.getElementById("insert").addEventListener("click",()=>{
+ const node=document.createElement("div");node.className="ad-slot fixture-ad";
+ node.textContent="Dynamic ad marker (hide)";
+ document.getElementById("dynamic").appendChild(node);
+ status.textContent="Added an ad marker. Observe whether it disappears.";
+});
+function addShadow(host,label,mode){
+ const root=document.getElementById(host).attachShadow({mode});
+ const node=document.createElement("div");node.className="ad-slot";
+ node.style="display:block;background:#ffdfa0;border:2px dotted #b86;padding:1rem;";
+ node.textContent=label;root.appendChild(node);
+}
+addShadow("openShadow","Open-shadow ad (hide)","open");
+const outer=document.getElementById("nestedShadow").attachShadow({mode:"open"});
+const host=document.createElement("div");outer.appendChild(host);
+const inner=host.attachShadow({mode:"open"});
+const nested=document.createElement("ins");nested.className="adsbygoogle";
+nested.style="display:block;background:#ffdfa0;border:2px dotted #b86;padding:1rem;";
+nested.textContent="Nested open-shadow ad (hide)";inner.appendChild(nested);
+addShadow("closedShadow","Closed-shadow ad (expected to stay)","closed");
+document.getElementById("login").addEventListener("submit",e=>{
+ e.preventDefault();status.textContent="Simulated sign-in still works.";
+});
+for(const key of ["rejectAll","acceptAll"])document.getElementById(key).addEventListener("click",()=>{
+ document.getElementById("choice").textContent=key==="rejectAll"?
+ "Rejected optional cookies.":"Accepted cookies. Investigate if automatic.";
+});
+</script></html>

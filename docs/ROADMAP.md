@@ -249,3 +249,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 55: bounded open-shadow cookie consent dialog discovery, focused-dialog safety and one opt-out action per dialog, preserving existing settings and normal blocking.
 - [x] Build 55: throttle DOM scans and add offline source tests without GitHub Actions or new permissions.
 - [ ] Build 55 acceptance: complete Node/Python suite and real Firefox open/nested/late-created consent tests, keyboard/ARIA audit, long-page performance, no accidental acceptance or repeated action; closed-shadow/unknown platforms remain unsupported.
+
+- [x] Build 56: bundled dynamic ad recognition improvements across bounded open Shadow DOM, mutation coalescing, focus/host safeguards, fair scans, and reversible styles.
+- [x] Build 56: local visual QA fixture, real version-linked test assertions, compact product README and archived historical changelog.
+- [ ] Build 56 acceptance: full local Node/Python suite and live Firefox validation including real-site regressions, YouTube/Disney+ playback, false positives and long-session CPU/memory profiling.

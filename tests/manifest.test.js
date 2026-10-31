@@ -97,5 +97,5 @@ test("Build 55 open-shadow consent script loads before the content controller",(
  const scripts=m.content_scripts[0].js;
  assert.ok(scripts.indexOf("consent-dom.js")>scripts.indexOf("consent.js"));
  assert.ok(scripts.indexOf("consent-dom.js")<scripts.indexOf("content.js"));
- assert.equal(m.version,"0.3.26");
+ assert.equal(m.version,JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8")).version);
 });

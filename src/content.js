@@ -3,7 +3,7 @@
 (function(){
  let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
- let lastConsentScan=0;
+ let lastConsentScan=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
@@ -22,6 +22,11 @@
  function inspectAdSlots(){
   if(!active||!adRecognition||picking||!adRecognizer)return;
   lastAdScan=Date.now();adRecognizer.scan();
+ }
+ function queueAdScan(){
+  if(adScanTimer!==null||!active||!adRecognition||picking||!adRecognizer||
+    typeof setTimeout!=="function")return;
+  adScanTimer=setTimeout(()=>{adScanTimer=null;inspectAdSlots();},450);
  }
  function applyCSS(){
   if(!document.documentElement)return;
@@ -210,17 +215,20 @@
   if(overlayObserver||!document.documentElement||typeof MutationObserver!=="function")return;
   try{
    overlayObserver=new MutationObserver(records=>{
-    // Detect late dialogs and existing overlays changing visibility.
-    // Ignore attribute mutations caused by our own hiding changes.
+    // Delay heavy scanning; avoid loops from our own display style updates.
+    let popups=false,ads=false;
     for(const item of records.slice(0,40)){
-     if(DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el))){
-      queueOverlayScan();break;
-     }
+     if(!popups&&DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el)))popups=true;
+     if(!ads&&adRecognizer&&DKAdRecognition.relevantMutation(item))ads=true;
+     if(popups&&ads)break;
     }
+    if(popups)queueOverlayScan();
+    if(ads)queueAdScan();
    });
    overlayObserver.observe(document.documentElement,{
     childList:true,subtree:true,attributes:true,
-    attributeFilter:["class","style","hidden","aria-hidden","open"]
+    attributeFilter:["class","style","hidden","aria-hidden","open","id",
+     "data-ad-client","data-ad-slot","data-ad-unit","data-testid","aria-label"]
    });
   }catch(_){overlayObserver=null;}
  }
