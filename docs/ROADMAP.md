@@ -400,3 +400,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 91: MAIN-world first-party YouTube API handling canonicalizes relative browse/Shorts paths through the current page origin in both fetch and XHR, preserving host and POST checks. Added relative fetch/XHR regressions so feed ad entries are not silently missed.
 - [ ] Build 91 acceptance: real Firefox YouTube relative API calls, ordinary playback and free-with-ads movie tests, full local suite.
+
+- [x] Build 92: reprocess newly replaced YouTube SPA player/feed bootstrap on explicit refresh, with idempotent hooks and disabled-state isolation.
+- [ ] Build 92 acceptance: real Firefox SPA navigation/player/feed and full offline regression suite.

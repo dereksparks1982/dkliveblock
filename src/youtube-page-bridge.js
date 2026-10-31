@@ -100,7 +100,13 @@ function pruneExistingBootstrap(){
  }catch(_){} 
 }
 function enable(){
- if(enabled)return;enabled=true;
+ if(enabled){
+  // On SPA navigation YouTube may replace bootstrap data without a reload.
+  // Reprocess on an explicit refresh, but do not install a second hook.
+  pruneExistingBootstrap();
+  return;
+ }
+ enabled=true;
  pruneExistingBootstrap();
  if(typeof g.fetch==="function"){
   oldFetch=g.fetch;

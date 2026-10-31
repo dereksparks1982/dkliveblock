@@ -160,3 +160,29 @@ test("Build 91 relative XHR browse calls preserve organic entries and remove cle
  p.send("disable");
  assert.notEqual(Object.getOwnPropertyDescriptor(proto,"response").get,prior);
 });
+
+test("Build 92 reprocesses newly replaced YouTube SPA bootstrap without duplicate wrappers",()=>{
+ const p=context();
+ p.send("enable");
+ const wrapped=p.window.fetch;
+ p.window.ytInitialData={contents:[{videoRenderer:{videoId:"fresh"}},
+  {adSlotRenderer:{adId:"paid"}}]};
+ p.window.ytInitialPlayerResponse={videoDetails:{title:"fresh"},
+  streamingData:{formats:["signed"]},adPlacements:[{}]};
+ p.send("enable");
+ assert.equal(p.window.fetch,wrapped);
+ assert.equal(p.window.ytInitialData.contents.length,1);
+ assert.equal(p.window.ytInitialData.contents[0].videoRenderer.videoId,"fresh");
+ assert.equal(p.window.ytInitialPlayerResponse.adPlacements,undefined);
+ p.send("enable");
+ assert.equal(p.window.ytInitialData.contents.length,1);
+ p.send("disable");
+ assert.equal(p.window.fetch,p.originalFetch);
+});
+test("Build 92 disabled mode leaves new initial data unchanged",()=>{
+ const p=context();
+ p.window.ytInitialData={contents:[{videoRenderer:{videoId:"fresh"}},
+  {adSlotRenderer:{adId:"paid"}}]};
+ p.send("disable");
+ assert.equal(p.window.ytInitialData.contents.length,2);
+});

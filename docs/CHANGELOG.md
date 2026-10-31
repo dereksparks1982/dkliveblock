@@ -486,3 +486,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.61 / Build 91 (2026-10-31)
 - Fixed overlooked YouTube `fetch('/youtubei/v1/browse')` and XHR relative API paths: only absolute URLs were recognized in the new feed/Shorts JSON helper. Page-side hooks now use a normalized first-party URL; tests cover relative browse and Shorts calls without relaxing unrelated hosts. Firefox acceptance pending.
+
+### 0.3.62 / Build 92 (2026-10-31)
+- Fixed stale YouTube initial data handling after in-page navigation: subsequent authorized enable events re-examine newly replaced player/feed data without reinstalling fetch/XHR hooks. Regression fixtures cover idempotence and disabled mode; Firefox verification pending.
