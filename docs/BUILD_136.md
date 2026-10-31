@@ -1,0 +1,3 @@
+# Build 136: read-only browser API compatibility
+
+Unreleased 0.3.106. YouTube or another page script may freeze `window.fetch` or `XMLHttpRequest.prototype.open/send`. Assigning wrappers in strict mode previously threw and could stop MAIN-world initialization midway. Hook activation now catches assignment failures individually, leaving the original method intact and allowing other available interception paths to operate. Disable also tolerates frozen method slots without an unhandled exception. Tests simulate a read-only fetch and XMLHttpRequest.open property, including continued XHR behavior. Full Firefox and Linux acceptance still outstanding; no actions or release.

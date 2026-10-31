@@ -143,7 +143,8 @@ function enable(){
    const result=oldFetch.apply(this,args);
    return eligibleNow?Promise.resolve(result).then(response=>decorate(response,normalize(url))):result;
   };
-  g.fetch=wrappedFetch;
+  try{g.fetch=wrappedFetch;}
+  catch(_){wrappedFetch=null;oldFetch=null;}
  }
  const proto=g.XMLHttpRequest?.prototype;
  if(!proto)return;
@@ -155,11 +156,11 @@ function enable(){
    const result=oldOpen.call(this,method,url,...rest);
    pending.set(this,eligible(method,url)?normalize(url):"");cache.delete(this);return result;
   };
-  proto.open=wrappedOpen;
+  try{proto.open=wrappedOpen;}catch(_){wrappedOpen=null;}
  }
  if(typeof oldSend==="function"){
   wrappedSend=function(...args){return oldSend.apply(this,args);};
-  proto.send=wrappedSend;
+  try{proto.send=wrappedSend;}catch(_){wrappedSend=null;}
  }
  function allowed(xhr){
   try{return enabled&&!!pending.get(xhr)&&xhr.readyState===4&&xhr.status===200&&
@@ -197,11 +198,14 @@ function enable(){
 }
 function disable(){
  if(!enabled)return;enabled=false;
- if(wrappedFetch&&g.fetch===wrappedFetch)g.fetch=oldFetch;
+ if(wrappedFetch&&g.fetch===wrappedFetch)
+  try{g.fetch=oldFetch;}catch(_){}
  const proto=g.XMLHttpRequest?.prototype;
  if(proto){
-  if(proto.open===wrappedOpen&&typeof oldOpen==="function")proto.open=oldOpen;
-  if(proto.send===wrappedSend&&typeof oldSend==="function")proto.send=oldSend;
+  if(wrappedOpen&&proto.open===wrappedOpen&&typeof oldOpen==="function")
+   try{proto.open=oldOpen;}catch(_){}
+  if(wrappedSend&&proto.send===wrappedSend&&typeof oldSend==="function")
+   try{proto.send=oldSend;}catch(_){}
   if(oldText&&wrappedText&&Object.getOwnPropertyDescriptor(proto,"responseText")?.get===wrappedText.get)
    try{Object.defineProperty(proto,"responseText",oldText);}catch(_){}
   if(oldResponse&&wrappedResponse&&Object.getOwnPropertyDescriptor(proto,"response")?.get===wrappedResponse.get)

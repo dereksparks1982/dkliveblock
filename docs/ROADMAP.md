@@ -532,3 +532,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 135: preflight outer and nested page-world player objects for read-only ad fields and stringified child writeback before any deletion, avoiding partial modifications in ordinary video responses.
 - [ ] Real Firefox player-object security and full local suite still pending.
+
+- [x] Build 136: fail-open on read-only fetch and XMLHttpRequest prototype hook assignments and restores, preserving page execution and remaining supported hook paths.
+- [ ] Real Firefox immutable page API and complete suite acceptance pending.

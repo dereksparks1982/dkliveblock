@@ -259,3 +259,24 @@ test("Build 135 does not remove outer ads if stringified player cannot be writte
  assert.equal(JSON.parse(outer.playerResponse).adPlacements.length,1);
  p.send("disable");
 });
+
+test("Build 136 page bridge tolerates read-only fetch without affecting XHR interception",()=>{
+ const p=context();
+ Object.defineProperty(p.window,"fetch",{value:p.originalFetch,writable:false,configurable:true});
+ assert.doesNotThrow(()=>p.send("enable"));
+ assert.equal(p.window.fetch,p.originalFetch);
+ const xhr=new p.window.XMLHttpRequest();
+ xhr.open("POST","/youtubei/v1/player");
+ xhr.readyState=4;xhr.status=200;xhr.responseType="json";
+ assert.equal(xhr.response.adSlots,undefined);
+ assert.doesNotThrow(()=>p.send("disable"));
+ assert.equal(p.window.fetch,p.originalFetch);
+});
+test("Build 136 nonwritable XHR methods do not crash activation or disabling",()=>{
+ const p=context(),proto=p.window.XMLHttpRequest.prototype;
+ const original=proto.open;
+ Object.defineProperty(proto,"open",{value:original,writable:false,configurable:true});
+ assert.doesNotThrow(()=>p.send("enable"));
+ assert.doesNotThrow(()=>p.send("disable"));
+ assert.equal(proto.open,original);
+});
