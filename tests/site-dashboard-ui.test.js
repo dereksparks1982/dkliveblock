@@ -19,7 +19,7 @@ test("Build 59 packaged dashboard uses only bundled local scripts and no third-p
  assert.ok(html.indexOf('src="access-inspector.js"')<html.indexOf('src="site-dashboard-model.js"'));
  assert.ok(html.indexOf('src="site-dashboard-model.js"')<html.indexOf('src="site-dashboard.js"'));
  assert.match(js,/getSiteDashboard/);
- assert.match(js,/removeSiteException/);
+ assert.match(js,/revokeSiteDashboardHost/);
  assert.match(js,/revokeMonitoredRequest/);
  assert.match(js,/setSiteFeaturePaused/);
  assert.match(js,/setSiteAllowed/);
