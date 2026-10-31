@@ -1,19 +1,19 @@
 # DK Live Block: first serious Firefox test candidate gate
 
 **Source version:** 0.3.32 (Build 61)  
-**Status:** NOT CLEARED FOR USER TESTING OR PUBLIC RELEASE  
+**Status:** OFFLINE TEST SUITE PASSED. CLEARED FOR SUPERVISED MANUAL FIREFOX TEST ONLY. NOT PUBLIC RELEASE  
 **Platform:** Ubuntu/Firefox · No GitHub Actions · No automatic browser launch
 
 ## Offline source acceptance
 
 | Requirement | Status | Evidence |
 | --- | --- | --- |
-| GitHub source commit and matching manifest/package version | To verify on final commit | HEAD SHA and files |
-| No GitHub Actions or remote packaging | Source guard present; independent check pending | scripts/test-local.sh |
-| Node source and test syntax | Partial syntax inspection only | Requires complete local checkout |
-| Node regression suite, all test files | Not run end-to-end here | scripts/test-local.sh |
-| Python companion and package regression checks | Not run end-to-end here | scripts/test-local.sh |
-| Offline Firefox package audit | Not run end-to-end here | scripts/release-audit.py |
+| GitHub source commit and matching manifest/package version | PASS: `4948729`, v0.3.32 | GitHub main, desktop pull and version test |
+| No GitHub Actions or remote packaging | PASS | Local test output, phase 1 |
+| Node source and test syntax | PASS on Ubuntu | `PHASE PASS: JavaScript syntax` |
+| Node regression suite, all test files | PASS: 117 + 320 cases, 0 failures | `scripts/test-local.sh`, local output |
+| Python companion and package regression checks | PASS: six unittest modules plus fixture checks | `scripts/test-local.sh`, local output |
+| Offline Firefox package audit | PASS: 0.3.32 | `scripts/release-audit.py` output |
 | Browser installation, startup and settings persistence | NOT TESTED | Firefox profile test |
 | Memory/performance after long session | NOT TESTED | Firefox profiler |
 | Video compatibility and ABP feature comparison | NOT TESTED | docs/ABP_PARITY_CHECKLIST.md |
@@ -53,3 +53,16 @@ The first phase passed suite inventory (90 Node test files and nine Python scrip
 At commit `4cb6d7c`, GitHub Actions absence, the 91-Node/9-Python file inventory, and JavaScript syntax passed. **117/117 structural Node cases passed**, and all six Python companion suites passed. The main offline regression phase ran **320 tests: 314 passed, 6 failed**. Five failures were from test-only Firefox VM fixtures missing `TextEncoder` (`tests/proxy-probe.test.js`, four cases, and `tests/security.test.js`, one). One failure was from the subscription caching test expecting two filter-list downloads when new default settings enable five. The fixes supply the proper web encoding APIs in those fixture contexts and explicitly enable only EasyList/EasyPrivacy within the two-list test, leaving production five-list defaults unchanged.
 
 **Pending:** a fresh complete `bash scripts/test-local.sh` run, the offline Firefox package audit, supervised real Firefox testing, YouTube/Disney+ playback and long-session stability. This is not proof of browser readiness.
+
+## Third Ubuntu run: FIRST COMPLETE OFFLINE PASS (October 30, 2026)
+
+User-supplied terminal log from Ubuntu desktop, checkout `main` at `4948729`: **117/117 extension-structure JavaScript tests PASS; 320/320 offline regression JavaScript tests PASS**. The Linux companion protocol phase completed six Python unittest modules without failures; the extra audit/inventory fixture scripts also passed. The test inventory found 91 Node test files and 9 Python scripts; JavaScript syntax, no GitHub Actions, and Firefox manifest/packaging audit v0.3.32 all passed. Terminal finished with `FINAL PASS: Local source checks; browser and video playback remain unverified`.
+
+**Decision:** Offline source gate accepted for a user-supervised *temporary* Firefox loading smoke test. This is not Mozilla signing, successful Firefox runtime validation, YouTube/Disney+ verification, an approved public release, or ABP parity. The user's altered legacy `src/ghostery-vendor.js` is held safely in a local Git stash; do not reapply it over the current bundled engine without inspection.
+
+### Initial Firefox smoke test without packaging
+
+1. In Firefox manually navigate to `about:debugging`, select **This Firefox**, then **Load Temporary Add-on**.
+2. Select `$HOME/DKLab/Projects/dkliveblock/src/manifest.json`. Firefox's temporary extension disappears on browser restart. No ZIP, signing, GitHub Actions, extra install or native companion is needed for base blocking.
+3. Verify DK Live Block appears under **Temporary Extensions**, with no red load error. Open the toolbar and Site Dashboard. Test on a benign ordinary website first. Compare with other installed ad blockers disabled for the test, ideally using an isolated test profile.
+4. Record: `LOAD PASS/FAIL`, `TOOLBAR PASS/FAIL`, `SITE DASHBOARD PASS/FAIL`, `COMMON PAGE PASS/FAIL`, and any browser error text or screenshot. Do not begin long video/Disney+ compatibility tests until basic UI works.

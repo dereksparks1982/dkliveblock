@@ -21,3 +21,7 @@ The initial offline structural phase ran 115 cases: 112 passes and three obsolet
 ## Follow-up: second Ubuntu regression pass
 
 The corrected extension-structure phase passed all 117 cases and Linux companion Python checks all passed. The full offline Node phase ran 320 cases with 6 failures: five missing Web TextEncoder globals in two test-only VM environments, and a two-list caching test that unintentionally inherited the newer five-list production defaults. Corrected both test fixtures and scoped the caching case without changing extension runtime code. The final packaging audit remains pending another full run.
+
+## Complete offline acceptance: October 30, 2026
+
+The third on-device Ubuntu test run (GitHub main `4948729`, v0.3.32) passed the entire local suite: **117/117 structural Node tests; 320/320 offline Node regression tests; all six Python companion unittest suites; syntax; inventory; and the offline Firefox release audit**. Zero test failures. The **first supervised temporary Firefox load** is now the next gate, not a release or a package. Real playback and long-term stability remain unknown.

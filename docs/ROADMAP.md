@@ -278,4 +278,5 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 61: eliminate version-pinned assertion, prevent $removeparam from rewriting signed/SSO/CDN-token URLs, add source tests and conserve RAM with two-worker Node suite.
 - [x] Build 61: maintain a self-checking complete Node/Python test inventory, require manifest/package version consistency and document first-test stop conditions.
-- [ ] Build 61 acceptance: complete local offline regression and packaging audit with a real source checkout, then user-authorized Firefox installation, live-site and long-session tests. No test-candidate ZIP, public release or ABP parity assertion until verified.
+- [x] Build 61 offline acceptance: on-device Ubuntu checkout passed all 437 JavaScript tests, Python companion suites, script inventory and packaging audit (October 30, 2026).
+- [ ] Build 61 browser acceptance: temporary Firefox installation, real-site controls, YouTube/Disney+ playback and long-session stability. No test-candidate ZIP, public release or ABP parity assertion until verified.
