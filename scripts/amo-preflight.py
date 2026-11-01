@@ -14,7 +14,7 @@ CHECK_FILES = (
     "LICENSE", "README.md", "COMPANY_BIBLE.md",
     "docs/PRIVACY.md", "docs/FIREFOX_MARKETPLACE.md",
     "docs/AMO_REVIEWER_NOTES.md",
-    "src/LICENSE-GHOSTERY.txt", "src/LICENSE-PSL.txt",
+    "src/LICENSE-GHOSTERY.txt", "src/LICENSE-PSL.txt", "src/LICENSE-FACEBOOK-MIT.txt",
     "vendor/public_suffix_list.dat", "scripts/build-ghostery.mjs",
 )
 GHOSTERY_VERSION = "2.20.3"

@@ -1,7 +1,7 @@
 /* Facebook-only DK Live Block ad removal.
    Ad-label decoding and safe rail/post resolution adapted from Inky's
    fb-sponsored-ad-post-blocker (MIT), Copyright (c) 2026 Inky.
-   Full notice: licenses/facebook-sponsored-MIT.txt.
+   Full notice packaged at LICENSE-FACEBOOK-MIT.txt (source: licenses/facebook-sponsored-MIT.txt).
    No tracking, remote scripts or network-rule exceptions. */
 (function(root){"use strict";
 const ARTICLE='[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]';

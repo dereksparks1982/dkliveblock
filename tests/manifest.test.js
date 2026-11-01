@@ -35,6 +35,7 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(fs.existsSync(path.join(root,"src/network-monitor.html")));
  assert.ok(fs.existsSync(path.join(root,"src/network-monitor.js")));
  assert.ok(fs.existsSync(path.join(root,"src/LICENSE-PSL.txt")));
+ assert.ok(fs.existsSync(path.join(root,"src/LICENSE-FACEBOOK-MIT.txt")));
  const contentScripts=m.content_scripts[0].js;
  assert.ok(contentScripts.indexOf("video-assist.js")<contentScripts.indexOf("streaming-watch.js"));
  assert.ok(contentScripts.indexOf("streaming-watch.js")<contentScripts.indexOf("content.js"));

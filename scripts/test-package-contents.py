@@ -20,6 +20,7 @@ with tempfile.TemporaryDirectory(prefix="dk-package-test-") as folder:
     (src / "background.js").write_text("// fixture", encoding="utf-8")
     (src / "LICENSE-GHOSTERY.txt").write_text("MPL-2.0", encoding="utf-8")
     (src / "LICENSE-PSL.txt").write_text("MPL-2.0", encoding="utf-8")
+    (src / "LICENSE-FACEBOOK-MIT.txt").write_text("MIT License", encoding="utf-8")
 
     members = module.package_members(root, src)
     names = [name for _, name in members]
@@ -28,6 +29,7 @@ with tempfile.TemporaryDirectory(prefix="dk-package-test-") as folder:
     assert "manifest.json" in names
     assert "LICENSE-GHOSTERY.txt" in names
     assert "LICENSE-PSL.txt" in names
+    assert "LICENSE-FACEBOOK-MIT.txt" in names
     assert next(p for p, name in members if name == "LICENSE") == root / "LICENSE"
     (src / "old.log").write_text("sensitive temporary log", encoding="utf-8")
     try:
