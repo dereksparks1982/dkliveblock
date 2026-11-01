@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>Website blocked · DK Live Block</title>
+<link rel="stylesheet" href="blocked.css">
+</head>
+<body>
+<main class="warning-card">
+<p class="brand">DK LIVE BLOCK · PHISHING PROTECTION</p>
+<h1>Website blocked for your protection</h1>
+<p>Our locally downloaded phishing-domain list contains this exact hostname:</p>
+<p id="blockedHost" class="hostname">Loading warning…</p>
+<p id="reason">Checking this warning against the current tab.</p>
+<dl>
+<dt>Reported category</dt><dd>Phishing</dd>
+<dt>List publisher</dt><dd>Phishing Army</dd>
+<dt>Cached feed updated</dt><dd id="feedUpdated">Unknown</dd>
+</dl>
+<p class="caution">This is a published threat-list match, not proof of who operates the site or what it intended. False positives are possible. No page content or personal URL was sent to the publisher.</p>
+<p>Review the <a href="https://phishing.army/blocking-policy/" target="_blank" rel="noopener noreferrer">publisher's blocking policy</a>.</p>
+<div class="actions"><button id="leave" type="button">Close this tab</button></div>
+<section id="override" hidden>
+<h2>Continue despite the warning</h2>
+<p>Only if you recognize and trust the hostname above. This saves an exception for that exact hostname until you remove it in DK Live Block Settings. It does not disable phishing protection elsewhere.</p>
+<label><input id="acknowledge" type="checkbox"> I understand the risk and want to allow this exact hostname.</label>
+<button id="proceed" type="button" disabled>Allow hostname and open its homepage</button>
+</section>
+<p id="status" role="status" aria-live="polite"></p>
+<p class="foot">No automatic bypass · No telemetry · Ad blocking remains active</p>
+</main>
+<script src="blocked.js"></script>
+</body>
+</html>
