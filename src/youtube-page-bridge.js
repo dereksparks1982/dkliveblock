@@ -19,7 +19,7 @@ function ownData(x,key){
 }
 function denied(x){
  const status=ownData(ownData(x,"playabilityStatus"),"status");
- return Boolean(status&&status!=="OK");
+ return Boolean(status&&status!=="OK"||plain(ownData(x,"error")));
 }
 function playable(x){return plain(x)&&(
  plain(ownData(x,"streamingData"))||plain(ownData(x,"videoDetails"))||
@@ -55,18 +55,22 @@ function prune(x,url=""){
  // Accessor-backed player data is not needed for ad filtering and is not
  // invoked. The outer object remains eligible only by its own data fields.
  if(!safeToPrune(x))return false;
- if(plain(nested)&&!safeToPrune(nested))return false;
- if(typeof nested==="string"&&nested.length<=MAX/2){
+ if(plain(nested)&&(denied(nested)||!safeToPrune(nested)))return false;
+ // Do not touch the outer object before checking a stringified inner refusal.
+ // A malformed or oversized inner response also fails open in its entirety.
+ let parsedChild=null;
+ if(typeof nested==="string"){
+  if(nested.length>MAX/2)return false;
+  try{parsedChild=JSON.parse(nested);}catch(_){return false;}
+  if(!plain(parsedChild)||denied(parsedChild))return false;
   const desc=Object.getOwnPropertyDescriptor(x,"playerResponse");
   if(desc&&!desc.writable)return false;
  }
  let removed=pruneObject(x);
  if(plain(nested))removed+=pruneObject(nested);
- else if(typeof nested==="string"&&nested.length<=MAX/2){
-  try{
-   const child=JSON.parse(nested),count=pruneObject(child);
-   if(count){x.playerResponse=JSON.stringify(child);removed+=count;}
-  }catch(_){}
+ else if(parsedChild){
+  const count=pruneObject(parsedChild);
+  if(count){x.playerResponse=JSON.stringify(parsedChild);removed+=count;}
  }
  return removed>0;
 }

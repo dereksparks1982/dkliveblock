@@ -666,3 +666,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.121 / Build 151 (2026-10-31)
 - Replaced page-controlled array.splice-based YouTube sponsored-feed removal with bounded in-place indexed compaction. A site-supplied array constructor getter, Symbol.species or overridden splice method can no longer stop otherwise eligible sponsored entries from being removed by this path. Original video order, resource limits and cross-array preflight remain in place. Added feed and MAIN-world bootstrap regression fixtures. Source-only smoke checks passed; full Ubuntu test inventory and real Firefox playback/ad-free acceptance remain open.
+
+### 0.3.122 / Build 152 (2026-10-31)
+- Prevented partial YouTube player-envelope modification when nested object or stringified player results explicitly refuse playback or contain a structured error. Malformed, unknown and oversized inner JSON now fail open instead of stripping unrelated outer ad metadata. Applied the same guard to background Firefox response rewriting and MAIN-world player bootstrap/fetch/XHR helpers. Added response and bridge fixtures. Full Linux suite and Firefox ad-free playback still pending.

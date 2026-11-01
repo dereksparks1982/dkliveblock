@@ -580,3 +580,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 151: avoid page-controlled splice and constructor/Species getters during eligible YouTube sponsored feed/Shorts removal; preserve ordinary entries and global read-only preflight, with both feed and MAIN-world fixture tests.
 - [ ] **Release still blocked:** complete Ubuntu regression and Firefox ad-free *and* playable video, Shorts, ad-supported films, streaming compatibility, performance, security and owner-approved tag.
+
+- [x] Build 152: preserve outer and nested YouTube playback refusal evidence in both background and MAIN-world response paths; reject ambiguous malformed inner JSON before any outer mutation.
+- [ ] Full Ubuntu, Linux companion, and live Firefox anti-adblock/ad-free playback acceptance outstanding.

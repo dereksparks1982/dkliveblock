@@ -324,3 +324,25 @@ test("Build 151 MAIN-world bootstrap handles arrays with hostile page methods",(
  assert.equal(entries[0].videoRenderer.videoId,"organic");
  p.send("disable");
 });
+
+test("Build 152 MAIN-world bridge preserves refused inner player responses",()=>{
+ for(const status of ["LOGIN_REQUIRED","UNPLAYABLE"]){
+  for(const asString of [true,false]){
+   const p=context(),inner={playabilityStatus:{status},videoDetails:{title:"safe"},adSlots:[{}]};
+   p.window.ytInitialPlayerResponse={videoDetails:{title:"outer"},adSlots:[{}],
+    playerResponse:asString?JSON.stringify(inner):inner};
+   const before=JSON.stringify(p.window.ytInitialPlayerResponse);
+   p.send("enable");
+   assert.equal(JSON.stringify(p.window.ytInitialPlayerResponse),before);
+   p.send("disable");
+  }
+ }
+});
+test("Build 152 MAIN-world bootstrap keeps malformed nested data intact",()=>{
+ const p=context(),outer={videoDetails:{title:"safe"},adSlots:[{}],playerResponse:"{not JSON"};
+ p.window.ytInitialPlayerResponse=outer;
+ p.send("enable");
+ assert.equal(outer.adSlots.length,1);
+ assert.equal(outer.playerResponse,"{not JSON");
+ p.send("disable");
+});

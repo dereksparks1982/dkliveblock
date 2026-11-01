@@ -82,8 +82,13 @@ function safeHeaders(details){
  return true;
 }
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
+function refused(obj){
+ return plain(obj)&&Boolean(
+  obj.playabilityStatus?.status&&obj.playabilityStatus.status!=="OK"||
+  plain(obj.error));
+}
 function pruneObject(obj){
- if(!plain(obj)||obj.playabilityStatus&&obj.playabilityStatus.status&&obj.playabilityStatus.status!=="OK")return 0;
+ if(!plain(obj)||refused(obj))return 0;
  if(!plain(obj.streamingData)&&!plain(obj.videoDetails)&&!plain(obj.playerResponse))return 0;
  let changed=0;
  for(const key of AD_FIELDS){
@@ -102,19 +107,26 @@ function rewrite(text,url=""){
  if(typeof text!=="string"||text.length>MAX_BYTES||text.length<2)return {text,changed:false,fields:0};
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let payload;try{payload=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return {text,changed:false,fields:0};}
- if(!plain(payload)||payload.playabilityStatus?.status&&
-     payload.playabilityStatus.status!=="OK")
+ if(!plain(payload)||refused(payload))
   return {text,changed:false,fields:0};
- // Refused outer responses are never rewritten, even with playable nested data.
- // Only known ad-only fields on a recognized playable response.
+ // Inspect nested player results BEFORE pruning the outer response. If YouTube
+ // refused playback (or returned an unreadable child), preserve its evidence
+ // and do not partially alter a player envelope.
+ const nested=payload.playerResponse;
+ let parsedChild=null;
+ if(plain(nested)){
+  if(refused(nested))return {text,changed:false,fields:0};
+ }else if(typeof nested==="string"){
+  if(nested.length>MAX_BYTES/2)return {text,changed:false,fields:0};
+  try{parsedChild=JSON.parse(nested);}catch(_){return {text,changed:false,fields:0};}
+  if(!plain(parsedChild)||refused(parsedChild))
+   return {text,changed:false,fields:0};
+ }
  let fields=pruneObject(payload);
- if(plain(payload.playerResponse))fields+=pruneObject(payload.playerResponse);
- else if(typeof payload.playerResponse==="string"&&payload.playerResponse.length<=MAX_BYTES/2){
-  try{
-   const child=JSON.parse(payload.playerResponse);
-   const count=pruneObject(child);
-   if(count){payload.playerResponse=JSON.stringify(child);fields+=count;}
-  }catch(_){/* Unknown child: leave unchanged. */}
+ if(plain(nested))fields+=pruneObject(nested);
+ else if(parsedChild){
+  const count=pruneObject(parsedChild);
+  if(count){payload.playerResponse=JSON.stringify(parsedChild);fields+=count;}
  }
  if(!fields)return {text,changed:false,fields:0};
  return {text:prefix+JSON.stringify(payload),changed:true,fields};

@@ -402,3 +402,26 @@ test("Build 134 response stream retry does not duplicate chunks after a partial 
  assert.equal(R.stats(tabId).errors,1);
  R.clear(tabId);
 });
+
+test("Build 152 preserves nested YouTube playback refusals and errors byte-for-byte",()=>{
+ for(const status of ["LOGIN_REQUIRED","UNPLAYABLE","ERROR"]){
+  const inner={playabilityStatus:{status,reason:"server refused"},videoDetails:{title:"private"},adSlots:[{}]};
+  for(const nested of [inner,JSON.stringify(inner)]){
+   const original=JSON.stringify({videoDetails:{title:"outer"},adSlots:[{}],playerResponse:nested});
+   const result=R.rewrite(original);
+   assert.equal(result.changed,false,status);
+   assert.equal(result.text,original,status);
+  }
+ }
+ const body=JSON.stringify({videoDetails:{title:"valid"},adSlots:[{}],
+  playerResponse:JSON.stringify({error:{code:403,message:"refused"},videoDetails:{},adSlots:[{}]})});
+ assert.equal(R.rewrite(body).text,body);
+});
+test("Build 152 malformed nested player data is not partially rewritten",()=>{
+ for(const nested of ["{not JSON","[]" ,"x".repeat(R.MAX_BYTES/2+1)]){
+  const original=JSON.stringify({videoDetails:{title:"outer"},adSlots:[{}],playerResponse:nested});
+  const result=R.rewrite(original);
+  assert.equal(result.text,original);
+  assert.equal(result.changed,false);
+ }
+});
