@@ -45,6 +45,8 @@ def main():
     subprocess.run([sys.executable, "scripts/amo-preflight.py", "--strict"], cwd=ROOT, check=True)
     print("PHASE START: Local regression gates", flush=True)
     subprocess.run(["bash", "scripts/test-local.sh"], cwd=ROOT, check=True)
+    print("PHASE START: Verify exact bundled Ghostery source reproduction (read-only)", flush=True)
+    subprocess.run(["node", "scripts/build-ghostery.mjs", "--verify"], cwd=ROOT, check=True)
     manifest = json.loads((SRC / "manifest.json").read_text(encoding="utf-8"))
     version = manifest["version"]
     target = ROOT / "dist" / ("dk-live-block-" + version + "-unsigned.zip")
