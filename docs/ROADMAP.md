@@ -629,3 +629,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 165: offline bounded native filter-language inventory, no URLs logged, with 20 MB / 260k-line limits, synthetic classification tests, and test runner registration.
 - [ ] Compare unsupported categories against consented real default-list snapshots; audit does not yet measure installed EasyList/EasyPrivacy or bundled Ghostery's full parser.
 - [ ] Build 166: baseline CPU/startup/memory and request-match timing in offline harness, no live browser assertions.
+
+- [x] Build 166: local synthetic native/hybrid parse and request-match benchmark harness, bounded workload and median timings, coarse heap caveat, standalone-only heavy run.
+- [ ] Build 166 acceptance: execute benchmark and full Node/Python gate on exact commit; document actual output and regression status.
+- [ ] Build 167: measure and instrument YouTube bootstrap path without modifying video traffic; validate privacy-safe capture boundaries.

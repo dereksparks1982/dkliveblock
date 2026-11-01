@@ -725,3 +725,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Added source regression fixtures for scriptlet, CSP, redirects, entity-domain and extended cosmetic classification, oversized input handling, and local list inventory.
 - Registered the new regression test in the official seven-phase runner; no production filtering changes, downloads, GitHub Actions or release.
 - Current full Linux tests, default-list real-world gaps and Firefox video acceptance remain unverified.
+
+### 0.3.136 / Build 166 (2026-10-31)
+- Added a bounded, deterministic offline engine performance harness for native versus hybrid parsing and request matching over synthetic .invalid domains.
+- Benchmark reports medians and coarse memory delta with limitations explicit; no visited URLs, network I/O or automatic benchmark overhead at Firefox runtime.
+- Added regression tests for input bounds, determinism, median calculations, timing results and full runner inventory.
+- Current full Ubuntu benchmark results and real Firefox CPU/memory/video playback remain unverified; no release.
