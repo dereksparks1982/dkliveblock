@@ -179,7 +179,7 @@ function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data
  popupProtectionPaused:data.settings.popupProtectionPaused.some(x=>DKRules.sub(h,x)),
  cookieRejectPaused:data.settings.cookieRejectPaused.some(x=>DKRules.sub(h,x)),
  distractionPaused:data.settings.distractionPaused.some(x=>DKRules.sub(h,x)),
- mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).length:0,
+ mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).filter(row=>row.pageHost===h).length:0,
  streamingAllowancesCount:DKStreamingRepair.list(data.streamingAllowances,id).length,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,
  strictPopupAvailable:DKPopupTrap.protectedHost(h),
  strictPopupEnabled:DKPopupTrap.shouldBlock(h,data.settings.strictPopupSites,activeTab(id,h)),
