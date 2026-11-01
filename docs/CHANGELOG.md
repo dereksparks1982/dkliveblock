@@ -1,3 +1,10 @@
+## Build 210 (0.3.180): shared late-property manual scriptlet observers
+
+- Rebuilt the locally packaged, fixed-purpose `set-constant` MAIN-world runtime around a bounded prefix tree. Multiple **user-authored** paths sharing the same missing `app` or `app.flags` intermediate no longer silently starve each other.
+- Old-object descendants are restored before new-object replacements are wired; repeated identical settings refreshes do not reset the page's assignment history. Read-only data chains can be traversed without replacing their descriptors; inherited/accessor-backed and unsafe property chains are not inspected.
+- Remains limited to 24 vetted user-authored property shims of maximum depth three and fixed literal constants. No remote scriptlet code, subscriptions, browser privileges, added permissions, UI geometry changes or YouTube playback algorithm modifications.
+- Six new tests passed together with all 10 prior runtime tests (16 focused checks). Complete Ubuntu and live Firefox verification remains pending. Build 203 backup unchanged.
+
 ## Build 209 (0.3.179): site-first cosmetic selector retention under large-list caps
 
 - Fixed the global-first cosmetic hiding overflow case: when more than 15,000 selectors match a page, explicit site-scoped rules now receive priority before generic/global selectors.

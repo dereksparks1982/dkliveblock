@@ -111,3 +111,81 @@ test("Build 208 never invokes an accessor while waiting for a chain",()=>{
  env.send("[]");
  assert.equal(count,0);
 });
+
+
+test("Build 210 shared missing intermediate activates both sibling paths",()=>{
+ const env=environment();
+ const cmds=[command("future.ads"),command("future.tracking","true")];
+ env.send(JSON.stringify(cmds));
+ env.window.future={ads:true,tracking:false,regular:42};
+ assert.equal(env.window.future.ads,false);
+ assert.equal(env.window.future.tracking,true);
+ assert.equal(env.window.future.regular,42);
+ env.window.future.ads=1;
+ env.window.future.tracking=0;
+ env.send("[]");
+ assert.equal(env.window.future.ads,1);
+ assert.equal(env.window.future.tracking,0);
+});
+test("Build 210 shared three-part intermediate rebinds all descendants",()=>{
+ const env=environment();
+ env.send(JSON.stringify([command("late.flags.ads"),command("late.flags.tracking","true")]));
+ const old={ads:true,tracking:false};
+ env.window.late={flags:old};
+ assert.equal(old.ads,false);assert.equal(old.tracking,true);
+ const fresh={ads:true,tracking:false};
+ env.window.late.flags=fresh;
+ assert.equal(old.ads,true);assert.equal(old.tracking,false);
+ assert.equal(fresh.ads,false);assert.equal(fresh.tracking,true);
+ env.send("[]");
+ assert.equal(fresh.ads,true);assert.equal(fresh.tracking,false);
+});
+test("Build 210 replacing top-level object restores all old descendants",()=>{
+ const env=environment();
+ env.send(JSON.stringify([command("later.flag"),command("later.other","true")]));
+ const prev={flag:true,other:false};
+ env.window.later=prev;
+ assert.equal(prev.flag,false);
+ env.window.later={flag:true,other:false};
+ assert.equal(prev.flag,true);
+ assert.equal(prev.other,false);
+ assert.equal(env.window.later.flag,false);
+ assert.equal(env.window.later.other,true);
+ env.send("[]");
+ assert.equal(env.window.later.flag,true);
+ assert.equal(env.window.later.other,false);
+});
+test("Build 210 identical configuration refresh does not clear page values",()=>{
+ const env=environment();
+ const config=JSON.stringify([command("future.ready")]);
+ env.send(config);
+ env.window.future={ready:true};
+ env.window.future.ready="site-assignment";
+ const first=Object.getOwnPropertyDescriptor(env.window,"future").get;
+ env.send(config);
+ assert.equal(Object.getOwnPropertyDescriptor(env.window,"future").get,first);
+ assert.equal(env.window.future.ready,false);
+ env.send("[]");
+ assert.equal(env.window.future.ready,"site-assignment");
+});
+test("Build 210 nonwritable data and inherited properties are never changed",()=>{
+ const env=environment(),locked={flag:true};
+ Object.defineProperty(env.window,"readonly",{configurable:true,
+  enumerable:true,writable:false,value:locked});
+ const prototype={prototypeOnly:{flag:true}};
+ Object.setPrototypeOf(env.window,prototype);
+ env.send(JSON.stringify([command("readonly.flag"),command("prototypeOnly.flag")]));
+ assert.equal(locked.flag,false,"read-only data can be traversed without replacing it");
+ assert.equal(prototype.prototypeOnly.flag,true,"never invoke or intercept inherited chains");
+ assert.equal(Object.getOwnPropertyDescriptor(env.window,"readonly").writable,false);
+ env.send("[]");
+ assert.equal(locked.flag,true);
+});
+test("Build 210 rejects getter-backed intermediate nodes and doesn't invoke them",()=>{
+ const env=environment();let invoked=0;
+ Object.defineProperty(env.window,"unsafe",{configurable:true,get(){invoked++;throw Error("GETTER");}});
+ env.send(JSON.stringify([command("unsafe.ads"),command("unsafe.tracker","true")]));
+ assert.equal(invoked,0);
+ env.send("[]");
+ assert.equal(invoked,0);
+});

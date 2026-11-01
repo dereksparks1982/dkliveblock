@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 209 / 0.3.179 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 210 / 0.3.180 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -162,3 +162,10 @@ Full Ubuntu and live Firefox tests still pending.
 - When cosmetic hiding exceeds the existing 15,000-selector ceiling, explicit site-specific selectors are placed first, before generic selectors. Other pages keep previous order. All matches, site-specific exceptions and page-level cosmetic protections still apply before prioritization.
 - The getStyle path passes its current ceiling to `FilterEngine.getSelectors`; it retains auth/video safe-selector checks and existing final CSS cap. The function's original two-argument behavior remains unchanged.
 - Four targeted tests passed, including 15,003 synthetic generic selectors and a site-scoped exception. Full Linux tests and live Firefox still required; Build 203 remains preserved.
+
+## Build 210: shared prefix watcher for manual set-constant rules (unreleased)
+
+- Replaced per-rule independent intermediate traps with a shared bounded property-prefix tree: several explicit user-authored rules can target distinct leaves under the same initially missing page object. Intermediate assignment rebinds all children, restoring previous children first.
+- Identical settings refresh no longer tears down/reinstalls a constant property, preserving page assignments and avoiding brief resets. Getter-backed/inherited property paths remain off limits, and nonwritable intermediates are only traversed without property replacement.
+- Fixed literal selection, 24-rule/three-segment depth bounds, no arbitrary eval or remote scripts and no added WebExtension privileges. MAIN-world event delivery is still a page-forgeable control channel, **not an authenticated extension command**.
+- Targeted source checks: 16/16 runtime tests passed in an isolated V8 harness; complete Node/Firefox acceptance pending. Build 203 preserved.

@@ -782,3 +782,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 209: keep explicit site-scoped cosmetic selectors from being dropped by a 15,000-entry stylesheet cap, preserving site exceptions and legacy small-list ordering. Add synthetic overflow tests registered in Linux suite.
 - [ ] Profile actual cosmetic selectors on Firefox across real EasyList/EasyPrivacy/annoyance lists and measure whether stylesheet construction or extension memory needs further changes.
+
+- [x] Build 210: shared prefix tree for multiple site-scoped, user-authored scriptlets with the same late-created intermediate. Keep previous descriptor and site assignment semantics and add 6 regression cases. No YouTube player changes.
+- [ ] Test MAIN-world scriptlet prefix changes on dynamic real Firefox test pages, including multiple frames and rapid enable/disable refresh, and verify page-owned setter/accessor protection.

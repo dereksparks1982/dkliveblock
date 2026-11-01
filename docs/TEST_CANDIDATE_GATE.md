@@ -104,3 +104,7 @@ Isolated runtime tests passed 10/10, covering late two-/three-step assignments, 
 ## Build 209 (0.3.179): cosmetic overflow regression
 
 The 15,003-global-filter synthetic test checks site-scoped priority when final CSS is limited to 15,000 selectors; smaller lists retain old ordering, exceptions are honored, and generic hiding can be disabled by policy. Registered in Linux test runner. Re-test actual Firefox cosmetic hiding, media player protection, sign-in forms and performance before accepting; no browser run was performed here.
+
+## Build 210 (0.3.180): shared user-authored scriptlet property chains
+
+Six new synthetic cases plus all 10 prior runtime checks passed under an isolated JS environment. Validate restoration of multiple siblings on same late-created parent, reattachment after reassignment, idempotent config events, inherited/accessor and read-only paths. The MAIN-world DOM event remains forgeable by the page; don't expand its capabilities without a new trust design. Complete Ubuntu suite and live Firefox checks still pending.
