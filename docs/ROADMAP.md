@@ -661,3 +661,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 173: export current Allow/Block host/type switch state beside historical blocked event evidence; retain per-site scopes and privacy.
 - [ ] Build 173 verification: full local test suite and real Firefox toggles on/off with reloaded video tab; historical events must remain historical.
 - [ ] Build 174: security/privacy review of extension-origin authorization, retained settings and failure recovery.
+
+- [x] Build 174: explicit foreign no-tab messages rejected, multi-field settings inputs prevalidated before mutation, and persistent blocked-request Allow save failures covered by rollback tests.
+- [ ] Build 174 acceptance: complete local seven-phase Node/Python suite plus real Firefox message/permissions/settings persistence checks.
+- [ ] Build 175: run/offline benchmark native/hybrid filter matching and prioritize measurable optimization while preserving ad-supported movie playback.

@@ -11,7 +11,7 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
   tabs:{onUpdated:reg("update"),onRemoved:reg("removed"),query:async()=>[{id:1,url:"https://site.example"}],sendMessage:async()=>{}},
   alarms:{onAlarm:reg("alarm"),create:async()=>{}},
   browserAction:{setBadgeText:async()=>{}},
-  runtime:{onMessage:reg("message")},
+  runtime:{onMessage:reg("message"),getURL:p=>"moz-extension://dk-test/"+p},
   storage:{local:{get:async()=>saved,set:async x=>{saved={...saved,...x}}}}
  };
  const setTimeoutSafe=(f,n)=>{const t=setTimeout(f,n);if(n>=60000)t.unref();return t;};
@@ -36,4 +36,40 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
  assert.equal(rule.ok,true);
  assert.match(saved.settings.customRules,/site\.example##\.sponsored/);
  assert.equal(saved.settings.customRules.includes("other.example"),false);
+
+ // Build 174: sender.url from a non-extension caller without sender.tab
+ // must never be interpreted as a trusted extension interface.
+ const foreign={url:"https://untrusted.example/popup.html"};
+ for(const action of ["getSettings","saveSettings","setGlobal","getLog",
+   "getSiteDashboard","setBlockedRequestAllowed","toggleSite"]){
+  const response=await handles.message({action,tabId:1,enabled:false,
+   settings:{enabled:false},expectedSite:"site.example",host:"ads.example",
+   type:"script",allow:true,confirm:true},foreign);
+  assert.match(response.error,/extension interface/,action);
+ }
+ const internal=await handles.message({action:"getSettings"},{
+  url:"moz-extension://dk-test/options.html"});
+ assert.equal(typeof internal.settings,"object");
+
+ // Build 174: invalid settings fields must fail before touching any
+ // earlier option, cached subscription choice, or request logging.
+ const beforeSettings=JSON.stringify((await handles.message({action:"getSettings"})).settings);
+ const beforeSaved=JSON.stringify(saved.settings);
+ for(const input of [
+  {autoUpdate:true,adRecognition:false,requestLog:false,paused:["invalid/host"]},
+  {autoUpdate:true,youtubeResponseFilter:false,cookieRejectPaused:["bad.example/path"]},
+  {autoUpdate:true,strictPopupSites:false,distractionPaused:["bad..example"]},
+  {autoUpdate:true,adRecognition:false,paused:["bad.example/"],customSubscriptions:[]}
+ ]){
+  const response=await handles.message({action:"saveSettings",settings:input});
+  assert.match(response.error,/valid hostnames/,JSON.stringify(input));
+  assert.equal(JSON.stringify((await handles.message({action:"getSettings"})).settings),
+   beforeSettings,"invalid update must not mutate live settings");
+  assert.equal(JSON.stringify(saved.settings),beforeSaved,
+   "invalid update must not write to storage");
+ }
+ const invalidObject=await handles.message({action:"saveSettings",settings:[]});
+ assert.match(invalidObject.error,/object/);
+ assert.equal(JSON.stringify((await handles.message({action:"getSettings"})).settings),
+  beforeSettings);
 });

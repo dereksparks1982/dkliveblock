@@ -773,3 +773,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Prevents confusing old blocked counts with current allowances after toggle changes. Reuses already sanitized dashboard snapshots and never introduces URL/path/token collection.
 - Added exporter regressions and tested the actual report builders with synthetic history and present-day controls.
 - No filtering or playback changes. Complete Linux/Firefox testing remains outstanding.
+
+### 0.3.144 / Build 174 (2026-10-31)
+- Hardened the background message boundary against foreign-origin messages missing a sender.tab; they can no longer be misclassified as privileged extension-interface calls.
+- Changed settings update flow to reject malformed custom subscriptions and invalid site-exception arrays before mutating any settings or cached-list choices.
+- Extended security regressions for foreign and extension origins, mixed invalid settings, in-memory rollback, and failed persistent request allowances.
+- Focused source/branch checks passed; complete Ubuntu regression and real Firefox acceptance remain pending. No GitHub Actions or release.

@@ -609,6 +609,11 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   browser.runtime.getURL(""):"";
  const ownExtensionPage=!!(extensionRoot&&typeof sender.url==="string"&&
   sender.url.startsWith(extensionRoot));
+ // A message carrying a foreign browser-supplied URL without a sender tab
+ // is NOT an extension interface. Treat it as untrusted, even if the
+ // browser omitted sender.tab. Absent URLs remain for internal test callers.
+ if(typeof sender.url==="string"&&sender.url&&!ownExtensionPage&&!sender.tab)
+  return {error:"This action is only available in the extension interface."};
  const fromContent=!!sender.tab&&!ownExtensionPage;
  if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap")
   return {error:"This action is only available in the extension interface."};
@@ -1349,11 +1354,30 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  }
  if(msg.action==="saveSettings"){
   const s=msg.settings||{};
+  if(!s||typeof s!=="object"||Array.isArray(s))
+   return {error:"Settings must be an object."};
+  // Validate every rejecting list field before changing *any* live option.
+  // Previously an invalid paused-site list could leave earlier settings
+  // changed in memory even though the response said the update failed.
+  let validatedSubscriptions=null;
   if("customSubscriptions" in s){
    const validated=DKSubscriptions.validate(s.customSubscriptions);
    if(validated.error)return {error:validated.error};
-   data.settings.customSubscriptions=validated.urls;
-   for(const u of Object.keys(data.customLists))if(!validated.urls.includes(u)){delete data.customLists[u];delete data.listErrors[u];}
+   validatedSubscriptions=validated.urls;
+  }
+  for(const featureKey of ["cookieRejectPaused","distractionPaused"]){
+   if(Array.isArray(s[featureKey])&&
+      (s[featureKey].length>500||
+       s[featureKey].some(h=>!DKManualRules.validHost(h))))
+    return {error:"Site protection exceptions require valid hostnames (up to 500)."};
+  }
+  if(Array.isArray(s.paused)&&
+     (s.paused.length>DKSiteAllowlist.LIMIT||
+      s.paused.some(x=>!DKManualRules.validHost(x))))
+   return {error:"Allowed websites require valid hostnames (maximum 500)."};
+  if(validatedSubscriptions!==null){
+   data.settings.customSubscriptions=validatedSubscriptions;
+   for(const u of Object.keys(data.customLists))if(!validatedSubscriptions.includes(u)){delete data.customLists[u];delete data.listErrors[u];}
   }
   if(typeof s.blockNotificationPrompts==="boolean")data.settings.blockNotificationPrompts=s.blockNotificationPrompts;
   if(typeof s.showDevtoolsPanel==="boolean")data.settings.showDevtoolsPanel=s.showDevtoolsPanel;
@@ -1381,11 +1405,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.cookieReject==="boolean")data.settings.cookieReject=s.cookieReject;
   if(typeof s.distractionControl==="boolean")data.settings.distractionControl=s.distractionControl;
   for(const featureKey of ["cookieRejectPaused","distractionPaused"]){
-   if(Array.isArray(s[featureKey])){
-    if(s[featureKey].length>500||s[featureKey].some(h=>!DKManualRules.validHost(h)))
-     return {error:"Site protection exceptions require valid hostnames (up to 500)."};
+   if(Array.isArray(s[featureKey]))
     data.settings[featureKey]=[...new Set(s[featureKey])];
-   }
   }
   if(typeof s.antiAdblock==="boolean")data.settings.antiAdblock=s.antiAdblock;
   if(typeof s.paywallPopups==="boolean")data.settings.paywallPopups=s.paywallPopups;
@@ -1394,12 +1415,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
   if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.allowedActivity.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
-  if(Array.isArray(s.paused)){
-   if(s.paused.length>DKSiteAllowlist.LIMIT||
-      s.paused.some(x=>!DKManualRules.validHost(x)))
-    return {error:"Allowed websites require valid hostnames (maximum 500)."};
+  if(Array.isArray(s.paused))
    data.settings.paused=DKSiteAllowlist.normalize(s.paused);
-  }
   for(const k of Object.keys(SOURCES))if(typeof s.listEnabled?.[k]==="boolean")data.settings.listEnabled[k]=s.listEnabled[k];
   data.notificationControl=await DKNotificationProtection.sync(browser,
    data.settings.enabled&&data.settings.blockNotificationPrompts);

@@ -5,6 +5,7 @@ const backgroundScripts=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/m
 test("background blocks seeded ads, logs host-only requests, then pauses the site",async()=>{
  const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;},removeListener(fn){if(listeners[name]===fn)delete listeners[name];}});
  let stored={settings:{autoUpdate:false,customRules:"||ads-pop.test^$popup\n*$removeparam=utm_source"}};
+ let failAllowanceStorage=false;
  const removedTabs=[];
  const browser={
   webRequest:{onBeforeRequest:reg("network"),onErrorOccurred:reg("networkError")},proxy:{onRequest:reg("proxy"),onError:reg("proxyError")},dns:{resolve:async host=>({addresses:["203.0.113.10"]})},
@@ -13,7 +14,11 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
   alarms:{onAlarm:reg("alarm"),create:async()=>{}},
   runtime:{onMessage:reg("message")},
   browserAction:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
-  storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
+  storage:{local:{get:async()=>stored,set:async x=>{
+   if(failAllowanceStorage&&Object.prototype.hasOwnProperty.call(x,"requestAllowances"))
+    throw Error("Simulated storage failure");
+   stored={...stored,...x};
+  }}}
  };
  const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,console,Date,AbortController,setTimeout:(fn,ms,...args)=>{const timer=setTimeout(fn,ms,...args);if(ms>=60000)timer.unref();return timer;},clearTimeout,fetch:async()=>{throw Error("unexpected list fetch");}});
  for(const name of backgroundScripts){
@@ -61,6 +66,18 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  const reverted=await listeners.message({...choice,allow:false,confirm:false});
  assert.equal(reverted.ok,true);
  assert.equal(stored.requestAllowances.length,0);
+ assert.equal(listeners.network(request).cancel,true);
+ // Build 174: failed persistent grants must never disable network filtering.
+ failAllowanceStorage=true;
+ const storageDenied=await listeners.message(choice);
+ assert.match(storageDenied.error,/Saving failed/);
+ assert.equal(listeners.network(request).cancel,true);
+ assert.equal(stored.requestAllowances.length,0);
+ failAllowanceStorage=false;
+ const afterFailure=await listeners.message(choice);
+ assert.equal(afterFailure.ok,true);
+ assert.equal(listeners.network(request).cancel,undefined);
+ assert.equal((await listeners.message({...choice,allow:false,confirm:false})).ok,true);
  assert.equal(listeners.network(request).cancel,true);
  const unsafe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"bad^$important"});
  assert.match(unsafe.error,/Invalid/);
