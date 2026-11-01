@@ -234,6 +234,10 @@ function updateLists(){if(data.updateJob)return data.updateJob;
   for(const [key,entry] of Object.entries(SOURCES)){if(!data.settings.listEnabled[key])continue;
    try{
     const result=await downloadList(entry.url,true,data.lists[key]);
+    if(!result.unchanged){
+     const assessment=DKSubscriptionUpdateGuard.check(data.lists[key],result.text);
+     if(!assessment.accept)throw Error(assessment.reason);
+    }
     data.lists[key]=DKSubscriptionCache.store(data.lists[key],result,Date.now());
     delete data.listErrors[key];checked++;if(!result.unchanged)updated++;
    }catch(e){data.listErrors[key]=String(e.message||e).slice(0,150);errors.push(entry.name+": "+data.listErrors[key]);}
@@ -246,6 +250,10 @@ function updateLists(){if(data.updateJob)return data.updateJob;
   for(const u of data.settings.customSubscriptions||[]){
    try{
     const result=await downloadList(u,false,data.customLists[u]);
+    if(!result.unchanged){
+     const assessment=DKSubscriptionUpdateGuard.check(data.customLists[u],result.text);
+     if(!assessment.accept)throw Error(assessment.reason);
+    }
     data.customLists[u]=DKSubscriptionCache.store(data.customLists[u],result,Date.now());
     delete data.listErrors[u];checked++;if(!result.unchanged)updated++;
    }catch(e){data.listErrors[u]=String(e.message||e).slice(0,150);errors.push("Custom "+host(u)+": "+data.listErrors[u]);}

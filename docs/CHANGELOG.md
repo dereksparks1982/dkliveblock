@@ -830,3 +830,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Compared modified native, hybrid and actual bundled Ghostery verdicts over 72 synthetic hostname/scope cases; all sampled decisions agreed. This is not a real filter-list coverage or YouTube video-ad benchmark.
 - Update filter syntax audit to count `native_entity_domain` separately; add native, manual, exception, exact-domain, lookalike and unsupported-wildcard regression fixtures. Revise obsolete earlier test expectations.
 - Full Linux test suite and live Firefox/YouTube acceptance remain pending; no feature parity or ad-removal claim.
+
+### 0.3.154 / Build 184 (2026-11-01)
+- Guard automatic built-in/custom subscription refreshes against severe loss of actionable filter rules relative to a substantial, previously cached list (below 25% when the previous list has at least 120 actionable rules).
+- Retain last working list on suspicious replacement and report locally for retry; preserve new/small subscriptions, ordinary revisions, conditional caching, and YouTube pack version/rollback checks.
+- Added privacy-preserving bounded counting module and three regression fixtures. Eleven isolated V8 assertions passed; full Ubuntu Node/Python suite and actual Firefox scheduled-update/live playback checks remain outstanding.

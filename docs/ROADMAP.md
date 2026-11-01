@@ -701,3 +701,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 183: implement bounded network source-scope entities `domain=label.*` (positive/negated/mixed), retaining strict validation of request origins and all non-network policies; sampled differential native/Ghostery corpus 72/72 agreement.
 - [ ] Build 183 acceptance: complete seven-phase Ubuntu regression suite at exact commit, expanded real-list corpus, site-scoped manual allow/block checks, and ordinary YouTube preroll/midroll tests with uBlock disabled.
 - [ ] Build 184: identify the next measurable network/cosmetic filtering shortfall, retain independent source and no arbitrary list-provided executable scripts; improve YouTube only using observed playback data.
+
+- [x] Build 184: add bounded, privacy-preserving subscription refresh guard to avoid replacing a large working list with a catastrophically smaller candidate; no execution of remote code, rollback only local cached data.
+- [ ] Build 184 acceptance: exact-commit full Ubuntu test gate and actual Firefox subscription refresh/304/recovery plus YouTube playback testing.
+- [ ] Build 185 adaptive-strategy groundwork: define a finite, reviewed library of dormant site defenses and a deterministic, reversible selector based on coarse local evidence. Never invent scripts or silently bypass failed playback/ad detection.
