@@ -682,3 +682,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.126 / Build 156 (2026-10-31)
 - Reduced unnecessary YouTube skip-button scans: ignore routine playback progress/caption mutations in general player descendants, while reacting to actual skip controls, ad modules, player-root ad-state changes, and newly inserted nested skip elements. Maintained bounded mutation sampling and debounce. Added explicit positive/negative watcher regression fixtures. Browser acceptance and full Linux suite pending.
+
+### 0.3.127 / Build 157 (2026-10-31)
+- Aligned the actual YouTube skip-button controller with alternative and translated ad-skip labels that the mutation watcher could detect but the controller did not search for. Added strictly ad-context-checked title-only ad skip buttons. Kept conflicting-label, disabled/inert, safe-action, Skip Intro and cooldown protections. Targeted regression fixtures now assert that the controller's actual selector contains recognized labels. Live Firefox and full Linux suite pending.

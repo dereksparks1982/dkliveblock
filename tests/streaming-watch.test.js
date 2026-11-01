@@ -123,3 +123,13 @@ test("Build 156 ignores unrelated content insertions while honoring ad-module ch
   closest:s=>s.includes(".ytp-ad-module")?{}:null,querySelector:()=>null};
  assert.equal(W.relevant([{type:"attributes",attributeName:"hidden",target:adArea}]),true);
 });
+
+test("Build 157 watcher recognizes title-only and translated skip controls",()=>{
+ for(const attr of ["button[title='Skip Ad' i]",
+  "button[aria-label='Saltar anuncios' i]",
+  "button[aria-label='Reklamları atla' i]"]){
+  const node={nodeType:1,matches:s=>s.includes(attr),
+   closest:()=>null,querySelector:()=>null};
+  assert.equal(W.relevant([{type:"attributes",attributeName:"title",target:node}]),true,attr);
+ }
+});

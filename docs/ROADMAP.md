@@ -596,3 +596,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 156: eliminate repeated automatic skip scans caused by ordinary progress UI changes; retain actual preroll, midroll and player-root ad-state detection.
 - [ ] Firefox live skip and ad-free playback, memory/CPU baselines, and full Ubuntu Node/Python regression remain outstanding.
+
+- [x] Build 157: align the YouTube skip controller and watcher for explicit alternative/localized ad labels and title-only Skip Ad buttons, with strict player context and Skip Intro protection.
+- [ ] Real Firefox ads, anti-adblock refusal, full Ubuntu Node/Python suite, signed snapshot and owner acceptance outstanding.

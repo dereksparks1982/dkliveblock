@@ -190,3 +190,26 @@ test("Build 57 translated generic skip action requires ad context",()=>{
  x.button.closest=selector=>selector.includes("ad-showing")?{}:null;
  assert.equal(V.isAdSkip(x.button),true);
 });
+
+test("Build 157 controller actually queries alternative and translated YouTube ad skip labels",()=>{
+ for(const label of ["Skip Commercials","Saltar anuncios","Omitir anuncio",
+  "Omitir anuncios","Pular anúncio","Reklamı geç","Reklamları atla"]){
+  const x=btn({cls:"",label,ad:true});
+  const document={querySelectorAll:s=>s.includes("button[aria-label='"+label+"' i]")?[x.button]:[]};
+  assert.equal(V.createController().scan(document,100).clicked,true,label);
+  assert.equal(x.clicks(),1,label);
+ }
+});
+test("Build 157 title-only ad skip needs an ad context and rejects Skip Intro",()=>{
+ const label="Skip Commercials",ad=btn({cls:"",label:"",ad:true});
+ ad.button.getAttribute=name=>name==="title"?label:null;
+ const document={querySelectorAll:s=>s.includes("button[title='"+label+"' i]")?[ad.button]:[]};
+ assert.equal(V.createController().scan(document,100).clicked,true);
+ assert.equal(ad.clicks(),1);
+ const notAnAd=btn({cls:"",label:"",ad:false});
+ notAnAd.button.getAttribute=name=>name==="title"?label:null;
+ assert.equal(V.isAdSkip(notAnAd.button),false);
+ const intro=btn({cls:"ytp-ad-skip-button",label:"Skip Intro"});
+ intro.button.getAttribute=name=>name==="aria-label"?"Skip Intro":name==="title"?"Skip Ad":null;
+ assert.equal(V.isAdSkip(intro.button),false);
+});
