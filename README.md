@@ -4,7 +4,7 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
-**Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) for features, temporary Firefox installation and GitHub download. Google Drive installer link is pending a verified package and public upload.
+**Next-thread developer handoff (latest):** [Build 229 status, CBS player failure, temporary Block Element behavior, and Google Drive download requirement](docs/NEXT_THREAD_HANDOFF.md). Read this first when resuming work.\n\n**Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) for features, temporary Firefox installation and GitHub download. Google Drive installer link is pending a verified package and public upload.
 
 > **Availability:** DK Live Block is available to download and use from this GitHub repository. The official Firefox Add-ons listing has not yet been approved by Mozilla. Full compatibility, streaming playback, security review, and feature parity with established blockers still require testing.
 
@@ -49,6 +49,7 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 
 ## Documentation
 
+- [**Next-thread handoff / latest unresolved issues**](docs/NEXT_THREAD_HANDOFF.md)
 - [Development history and release notes](docs/CHANGELOG.md)
 - [Current engineering state](docs/STATE.md)
 - [Roadmap and acceptance requirements](docs/ROADMAP.md)
