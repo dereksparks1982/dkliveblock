@@ -384,7 +384,29 @@ function showAllowed(row){
  addAllowedDetail("Destination hostname",row.host);
  addAllowedDetail("Resource type",info.resource+" ("+row.type+")");
  addAllowedDetail("Completed requests observed",row.count);
+ addAllowedDetail("First completed",row.first?time(row.first):"Not recorded");
  addAllowedDetail("Last completed",row.last?time(row.last):"Not observed this session");
+ const reasonNames={
+  "global-disabled":"Global protection off",
+  "site-allowlisted":"Website allowlisted",
+  "tab-paused":"Tab temporarily paused",
+  "protection-not-ready":"Filtering not ready",
+  "media-recovery":"User-enabled media playback recovery",
+  "streaming-repair":"Temporary streaming repair exception",
+  "authentication-preserved":"Authentication-critical request preserved",
+  "youtube-player-preserved":"YouTube player JSON preserved",
+  "manual-exception":"Explicit user exception to automatic block",
+  "filter-engine-permitted":"Active filter engine did not block",
+  "decision-not-recorded":"Initial filtering decision unavailable"
+ };
+ const describeCounts=(counts,convert=(x=>x))=>
+  Object.entries(counts||{}).map(([label,count])=>convert(label)+": "+count).join("; ")||"Not recorded";
+ addAllowedDetail("Actual allow decisions when requests completed",
+  describeCounts(row.reasons,key=>reasonNames[key]||"Unknown decision"));
+ addAllowedDetail("HTTP methods observed",describeCounts(row.methods));
+ addAllowedDetail("HTTP response status codes",describeCounts(row.httpStatuses));
+ addAllowedDetail("Individual requests in export",
+  "Use Export all permitted TXT/JSON to see per-request time, method, status and exact allow decision; latest 400 completed requests retained.");
  addAllowedDetail("Current selective rule",row.block?"Block future matching requests":"No selective block");
  addAllowedDetail("Site auto-filter status",current.sitePaused?"Allowlisted / automatic filters off":
   current.temporarilyPaused?"Temporarily paused":current.globalEnabled?"Enabled":"Globally disabled");
