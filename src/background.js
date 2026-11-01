@@ -1255,7 +1255,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
      youtubePolicy(sender.tab?.id??-1,h).bridge?"enable":"disable"):"disable",
    youtubeDiagnosticsEnabled:active&&data.settings.requestLog&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
-   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
+   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
       streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),

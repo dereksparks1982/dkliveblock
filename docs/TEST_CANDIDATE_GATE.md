@@ -100,3 +100,7 @@ Focused injection tests simulate attachment failure, invalid incoming data, inva
 ## Build 208 (0.3.178): delayed manual scriptlet semantics
 
 Isolated runtime tests passed 10/10, covering late two-/three-step assignments, intermediate replacement, sibling shims on existing objects, disable restoration and accessor avoidance. Runtime is MAIN-world page script and accepts no WebExtension messages or privileges. Test in real Firefox across user-authored, site-specific examples and while switching protection off/on; do not infer YouTube behavior from these tests.
+
+## Build 209 (0.3.179): cosmetic overflow regression
+
+The 15,003-global-filter synthetic test checks site-scoped priority when final CSS is limited to 15,000 selectors; smaller lists retain old ordering, exceptions are honored, and generic hiding can be disabled by policy. Registered in Linux test runner. Re-test actual Firefox cosmetic hiding, media player protection, sign-in forms and performance before accepting; no browser run was performed here.

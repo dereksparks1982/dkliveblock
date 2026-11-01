@@ -186,11 +186,31 @@ class FilterEngine {
   }
   return results;
  }
- getSelectors(h,policy={}){
+ getSelectors(h,policy={},limit=Infinity){
   if(policy.document||policy.elemhide)return [];
-  const hidden=new Set(),exceptions=new Set();
-  for(const r of [...this.cosmeticGlobal,...this.byHost(this.cosmeticByHost,h)])if(R.domains(h,r.scope,",")&&!(policy.generichide&&!r.scope))(r.exception?exceptions:hidden).add(r.selector);
-  for(const s of exceptions)hidden.delete(s);return [...hidden];
+  const hidden=new Set(),exceptions=new Set(),specific=this.byHost(this.cosmeticByHost,h);
+  for(const r of [...this.cosmeticGlobal,...specific])
+   if(R.domains(h,r.scope,",")&&!(policy.generichide&&!r.scope))
+    (r.exception?exceptions:hidden).add(r.selector);
+  for(const selector of exceptions)hidden.delete(selector);
+  // Preserve the long-standing global-first order for ordinary pages.
+  // Only when the caller will truncate an oversized selector collection
+  // prioritize relevant explicit-site selectors before broad generic ones.
+  if(limit===0)return [];
+  if(!Number.isSafeInteger(limit)||limit<0||hidden.size<=limit)return [...hidden];
+  const selected=[],used=new Set();
+  for(const r of specific){
+   if(!r.exception&&!used.has(r.selector)&&hidden.has(r.selector)){
+    used.add(r.selector);selected.push(r.selector);
+    if(selected.length>=limit)return selected;
+   }
+  }
+  for(const selector of hidden){
+   if(used.has(selector))continue;
+   selected.push(selector);
+   if(selected.length>=limit)break;
+  }
+  return selected;
  }
 }
 g.DKFilter={FilterEngine};

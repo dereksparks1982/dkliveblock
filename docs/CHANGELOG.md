@@ -1,3 +1,10 @@
+## Build 209 (0.3.179): site-first cosmetic selector retention under large-list caps
+
+- Fixed the global-first cosmetic hiding overflow case: when more than 15,000 selectors match a page, explicit site-scoped rules now receive priority before generic/global selectors.
+- Preserved original global-first selector order on ordinary smaller pages, and preserved exceptions, document/elemhide/generichide opt-outs and per-site protections.
+- Added four regression tests including a synthetic 15,003-global-filter dataset, site exception priorities and getStyle integration; registered in local seven-phase Linux runner.
+- No UI layout, extra permissions, new external dependencies, YouTube player/response rewriting code, GitHub Actions, or public release. Full Ubuntu/Firefox acceptance still pending.
+
 ## Build 208 (0.3.178): delayed user-authored scriptlet property chains
 
 - A narrowly vetted user-authored `set-constant` rule can now wait for intermediate page globals created after `document_start`. Supports at most three segments, with the existing exact literal/path restrictions.

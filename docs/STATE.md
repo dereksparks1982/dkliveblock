@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 208 / 0.3.178 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 209 / 0.3.179 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -156,3 +156,9 @@ Full Ubuntu and live Firefox tests still pending.
 - On replacement of a watched intermediate, earlier child traps are restored first. Page-assigned property values survive disabling. This is limited to a user-authored, domain-scoped rule, not remote subscription code.
 - Five additional tests passed alongside five existing tests in a focused synthetic runtime. Simultaneous shims sharing a not-yet-created intermediate may remain limited; complete Firefox/Ubuntu and compatibility testing are pending.
 - No YouTube-specific bridge changes; tagged Build 203 backup stays untouched.
+
+## Build 209: site-specific CSS rules survive huge filter-list caps (unreleased)
+
+- When cosmetic hiding exceeds the existing 15,000-selector ceiling, explicit site-specific selectors are placed first, before generic selectors. Other pages keep previous order. All matches, site-specific exceptions and page-level cosmetic protections still apply before prioritization.
+- The getStyle path passes its current ceiling to `FilterEngine.getSelectors`; it retains auth/video safe-selector checks and existing final CSS cap. The function's original two-argument behavior remains unchanged.
+- Four targeted tests passed, including 15,003 synthetic generic selectors and a site-scoped exception. Full Linux tests and live Firefox still required; Build 203 remains preserved.

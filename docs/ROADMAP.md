@@ -779,3 +779,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 208: safe set-constant waiting for late-created intermediate globals, bounded chain depth and reversible page-value restoration. Add assignment and getter-safety regression tests.
 - [ ] Resolve duplicate user-authored scriptlets sharing the *same missing* intermediate path with a shared observer graph if needed; do not claim broad uBO scriptlet parity from this limited feature.
 - [ ] Browser-test manual scriptlet enable/disable on intentionally simple test pages before enabling more scriptlet operations, and verify no impact on streaming page bridges.
+
+- [x] Build 209: keep explicit site-scoped cosmetic selectors from being dropped by a 15,000-entry stylesheet cap, preserving site exceptions and legacy small-list ordering. Add synthetic overflow tests registered in Linux suite.
+- [ ] Profile actual cosmetic selectors on Firefox across real EasyList/EasyPrivacy/annoyance lists and measure whether stylesheet construction or extension memory needs further changes.
