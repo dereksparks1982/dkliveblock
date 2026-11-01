@@ -50,12 +50,15 @@ test("Build 228 unrelated clicks and synthetic clicks do not unlock playback",()
  video.paused=false;play({target:video});assert.equal(video.paused,true);
  control.setEnabled(false);
 });
-test("Build 228 article-only background scope is unchanged",()=>{
+test("Build 229 CBS guard covers homepage and articles, not live or unrelated tabs",()=>{
  const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ const C=require("../src/cbs-compat.js");
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
  const js=manifest.content_scripts[0].js;
  assert.ok(js.indexOf("cbs-autoplay.js")<js.indexOf("content.js"));
- assert.match(bg,/cbsAutoplay:active&&/);
- assert.match(bg,/cbsnews/);
- assert.match(bg,/sender\.tab\?\.url/);
+ assert.match(bg,/cbsAutoplay:active&&DKCBSCompat\.autoplayProtection/);
+ assert.equal(C.autoplayProtection("https://www.cbsnews.com/"),true);
+ assert.equal(C.autoplayProtection("https://www.cbsnews.com/news/any-story"),true);
+ assert.equal(C.autoplayProtection("https://www.cbsnews.com/live/"),false);
+ assert.equal(C.autoplayProtection("https://www.youtube.com/news/any-story"),false);
 });
