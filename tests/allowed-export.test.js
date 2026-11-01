@@ -67,3 +67,49 @@ test("local TXT and JSON download produce files without fetch or telemetry",()=>
  assert.equal(JSON.parse(saved.text).requests.length,2);
  assert.throws(()=>E.download(data,"html",env),/Unsupported/);
 });
+
+test("Build 220 exports per-event allow decisions, methods and HTTP statuses",()=>{
+ const f=fixture();
+ f.allowedGroups=[{host:"t0.gstatic.com",type:"image",count:2,first:1000,last:2000,
+  reasons:{"site-allowlisted":1,"filter-engine-permitted":1},
+  methods:{GET:2},httpStatuses:{"200":2}}];
+ f.allowedRequests=2;
+ f.allowedEvents=[
+  {host:"t0.gstatic.com",type:"image",sequence:2,when:2000,
+   method:"GET",httpStatus:200,reason:"site-allowlisted"},
+  {host:"t0.gstatic.com",type:"image",sequence:1,when:1000,
+   method:"GET",httpStatus:200,reason:"filter-engine-permitted"}];
+ const out=E.build(f,null,3000),text=E.asText(out),dump=JSON.stringify(out);
+ assert.equal(out.schemaVersion,2);
+ assert.equal(out.exportedIndividualRequests,2);
+ assert.equal(out.individualEvidenceCoversTotal,true);
+ assert.equal(out.requests[0].allowReasonCounts["site-allowlisted"],1);
+ assert.equal(out.requests[0].methodCounts.GET,2);
+ assert.equal(out.requests[0].httpStatusCounts["200"],2);
+ assert.equal(out.individualRequests[0].httpMethod,"GET");
+ assert.equal(out.individualRequests[0].responseStatus,200);
+ assert.match(text,/Why it was allowed: Site was allowlisted/);
+ assert.match(text,/HTTP response status: 200/);
+ assert.match(text,/INDIVIDUAL COMPLETED REQUESTS/);
+ const singled=E.build(f,{host:"t0.gstatic.com",type:"image"},3000);
+ assert.equal(singled.individualEvidenceCoversTotal,false);
+ assert.doesNotMatch(dump,/SECRET|PRIVATE/);
+});
+test("Build 220 does not leak arbitrary event fields or fake decision explanations",()=>{
+ const f=fixture();f.allowedRequests=1;
+ f.allowedGroups=[{host:"cdn.example.net",type:"script",count:1,last:5000,
+  reasons:{"evil<script>PRIVATE":3,"manual-exception":1},
+  methods:{"POST":1,"GET SECRET":9},httpStatuses:{"200":1,"666":10}}];
+ f.allowedEvents=[{host:"cdn.example.net",type:"script",sequence:1,when:5000,
+  method:"SECRET_METHOD",httpStatus:666,reason:"PRIVATE_SCRIPT",
+  url:"https://cdn.example.net/SECRET_PATH?token=SECRET_QUERY",
+  headers:{authorization:"SECRET_AUTH"},payload:"SECRET_BODY",cookie:"SECRET_COOKIE"}];
+ const report=E.build(f,null,8000),dump=JSON.stringify(report)+E.asText(report);
+ assert.equal(report.individualRequests[0].allowDecision,"decision-not-recorded");
+ assert.equal(report.individualRequests[0].httpMethod,"Unknown");
+ assert.equal(report.individualRequests[0].responseStatus,"Not provided by Firefox");
+ assert.equal(report.requests[0].allowReasonCounts["manual-exception"],1);
+ assert.deepEqual(Object.keys(report.requests[0].methodCounts),["POST"]);
+ assert.deepEqual(Object.keys(report.requests[0].httpStatusCounts),["200"]);
+ assert.doesNotMatch(dump,/SECRET|PRIVATE|<script>/);
+});
