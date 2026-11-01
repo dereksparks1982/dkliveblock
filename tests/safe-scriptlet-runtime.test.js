@@ -189,3 +189,54 @@ test("Build 210 rejects getter-backed intermediate nodes and doesn't invoke them
  env.send("[]");
  assert.equal(invoked,0);
 });
+
+test("Build 214 reattaches after a page replaces its own leaf descriptor",()=>{
+ const env=environment(),rule=JSON.stringify([command("adblockDetected")]);
+ env.send(rule);
+ assert.equal(env.window.adblockDetected,false);
+ Object.defineProperty(env.window,"adblockDetected",{
+  configurable:true,writable:true,value:"site-replacement"});
+ assert.equal(env.window.adblockDetected,"site-replacement");
+ env.send(rule);
+ assert.equal(env.window.adblockDetected,false);
+ env.send("[]");
+ assert.equal(env.window.adblockDetected,"site-replacement");
+});
+test("Build 214 refresh repairs a shared prefix replaced without calling our setter",()=>{
+ const env=environment();
+ const rules=JSON.stringify([command("late.ads"),command("late.other","true")]);
+ const old={ads:true,other:false};
+ env.send(rules);
+ env.window.late=old;
+ assert.equal(old.ads,false);
+ const replacement={ads:true,other:false};
+ Object.defineProperty(env.window,"late",{configurable:true,
+  enumerable:true,writable:true,value:replacement});
+ env.send(rules);
+ assert.equal(old.ads,true,"abandoned child must be restored");
+ assert.equal(old.other,false);
+ assert.equal(replacement.ads,false);
+ assert.equal(replacement.other,true);
+ env.send("[]");
+ assert.equal(env.window.late,replacement);
+ assert.equal(replacement.ads,true);
+ assert.equal(replacement.other,false);
+});
+test("Build 214 read-only parent replacement rebinds without changing its descriptor",()=>{
+ const env=environment();
+ const initial={flag:true};
+ Object.defineProperty(env.window,"fixed",{configurable:true,
+  writable:false,value:initial});
+ const rules=JSON.stringify([command("fixed.flag")]);
+ env.send(rules);
+ assert.equal(initial.flag,false);
+ const newer={flag:true};
+ Object.defineProperty(env.window,"fixed",{configurable:true,
+  writable:false,value:newer});
+ env.send(rules);
+ assert.equal(initial.flag,true);
+ assert.equal(newer.flag,false);
+ assert.equal(Object.getOwnPropertyDescriptor(env.window,"fixed").writable,false);
+ env.send("[]");
+ assert.equal(newer.flag,true);
+});

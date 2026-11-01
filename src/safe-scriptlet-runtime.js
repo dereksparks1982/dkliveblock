@@ -71,7 +71,7 @@ function install(object,name,branch){
   // A writable, locked intermediate might be replaced without notice;
   // refuse it instead of leaving stale interceptors on abandoned objects.
   if(!leaf&&!previous.writable&&objectLike(previous.value)){
-   const link={installed:false,children:[]};
+   const link={object,name,expected:previous.value,installed:false,children:[]};
    installChildren(previous.value,branch,link.children);
    return link;
   }
@@ -99,6 +99,16 @@ function install(object,name,branch){
  if(!leaf)installChildren(link.latest,branch,link.children);
  return link;
 }
+function intact(link){
+ try{
+  const d=Object.getOwnPropertyDescriptor(link.object,link.name);
+  if(link.installed){
+   if(d?.get!==link.get||d?.set!==link.set)return false;
+  }else if(!d||!Object.prototype.hasOwnProperty.call(d,"value")||
+            d.value!==link.expected)return false;
+  return link.children.every(intact);
+ }catch(_){return false;}
+}
 function apply(payload){
  if(typeof payload==="string"){
   if(payload.length>6000)return;
@@ -112,7 +122,11 @@ function apply(payload){
  // Event dispatch runs synchronously; identical updates do not reset
  // property descriptors or replay page assignments on SPA refresh.
  const signature=JSON.stringify(rows.map(r=>[r.path,r.value]));
- if(signature===lastSignature)return;
+ // A website may replace its own configurable descriptor during SPA
+ // navigation without calling our setter. On a later settings refresh,
+ // reattach instead of silently leaving the user's rule ineffective.
+ if(signature===lastSignature&&(!rows.length||
+    active.length>0&&active.every(intact)))return;
  for(let i=active.length-1;i>=0;i--)restore(active[i]);
  active=[];
  lastSignature=signature;

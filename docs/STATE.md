@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 213 / 0.3.183 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 214 / 0.3.184 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -188,3 +188,9 @@ Full Ubuntu and live Firefox tests still pending.
 - The opt-in per-tab Network Monitor retains historical cumulative status totals while keeping only the 1,500 most recent rows. Each internal row now associates its request ID via a private Symbol property, letting both ordinary and synthetic-popup overflow evict the old request mapping in constant time rather than iterating the Map.
 - Exported rows remain explicitly projected from safe hostname/type/status/time fields, so no raw ID, URL path, query, cookie or response payload is added. Site-scoped controls and allowed/blocked toggles are unchanged.
 - Eight focused V8 tests passed, including two overflow regressions with deliberately iteration-disabled ID maps; full Ubuntu browser and performance measurement remain pending.
+
+## Build 214: idempotent but self-repairing manual scriptlets (unreleased)
+
+- User-authored fixed constant shims now verify descriptor ownership on a repeated same-settings refresh. If a page replaced an intercepted own property descriptor, the runtime restores any abandoned child shims before reattempting installation, without clobbering the page-owned replacement on later disable.
+- The shared-prefix structure from Build 210, three-component path cap, protected-global allowlist and no-eval requirement remain. Accessor-backed paths are never read. Page-forgeable DOM events remain untrusted with no extension privileges.
+- Nineteen focused runtime tests passed in an isolated V8 harness, including three new descriptor-overwrite scenarios. Full Ubuntu test suite and real Firefox reliability tests remain pending.

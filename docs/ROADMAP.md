@@ -795,3 +795,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 213: remove O(1,500) byId scans from every overflow of the bounded 1,500-row Network Monitor, while preserving cumulative counts and privacy-safe snapshot fields. Add two long-session overflow regressions.
 - [ ] Measure a high-volume real Firefox capture using local synthetic traffic and compare memory/CPU and exported counts; do not claim measured speedups before the Ubuntu suite and browser checks.
+
+- [x] Build 214: recheck descriptor ownership on same-configuration manual scriptlet refresh, enabling recovery if a page redefines a hooked property without calling its setter. Add 3 regression cases and keep page-owned replacement values on disable.
+- [ ] Real Firefox SPA simulations: alternate direct assignment, `Object.defineProperty`, site-owned getter changes, and user enable/disable. Confirm no interference with normal YouTube page bridge under active default settings.

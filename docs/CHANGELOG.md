@@ -1,3 +1,10 @@
+## Build 214 (0.3.184): repair replaced page-owned manual scriptlet descriptors on refresh
+
+- The fixed, user-authored `set-constant` runtime now checks whether its own property interceptors still exist when settings refresh with an unchanged configuration. A website may redefine a configurable data property without calling a shim setter; previously an identical refresh silently skipped reinstating the protection.
+- Shared late-created property trees are reattached only when a descriptor changed, preserving site-owned replacement values when protection is turned off. Read-only data properties can be checked without calling accessors; missing active roots retry conservatively.
+- Three new tests cover a page-replaced leaf, shared root and readonly-parent replacement. All 19 focused runtime regression tests passed, with no new scriptlet types, remote code, permissions, YouTube bridge changes or GUI layout changes.
+- Source remains unaccepted pending full Ubuntu/browser tests. Existing Build 203 snapshot and tag unchanged.
+
 ## Build 213 (0.3.183): constant-time network-monitor record retirement
 
 - Eliminated a linear `byId` map scan each time the 1,500-row voluntary Network Monitor buffer overflows. Each observed request retains its existing private ID mapping via an internal symbol that is never included in report objects or serialized snapshots; removing the oldest row directly deletes its map entry.

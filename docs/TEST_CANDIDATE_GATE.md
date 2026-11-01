@@ -120,3 +120,7 @@ Focused V8 tests pass 9/9 including three new rollback/expiry cases. Check actua
 ## Build 213 (0.3.183): Network Monitor retirement performance
 
 Two synthetic overflow regressions confirm the private request-ID Map is never iterated while evicting either network requests or synthetic popup blocks, even as total records exceed the visible cap. Eight focused tests passed. Lifetime counters remain cumulative intentionally. Validate the seven-phase Linux suite and opt-in Network Monitor exports with actual Firefox sessions before acceptance.
+
+## Build 214 (0.3.184): manual-scriptlet recovery after site property replacement
+
+All 19 focused runtime tests passed, including descriptor overwrite, shared-prefix abandonment/restoration, and readonly intermediate reattachment without invoking accessors. Verify changes in real Firefox with user-authored test rules only. Full seven-phase Ubuntu suite and user-observed YouTube ad-free playback baseline comparison remain pending.
