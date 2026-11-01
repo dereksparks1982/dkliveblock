@@ -346,3 +346,39 @@ test("Build 152 MAIN-world bootstrap keeps malformed nested data intact",()=>{
  assert.equal(outer.playerResponse,"{not JSON");
  p.send("disable");
 });
+
+test("Build 153 MAIN-world fetch response prunes only recognized resolve_url prefetch ads",async()=>{
+ const p=context();
+ const make=()=>({endpoint:{watchEndpoint:{unserializedPrefetchData:{playerResponse:{
+  playabilityStatus:{status:"OK"},videoDetails:{title:"ordinary"},
+  streamingData:{formats:["signed"]},adPlacements:[{}],adSlots:[{}]
+ }}}},visitorData:"private"});
+ p.window.fetch=async()=>({status:200,headers:{get:()=> "application/json"},
+  json:async()=>make(),text:async()=>JSON.stringify(make()),clone(){return this;}});
+ p.send("enable");
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ const response=await p.window.fetch(url,{method:"POST"});
+ const parsed=await response.json();
+ const player=parsed.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse;
+ assert.equal(player.adSlots,undefined);assert.equal(player.adPlacements,undefined);
+ assert.equal(parsed.visitorData,"private");
+ const textResponse=await p.window.fetch(url,{method:"POST"});
+ const textBody=JSON.parse(await textResponse.text());
+ assert.equal(textBody.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse.adSlots,undefined);
+ const get=await p.window.fetch(url,{method:"GET"});
+ assert.equal((await get.json()).endpoint.watchEndpoint.unserializedPrefetchData.playerResponse.adSlots.length,1);
+ p.send("disable");
+});
+test("Build 153 MAIN-world resolve_url respects nested refusal and malformed prefetch",async()=>{
+ const p=context(),status="LOGIN_REQUIRED";
+ p.window.fetch=async()=>({status:200,headers:{get:()=> "application/json"},
+  json:async()=>({endpoint:{watchEndpoint:{unserializedPrefetchData:{
+   playerResponse:{playabilityStatus:{status},videoDetails:{},adSlots:[{}]}}}}}),
+  clone(){return this;}});
+ p.send("enable");
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ const res=await p.window.fetch(url,{method:"POST"});
+ const body=await res.json();
+ assert.equal(body.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse.adSlots.length,1);
+ p.send("disable");
+});

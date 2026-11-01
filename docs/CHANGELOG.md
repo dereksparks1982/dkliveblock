@@ -669,3 +669,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.122 / Build 152 (2026-10-31)
 - Prevented partial YouTube player-envelope modification when nested object or stringified player results explicitly refuse playback or contain a structured error. Malformed, unknown and oversized inner JSON now fail open instead of stripping unrelated outer ad metadata. Applied the same guard to background Firefox response rewriting and MAIN-world player bootstrap/fetch/XHR helpers. Added response and bridge fixtures. Full Linux suite and Firefox ad-free playback still pending.
+
+### 0.3.123 / Build 153 (2026-10-31)
+- Added narrowly scoped, first-party HTTPS POST response filtering for YouTube /youtubei/v1/resolve_url video-prefetch envelopes. The independently implemented handler removes recognized adPlacements/adSlots/playerAds only within endpoint.watchEndpoint.unserializedPrefetchData.playerResponse when it is a recognized playable object. Background Firefox response filtering and MAIN-world fetch/XHR now both support this exact path. Refusals, signed media, unrelated request methods, malformed or unknown schemas remain intact. Added response/page bridge/registration tests. Source-level fixture smoke checks passed; full Ubuntu and real-world Firefox ad-free playback unverified.

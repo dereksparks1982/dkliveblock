@@ -413,6 +413,7 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
          "https://*.youtube.com/youtubei/v1/search*",
          "https://*.youtube.com/youtubei/v1/next*",
          "https://*.youtube.com/youtubei/v1/playlist*",
+         "https://*.youtube.com/youtubei/v1/resolve_url*",
          "https://*.youtube.com/youtubei/v1/reel_watch_sequence*"],
    types:["xmlhttprequest"]},["responseHeaders"]);
 browser.webRequest.onBeforeRequest.addListener(d=>{

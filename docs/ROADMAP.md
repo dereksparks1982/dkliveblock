@@ -583,3 +583,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 152: preserve outer and nested YouTube playback refusal evidence in both background and MAIN-world response paths; reject ambiguous malformed inner JSON before any outer mutation.
 - [ ] Full Ubuntu, Linux companion, and live Firefox anti-adblock/ad-free playback acceptance outstanding.
+
+- [x] Build 153: add bounded first-party YouTube resolve_url prefetch player ad-metadata filtering in both Firefox stream and MAIN-world paths, restricted to one schema and original POST/hostname/content-type safety gates.
+- [ ] Real Firefox video-prefetch navigation, anti-adblock enforcement, all stream response integrity, ad-free replay and full Ubuntu suite remain open.

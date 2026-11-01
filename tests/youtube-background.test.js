@@ -89,3 +89,14 @@ test("versioned YouTube rules update, survive failure, roll back, and never rein
   assert.match(response.error,/extension interface/);
  }
 });
+
+test("Build 153 Firefox response listener registers narrowly scoped resolve_url handling",()=>{
+ const source=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.match(source,/youtubei\/v1\/resolve_url\*/);
+ const R=require("../src/youtube-response.js");
+ const request={url:"https://www.youtube.com/youtubei/v1/resolve_url",
+  type:"xmlhttprequest",method:"POST",tabId:42,
+  documentUrl:"https://www.youtube.com/watch?v=private",statusCode:200};
+ assert.equal(R.eligible(request,"www.youtube.com"),true);
+ assert.equal(R.eligible({...request,documentUrl:"https://evil.example/watch"},"www.youtube.com"),false);
+});

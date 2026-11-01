@@ -425,3 +425,34 @@ test("Build 152 malformed nested player data is not partially rewritten",()=>{
   assert.equal(result.changed,false);
  }
 });
+
+test("Build 153 handles only nested YouTube resolve_url video-prefetch ad fields",()=>{
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ assert.equal(R.eligible(req(url),"www.youtube.com"),true);
+ assert.equal(R.eligible({...req(url),method:"GET"},"www.youtube.com"),false);
+ assert.equal(R.target("https://youtube.com.evil.test/youtubei/v1/resolve_url"),false);
+ assert.equal(R.target(url+"_evil"),false);
+ const body={endpoint:{watchEndpoint:{unserializedPrefetchData:{playerResponse:{
+  playabilityStatus:{status:"OK"},videoDetails:{title:"ordinary"},
+  streamingData:{formats:[{url:"signed-media"}]},adPlacements:[{}],adSlots:[{}]
+ }}}},visitorData:"private",navigationTracking:{opaque:"signed"};
+ const filtered=R.rewrite(JSON.stringify(body),url);
+ assert.equal(filtered.changed,true);assert.equal(filtered.fields,2);
+ const parsed=JSON.parse(filtered.text);
+ const player=parsed.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse;
+ assert.equal(player.adSlots,undefined);assert.equal(player.adPlacements,undefined);
+ assert.deepEqual(player.streamingData,body.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse.streamingData);
+ assert.equal(parsed.visitorData,"private");
+ assert.deepEqual(parsed.navigationTracking,body.navigationTracking);
+ assert.equal(R.rewrite(JSON.stringify(body),"https://www.youtube.com/youtubei/v1/player").changed,false);
+});
+test("Build 153 prefetch response respects refused and unknown child data",()=>{
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ for(const child of [{playabilityStatus:{status:"UNPLAYABLE"},videoDetails:{},adSlots:[{}]},
+  {error:{code:403},videoDetails:{},adSlots:[{}]}, "not-a-player", {adSlots:[{}]}]){
+  const raw=JSON.stringify({endpoint:{watchEndpoint:{unserializedPrefetchData:{playerResponse:child}}}});
+  const output=R.rewrite(raw,url);
+  assert.equal(output.changed,false);
+  assert.equal(output.text,raw);
+ }
+});

@@ -46,11 +46,27 @@ function pruneObject(x){
  for(const field of fields){delete x[field];removed++;}
  return removed;
 }
+function resolveTarget(raw){
+ try{
+  const u=new URL(String(raw),location.href);
+  return u.protocol==="https:"&&!u.username&&!u.password&&
+   /(^|\.)youtube\.com$/.test(u.hostname)&&
+   u.pathname==="/youtubei/v1/resolve_url";
+ }catch(_){return false;}
+}
 function prune(x,url=""){
  if(plain(x)&&denied(x))return false;
  if(url&&typeof DKYouTubeFeed!=="undefined"&&DKYouTubeFeed.kind(url))
   return DKYouTubeFeed.prune(x,url).changed;
  if(!plain(x))return false;
+ if(url&&resolveTarget(url)){
+  const endpoint=ownData(x,"endpoint");
+  const watch=ownData(endpoint,"watchEndpoint");
+  const prefetch=ownData(watch,"unserializedPrefetchData");
+  const player=ownData(prefetch,"playerResponse");
+  if(!plain(player)||denied(player)||!safeToPrune(player))return false;
+  return pruneObject(player)>0;
+ }
  const nested=ownData(x,"playerResponse");
  // Accessor-backed player data is not needed for ad filtering and is not
  // invoked. The outer object remains eligible only by its own data fields.
@@ -80,7 +96,7 @@ function rewrite(text,url=""){
  if(typeof text!=="string"||text.length>MAX||text.length<2)return text;
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let obj;try{obj=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return text;}
- try{return prune(obj)?prefix+JSON.stringify(obj):text;}
+ try{return prune(obj,url)?prefix+JSON.stringify(obj):text;}
  catch(_){return text;}
 }
 function normalize(raw){
@@ -92,6 +108,7 @@ function target(raw){
   if(u.protocol!=="https:"||u.username||u.password||
      !/(^|\.)youtube\.com$/.test(u.hostname))return false;
   return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
+   u.pathname==="/youtubei/v1/resolve_url"||
   (typeof DKYouTubeFeed!=="undefined"&&!!DKYouTubeFeed.kind(u.href));
  }catch(_){return false;}
 }

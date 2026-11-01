@@ -34,7 +34,14 @@ function target(url){
   const u=new URL(url);
   if(u.protocol!=="https:"||u.username||u.password||!sub(u.hostname,"youtube.com"))return false;
   return u.pathname==="/youtubei/v1/player"||u.pathname==="/youtubei/v1/get_watch"||
-   (Feed&&!!Feed.kind(url));
+   u.pathname==="/youtubei/v1/resolve_url"||(Feed&&!!Feed.kind(url));
+ }catch(_){return false;}
+}
+function resolveTarget(url){
+ try{
+  const u=new URL(url);
+  return u.protocol==="https:"&&!u.username&&!u.password&&
+   sub(u.hostname,"youtube.com")&&u.pathname==="/youtubei/v1/resolve_url";
  }catch(_){return false;}
 }
 function requestEligible(details,pageHost){
@@ -109,6 +116,16 @@ function rewrite(text,url=""){
  let payload;try{payload=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return {text,changed:false,fields:0};}
  if(!plain(payload)||refused(payload))
   return {text,changed:false,fields:0};
+ // Resolve-URL video prefetch is a distinct, narrowly identified envelope.
+ // Only the specific nested player object is eligible, never the parent
+ // navigation metadata, signed links, login fields or unknown structures.
+ if(resolveTarget(url)){
+  const prefetch=payload.endpoint?.watchEndpoint?.unserializedPrefetchData?.playerResponse;
+  if(!plain(prefetch)||refused(prefetch))return {text,changed:false,fields:0};
+  const count=pruneObject(prefetch);
+  return count?{text:prefix+JSON.stringify(payload),changed:true,fields:count}:
+   {text,changed:false,fields:0};
+ }
  // Inspect nested player results BEFORE pruning the outer response. If YouTube
  // refused playback (or returned an unreadable child), preserve its evidence
  // and do not partially alter a player envelope.
