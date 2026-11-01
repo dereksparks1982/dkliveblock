@@ -115,3 +115,34 @@ test("YouTube false-positive triage is in the blocked export but contains no vid
  assert.doesNotMatch(JSON.stringify(r),/SECRET_VIDEO/);
  assert.match(E.asText(r),/YOUTUBE COMPATIBILITY EVIDENCE/);
 });
+
+test("Build 170 regular blocked export includes sanitized YouTube response and bootstrap evidence",()=>{
+ const f=fixture();
+ f.youtubeTestMode="response-only";
+ f.youtubeResponse={enabled:true,supported:true,playerRequests:3,observed:2,
+  modified:1,refused:1,errors:0,
+  bootstrap:[{phase:"pre-enable",state:"data",adFields:2,
+   refused:false,initialData:true,videoId:"PRIVATE_VIDEO_ID",title:"PRIVATE_TITLE"},
+   {phase:"post-enable",state:"data",adFields:0,
+    refused:false,initialData:true},
+   {phase:"late-sneaky",state:"other",adFields:0,
+    refused:false,initialData:false,token:"PRIVATE_TOKEN"}]};
+ const report=E.build(f,null,new Map(),1793410800000);
+ assert.equal(report.youtubePlaybackEvidence.experimentMode,"response-only");
+ assert.equal(report.youtubePlaybackEvidence.responseFiltering.modified,1);
+ assert.equal(report.youtubePlaybackEvidence.responseFiltering.bootstrap.length,2);
+ assert.equal(report.youtubePlaybackEvidence.responseFiltering.bootstrap[0].adFields,2);
+ const exported=JSON.stringify(report)+"\n"+E.asText(report);
+ assert.match(exported,/YOUTUBE PLAYER-DATA OBSERVATIONS/);
+ assert.match(exported,/Response bodies modified: 1/);
+ assert.match(exported,/does NOT confirm that ads were removed/);
+ for(const secret of ["PRIVATE_VIDEO_ID","PRIVATE_TITLE","PRIVATE_TOKEN","late-sneaky"])
+  assert.equal(exported.includes(secret),false,secret);
+});
+test("Build 170 non-YouTube blocked exports do not include player diagnostics",()=>{
+ const page=fixture();
+ page.site="news.example";
+ const out=E.build(page);
+ assert.equal(out.youtubePlaybackEvidence,null);
+ assert.equal(E.asText(out).includes("YOUTUBE PLAYER-DATA OBSERVATIONS"),false);
+});

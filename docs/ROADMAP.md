@@ -645,3 +645,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 169: blocked history now has reversible Allow checkboxes beside existing Details controls, with exact site/host/type scope, persistent remembered decisions, live-tab/observed-event checks, popup/manual-block exclusions and regression coverage.
 - [ ] Build 169 acceptance: complete seven-phase local Ubuntu suite on exact Build 169 HEAD, followed by real Firefox toggle-on/off checking; no public release yet.
 - [ ] Build 170: use current YouTube bootstrap/report evidence to identify why ordinary-video playback fails while ad-supported Shutter Island can play; preserve observed working movie behavior; avoid speculative rewriting until controlled A/B results.
+
+- [x] Build 170: unify YouTube player/filter observation counters with regular blocked-request TXT/JSON exports; safe allowlist-only data, no content IDs or raw player data, explicit no-incidents caveat. Preserves previously observed Shutter Island playback behavior.
+- [ ] Next acceptance gate: run complete Linux suite at exact Build 170 commit, verify blocked-request Allow switch on/off in Firefox and compare a regular YouTube video vs Shutter Island under the same filter/experiment modes.
+- [ ] Only after observed regular-video evidence: fix the precise interception/enforcement branch without changing the working movie baseline. No parity or public release claim.

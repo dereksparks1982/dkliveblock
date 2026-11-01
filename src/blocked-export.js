@@ -27,6 +27,30 @@ function safeRegistration(value){
   nameservers:nameservers.filter(Details.valid),statuses:statuses.map(x=>short(x,80)).filter(Boolean)};
 }
 function rowKey(site,id,hostname){return String(id)+":"+site+":"+hostname;}
+// Include the same privacy-scrubbed YouTube diagnostics in the regular blocked
+// export so the owner need not collect two reports for each comparison run.
+// Never interpret silence as proof that ads were removed.
+function youtubePlaybackEvidence(snapshot){
+ if(!Triage.isYouTube(snapshot?.site))return null;
+ const YT=root.DKYouTubeReport||
+  (typeof require==="function"?require("./youtube-report.js"):null);
+ if(!YT?.build)return null;
+ const report=YT.build(snapshot);
+ const r=report.responseFiltering;
+ return {
+  experimentMode:report.experimentMode,
+  responseFiltering:{
+   enabled:r.enabled,supported:r.supported,
+   playerRequests:r.playerRequests,observed:r.observed,
+   modified:r.modified,fields:r.fields,unchanged:r.unchanged,
+   refused:r.refused,oversized:r.oversized,timedOut:r.timedOut,
+   errors:r.errors,skippedBusy:r.skippedBusy,skippedHeaders:r.skippedHeaders,
+   byKind:r.byKind,bootstrap:r.bootstrap
+  },
+  note:"Coarse local observations only; no playback events is not proof of ad-free playback. "+
+   "Bootstrap observations originate from untrusted page events."
+ };
+}
 function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
  if(!snapshot?.ok||!Details.valid(snapshot.site)||!Number.isSafeInteger(snapshot.tabId)||
   snapshot.tabId<0)throw Error("Select an active website tab before exporting.");
@@ -63,6 +87,7 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
   totalBlockedOnTab:Model.number(snapshot.blocked),retainedRecords:all.length,
   exportedRecords:records.length,filterBackend:short(snapshot.filterBackend||"Unknown",70),
   privacyNotice:NOTE,youtubeCompatibility:Triage.summarize(snapshot),
+  youtubePlaybackEvidence:youtubePlaybackEvidence(snapshot),
   playbackDiagnostics:Array.isArray(snapshot.playbackDiagnostics)?snapshot.playbackDiagnostics.slice(0,30).flatMap(row=>{
    if(!["enforcement","buffering","media-error"].includes(row?.kind))return [];
    return [{kind:row.kind,when:safeDate(row.when),blockedMediaNearby:row.blockedMediaNearby===true}];
@@ -86,8 +111,26 @@ function asText(report){
    "Advertising-network blocks: "+t.advertisingInfrastructure,
    "Matched first-party rule sources: "+t.firstPartySources.join(", "),
    t.interpretation,"");
+  const y=report.youtubePlaybackEvidence;
+  if(y){
+   lines.push("YOUTUBE PLAYER-DATA OBSERVATIONS (not proof of ad removal)",
+    "Temporary experiment mode: "+y.experimentMode,
+    "Response filtering enabled: "+y.responseFiltering.enabled,
+    "Player response requests: "+y.responseFiltering.playerRequests,
+    "Response bodies observed: "+y.responseFiltering.observed,
+    "Response bodies modified: "+y.responseFiltering.modified,
+    "YouTube JSON refusals: "+y.responseFiltering.refused,
+    "Response filtering errors: "+y.responseFiltering.errors);
+   for(const event of y.responseFiltering.bootstrap){
+    lines.push("Bootstrap "+event.phase+": "+event.state+
+     " / ad fields "+event.adFields+" / refusal "+event.refused);
+   }
+   if(!y.responseFiltering.bootstrap.length)
+    lines.push("No first-load bootstrap observations were recorded.");
+   lines.push(y.note,"");
+  }
  }
- if(!report.playbackDiagnostics?.length)lines.push("No playback diagnostics recorded.");
+ if(!report.playbackDiagnostics?.length)lines.push("No playback-health incidents recorded; this does NOT confirm that ads were removed.");
  else for(const event of report.playbackDiagnostics)
   lines.push(event.when+" · "+event.kind+(event.blockedMediaNearby?" · blocked media nearby":""));
  lines.push("");

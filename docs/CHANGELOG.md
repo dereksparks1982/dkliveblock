@@ -749,3 +749,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Requires explicit warning and trusted extension UI, live matching tab, local blocked-event history and active protection. Reversing a switch restores original automatic filter rules without creating an unrelated permanent block.
 - Manual selective blocks, popup events, and navigations are not overridable from blocked history. Storage errors roll back changes. Added model, UI-contract and background regression coverage.
 - Production YouTube response/bridge behavior remains unchanged; full Linux regression and live-browser acceptance remain unverified.
+
+### 0.3.140 / Build 170 (2026-10-31)
+- Standard blocked-request TXT/JSON exports now include sanitized YouTube player JSON response-filter counters, temporary experiment mode and bounded first-load bootstrap observations, reducing the need for a separate report.
+- Avoids exporting video IDs, titles, URLs, credentials or raw player JSON; non-YouTube exports are unaffected, and zero health events are explicitly not evidence of ad removal.
+- Added synthetic privacy and non-YouTube regression tests, and checked the real existing sanitizer/build functions in a local V8 smoke harness.
+- No changes to YouTube interception, ad rules, permissions, layout or release status. Full Linux and real Firefox tests still pending.
