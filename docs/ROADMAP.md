@@ -733,3 +733,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 194: prevent malformed clock values in streaming repair permissions.
 - [ ] Build 194 acceptance: full Linux tests and supervised real Firefox/privacy/YouTube matrix.
+
+- [x] Build 195: repair streaming permission syntax and track YouTube player replacement.
+- [ ] Full suite and live Firefox validations remain unverified.

@@ -27,7 +27,7 @@ function allow(table,tabId,pageHost,requestHost,type,now=Date.now()){
  return true;
 }
 function revoke(table,tabId,pageHost,requestHost,type,now=Date.now()){
- !Number.isFinite(now)||now<0||!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||
+ if(!Number.isFinite(now)||now<0||!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||
     !validHost(requestHost)||!TYPES.has(type))return false;
  const previous=list(table,tabId,now);
  const remaining=previous.filter(row=>!(row.pageHost===pageHost&&

@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 194 / 0.3.164 (2026-11-01), unreleased.**
+**Source snapshot: Build 195 / 0.3.165 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -94,3 +94,6 @@ The toolbar's streaming issue count now includes only records for the currently 
 
 ## Build 194: prevent malformed clock values in streaming repair permissions
 Explicit ten-minute streaming recovery exceptions now reject invalid/overflowing clocks, fail closed when expiration cannot be evaluated, and preserve exact tab, source-host, request-host and request-type scope. Full Ubuntu suite and real Firefox playback remain unverified.
+
+## Build 195: repair streaming permission syntax and track YouTube player replacement
+Corrected a Build 194 revoke() syntax error and test alias, and made YouTube's ad-state probe reset its observed-player identity when SPA navigation replaces the video element, retaining the eight-second deduplication cooldown. Full Linux regression suite and real Firefox acceptance remain outstanding.

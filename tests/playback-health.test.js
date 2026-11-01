@@ -175,3 +175,13 @@ test("Build 187 ad-showing is private, rate-limited, YouTube-only diagnostic",()
  assert.deepEqual(rows.map(x=>x.kind),["ad-showing","ad-showing"]);
  assert.doesNotMatch(JSON.stringify(rows),/password|url|watch\?v=|title|cookie|videoId/);
 });
+
+test("Build 195 ad probe tracks replaced player nodes without repeating the same ad break",()=>{
+ const p=H.createAdProbe(),page={visibilityState:"visible",hidden:false,querySelector:()=>({})};
+ const first={isConnected:true},second={isConnected:true};
+ assert.equal(p.scan(first,page,1000),"ad-showing");
+ assert.equal(p.scan(first,page,9000),null);
+ assert.equal(p.scan(second,page,10000),"ad-showing");
+ assert.equal(p.scan(second,page,10001),null);
+ p.reset();assert.equal(p.scan(second,page,11000),"ad-showing");
+});

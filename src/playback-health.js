@@ -29,12 +29,13 @@ function isUnavailable(video,document){
 // verified ad playback and NEVER a successfully blocked ad. No video ID,
 // time, URL, player payload, DOM text or telemetry leaves this function.
 function createAdProbe(){
- let showing=false,last=-Infinity;
+ let showing=false,last=-Infinity,trackedVideo=null;
  function scan(video,document,now=Date.now()){
   if(!Number.isFinite(now)||!document||document.hidden===true||
      document.visibilityState==="hidden"||!video||video.isConnected===false){
-   showing=false;return null;
+   showing=false;trackedVideo=null;return null;
   }
+  if(video!==trackedVideo){trackedVideo=video;showing=false;}
   let current=false;
   try{
    current=!!document.querySelector?.(
@@ -48,7 +49,7 @@ function createAdProbe(){
   last=now;
   return "ad-showing";
  }
- function reset(){showing=false;last=-Infinity;}
+ function reset(){showing=false;last=-Infinity;trackedVideo=null;}
  return {scan,reset};
 }
 function createProbe(){
