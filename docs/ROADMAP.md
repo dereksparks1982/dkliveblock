@@ -633,3 +633,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 166: local synthetic native/hybrid parse and request-match benchmark harness, bounded workload and median timings, coarse heap caveat, standalone-only heavy run.
 - [ ] Build 166 acceptance: execute benchmark and full Node/Python gate on exact commit; document actual output and regression status.
 - [ ] Build 167: measure and instrument YouTube bootstrap path without modifying video traffic; validate privacy-safe capture boundaries.
+
+- [x] Build 167: read-only first-load YouTube bootstrap observations before/after existing cleanup and 1s/3s later. Fixed, coarse fields only; guarded first-party top-frame reports; up to four ephemeral per-tab observations in compatibility TXT/JSON export.
+- [ ] Build 167 gate: full Ubuntu seven-phase Node/Python suite including new bridge/response/export tests; live Firefox A/B playback and observational evidence; do not infer success from synthetic probes.
+- [ ] Build 168: repeatable, clean-profile YouTube experiment and playback-state matrix before implementing invasive player HTML hooks or outbound API changes.

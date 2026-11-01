@@ -26,7 +26,7 @@ function category(url){
  }
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds()});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds(),bootstrap:[]});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -195,11 +195,33 @@ function observeRequest(tab,url=""){
  records.set(tab,v);
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
 }
+// Coarse page-world observation, NOT authenticated evidence: page scripts
+// can dispatch the bridge's DOM event. Never use it for blocking decisions.
+const BOOT_PHASES=new Set(["pre-enable","post-enable","late-1s","late-3s"]);
+const BOOT_STATES=new Set(["absent","data","accessor","other"]);
+function noteBootstrap(tab,detail){
+ if(!Number.isInteger(tab)||tab<0||!detail||typeof detail!=="object"||
+    !BOOT_PHASES.has(detail.phase)||!BOOT_STATES.has(detail.state)||
+    !Number.isInteger(detail.adFields)||detail.adFields<0||detail.adFields>3||
+    typeof detail.refused!=="boolean"||typeof detail.initialData!=="boolean")
+  return false;
+ const item={phase:detail.phase,state:detail.state,adFields:detail.adFields,
+  refused:detail.refused,initialData:detail.initialData};
+ const v=records.get(tab)||EMPTY();
+ // Only one observation per phase, bounded to four per tab and ephemeral.
+ const i=v.bootstrap.findIndex(x=>x.phase===item.phase);
+ if(i>=0)v.bootstrap[i]=item;
+ else if(v.bootstrap.length<4)v.bootstrap.push(item);
+ if(records.has(tab))records.delete(tab);
+ records.set(tab,v);
+ if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+ return true;
+}
 function stats(tab){
  const v=records.get(tab)||EMPTY();
  return {...v,byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
   feed:{...v.byKind.feed},next:{...v.byKind.next},playlist:{...v.byKind.playlist},
-  shorts:{...v.byKind.shorts}}};
+  shorts:{...v.byKind.shorts}},bootstrap:v.bootstrap.map(x=>({...x}))};
 }
 function clear(tab){
  records.delete(tab);
@@ -320,7 +342,7 @@ function attach(details,webRequest,clock=root){
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,MAX_FILTERS,MAX_PER_TAB,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,stats,clear});
+const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,MAX_FILTERS,MAX_PER_TAB,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,noteBootstrap,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

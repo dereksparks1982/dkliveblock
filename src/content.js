@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
@@ -51,6 +51,7 @@
    const nextHealth=!!s.playbackHealthEnabled;
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
+   youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(isYouTube&&window===window.top&&typeof CustomEvent==="function"&&document.dispatchEvent)
@@ -388,6 +389,20 @@
   }
  });
  if(isYouTube&&window===window.top&&document.addEventListener){
+  let diagnosticsSent=0;
+  document.addEventListener("dk-live-block:youtube-bootstrap-observed",event=>{
+   // Untrusted page-world signal: never use it for security or block decisions.
+   if(!active||!youtubeDiagnosticsEnabled||diagnosticsSent>=8)return;
+   const x=event?.detail;
+   if(!x||!["pre-enable","post-enable","late-1s","late-3s"].includes(x.phase)||
+      !["absent","data","accessor","other"].includes(x.state)||
+      !Number.isInteger(x.adFields)||x.adFields<0||x.adFields>3||
+      typeof x.refused!=="boolean"||typeof x.initialData!=="boolean")return;
+   diagnosticsSent++;
+   browser.runtime.sendMessage({action:"reportYouTubeBootstrap",
+    observation:{phase:x.phase,state:x.state,adFields:x.adFields,
+     refused:x.refused,initialData:x.initialData}}).catch(()=>{});
+  },false);
   let bridgeReadySeen=false;
   document.addEventListener("dk-live-block:youtube-response-ready",()=>{
    if(bridgeReadySeen)return;

@@ -604,7 +604,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  const ownExtensionPage=!!(extensionRoot&&typeof sender.url==="string"&&
   sender.url.startsWith(extensionRoot));
  const fromContent=!!sender.tab&&!ownExtensionPage;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
@@ -868,6 +868,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(sender?.tab)return {error:"Extension settings only."};
   data.networkIssues.delete(id);return {ok:true};
  }
+ if(msg.action==="reportYouTubeBootstrap"){
+  // Website-origin signals are untrusted. Validate top frame, tab identity,
+  // local diagnostic consent and exact first-party YouTube host.
+  if(!fromContent||!data.ready||!data.settings.enabled||
+     !data.settings.requestLog||!data.settings.youtubeResponseFilter||
+     sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
+  const pageHost=host(sender.url||"");
+  if(!DKYouTubeResponse.validPage(pageHost)||
+     pageHost!==host(sender.tab?.url||"")||
+     data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
+  try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
+  catch(_){return {ok:false};}
+  return {ok:DKYouTubeResponse.noteBootstrap(id,msg.observation)};
+ }
  if(msg.action==="reportPlaybackHealth"){
   if(!fromContent||!data.ready||!data.settings.requestLog||!data.settings.enabled||
      sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
@@ -1100,6 +1114,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,adRecognitionExceptions:adExceptions,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    youtubePageAssistEnabled:active&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
+   youtubeDiagnosticsEnabled:active&&data.settings.requestLog&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{

@@ -561,3 +561,32 @@ test("Build 155 never appends original player JSON after modified write failure"
  assert.equal(JSON.parse(emitted[0].toString()).adSlots,undefined);
  R.clear(tabId);
 });
+
+test("Build 167 records only bounded coarse YouTube bootstrap observations",()=>{
+ const tab=167;
+ R.clear(tab);
+ assert.equal(R.noteBootstrap(tab,{phase:"pre-enable",state:"data",adFields:2,
+  refused:false,initialData:true,videoId:"SECRET_ID",title:"PRIVATE"}),true);
+ let rows=R.stats(tab).bootstrap;
+ assert.equal(rows.length,1);
+ assert.deepEqual(rows[0],{phase:"pre-enable",state:"data",adFields:2,
+  refused:false,initialData:true});
+ rows[0].state="tampered";
+ assert.equal(R.stats(tab).bootstrap[0].state,"data","stats must return detached copies");
+ assert.equal(R.noteBootstrap(tab,{phase:"pre-enable",state:"data",adFields:1,
+  refused:true,initialData:false}),true);
+ assert.equal(R.stats(tab).bootstrap.length,1,"same phase replaces previous observation");
+ assert.equal(R.stats(tab).bootstrap[0].adFields,1);
+ for(const bad of [
+  {phase:"pre-enable",state:"data",adFields:4,refused:false,initialData:false},
+  {phase:"before",state:"data",adFields:1,refused:false,initialData:false},
+  {phase:"pre-enable",state:"data",adFields:1,refused:"no",initialData:false}
+ ])assert.equal(R.noteBootstrap(tab,bad),false);
+ assert.equal(R.stats(tab).bootstrap.length,1);
+ for(const phase of ["post-enable","late-1s","late-3s"])
+  assert.equal(R.noteBootstrap(tab,{phase,state:"absent",adFields:0,
+   refused:false,initialData:false}),true);
+ assert.equal(R.stats(tab).bootstrap.length,4);
+ R.clear(tab);
+ assert.equal(R.stats(tab).bootstrap.length,0);
+});

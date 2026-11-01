@@ -155,7 +155,30 @@ function decorate(response,requestURL=""){
  }catch(_){/* If a response is locked or non-extensible, leave it untouched. */}
  return response;
 }
-function pruneExistingBootstrap(){
+// Passive, coarse diagnostics only. Never read accessors or export payload data.
+function reportBootstrap(phase){
+ if(typeof CustomEvent!=="function"||typeof document.dispatchEvent!=="function")return;
+ try{
+  const d=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
+  const value=d&&Object.prototype.hasOwnProperty.call(d,"value")?d.value:null;
+  const state=!d?"absent":!Object.prototype.hasOwnProperty.call(d,"value")?
+   "accessor":plain(value)?"data":"other";
+  let adFields=0;
+  if(state==="data")for(const key of AD_FIELDS){
+   const field=Object.getOwnPropertyDescriptor(value,key);
+   if(field&&Object.prototype.hasOwnProperty.call(field,"value")&&
+      (Array.isArray(field.value)||plain(field.value)))adFields++;
+  }
+  const id=Object.getOwnPropertyDescriptor(g,"ytInitialData");
+  const initialData=!!id&&Object.prototype.hasOwnProperty.call(id,"value")&&plain(id.value);
+  document.dispatchEvent(new CustomEvent("dk-live-block:youtube-bootstrap-observed",{
+   detail:{phase,state,adFields,refused:state==="data"&&denied(value),initialData}
+  }));
+ }catch(_){/* Never interfere with the page on diagnosis failure. */}
+}
+let scheduledBootstrapSamples=false;
+function pruneExistingBootstrap(observe=true){
+ if(observe)reportBootstrap("pre-enable");
  // A data property already loaded by YouTube may still be consumed during
  // navigation. Do not replace an accessor, intercept an assignment, or touch
  // unrelated initial page data.
@@ -167,17 +190,23 @@ function pruneExistingBootstrap(){
   if(initial&&Object.prototype.hasOwnProperty.call(initial,"value")&&plain(initial.value)&&
      typeof DKYouTubeFeed!=="undefined")
    DKYouTubeFeed.prune(initial.value,"https://www.youtube.com/youtubei/v1/browse");
- }catch(_){} 
+ }catch(_){}
+ if(observe)reportBootstrap("post-enable");
 }
 function enable(){
  if(enabled){
   // On SPA navigation YouTube may replace bootstrap data without a reload.
   // Reprocess on an explicit refresh, but do not install a second hook.
-  pruneExistingBootstrap();
+  pruneExistingBootstrap(false);
   return;
  }
  enabled=true;
  pruneExistingBootstrap();
+ if(!scheduledBootstrapSamples&&typeof setTimeout==="function"){
+  scheduledBootstrapSamples=true;
+  setTimeout(()=>{if(enabled)reportBootstrap("late-1s");},1000);
+  setTimeout(()=>{if(enabled)reportBootstrap("late-3s");},3000);
+ }
  if(typeof g.fetch==="function"){
   oldFetch=g.fetch;
   wrappedFetch=function(...args){

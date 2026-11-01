@@ -81,3 +81,20 @@ test("Build 158 skip-button evidence is not falsely reported as a blocked ad",()
  for(const secret of ["PRIVATE_ID","PRIVATE_TITLE","PRIVATE_REASON"])
   assert.equal((txt+json).includes(secret),false);
 });
+
+test("Build 167 exports coarse first-load timing without private player data",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:167,
+  youtubeResponse:{enabled:true,supported:true,
+   bootstrap:[
+    {phase:"pre-enable",state:"data",adFields:2,refused:false,initialData:true,
+     videoId:"SECRET_VIDEO",url:"https://www.youtube.com/watch?v=SECRET_VIDEO"},
+    {phase:"post-enable",state:"data",adFields:0,refused:false,initialData:true},
+    {phase:"late-1s",state:"accessor",adFields:0,refused:false,initialData:false},
+    {phase:"bad-phase",state:"data",adFields:0,refused:false,initialData:false}
+   ]}});
+ assert.equal(report.responseFiltering.bootstrap.length,3);
+ const exported=JSON.stringify(report)+"\n"+Report.asText(report);
+ assert.match(exported,/YOUTUBE BOOTSTRAP/);
+ assert.match(exported,/pre-enable: data/);
+ assert.doesNotMatch(exported,/SECRET_VIDEO|watch\?v=|videoId/);
+});

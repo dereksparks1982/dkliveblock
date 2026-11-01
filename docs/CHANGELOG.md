@@ -731,3 +731,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Benchmark reports medians and coarse memory delta with limitations explicit; no visited URLs, network I/O or automatic benchmark overhead at Firefox runtime.
 - Added regression tests for input bounds, determinism, median calculations, timing results and full runner inventory.
 - Current full Ubuntu benchmark results and real Firefox CPU/memory/video playback remain unverified; no release.
+
+### 0.3.137 / Build 167 (2026-10-31)
+- Added a passive, bounded observation of initial YouTube player-data availability before and after the existing MAIN-world bootstrap handling, with optional later 1-second/3-second samples.
+- Sent only coarse status booleans and counts to the local top-frame diagnostic channel; retained no video IDs, titles, URLs, player contents or credentials. Untrusted page-origin events cannot make blocking decisions.
+- Extended per-tab response stats and the existing user-triggered YouTube compatibility TXT/JSON export with those ephemeral observations.
+- Added regression tests for stable page-world observations, accessor-safety, per-tab bounds/cleanup and privacy-safe report output. Full current Linux tests and real Firefox playback remain unverified. No release.

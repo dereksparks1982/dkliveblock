@@ -18,6 +18,15 @@ function build(s,now=Date.now()){
   responses.byKind[kind]={requests:number(row?.requests),seen:number(row?.seen),
    changed:number(row?.changed),refused:number(row?.refused)};
  }
+ // Only the canonical coarse bootstrap fields may enter a user export.
+ // Page-world observations can be spoofed and never prove actual YouTube state.
+ const phases=new Set(["pre-enable","post-enable","late-1s","late-3s"]);
+ const states=new Set(["absent","data","accessor","other"]);
+ responses.bootstrap=(Array.isArray(s.youtubeResponse?.bootstrap)?s.youtubeResponse.bootstrap:[])
+  .slice(0,4).filter(x=>x&&phases.has(x.phase)&&states.has(x.state)&&
+   Number.isInteger(x.adFields)&&x.adFields>=0&&x.adFields<=3)
+  .map(x=>({phase:x.phase,state:x.state,adFields:x.adFields,
+   refused:x.refused===true,initialData:x.initialData===true}));
  const blocked=Model.requestRows(s).slice(0,250).map(r=>({
   hostname:r.host,resourceType:r.type,
   filterSource:cleanSource(r.ruleEvidence?.subscription)
@@ -54,6 +63,11 @@ function asText(report){
   lines.push(kind+" JSON: "+row.requests+" requested, "+row.seen+
    " processed, "+row.changed+" modified, "+row.refused+" refused/error");
  }
+ lines.push("","YOUTUBE BOOTSTRAP (UNTRUSTED PAGE-WORLD OBSERVATIONS)");
+ for(const x of report.responseFiltering.bootstrap||[])
+  lines.push(x.phase+": "+x.state+" / ad structures "+x.adFields+
+   " / refused "+x.refused+" / initial feed data "+x.initialData);
+ if(!report.responseFiltering.bootstrap?.length)lines.push("No bootstrap observations recorded.");
  lines.push("","PLAYBACK HEALTH");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
  if(!report.playback.length)lines.push("No player health observations.");

@@ -4,7 +4,9 @@ const fs=require("node:fs"),vm=require("node:vm"),path=require("node:path");
 const source=fs.readFileSync(path.resolve(__dirname,"../src/youtube-page-bridge.js"),"utf8");
 const EVENT="dk-live-block:youtube-response-control";
 function context(){
- const listeners={};const document={addEventListener(k,fn){listeners[k]=fn;}};
+ const listeners={},emitted=[],timers=[];
+ const document={addEventListener(k,fn){listeners[k]=fn;},
+  dispatchEvent(event){emitted.push(event);return true;}};
  const requests=[];
  const originalFetch=(url,opts)=>{requests.push({url,opts});
   return Promise.resolve({status:200,headers:{get:()=> "application/json"},
@@ -20,11 +22,15 @@ function context(){
  const window={fetch:originalFetch,XMLHttpRequest:XHR};
  window.top=window;
  const location={hostname:"www.youtube.com",href:"https://www.youtube.com/watch?v=private"};
- const context=vm.createContext({window,document,location,URL,Promise,WeakMap,Object,Array,JSON,String});
+ const context=vm.createContext({window,document,location,URL,Promise,WeakMap,Object,Array,JSON,String,
+  CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts.detail;}},
+  setTimeout(fn,ms){timers.push({fn,ms});return timers.length;}
+ });
  const feed=fs.readFileSync(path.resolve(__dirname,"../src/youtube-feed.js"),"utf8");
  vm.runInContext(feed,context,{filename:"youtube-feed.js"});
  vm.runInContext(source,context,{filename:"youtube-page-bridge.js"});
- return {window,document,requests,originalFetch,send:flag=>listeners[EVENT]({detail:flag})};
+ return {window,document,requests,originalFetch,emitted,timers,
+  send:flag=>listeners[EVENT]({detail:flag})};
 }
 test("Build 74 MAIN-world script waits for explicit activation and restores fetch",async()=>{
  const p=context();
@@ -420,4 +426,39 @@ test("Build 154 MAIN-world refuses serialized denial and read-only prefetch fiel
   assert.equal(result.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse,player);
   p.send("disable");
  }
+});
+
+test("Build 167 bootstrap observations are before/after mutations, never video data",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse={
+  streamingData:{formats:[{url:"SIGNED_MEDIA_URL"}]},videoDetails:{title:"PRIVATE_TITLE"},
+  playabilityStatus:{status:"OK"},adSlots:[{}],adPlacements:[{}]
+ };
+ p.send("enable");
+ const rows=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed")
+  .map(x=>x.detail);
+ assert.equal(rows.length,2);
+ assert.deepEqual([rows[0].phase,rows[1].phase],["pre-enable","post-enable"]);
+ assert.equal(rows[0].state,"data");
+ assert.equal(rows[0].adFields,2);
+ assert.equal(rows[1].adFields,0);
+ assert.equal(JSON.stringify(rows).includes("PRIVATE_TITLE"),false);
+ assert.equal(JSON.stringify(rows).includes("SIGNED_MEDIA_URL"),false);
+ assert.deepEqual(p.timers.map(x=>x.ms),[1000,3000]);
+ for(const task of p.timers)task.fn();
+ assert.deepEqual(p.emitted.slice(-2).map(x=>x.detail.phase),["late-1s","late-3s"]);
+});
+test("Build 167 probe never invokes hostile bootstrap accessors",()=>{
+ const p=context();
+ let reads=0;
+ Object.defineProperty(p.window,"ytInitialPlayerResponse",{
+  configurable:true,get(){reads++;throw Error("Do not read page accessor");}
+ });
+ p.send("enable");
+ assert.equal(reads,0);
+ const records=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed");
+ assert.equal(records[0].detail.state,"accessor");
+ p.send("disable");
+ for(const task of p.timers)task.fn();
+ assert.equal(p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed").length,2);
 });
