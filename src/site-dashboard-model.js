@@ -65,7 +65,7 @@ function allowances(data){
 const ALLOW_REASONS=new Set([
  "global-disabled","site-allowlisted","tab-paused","protection-not-ready",
  "media-recovery","streaming-repair","authentication-preserved",
- "youtube-player-preserved","manual-exception","filter-engine-permitted",
+ "youtube-player-preserved","manual-exception","filter-engine-permitted","filter-exception",
  "decision-not-recorded"
 ]);
 const ALLOW_METHOD=/^(GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS|CONNECT|TRACE|Unknown)$/;
