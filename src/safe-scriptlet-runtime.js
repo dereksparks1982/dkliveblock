@@ -1,5 +1,6 @@
 /* DK Live Block: fixed MAIN-world literal property shim.
-   Only user-authored site rules activate this packaged, nonprivileged code. */
+   User-authored site rules only; no remote subscription script execution.
+   Intermediate data properties can be assigned after document_start. */
 (function(){"use strict";
 const EVENT="dk-live-block:safe-scriptlets";
 const VALUES=Object.freeze({true:true,false:false,null:null,undefined:void 0,0:0,1:1});
@@ -17,39 +18,73 @@ function verified(row){
  if(!pieces.length||pieces.length>3||pieces.some(s=>!NAME.test(s)||BAD.has(s)))return null;
  return {path:row.path,pieces,value:row.value};
 }
-function restore(st){
+function objectLike(x){return x!==null&&(typeof x==="object"||typeof x==="function");}
+function restore(link){
  try{
-  const now=Object.getOwnPropertyDescriptor(st.object,st.name);
-  if(now?.get!==st.get||now?.set!==st.set)return;
-  if(st.previous){
-   Object.defineProperty(st.object,st.name,st.assigned&&
-    Object.prototype.hasOwnProperty.call(st.previous,"value")?
-    {...st.previous,value:st.latest}:st.previous);
-  }else if(st.assigned)Object.defineProperty(st.object,st.name,
-   {configurable:true,enumerable:true,writable:true,value:st.latest});
-  else delete st.object[st.name];
+  const now=Object.getOwnPropertyDescriptor(link.object,link.name);
+  if(now?.get!==link.get||now?.set!==link.set)return;
+  if(link.previous){
+   const original=link.previous;
+   Object.defineProperty(link.object,link.name,link.assigned?
+    {...original,value:link.latest}:original);
+  }else if(link.assigned)Object.defineProperty(link.object,link.name,
+   {configurable:true,enumerable:true,writable:true,value:link.latest});
+  else delete link.object[link.name];
  }catch(_){}
 }
-function insert(row){
- let object=window;
- for(const part of row.pieces.slice(0,-1)){
-  let d;try{d=Object.getOwnPropertyDescriptor(object,part);}catch(_){return;}
-  if(!d||!Object.prototype.hasOwnProperty.call(d,"value"))return;
-  object=d.value;
-  if(!object||typeof object!=="object"&&typeof object!=="function")return;
+function removeAfter(state,depth){
+ for(let i=state.links.length-1;i>=0;i--){
+  const link=state.links[i];
+  if(link.depth>depth){restore(link);state.links.splice(i,1);}
  }
- const name=row.pieces[row.pieces.length-1];
- let previous;try{previous=Object.getOwnPropertyDescriptor(object,name);}catch(_){return;}
- if(previous&&!previous.configurable||!previous&&!Object.isExtensible(object))return;
- const st={object,name,previous,value:row.value,assigned:false,latest:previous?.value,
-  get:null,set:null};
- st.get=()=>VALUES[row.value];
- st.set=x=>{st.assigned=true;st.latest=x;};
+}
+function install(row,object,depth,state){
+ if(!objectLike(object))return false;
+ const name=row.pieces[depth],leaf=depth===row.pieces.length-1;
+ let previous;
  try{
-  Object.defineProperty(object,name,{configurable:true,enumerable:previous?.enumerable??true,
-   get:st.get,set:st.set});
-  active.set(row.path,st);
- }catch(_){}
+  previous=Object.getOwnPropertyDescriptor(object,name);
+  // Never invoke an inherited getter or replace an inherited accessor.
+  if(!previous&&name in object)return false;
+ }catch(_){return false;}
+ if(previous&&!Object.prototype.hasOwnProperty.call(previous,"value"))
+  return false;
+ // Already-created object chains need no intermediate trap: preserve
+ // existing site descriptors and allow several user shims under one object.
+ if(!leaf&&previous&&objectLike(previous.value)&&
+    (depth===0||!previous.configurable))
+  return install(row,previous.value,depth+1,state);
+ if(previous&&!previous.configurable)return false;
+ if(!previous){
+  try{if(!Object.isExtensible(object))return false;}catch(_){return false;}
+ }
+ const link={object,name,depth,previous,assigned:false,latest:previous?.value,
+  get:null,set:null};
+ if(leaf){
+  link.get=()=>VALUES[row.value];
+  link.set=x=>{link.assigned=true;link.latest=x;};
+ }else{
+  link.get=()=>link.latest;
+  link.set=x=>{
+   link.assigned=true;
+   // No stale shims may survive on an object which the page replaced.
+   removeAfter(state,depth);
+   link.latest=x;
+   if(objectLike(x))install(row,x,depth+1,state);
+  };
+ }
+ try{
+  Object.defineProperty(object,name,{configurable:true,
+   enumerable:previous?.enumerable??true,get:link.get,set:link.set});
+  state.links.push(link);
+ }catch(_){return false;}
+ if(!leaf&&objectLike(link.latest))install(row,link.latest,depth+1,state);
+ return true;
+}
+function insert(row){
+ const state={value:row.value,links:[]};
+ if(install(row,window,0,state)&&state.links.length)
+  active.set(row.path,state);
 }
 function apply(payload){
  if(typeof payload==="string"){
@@ -60,10 +95,12 @@ function apply(payload){
  if(Array.isArray(payload))for(const input of payload.slice(0,24)){
   const r=verified(input);if(r&&!requested.has(r.path))requested.set(r.path,r);
  }
- for(const [path,st] of active)if(!requested.has(path)||requested.get(path).value!==st.value){
-  restore(st);active.delete(path);
+ for(const [path,state] of active){
+  if(!requested.has(path)||requested.get(path).value!==state.value){
+   removeAfter(state,-1);active.delete(path);
+  }
  }
- for(const [path,r] of requested)if(!active.has(path))insert(r);
+ for(const [path,row] of requested)if(!active.has(path))insert(row);
 }
 document.addEventListener(EVENT,e=>{try{apply(e?.detail);}catch(_){}},false);
 })();

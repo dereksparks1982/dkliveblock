@@ -96,3 +96,7 @@ New reference-match tests enforce old candidate visit order and last-matched-rul
 ## Build 207 (0.3.177): YouTube response-filter diagnostics only
 
 Focused injection tests simulate attachment failure, invalid incoming data, invalid UTF-8 at completion, and asynchronous stream failure. Attachment counters and errors are privacy-sanitized before local TXT/JSON export. Keep response byte rewriting unchanged; test Build 207 against the frozen Build 203 tag in real Firefox before acceptance. Full Ubuntu test runner remains pending.
+
+## Build 208 (0.3.178): delayed manual scriptlet semantics
+
+Isolated runtime tests passed 10/10, covering late two-/three-step assignments, intermediate replacement, sibling shims on existing objects, disable restoration and accessor avoidance. Runtime is MAIN-world page script and accepts no WebExtension messages or privileges. Test in real Firefox across user-authored, site-specific examples and while switching protection off/on; do not infer YouTube behavior from these tests.

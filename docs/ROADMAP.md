@@ -775,3 +775,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 207: record attachment attempts/results and four coarse failure categories from Firefox YouTube response filters, export privacy-safe stats in both local reports, add targeted regression tests, without rewriting responses differently.
 - [ ] Instrument page-world JSON.parse/fetch/XHR/bootstrap prune counts separately, with explicit untrusted event semantics and privacy caps, to identify which protection mechanism matters most.
 - [ ] Check one reported stream-filter error's stage against user-collected Build 207 report; do not suppress or blindly modify the fail-open response hooks.
+
+- [x] Build 208: safe set-constant waiting for late-created intermediate globals, bounded chain depth and reversible page-value restoration. Add assignment and getter-safety regression tests.
+- [ ] Resolve duplicate user-authored scriptlets sharing the *same missing* intermediate path with a shared observer graph if needed; do not claim broad uBO scriptlet parity from this limited feature.
+- [ ] Browser-test manual scriptlet enable/disable on intentionally simple test pages before enabling more scriptlet operations, and verify no impact on streaming page bridges.

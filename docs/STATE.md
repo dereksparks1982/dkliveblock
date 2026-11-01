@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 207 / 0.3.177 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 208 / 0.3.178 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -149,3 +149,10 @@ Full Ubuntu and live Firefox tests still pending.
 - Fixed, privacy-sanitized per-tab `attachAttempts`, `attached`, and `errorStages.{attach,data,stop,stream}` counters; exposed in both local TXT/JSON report paths.
 - Native and page-world playback protection remains unchanged; observational stage counts cannot identify every ad blocking mechanism (MAIN-world JSON.parse is still not instrumented).
 - Isolated V8 stage tests and a YouTube report privacy test passed. Ubuntu Node suite and browser playback remain pending; Build 203 tagged source still the tested reference.
+
+## Build 208: delayed user-authored scriptlets (unreleased)
+
+- MAIN-world set-constant runtime may await a missing intermediate page object and attach an existing, validated one- to three-segment property shim when the page assigns that intermediate later.
+- On replacement of a watched intermediate, earlier child traps are restored first. Page-assigned property values survive disabling. This is limited to a user-authored, domain-scoped rule, not remote subscription code.
+- Five additional tests passed alongside five existing tests in a focused synthetic runtime. Simultaneous shims sharing a not-yet-created intermediate may remain limited; complete Firefox/Ubuntu and compatibility testing are pending.
+- No YouTube-specific bridge changes; tagged Build 203 backup stays untouched.

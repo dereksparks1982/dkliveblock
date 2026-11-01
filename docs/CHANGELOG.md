@@ -1,3 +1,11 @@
+## Build 208 (0.3.178): delayed user-authored scriptlet property chains
+
+- A narrowly vetted user-authored `set-constant` rule can now wait for intermediate page globals created after `document_start`. Supports at most three segments, with the existing exact literal/path restrictions.
+- Safely observes intermediate data property assignments and reattaches to a new child object; restores old child shims before detaching and preserves normal site assignments on disable.
+- Existing object roots remain usable by independent sibling shims; inaccessible accessors and nonconfigurable leaf properties are not evaluated or overwritten.
+- Added five delayed-install, reassignment, sibling, rollback and accessor tests; 10 focused runtime tests passed in isolated execution.
+- **No** YouTube-specific bridge, remote executable code, subscriptions, extension permissions, GUI changes, GitHub Actions, or public release.
+
 ## Build 207 (0.3.177): YouTube response-filter attachment and error-stage observability
 
 - Per-tab counters record response-filter attachment attempts and successful attachments.
