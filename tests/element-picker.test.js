@@ -23,7 +23,7 @@ test("Build 227 own-picked CSS survives filter-list budget but is removable afte
  assert.match(source,/function applyPickerCSS\(/);
  assert.match(source,/pickerStyle\?\.remove\(\)/);
  assert.match(source,/pickerSelectors=active&&Array\.isArray\(s\.pickerSelectors\)/);
- assert.match(source,/style\.id="dk-live-block-picker-style"/);
+ assert.match(source,/pickerStyle\.id="dk-live-block-picker-style"/);
  assert.doesNotMatch(source,/event\.target\.style\.setProperty\("display"/);
 });
 test("Build 227 element-picking messages remain restricted to website content frames",()=>{
