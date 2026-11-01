@@ -397,6 +397,7 @@ function showAllowed(row){
   "youtube-player-preserved":"YouTube player JSON preserved",
   "manual-exception":"Explicit user exception to automatic block",
   "filter-engine-permitted":"Active filter engine did not block",
+  "filter-exception":"Explicit matching filter exception",
   "decision-not-recorded":"Initial filtering decision unavailable"
  };
  const describeCounts=(counts,convert=(x=>x))=>
