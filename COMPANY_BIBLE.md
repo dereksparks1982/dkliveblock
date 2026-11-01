@@ -35,11 +35,17 @@ This tag is the repository-backed rollback reference; a snapshot branch is **not
 - Preserve normal site functionality, login windows, privacy, safe browsing permissions, and reversible user choices.
 - Do not automatically open browsers, request passwords, or make unrelated repo changes.
 
-## 4. Owner control and proposals
+## 4. Free use, no monetization (owner-required)
+
+**Any person or company may use DK Live Block for free. Nobody may profit by selling, charging for, rebranding, packaging as a paid product, or monetizing the DK Live Block extension or derivatives.** Ordinary internal use by businesses, even profitable businesses, is allowed. Profits from a company's unrelated business do not make its internal use of the extension prohibited.
+
+Apply this distinction in the `LICENSE` and `README.md`. Do not claim that an older MIT grant has been revoked: previously published MIT-licensed versions retain the rights granted to their recipients. Never pretend that proprietary original-code restrictions supersede bundled MPL-2.0 components or independent third-party filter-list licenses. Before public release, verify legal enforceability and Mozilla distribution requirements; the license is custom source-available, not OSI-approved open source.
+
+## 5. Owner control and proposals
 
 The owner can revise project rules. Improvements and alternatives may be **proposed** with their reasons, but changes to a rule or established project behavior require explicit owner authorization. Proposing an improvement is allowed; silently implementing a conflicting process is not.
 
-## 5. Branch cleanup verification (November 1, 2026)
+## 6. Branch cleanup verification (November 1, 2026)
 
 A comparison of `main` against all five non-`main` branches found **zero commits on any extra branch that were missing from `main`**. The Build 203 recovery tag was independently verified to match its documented commit. The owner may safely delete all five extra branches and retain only `main`; the Git history and tagged working backup stay preserved.
 
