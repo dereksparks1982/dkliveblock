@@ -113,3 +113,31 @@ test("allowlisted GitHub-style requests are counted; observed exact host/type ca
   expectedSite:"evil.github.com",host:"avatars.githubusercontent.com",type:"image",block:true,confirm:true});
  assert.match(invalid.error,/changed websites/i);
 });
+
+test("Build 220 Firefox event integration reports exact allowlist and engine decisions",async()=>{
+ const {hooks,tabs}=await setup();
+ await hooks.message({action:"setSiteAllowed",tabId:1,allowed:true});
+ const a={requestId:"allow-event-1",tabId:1,type:"image",
+  url:"https://cdn.example.org/images/SECRET_PRIVATE?token=PRIVATE",
+  documentUrl:tabs.get(1),method:"GET"};
+ assert.equal(hooks.before(a).cancel,undefined);
+ hooks.completed({...a,statusCode:200});
+ let dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.allowedRequests,1);
+ assert.equal(dashboard.allowedEvents.length,1);
+ assert.equal(dashboard.allowedEvents[0].reason,"site-allowlisted");
+ assert.equal(dashboard.allowedEvents[0].method,"GET");
+ assert.equal(dashboard.allowedEvents[0].httpStatus,200);
+ assert.equal(dashboard.allowedGroups[0].reasons["site-allowlisted"],1);
+ assert.doesNotMatch(JSON.stringify(dashboard.allowedGroups)+JSON.stringify(dashboard.allowedEvents),
+  /SECRET_PRIVATE|PRIVATE|allow-event-1/);
+ assert.equal((await hooks.message({action:"setSiteAllowed",tabId:1,allowed:false})).ok,true);
+ const b={...a,requestId:"allow-event-2",method:"POST"};
+ assert.equal(hooks.before(b).cancel,undefined);
+ hooks.completed({...b,statusCode:204});
+ dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.allowedEvents[0].reason,"filter-engine-permitted");
+ assert.equal(dashboard.allowedEvents[0].method,"POST");
+ assert.equal(dashboard.allowedEvents[0].httpStatus,204);
+ assert.equal(dashboard.allowedGroups[0].reasons["filter-engine-permitted"],1);
+});
