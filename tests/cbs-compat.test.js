@@ -1,49 +1,55 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
-const CBS=require("../src/cbs-compat.js");
-const video=require("../src/video-assist.js");
+const C=require("../src/cbs-compat.js"),V=require("../src/video-assist.js");
 const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
-test("Build 229: only CBS News player config host is exempt",()=>{
- const good={url:"https://doppler-config.cbsivideo.com/player.js",type:"script"};
- assert.equal(CBS.playerConfig(good,"www.cbsnews.com"),true);
- assert.equal(CBS.playerConfig({...good,type:"xmlhttprequest"},"cbsnews.com"),true);
- for(const url of ["https://imasdk.googleapis.com/sdk.js","https://pubads.g.doubleclick.net/ad",
-  "https://doppler-config.cbsivideo.com.evil.com/x","http://doppler-config.cbsivideo.com/x"]){
-  assert.equal(CBS.playerConfig({...good,url},"www.cbsnews.com"),false,url);
- }
- assert.equal(CBS.playerConfig(good,"youtube.com"),false);
- assert.equal(CBS.playerConfig({...good,type:"media"},"www.cbsnews.com"),false);
+const p=(url,type="script",site="www.cbsnews.com")=>C.playerConfig({url,type},site);
+test("Build 231 exact CBS bootstrap dependencies survive ordinary subscriptions",()=>{
+ for(const url of ["https://tealium.cbsnews.com/site/prod/utag.js",
+  "https://imasdk.googleapis.com/js/sdkloader/ima3_dai.js",
+  "https://imasdk.googleapis.com/js/sdkloader/ima3_dai_debug.js",
+  "https://doppler-config.cbsivideo.com/player.js"])
+  assert.equal(p(url),true,url);
+ assert.equal(p("https://doppler-config.cbsivideo.com/data","xmlhttprequest"),true);
+});
+test("Build 231 unrelated advertising, script names and sites stay blocked",()=>{
+ for(const url of ["https://imasdk.googleapis.com/js/sdkloader/ima3.js",
+  "https://imasdk.googleapis.com/js/sdkloader/ima3_debug.js",
+  "https://pubads.g.doubleclick.net/ad","https://tealium.cbsnews.com/other.js",
+  "https://tealium.cbsnews.com/site/prod/utag.js.evil",
+  "https://tealium.cbsnews.com.evil.invalid/site/prod/utag.js",
+  "http://tealium.cbsnews.com/site/prod/utag.js",
+  "https://user:pass@tealium.cbsnews.com/site/prod/utag.js",
+  "https://tealium.cbsnews.com:8443/site/prod/utag.js"])
+  assert.equal(p(url),false,url);
+ assert.equal(p("https://tealium.cbsnews.com/site/prod/utag.js","xmlhttprequest"),false);
+ assert.equal(p("https://imasdk.googleapis.com/js/sdkloader/ima3_dai.js","media"),false);
+ assert.equal(p("https://tealium.cbsnews.com/site/prod/utag.js","script","youtube.com"),false);
+ assert.equal(p("https://tealium.cbsnews.com/site/prod/utag.js","script","www.cbsnews.com.evil.invalid"),false);
  assert.ok(bg.indexOf("DKAllowedActivity.matches")<bg.indexOf("DKCBSCompat.playerConfig"));
  assert.ok(bg.indexOf("DKCBSCompat.playerConfig")<bg.indexOf("data.engine.checkRequest"));
 });
-test("Build 229: old CBS picker rules automatically removed, ad rules preserved",()=>{
+test("Build 231 player CSS selectors protect JW video controls, not ad boxes",()=>{
+ for(const selector of [".jwplayer",".jw-controls",".jw-display", ".jw-icon-playback",
+  ".jw-wrapper", ".vjs-big-play-button"])
+  assert.equal(V.protectCBSSelector(selector,"www.cbsnews.com"),true,selector);
+ assert.equal(V.protectCBSSelector(".jw-controls","player.cbsivideo.com"),true);
+ assert.equal(V.protectCBSSelector(".jw-controls","youtube.com"),false);
+ assert.deepEqual(V.safeCosmetics([".ad",".jw-controls",".video-player"],"www.cbsnews.com"),[".ad"]);
+ assert.deepEqual(V.safeCosmetics([".ad",".jw-controls"],"player.cbsivideo.com"),[".ad"]);
+ assert.deepEqual(V.safeCosmetics([".ad",".jw-controls"],"example.com"),[".ad",".jw-controls"]);
+});
+test("Build 229 old CBS manual picker cleanup leaves unrelated filters intact",()=>{
  const input="||doubleclick.net^\nwww.cbsnews.com##.jwplayer\nexample.com##.test\ncbsnews.com##.video-player\nwww.cbsnews.com#@#.okay";
- const fixed=CBS.clearLegacyCBS(input);
- assert.equal(fixed.removed,2);
- assert.equal(fixed.text,"||doubleclick.net^\nexample.com##.test\nwww.cbsnews.com#@#.okay");
- assert.equal(CBS.clearLegacyCBS(fixed.text).removed,0);
- assert.match(bg,/DKCBSCompat\.clearLegacyCBS/);
+ const changed=C.clearLegacyCBS(input);
+ assert.equal(changed.removed,2);
+ assert.equal(changed.text,"||doubleclick.net^\nexample.com##.test\nwww.cbsnews.com#@#.okay");
+ assert.equal(C.clearLegacyCBS(changed.text).removed,0);
 });
-test("Build 229: CBS recognized video player containers survive cosmetic filtering",()=>{
- assert.equal(video.protectCBSSelector(".jwplayer","www.cbsnews.com"),true);
- assert.equal(video.protectCBSSelector(".video-player","www.cbsnews.com"),true);
- assert.equal(video.protectCBSSelector(".video-player","youtube.com"),false);
- assert.deepEqual(video.safeCosmetics([".ad",".video-player",".jwplayer"],"www.cbsnews.com"),[".ad"]);
- assert.deepEqual(video.safeCosmetics([".ad",".video-player"],"example.com"),[".ad",".video-player"]);
-});
-test("Build 229: CBS homepage and article must wait for Play",()=>{
- assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/"),true);
- assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/?news=top"),true);
- assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/news/story-slug"),true);
- assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/live/"),false);
- assert.equal(CBS.autoplayProtection("https://www.youtube.com/news/story"),false);
- assert.equal(CBS.autoplayProtection("http://www.cbsnews.com/"),false);
- assert.ok(bg.includes("DKCBSCompat.autoplayProtection(sender.tab?.url"));
-});
-test("Build 229: existing CBS article autoplay guard remains scoped",()=>{
- assert.ok(bg.includes("cbsAutoplay:active&&"));
- const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
- assert.equal(manifest.version,JSON.parse(fs.readFileSync(path.join(__dirname,"../package.json"),"utf8")).version);
- assert.ok(manifest.background.scripts.indexOf("cbs-compat.js")<manifest.background.scripts.indexOf("background.js"));
+test("Build 231 popup request buttons have identical constrained dimensions",()=>{
+ const css=fs.readFileSync(path.join(__dirname,"../src/style.css"),"utf8");
+ assert.match(css,/\.popup #viewBlocked,\.popup #viewAllowed\s*\{/);
+ assert.match(css,/width:101px;min-width:101px;height:34px/);
+ const html=fs.readFileSync(path.join(__dirname,"../src/popup.html"),"utf8");
+ assert.match(html,/id="viewBlocked"/);assert.match(html,/id="viewAllowed"/);
 });

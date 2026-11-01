@@ -3,41 +3,47 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const M=require("../src/adaptive-model.js");
 const A=require("../src/adaptive-youtube.js");
-test("Build 186 offline micrograd model classifies only fixed, coarse synthetic examples",()=>{
+test("Build 231 offline linear model classifies only fixed, coarse synthetic examples",()=>{
  let correct=0,total=0;
  for(let faults=0;faults<4;faults++)
   for(let blocked=0;blocked<2;blocked++)
    for(let err=0;err<2;err++)
     for(let buffering=0;buffering<2;buffering++)
      for(let enforcement=0;enforcement<2;enforcement++)
-      for(let skipped=0;skipped<2;skipped++){
+      for(let skipped=0;skipped<2;skipped++)
+       for(let showing=0;showing<2;showing++){
        const result=M.predict({faultCount:faults,blockedMediaEvidence:!!blocked,
         sawMediaError:!!err,sawBuffering:!!buffering,
-        sawEnforcement:!!enforcement,sawAdSkip:!!skipped});
-       const expected=faults>=2&&!!blocked&&!enforcement&&!skipped?
+        sawEnforcement:!!enforcement,sawAdSkip:!!skipped,sawAdShowing:!!showing});
+       const expected=faults>=2&&!!blocked&&!enforcement&&!skipped&&!showing?
         "response-only":"combined";
        assert.ok(result&&result.score>=0&&result.score<=1);
        assert.equal(result.recommendation,expected,
-        JSON.stringify({faults,blocked,err,buffering,enforcement,skipped}));
+        JSON.stringify({faults,blocked,err,buffering,enforcement,skipped,showing}));
        total++;correct++;
       }
- assert.equal(total,128);
- assert.equal(correct,128);
- assert.equal(M.FEATURES.length,6);
- assert.equal(M.WEIGHTS.length,6);
- assert.equal(M.VERSION,"micrograd-synthetic-v1");
+ assert.equal(total,256);
+ assert.equal(correct,256);
+ assert.equal(M.FEATURES.length,7);
+ assert.equal(M.WEIGHTS.length,7);
+ assert.equal(M.VERSION,"offline-synthetic-v2");
 });
-test("Build 186 untrusted or malformed model inputs fail closed",()=>{
+test("Build 231 untrusted or malformed model inputs fail closed",()=>{
  assert.equal(M.predict(null),null);
  assert.equal(M.predict({faultCount:NaN}),null);
+ assert.equal(M.predict({faultCount:2,blockedMediaEvidence:true,sawMediaError:true,
+  sawBuffering:true,sawEnforcement:false,sawAdSkip:false}),null,
+  "missing seventh feature must fail closed");
  assert.equal(M.predict({faultCount:9}),null);
  assert.equal(M.predict({faultCount:2,blockedMediaEvidence:"yes",
-  sawMediaError:true,sawBuffering:true,sawEnforcement:false,sawAdSkip:false}),null);
+  sawMediaError:true,sawBuffering:true,sawEnforcement:false,sawAdSkip:false,sawAdShowing:false}),null);
  const valid={faultCount:2,blockedMediaEvidence:true,
-  sawMediaError:true,sawBuffering:true,sawEnforcement:false,sawAdSkip:false};
+  sawMediaError:true,sawBuffering:true,sawEnforcement:false,sawAdSkip:false,sawAdShowing:false};
  const result=M.predict(valid);
  assert.equal(result.recommendation,"response-only");
  assert.ok(result.score>M.THRESHOLD);
+ assert.equal(M.predict({...valid,sawAdShowing:true}).recommendation,"combined",
+  "verified on-page ad state vetoes changing defenses");
  assert.equal(JSON.stringify(result).includes("http"),false);
  assert.equal(Object.isFrozen(result),true);
 });

@@ -64,7 +64,8 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
   const prediction=Model?.predict?.({
    faultCount:Math.min(x.count,3),blockedMediaEvidence:x.nearby,
    sawMediaError:x.sawMediaError,sawBuffering:x.sawBuffering,
-   sawEnforcement:x.sawEnforcement,sawAdSkip:x.sawAdSkip
+   sawEnforcement:x.sawEnforcement,sawAdSkip:x.sawAdSkip,
+   sawAdShowing:x.sawAdShowing
   });
   // Safety gate is always authoritative; model can only veto a fallback,
   // never grant permission to bypass network filtering or download scripts.

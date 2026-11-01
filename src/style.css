@@ -156,3 +156,11 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
 /* Build 224: accessible source link in existing popup footer, without moving controls. */
 .popup footer .repo-link{color:#baf9e5;text-decoration:underline}
 .popup footer .repo-link:focus-visible{outline:3px solid #baf9e5;outline-offset:3px}
+
+/* Build 231: two equal-size, right-aligned request-inspection buttons.
+   Keep the approved 340px popup and metric/row geometry untouched. */
+.popup #viewBlocked,.popup #viewAllowed{
+ box-sizing:border-box;width:101px;min-width:101px;height:34px;
+ flex:0 0 101px;padding:7px 8px;font-size:12px;
+ line-height:20px;white-space:nowrap;text-align:center;
+}

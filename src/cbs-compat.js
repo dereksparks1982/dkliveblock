@@ -4,7 +4,15 @@ function isCBS(site){return typeof site==="string"&&(site==="cbsnews.com"||site.
 function playerConfig(request,site){
  if(!isCBS(site)||!request||!["script","xmlhttprequest"].includes(request.type))return false;
  try{const url=new URL(request.url);
-  return url.protocol==="https:"&&!url.username&&!url.password&&url.hostname==="doppler-config.cbsivideo.com";
+  if(url.protocol!=="https:"||url.username||url.password||url.port) return false;
+  // uBlock Origin's CBS News unbreak rules identify these exact playback
+  // bootstrap files. Keep unrelated Tealium and advertising requests blocked.
+  if(url.hostname==="tealium.cbsnews.com")
+   return request.type==="script"&&url.pathname==="/site/prod/utag.js";
+  if(url.hostname==="imasdk.googleapis.com")
+   return request.type==="script"&&
+    ["/js/sdkloader/ima3_dai.js","/js/sdkloader/ima3_dai_debug.js"].includes(url.pathname);
+  return url.hostname==="doppler-config.cbsivideo.com";
  }catch(_){return false;}
 }
 function autoplayProtection(page){

@@ -44,12 +44,13 @@ const NON_AD_SKIP=/^\s*(?:skip\s+(?:intro|recap|opening|credits|preview|tutorial
 const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display|\.ytp-ad-skip-button(?:-modern|-slot|-container)?|\.ytp-skip-ad-button)(?=$|[,\s>+~[:.)])/i;
 const streamingDomains=["youtube.com","youtube-nocookie.com","youtu.be","disneyplus.com"];
 // These are identifiable CBS player containers, not the generic "ad" boxes.
-const CBS_PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video\b|\.jwplayer\b|\.video-js\b|\.video-player\b|\.video-container\b|\.video-embed\b|\.cbs-video\b|#video-player\b|#video-container\b)/i;
+const CBS_PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video\b|\.jwplayer\b|\.video-js\b|\.video-player\b|\.video-container\b|\.video-embed\b|\.cbs-video\b|\.jw-wrapper\b|\.jw-media\b|\.jw-display\b|\.jw-controls\b|\.jw-icon-playback\b|\.vjs-big-play-button\b|#video-player\b|#video-container\b)/i;
 function hostnameMatches(host,base){return host===base||host.endsWith("."+base);}
 function isStreamingHost(host){return typeof host==="string"&&streamingDomains.some(base=>hostnameMatches(host.toLowerCase(),base));}
 function protectSelector(selector){return typeof selector==="string"&&PLAYER_GUARD.test(selector);}
 function isCBSHost(h){return typeof h==="string"&&(h==="cbsnews.com"||h.endsWith(".cbsnews.com"));}
-function protectCBSSelector(selector,h){return isCBSHost(h)&&typeof selector==="string"&&CBS_PLAYER_GUARD.test(selector);}
+function protectCBSSelector(selector,h){return (isCBSHost(h)||typeof h==="string"&&
+ (h==="cbsivideo.com"||h.endsWith(".cbsivideo.com")))&&typeof selector==="string"&&CBS_PLAYER_GUARD.test(selector);}
 function mediaRecoveryAllowed(pageHost,resourceType,siteAllowances){
  return resourceType==="media"&&isStreamingHost(pageHost)&&
   Array.isArray(siteAllowances)&&siteAllowances.includes(pageHost);
@@ -57,7 +58,7 @@ function mediaRecoveryAllowed(pageHost,resourceType,siteAllowances){
 function safeCosmetics(selectors,host){
  if(!Array.isArray(selectors))return [];
  return isStreamingHost(host)?selectors.filter(x=>!protectSelector(x)):
-  isCBSHost(host)?selectors.filter(x=>!protectSelector(x)&&!protectCBSSelector(x,host)):selectors;
+  (isCBSHost(host)||typeof host==="string"&&(host==="cbsivideo.com"||host.endsWith(".cbsivideo.com")))?selectors.filter(x=>!protectSelector(x)&&!protectCBSSelector(x,host)):selectors;
 }
 function playerElement(element){
  if(!element)return false;

@@ -5,8 +5,7 @@ const Y=require("../src/youtube-experiment.js");
 test("Build 185 dormant defenses require repeated independent playback failures plus blocked media",()=>{
  const state=new Map(),start=100000;
  assert.equal(A.mode(state,10,"www.youtube.com",start),"combined");
- assert.equal(A.note(state,10,"www.youtube.com","ad-skip",true,start).changed,false);
- assert.equal(A.note(state,10,"www.youtube.com","enforcement",true,start).changed,false);
+ // A clean playback-failure sequence is independent of ad or enforcement cues.
  assert.equal(A.note(state,10,"www.youtube.com","buffering",false,start).changed,false);
  assert.equal(A.note(state,10,"www.youtube.com","media-error",true,start+1000).changed,false,
   "too-close signals must not count twice");

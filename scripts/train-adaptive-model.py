@@ -1,58 +1,50 @@
-"""Offline, deterministic training of a six-feature classifier with MIT micrograd.
+"""Reproducible offline seven-feature linear model training.
 
-No user browsing data, Internet, npm, or runtime browser Python. When retrained,
-commit the reviewed weights to src/adaptive-model.js and update validation.
+Uses an explicit analytic gradient of the same squared-hinge single-neuron
+objective prototyped with vendored MIT micrograd. Python standard library only.
+Training fixtures are synthetic: no visits, video IDs or personal data.
 """
 import itertools
 import json
 import random
-import sys
-from pathlib import Path
 
-ROOT = Path(__file__).resolve().parent
-sys.path.insert(0, str(ROOT / "vendor" / "micrograd"))
-from micrograd.nn import MLP
-
-random.seed(186)
-model = MLP(6, [1])
-samples = []
-for faults, nearby, error, buffering, enforcement, ad_skip in itertools.product(
-    range(4), range(2), range(2), range(2), range(2), range(2)
+random.seed(231)
+features = [
+ "faultCountNormalized", "blockedMediaEvidence", "sawMediaError", "sawBuffering",
+ "sawEnforcement", "sawAdSkip", "sawAdShowing"
+]
+rows=[]
+for faults, nearby, error, buffering, enforcement, ad_skip, ad_showing in itertools.product(
+ range(4), range(2), range(2), range(2), range(2), range(2), range(2)
 ):
-    x = (faults / 3.0, nearby, error, buffering, enforcement, ad_skip)
-    good = faults >= 2 and nearby and not enforcement and not ad_skip
-    samples.append((x, 1.0 if good else -1.0))
-
-for epoch in range(1500):
-    model.zero_grad()
-    loss = 0
-    for x, label in samples:
-        margin = (1.0 - label * model(x)).relu()
-        loss = loss + margin**2 * (4.0 if label > 0 else 1.0)
-    loss = loss / len(samples)
-    loss.backward()
-    learning_rate = 0.12 * (1.0 - epoch / 2200.0)
-    for p in model.parameters():
-        p.data -= learning_rate * p.grad
-
-neuron = model.layers[0].neurons[0]
-weights = [round(w.data, 8) for w in neuron.w]
-bias = round(neuron.b.data, 8)
-
-def logit(x):
-    return sum(a * b for a, b in zip(weights, x)) + bias
-
-correct = sum((logit(x) > 0) == (label > 0) for x, label in samples)
-output = {
-    "model": "micrograd-synthetic-v1",
-    "features": [
-        "faultCountNormalized", "blockedMediaEvidence", "sawMediaError",
-        "sawBuffering", "sawEnforcement", "sawAdSkip"
-    ],
-    "weights": weights, "bias": bias,
-    "syntheticFixtures": len(samples), "syntheticCorrect": correct,
-    "limitations": "Synthetic fixtures only. No real YouTube outcomes were used."
-}
-print(json.dumps(output, indent=2))
-if correct != len(samples):
-    raise SystemExit("Rejected: synthetic model failed a training fixture.")
+ x=(faults/3,nearby,error,buffering,enforcement,ad_skip,ad_showing)
+ allow=faults>=2 and nearby and not enforcement and not ad_skip and not ad_showing
+ rows.append((x,1 if allow else -1))
+weights=[random.uniform(-0.4,0.4) for _ in features]
+bias=0.0
+for epoch in range(1600):
+ dw=[0.0]*len(features)
+ db=0.0
+ for x,y in rows:
+  activation=sum(w*v for w,v in zip(weights,x))+bias
+  margin=max(0.,1-y*activation)
+  if not margin:continue
+  gradient=-2*y*margin*(4.0 if y>0 else 1.0)/len(rows)
+  db+=gradient
+  for i,v in enumerate(x):dw[i]+=gradient*v
+  # Same annealing as the micrograd prototype, without constructing 256k graphs.
+ rate=0.14*(1-epoch/2200)
+ weights=[w-rate*g for w,g in zip(weights,dw)]
+ bias-=rate*db
+weights=[round(w,8) for w in weights]
+bias=round(bias,8)
+def score(x):
+ logit=sum(w*v for w,v in zip(weights,x))+bias
+ return 1/(1+__import__('math').exp(-logit))
+# Model threshold is 0.60; validate that decision, not an unrelated >0 logit.
+correct=sum((score(x)>=0.60)==(y>0) for x,y in rows)
+print(json.dumps({"model":"offline-synthetic-v2","features":features,
+ "weights":weights,"bias":bias,"threshold":0.60,
+ "syntheticFixtures":len(rows),"syntheticCorrect":correct,
+ "limitations":"Synthetic fixtures only. No real-world accuracy or calibration claim."},indent=2))
+if correct!=len(rows):raise SystemExit("Rejected: training model did not classify all synthetic fixtures.")

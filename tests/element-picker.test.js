@@ -19,5 +19,5 @@ test("Build 229: Undo affects current page only; reload restores",()=>{
  assert.match(popup,/action:"undoTemporaryHide"/);
  assert.doesNotMatch(popup,/action:"undoElementRule"/);
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
- assert.equal(manifest.version,"0.3.199");
+ assert.equal(manifest.version,require("../package.json").version);
 });
