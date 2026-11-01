@@ -3,6 +3,7 @@
 (function(root){"use strict";
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
+const Outcome=root.DKYouTubeOutcome||typeof require==="function"&&require("./youtube-outcome.js");
 const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
@@ -50,7 +51,7 @@ function build(s,now=Date.now()){
   temporaryPause:s.temporarilyPaused===true,requestLogEnabled:s.requestLog===true,
   filterBackend:typeof s.filterBackend==="string"?s.filterBackend.slice(0,60):"Unknown",
   blockedCount:number(s.blocked),permittedCount:number(s.allowedRequests),
-  responseFiltering:responses,playback,
+  responseFiltering:responses,playback,playbackAssessment:Outcome.summarize(s),
   networkEvidence:Triage.summarize(s),blocked,permitted,
   limitations:"Counts show local observations, not proof of ad-free playback. An ad-skip event records a button click, not confirmed ad removal. An ad-showing event is a player-state indicator, not independently confirmed ad playback. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
 }
@@ -76,7 +77,8 @@ function asText(report){
   lines.push(x.phase+": "+x.state+" / ad structures "+x.adFields+
    " / refused "+x.refused+" / initial feed data "+x.initialData);
  if(!report.responseFiltering.bootstrap?.length)lines.push("No bootstrap observations recorded.");
- lines.push("","PLAYBACK HEALTH");
+ lines.push("","PLAYBACK HEALTH","Evidence classification: "+report.playbackAssessment.category,
+  "Confirmed ad-free playback: no (not established by local diagnostics)");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
  if(!report.playback.length)lines.push("No player health observations.");
  else if(report.playback.some(x=>x.kind==="ad-showing"))

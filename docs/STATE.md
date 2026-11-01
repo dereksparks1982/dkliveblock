@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 189 / 0.3.159 (2026-11-01), unreleased.**
+**Source snapshot: Build 190 / 0.3.160 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -85,3 +85,6 @@ The offline hybrid/native/Ghostery audit now recognizes vetted packaged inert re
 
 ## Build 189: add privacy-safe YouTube outcome classification
 Added bounded outcome classification covering enforcement, playback faults, player ad states, Skip Ad actions and JSON metadata changes without ever claiming confirmed ad-free playback. Full Ubuntu test suite and live Firefox/YouTube acceptance remain unverified.
+
+## Build 190: include conservative outcome assessment in YouTube exports
+The voluntary TXT/JSON YouTube report now includes explicit evidence category, bounded counts and a false-success disclaimer; the script is bundled locally in the Site Dashboard. Full Ubuntu test suite and live Firefox/YouTube acceptance remain unverified.

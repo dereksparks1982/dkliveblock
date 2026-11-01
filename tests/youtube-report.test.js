@@ -149,3 +149,15 @@ test("Build 187 export labels observed ad-showing separately from blocked ads",(
  assert.match(dump,/ad-showing means YouTube marked/);
  assert.doesNotMatch(dump,/PRIVATE_TITLE|watch\?v=PRIVATE/);
 });
+
+test("Build 190 report explicitly classifies observed ad state without claiming ad blocking",()=>{
+ const s={ok:true,site:"www.youtube.com",tabId:190,youtubeResponse:{modified:2},
+  playbackDiagnostics:[{kind:"ad-showing",watchUrl:"PRIVATE_URL"}]};
+ const r=Report.build(s),text=Report.asText(r);
+ assert.equal(r.playbackAssessment.category,"player-ad-state-observed");
+ assert.equal(r.playbackAssessment.verifiedAdFree,false);
+ assert.match(text,/Evidence classification: player-ad-state-observed/);
+ assert.doesNotMatch(JSON.stringify(r)+text,/PRIVATE_URL/);
+ const html=fs.readFileSync(path.join(__dirname,"../src/site-dashboard.html"),"utf8");
+ assert.ok(html.indexOf('src="youtube-outcome.js"')<html.indexOf('src="youtube-report.js"'));
+});

@@ -724,3 +724,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 189: add privacy-safe YouTube outcome classification. Added bounded outcome classification covering enforcement, playback faults, player ad states, Skip Ad actions and JSON metadata changes without ever claiming confirmed ad-free playback.
 - [ ] Build 189 acceptance: full seven-phase Linux suite, real Firefox behavior, privacy and playback regression evidence.
+
+- [x] Build 190: include conservative outcome assessment in YouTube exports. The voluntary TXT/JSON YouTube report now includes explicit evidence category, bounded counts and a false-success disclaimer; the script is bundled locally in the Site Dashboard.
+- [ ] Build 190 acceptance: full seven-phase Linux suite, real Firefox behavior, privacy and playback regression evidence.
