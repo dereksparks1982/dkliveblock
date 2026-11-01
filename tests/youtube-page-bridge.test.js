@@ -22,7 +22,10 @@ function context(){
  const window={fetch:originalFetch,XMLHttpRequest:XHR};
  window.top=window;
  const location={hostname:"www.youtube.com",href:"https://www.youtube.com/watch?v=private"};
- const context=vm.createContext({window,document,location,URL,Promise,WeakMap,Object,Array,JSON,String,
+ // Isolate MAIN-world JSON from Node's process-global JSON. The scriptlet
+ // wraps only this simulated website's parser, never the test runner's.
+ const pageJSON={parse:JSON.parse,stringify:JSON.stringify};
+ const context=vm.createContext({window,document,location,URL,Promise,WeakMap,Object,Array,JSON:pageJSON,String,
   CustomEvent:class{constructor(type,opts){this.type=type;this.detail=opts.detail;}},
   setTimeout(fn,ms){timers.push({fn,ms});return timers.length;}
  });
@@ -30,6 +33,9 @@ function context(){
  vm.runInContext(feed,context,{filename:"youtube-feed.js"});
  vm.runInContext(source,context,{filename:"youtube-page-bridge.js"});
  return {window,document,requests,originalFetch,emitted,timers,
+  parseJSON:(input,reviver)=>pageJSON.parse(input,reviver),
+  originalJSONParse:pageJSON.parse,
+  scriptJSON:pageJSON,
   send:flag=>listeners[EVENT]({detail:flag}),
   navigate:()=>listeners["yt-navigate-finish"]?.()};
 }
@@ -548,4 +554,64 @@ test("Build 176 refuses to edit late player refusal or accessor properties",()=>
  p.navigate();
  for(const task of p.timers)task.fn();
  assert.equal(accesses,0);
+});
+
+test("Build 177 first-party scriptlet prunes player data parsed by page JSON.parse",()=>{
+ const p=context();
+ const blob=JSON.stringify({playabilityStatus:{status:"OK"},
+  streamingData:{formats:[{url:"SIGNED_MEDIA_URL"}]},videoDetails:{title:"PRIVATE_TITLE"},
+  adPlacements:[{id:"ad"}],adSlots:[{}],playerAds:[{}]});
+ assert.equal(p.parseJSON(blob).adSlots.length,1,"inactive bridge is read-only");
+ p.send("enable");
+ assert.notEqual(p.scriptJSON.parse,p.originalJSONParse);
+ const parsed=p.parseJSON(blob);
+ for(const k of ["adPlacements","adSlots","playerAds"])
+  assert.equal(Object.hasOwn(parsed,k),false,k);
+ assert.equal(parsed.streamingData.formats[0].url,"SIGNED_MEDIA_URL");
+ assert.equal(parsed.videoDetails.title,"PRIVATE_TITLE");
+ assert.equal(p.parseJSON('{"other":true,"adSlots":[{}]}').adSlots.length,1);
+});
+test("Build 177 parsed JSON refuses to alter login/error or unrelated content",()=>{
+ const p=context();p.send("enable");
+ const login=JSON.stringify({playabilityStatus:{status:"LOGIN_REQUIRED"},
+  streamingData:{formats:[1]},adSlots:[{}]});
+ assert.equal(p.parseJSON(login).adSlots.length,1);
+ const error=JSON.stringify({error:{code:403},videoDetails:{title:"private"},adSlots:[{}]});
+ assert.equal(p.parseJSON(error).adSlots.length,1);
+ const partial=JSON.stringify({adSlots:[{}],other:"ordinary-app-data"});
+ assert.equal(p.parseJSON(partial).adSlots.length,1);
+ assert.throws(()=>p.parseJSON("{broken"),SyntaxError);
+});
+test("Build 177 parser hook respects JSON.parse reviver and read-only compare mode",()=>{
+ const p=context(),before=p.originalJSONParse;
+ const src=JSON.stringify({videoDetails:{title:"PRIVATE"},streamingData:{formats:[1]},
+  adSlots:[{}]});
+ p.send("observe");
+ assert.equal(p.scriptJSON.parse,before);
+ assert.equal(p.parseJSON(src).adSlots.length,1);
+ p.send("enable");
+ const revived=p.parseJSON(src,(name,value)=>name==="adSlots"?"user-revived-value":value);
+ assert.equal(revived.adSlots,"user-revived-value","reviver must run first");
+ p.send("disable");
+ assert.equal(p.scriptJSON.parse,before);
+ assert.equal(p.parseJSON(src).adSlots.length,1);
+});
+test("Build 177 disable never overwrites another later parser hook",()=>{
+ const p=context();p.send("enable");
+ const external=function(...args){return p.originalJSONParse(...args);};
+ p.scriptJSON.parse=external;
+ p.send("disable");
+ assert.equal(p.scriptJSON.parse,external);
+});
+
+test("Build 177 parser hook and existing fetch response helpers remain independent",async()=>{
+ const p=context();p.send("enable");
+ const before=p.originalJSONParse;
+ const response=await p.window.fetch("https://www.youtube.com/youtubei/v1/player",{method:"POST"});
+ assert.equal(JSON.parse(await response.text()).adPlacements,undefined,
+  "text() must use the saved native parser, not re-enter the global scriptlet");
+ const parsed=await response.json();
+ assert.equal(parsed.adSlots,undefined);
+ p.send("disable");
+ assert.equal(p.scriptJSON.parse,before);
 });

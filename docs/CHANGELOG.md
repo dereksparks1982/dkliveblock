@@ -791,3 +791,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Keep temporary observe mode read-only, disable any outstanding late cleanup when disabled, and refuse to edit login/refusal, signed stream data or accessor-only properties.
 - Add sanitized optional late player-metadata-cleanup boolean to YouTube and blocked-request exports; this distinguishes observed late cleanup from merely having zero fields.
 - Added targeted bridge/response/report regression fixtures. Synthetic module checks passed; full Ubuntu suite and real Firefox preroll/midroll/anti-adblock tests remain outstanding. No verified ad-free claim.
+
+### 0.3.147 / Build 177 (2026-10-31)
+- Inspected uBlock Origin's GPLv3 source architecture (hostname-specific scriptlets, JSON parser interception and network rules). No uBlock source code was copied.
+- DK's own YouTube main-world bridge now intercepts eligible page JSON.parse player objects and removes known ad metadata that can bypass existing first-party response/bootstrap handlers.
+- The wrapper is enabled only in the active YouTube bridge, checks known player/ad fields with size bounds, preserves native JSON revivers, playback refusals, streaming URLs and unrelated page data, and restores the original parser when disabled or in observe mode.
+- Existing response.text()/response.json() paths use an internal saved parser to avoid re-entrancy. Added focused regressions and synthetic harness checks; actual normal-video ad removal and full Linux suite remain unverified.

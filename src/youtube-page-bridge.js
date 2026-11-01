@@ -9,6 +9,11 @@ if(g!==g.top||!/(^|\.)youtube\.com$/.test(location.hostname)&&
  !/(^|\.)youtube-nocookie\.com$/.test(location.hostname))return;
 let enabled=false,wrappedFetch=null,oldFetch=null,oldOpen=null,oldSend=null,wrappedOpen=null,wrappedSend=null;
 let oldResponse=null,oldText=null,wrappedResponse=null,wrappedText=null;
+let oldJSONParse=null,wrappedJSONParse=null;
+// All our internal JSON handling calls this saved parser, never the scriptlet.
+// That avoids self-interception and preserves rewrite(text) semantics.
+const originalJSONParse=JSON.parse;
+function parseInternal(text){return originalJSONParse(text);}
 const pending=new WeakMap(),cache=new WeakMap(),decorated=new WeakSet();
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function ownData(x,key){
@@ -76,7 +81,7 @@ function prune(x,url=""){
   const desc=Object.getOwnPropertyDescriptor(prefetch,"playerResponse");
   if(!desc||!Object.prototype.hasOwnProperty.call(desc,"value")||!desc.writable)
    return false;
-  let parsed;try{parsed=JSON.parse(player);}catch(_){return false;}
+  let parsed;try{parsed=parseInternal(player);}catch(_){return false;}
   if(!plain(parsed)||denied(parsed)||!safeToPrune(parsed))return false;
   const count=pruneObject(parsed);
   if(!count)return false;
@@ -93,7 +98,7 @@ function prune(x,url=""){
  let parsedChild=null;
  if(typeof nested==="string"){
   if(nested.length>MAX/2)return false;
-  try{parsedChild=JSON.parse(nested);}catch(_){return false;}
+  try{parsedChild=parseInternal(nested);}catch(_){return false;}
   if(!plain(parsedChild)||denied(parsedChild))return false;
   const desc=Object.getOwnPropertyDescriptor(x,"playerResponse");
   if(desc&&!desc.writable)return false;
@@ -111,7 +116,7 @@ function rewrite(text,url=""){
   return DKYouTubeFeed.rewrite(url,text).text;
  if(typeof text!=="string"||text.length>MAX||text.length<2)return text;
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
- let obj;try{obj=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return text;}
+ let obj;try{obj=parseInternal(prefix?text.slice(prefix.length):text);}catch(_){return text;}
  try{return prune(obj,url)?prefix+JSON.stringify(obj):text;}
  catch(_){return text;}
 }
@@ -211,6 +216,36 @@ function pruneExistingBootstrap(observe=true){
  if(observe)reportBootstrap("post-enable");
  return playerMetadataCleaned;
 }
+
+// Inspired by uBlock Origin's *architecture* (site-scoped, exception-aware
+// scriptlet injection), independently implemented here. This narrowly guards
+// first-party player JSON parsed by YouTube, not arbitrary page data, ad rules,
+// cookies, media streams or remote scripts. Only enabled bridge modes install it.
+function playerJSONCandidate(raw){
+ if(typeof raw!=="string"||raw.length<16||raw.length>MAX)return false;
+ if(raw.indexOf('"adPlacements"')<0&&raw.indexOf('"adSlots"')<0&&
+    raw.indexOf('"playerAds"')<0)return false;
+ return raw.indexOf('"streamingData"')>=0||raw.indexOf('"videoDetails"')>=0||
+  raw.indexOf('"playerResponse"')>=0;
+}
+function enablePlayerJSONScriptlet(){
+ if(wrappedJSONParse||typeof JSON.parse!=="function")return;
+ oldJSONParse=JSON.parse;
+ wrappedJSONParse=function(...args){
+  const data=Reflect.apply(oldJSONParse,this,args);
+  if(enabled&&playerJSONCandidate(args[0])){
+   try{prune(data);}catch(_){/* Never break native JSON.parse behavior. */}
+  }
+  return data;
+ };
+ try{JSON.parse=wrappedJSONParse;}
+ catch(_){wrappedJSONParse=null;oldJSONParse=null;}
+}
+function disablePlayerJSONScriptlet(){
+ if(wrappedJSONParse&&JSON.parse===wrappedJSONParse)
+  try{JSON.parse=oldJSONParse;}catch(_){}
+ wrappedJSONParse=null;oldJSONParse=null;
+}
 function enable(){
  if(observationOnly){observationOnly=false;sampleGeneration++;}
  if(enabled){
@@ -220,6 +255,7 @@ function enable(){
   return;
  }
  enabled=true;
+ enablePlayerJSONScriptlet();
  pruneExistingBootstrap();
  scheduleBootstrapSamples();
  if(typeof g.fetch==="function"){
@@ -292,6 +328,7 @@ function disable(){
  const wasEnabled=enabled;
  enabled=false;observationOnly=false;sampleGeneration++;
  if(!wasEnabled)return;
+ disablePlayerJSONScriptlet();
  if(wrappedFetch&&g.fetch===wrappedFetch)
   try{g.fetch=oldFetch;}catch(_){}
  const proto=g.XMLHttpRequest?.prototype;

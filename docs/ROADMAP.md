@@ -673,3 +673,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 176: bounded late initial-player bootstrap cleanup for 1s/3s plus yt-navigate-finish SPA navigation; preserve observe-only, disable, refusal, stream and UI behavior; export sanitized boolean indicating actual late metadata cleanup.
 - [ ] Build 176 acceptance: run all seven Ubuntu test phases and test an ordinary YouTube video through actual preroll/midroll vs Shutter Island in clean Firefox, including observe/bridge/response comparison; record voluntary sanitized exports.
 - [ ] Build 177: act on specific Firefox evidence to fix remaining regular-video ad playback or anti-adblock refusal, avoiding speculative blockers that could corrupt legitimate video streams.
+
+- [x] Build 177: inspect uBlock Origin actual GPLv3 scriptlet/JSON-prune implementation and independently add bounded first-party YouTube JSON.parse player-metadata interception without copying GPL sources or executing filter-list scripts.
+- [ ] Full local seven-phase Node/Python suite on exact Build 177 tree and real Firefox acceptance including ordinary videos, YouTube midrolls, ad-supported movies, observe/response-only/bridge-only modes and compatibility with other blockers disabled.
+- [ ] Build 178: investigate remaining YouTube anti-adblock / player API behavior from the new sanitized logs; fix only a demonstrated failure and keep the movie playback baseline.
