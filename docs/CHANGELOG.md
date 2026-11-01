@@ -1,3 +1,11 @@
+## Build 221 (0.3.191): fail-closed Ghostery reproducibility and authentic npm dependency locks, unreleased
+
+- Added a **read-only** `npm run verify:ghostery` mode that recompiles the pinned bundled engine entirely in memory, runs its original block/exception smoke checks, requires esbuild 0.25.12 and Ghostery 2.20.3, and compares rebuilt bytes with `src/ghostery-vendor.js`. A mismatch reports both SHA256 hashes, exits unsuccessfully and does not overwrite the accepted source.
+- The owner-authorized Firefox candidate builder now **requires exact-byte vendor reproduction** after offline regression and strict source preflight. An unverified bundle cannot be packaged even with an apparently complete package-lock file. Routine source development never triggers compilation, npm downloads or ZIP creation.
+- Source preflight now rejects absent, wrong-version, linked, unofficial-registry and hashless/malformed npm lock entries. It also checks the root package identity and fixes a previous README licensing-phrase mismatch that could block release incorrectly. The real `package-lock.json` is still **MISSING**, not fabricated.
+- Added four isolated Node compiler fixtures and Python tampering tests to the existing seven-phase Linux runner. Fixed literal escaped newlines in the public README. Firefox/product filtering, existing UI geometry, the Build 203 baseline and the owner's licensing restrictions were not changed.
+- **Unverified:** the complete Node/Python suite and live Firefox release matrix have not been run here; source-only commits are not public release approval. No GitHub Actions, new branch, output ZIP or silent vendor rewrite.
+
 ## Build 220 (0.3.190): explain every retained permitted request, unreleased
 
 - Fixed missing permit diagnostics: the background request decision path now captures whether each completed subresource was allowed due to site allowlisting, global off, tab pause, temporary streaming/media repair, authentication preservation, YouTube compatibility routing, explicit site/hostname/type user allowance, filter-list exception, or a normal no-block engine decision. Firefox completion supplies method, HTTP status and time; missing decisions remain clearly marked unknown.
