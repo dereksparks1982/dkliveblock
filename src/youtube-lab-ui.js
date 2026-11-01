@@ -107,6 +107,11 @@ function reset(){
 $("compareReports").addEventListener("click",doCompare);
 $("exportComparison").addEventListener("click",exportComparison);
 $("clearComparison").addEventListener("click",reset);
+// Manual observations can be corrected without reading the original files
+// again or keeping their untrusted contents in memory.
+for(const id of ["baselineVideoType","candidateVideoType",
+ "baselinePlayback","candidatePlayback","baselineAds","candidateAds"])
+ $(id).addEventListener("change",()=>{if(comparison)render(comparison);});
 for(const id of ["baselineFile","candidateFile"])
  $(id).addEventListener("change",()=>{comparison=null;projected=null;
   $("comparisonResult").hidden=true;$("exportComparison").disabled=true;
