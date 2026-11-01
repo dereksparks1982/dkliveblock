@@ -59,7 +59,7 @@ def issues(root: Path = ROOT) -> list[str]:
             problems.append("Custom owner license or third-party carve-out missing")
     if (root / "README.md").is_file():
         readme = (root / "README.md").read_text(encoding="utf-8")
-        if "Free to use, not to monetize" not in readme:
+        if "Not for sale or commercial exploitation" not in readme:
             problems.append("README must disclose owner licensing policy")
 
     # Reviewers need the exact transitive dependency tree for a repeatable bundle.
