@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 179 / 0.3.149 (2026-10-31), unreleased.**
+**Source snapshot: Build 180 / 0.3.150 (2026-10-31), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -9,13 +9,13 @@ This document describes verified repository state and missing acceptance evidenc
 - Build 161 corrected three identified test fixtures. Build 162 adds bounded synthetic native/Ghostery/hybrid verdict comparison, and registers the previously omitted runner self-test. No production blocking rule changes.
 
 ## Outstanding evidence / known risks
-- **Offline suite**: complete current Build 179 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
+- **Offline suite**: complete current Build 180 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
 - **Engine correctness**: Build 163 now consults Ghostery exceptions before enforcing ordinary native subscription blocks. Other precedence, unsupported syntax, important rules and real-browser compatibility remain unverified.
 - **YouTube**: Build 167 records coarse first-load bootstrap observations. Build 168 adds a temporary YouTube test switchboard that separates response filtering, page-bridge filtering and observe-only diagnostics, without changing the default combined behavior. Existing first-party JSON transformations, page bridge and Skip Ad assistant have not passed real Firefox anti-adblock, preroll, midroll, ad-supported film and ordinary-video playback acceptance. No evidence of reliable ad-free playback is claimed.
 - **Security and distribution**: complete permissions/privacy and Linux native-companion audit, long-session performance measurements, Mozilla signing and owner-approved release remain open.
 
 ## Next milestones and gates
-1. Run **all seven offline phases** at exact Build 179 HEAD, resolve any remaining failures, record evidence.
+1. Run **all seven offline phases** at exact Build 180 HEAD, resolve any remaining failures, record evidence.
 2. Build 162 differential observatory implemented; full Ubuntu execution remains pending.
 3. Build 163: exception-rescue and manual precedence changes landed; additional differential/browser verification needed.
 4. Instrument and test YouTube with a clean, controlled Firefox matrix, then implement fixes supported by observed results.
@@ -55,3 +55,6 @@ The hybrid engine now honors only two vetted Ghostery network redirect outputs t
 
 ## Build 179: safe style cosmetic syntax
 The native cosmetic parser now recognizes only the domain-scoped display-none-important subset of `:style()` with ordinary site exceptions. The local syntax inventory differentiates this supported subset from other unsupported extended cosmetics. The bundled YouTube compatibility list has 19 previously accepted ordinary cosmetic rules; no new YouTube ad-blocking result is implied. Full Linux suite and live Firefox test remain pending.
+
+## Build 180 YouTube assignment-time bridge
+The active main-world bridge now attempts a reversible, fail-open data-property interceptor for future `ytInitialPlayerResponse` assignments. Observe-only and disable remain non-mutating. Isolated V8 checks passed; real Firefox ad performance, anti-adblock effects and the complete Ubuntu suite remain unverified. No parity or release claim.

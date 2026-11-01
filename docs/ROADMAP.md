@@ -685,3 +685,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 179: add safe, domain-scoped hide-only `:style()` support, preserve `#@#` exceptions, `$elemhide` and streaming/identity protections; audit now counts `native_style_hide` separately. No arbitrary CSS or user code execution.
 - [ ] Build 179 acceptance: exact-commit full local Node/Python runner and real Firefox cosmetic/ad-video compatibility tests; download-free bundled YouTube filter contains no newly supported style rule, so no YouTube improvement has been demonstrated.
 - [ ] Build 180: measure actual hybrid subscription network compatibility (unsupported operator categories, exception and redirect-rule behavior) using real bundled Ghostery and safe synthetic fixtures; implement only a confirmed, scoped gap while protecting playback.
+
+- [x] Build 180: implement and separately test bounded first-party YouTube bootstrap-assignment interception, in addition to existing late retry and JSON.parse instrumentation; safe teardown and observation-only remain mandatory.
+- [ ] Run complete Linux test gate and controlled real Firefox matrix on exact Build 180 source, including uBO disabled, normal preroll/midroll and movie playback. Diagnose any anti-adblock refusals before shipping.
+- [ ] Build 181: strengthen native/Ghostery rule and exception reconciliation; log meaningful match evidence without leaking private URLs.

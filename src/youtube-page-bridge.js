@@ -9,7 +9,7 @@ if(g!==g.top||!/(^|\.)youtube\.com$/.test(location.hostname)&&
  !/(^|\.)youtube-nocookie\.com$/.test(location.hostname))return;
 let enabled=false,wrappedFetch=null,oldFetch=null,oldOpen=null,oldSend=null,wrappedOpen=null,wrappedSend=null;
 let oldResponse=null,oldText=null,wrappedResponse=null,wrappedText=null;
-let oldJSONParse=null,wrappedJSONParse=null;
+let oldJSONParse=null,wrappedJSONParse=null,bootstrapHook=null;
 // All our internal JSON handling calls this saved parser, never the scriptlet.
 // That avoids self-interception and preserves rewrite(text) semantics.
 const originalJSONParse=JSON.parse;
@@ -160,11 +160,65 @@ function decorate(response,requestURL=""){
  }catch(_){/* If a response is locked or non-extensible, leave it untouched. */}
  return response;
 }
+
+const BOOTSTRAP_KEY="ytInitialPlayerResponse";
+function bootstrapDescriptor(){
+ // Only read our own saved data value. Never invoke arbitrary page getters.
+ const d=Object.getOwnPropertyDescriptor(g,BOOTSTRAP_KEY);
+ if(bootstrapHook&&d?.get===bootstrapHook.getter&&
+    d?.set===bootstrapHook.setter)return {value:bootstrapHook.value};
+ return d;
+}
+function installBootstrapAssignmentHook(){
+ if(bootstrapHook)return;
+ let original;
+ try{original=Object.getOwnPropertyDescriptor(g,BOOTSTRAP_KEY);}
+ catch(_){return;}
+ // Existing accessors, locked properties, and read-only globals are sacrosanct.
+ if(original&&(!Object.prototype.hasOwnProperty.call(original,"value")||
+    !original.configurable||!original.writable))return;
+ const hook={original,assigned:false,value:original?.value};
+ hook.getter=function(){return hook.value;};
+ hook.setter=function(next){
+  hook.value=next;
+  hook.assigned=true;
+  if(!enabled||!plain(next))return;
+  try{
+   if(prune(next))reportBootstrap("assignment",true);
+  }catch(_){/* Assignments must never fail due to the blocker. */}
+ };
+ try{
+  Object.defineProperty(g,BOOTSTRAP_KEY,{
+   configurable:true,enumerable:original?.enumerable??true,
+   get:hook.getter,set:hook.setter
+  });
+  bootstrapHook=hook;
+ }catch(_){/* Non-extensible or hostile pages retain native behavior. */}
+}
+function restoreBootstrapAssignmentHook(){
+ const hook=bootstrapHook;
+ if(!hook)return;
+ bootstrapHook=null;
+ try{
+  const d=Object.getOwnPropertyDescriptor(g,BOOTSTRAP_KEY);
+  // Do not replace a newer accessor installed by the page itself.
+  if(d?.get!==hook.getter||d?.set!==hook.setter)return;
+  if(!hook.original&&!hook.assigned){
+   delete g[BOOTSTRAP_KEY];
+   return;
+  }
+  Object.defineProperty(g,BOOTSTRAP_KEY,{
+   configurable:hook.original?.configurable??true,
+   enumerable:hook.original?.enumerable??true,
+   writable:hook.original?.writable??true,value:hook.value
+  });
+ }catch(_){/* Never break disable or page execution. */}
+}
 // Passive, coarse diagnostics only. Never read accessors or export payload data.
 function reportBootstrap(phase,playerMetadataCleaned){
  if(typeof CustomEvent!=="function"||typeof document.dispatchEvent!=="function")return;
  try{
-  const d=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
+  const d=bootstrapDescriptor();
   const value=d&&Object.prototype.hasOwnProperty.call(d,"value")?d.value:null;
   const state=!d?"absent":!Object.prototype.hasOwnProperty.call(d,"value")?
    "accessor":plain(value)?"data":"other";
@@ -205,7 +259,7 @@ function pruneExistingBootstrap(observe=true){
  // navigation. Do not replace an accessor, intercept an assignment, or touch
  // unrelated initial page data.
  try{
-  const own=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
+  const own=bootstrapDescriptor();
   if(own&&Object.prototype.hasOwnProperty.call(own,"value")&&plain(own.value))
    playerMetadataCleaned=prune(own.value)===true;
   const initial=Object.getOwnPropertyDescriptor(g,"ytInitialData");
@@ -257,6 +311,7 @@ function enable(){
  enabled=true;
  enablePlayerJSONScriptlet();
  pruneExistingBootstrap();
+ installBootstrapAssignmentHook();
  scheduleBootstrapSamples();
  if(typeof g.fetch==="function"){
   oldFetch=g.fetch;
@@ -328,6 +383,7 @@ function disable(){
  const wasEnabled=enabled;
  enabled=false;observationOnly=false;sampleGeneration++;
  if(!wasEnabled)return;
+ restoreBootstrapAssignmentHook();
  disablePlayerJSONScriptlet();
  if(wrappedFetch&&g.fetch===wrappedFetch)
   try{g.fetch=oldFetch;}catch(_){}

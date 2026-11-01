@@ -809,3 +809,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - `filter-coverage-audit.js` now reports the verified subset separately as `native_style_hide`; other `:style()` forms continue as unsupported extended cosmetics.
 - Added rule parser, site-selector exception, unsafe selector and audit-category regression tests. Isolated JavaScript module checks passed.
 - The shipped YouTube data-only filter contained 19 already-supported ordinary cosmetic rules. No real EasyList/EasyPrivacy coverage percentage or video-ad improvement is claimed; full Linux and Firefox acceptance remain outstanding.
+
+### 0.3.150 / Build 180 (2026-11-01)
+- Add strictly optional, reversible YouTube bootstrap-assignment interception in active MAIN-world bridge mode. Removes only previously recognized player-ad fields on newly assigned eligible data; preserves media structures, refusals, read-only/hostile accessors and ordinary page ownership.
+- Preserve original data-property semantics on disable, do not clobber later page overrides, and keep observe-only read-only.
+- Add four targeted regression fixtures, adjust timing-sensitive tests to recognize the earlier assignment cleanup, and verify 11 isolated V8 scenarios. No live Firefox, full Linux gate or ad-free parity claim.

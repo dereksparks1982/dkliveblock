@@ -505,7 +505,10 @@ test("Build 176 late first-load player data is cleaned without touching video or
  assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
  assert.equal(p.window.ytInitialPlayerResponse.streamingData.formats[0].url,"SIGNED_STREAM_URL");
  assert.equal(p.window.ytInitialPlayerResponse.videoDetails.title,"PRIVATE_TITLE");
- const latest=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed").at(-1).detail;
+ const observations=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed");
+ const assignment=observations.find(x=>x.detail.phase==="assignment");
+ assert.equal(assignment?.detail.playerMetadataCleaned,true);
+ const latest=observations.at(-1).detail;
  assert.equal(latest.phase,"late-1s");
  assert.equal(latest.adFields,0);
  assert.equal(JSON.stringify(latest).includes("PRIVATE_TITLE"),false);
@@ -537,7 +540,10 @@ test("Build 176 observe mode and disabled bridge never alter late player data",(
  assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
  p.send("enable");
  p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined,
+  "active bridge may clean at assignment time");
  p.send("disable");
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
  for(const task of p.timers)task.fn();
  assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
 });
@@ -614,4 +620,64 @@ test("Build 177 parser hook and existing fetch response helpers remain independe
  assert.equal(parsed.adSlots,undefined);
  p.send("disable");
  assert.equal(p.scriptJSON.parse,before);
+});
+
+test("Build 180 first-party assignment hook cleans late video bootstrap immediately",()=>{
+ const p=context();
+ p.send("enable");
+ const player={playabilityStatus:{status:"OK"},
+  streamingData:{formats:[{url:"SIGNED"}]},videoDetails:{title:"PRIVATE"},
+  adPlacements:[{}],adSlots:[{}]};
+ p.window.ytInitialPlayerResponse=player;
+ assert.equal(player.adPlacements,undefined);
+ assert.equal(player.adSlots,undefined);
+ assert.equal(player.streamingData.formats[0].url,"SIGNED");
+ assert.equal(player.videoDetails.title,"PRIVATE");
+ const events=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed");
+ assert.equal(events.at(-1).detail.phase,"assignment");
+ assert.equal(events.at(-1).detail.playerMetadataCleaned,true);
+ assert.equal(JSON.stringify(events).includes("SIGNED"),false);
+ assert.equal(JSON.stringify(events).includes("PRIVATE"),false);
+});
+test("Build 180 opt-out restores absent property or last data value without accessor residue",()=>{
+ const p=context();
+ assert.equal(Object.hasOwn(p.window,"ytInitialPlayerResponse"),false);
+ p.send("enable");
+ assert.equal(typeof Object.getOwnPropertyDescriptor(p.window,"ytInitialPlayerResponse")?.set,"function");
+ p.send("disable");
+ assert.equal(Object.hasOwn(p.window,"ytInitialPlayerResponse"),false);
+ p.send("enable");
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
+ p.send("disable");
+ const desc=Object.getOwnPropertyDescriptor(p.window,"ytInitialPlayerResponse");
+ assert.ok(Object.hasOwn(desc,"value"));
+ assert.equal(desc.set,undefined);
+ assert.equal(desc.value.adSlots,undefined);
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+});
+test("Build 180 refuses locked/accessor bootstrap and never clobbers newer page property",()=>{
+ const p=context();let reads=0;
+ Object.defineProperty(p.window,"ytInitialPlayerResponse",{configurable:true,
+  get(){reads++;throw Error("Unexpected page getter");}});
+ p.send("enable");
+ assert.equal(reads,0);
+ p.send("disable");
+ assert.equal(typeof Object.getOwnPropertyDescriptor(p.window,"ytInitialPlayerResponse").get,"function");
+ assert.equal(reads,0);
+ const q=context();q.send("enable");
+ Object.defineProperty(q.window,"ytInitialPlayerResponse",{
+  configurable:true,writable:true,value:{streamingData:{formats:[1]},adSlots:[{}]}
+ });
+ q.send("disable");
+ assert.equal(q.window.ytInitialPlayerResponse.adSlots.length,1);
+});
+test("Build 180 read-only experiment leaves future bootstrap assignments untouched",()=>{
+ const p=context();p.send("observe");
+ assert.equal(Object.getOwnPropertyDescriptor(p.window,"ytInitialPlayerResponse"),undefined);
+ p.window.ytInitialPlayerResponse={
+  videoDetails:{title:"PRIVATE"},streamingData:{formats:[1]},adSlots:[{}]};
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ p.send("disable");
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
 });
