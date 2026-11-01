@@ -1,6 +1,6 @@
 # DK Live Block: Firefox Add-ons reviewer notes (draft)
 
-**Source version:** Build 220 / 0.3.190 (unreleased). **Submission status: BLOCKED until owner approves and the complete local and Firefox test gates pass.**
+**Source version:** Build 221 / 0.3.191 (unreleased). **Submission status: BLOCKED until owner approves and the complete local and Firefox test gates pass.**
 
 This document is for the **Firefox Add-ons human/automated review team** when the owner later submits a listing. Nothing in this document represents an approved or uploaded extension.
 
@@ -25,7 +25,7 @@ Any code/source archive attached for AMO review must contain **the full readable
 Once the repository contains a complete reviewed lockfile, the reviewer can use an exact accepted source tag and run from the source root:
 
 1. `npm ci --ignore-scripts` (if the required esbuild native package is unavailable with ignored scripts, use normal `npm ci` and document the environment). Use only official npm registry packages.
-2. `npm run build:ghostery` to regenerate the bundled engine.
+2. **`npm run verify:ghostery`** to rebuild in memory, perform bundle smoke checks and verify a byte-identical match with the committed `src/ghostery-vendor.js` **without changing it**. A hash mismatch fails. `npm run build:ghostery` is a separate, source-changing developer operation and must not be used to disguise a mismatch.
 3. `bash scripts/test-local.sh` for the local seven-phase test gate (Node and Python).
 4. Only after owner approval, `python3 scripts/package-firefox.py --candidate` for a reproducible unsigned browser ZIP. The package builder checks the full suite and source preflight first.
 
