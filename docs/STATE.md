@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 188 / 0.3.158 (2026-10-31), unreleased.**
+**Source snapshot: Build 189 / 0.3.159 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -82,3 +82,6 @@ Two supplied YouTube reports recorded 13 and 20 blocks (10 and 12 first-party Yo
 
 ## Build 188 parity-audit redirect classification
 The offline hybrid/native/Ghostery audit now recognizes vetted packaged inert redirects actually selected by DK instead of incorrectly calling all Ghostery redirect decisions unsupported. Thirteen synthetic fixtures pass on the real bundled engine. Production blocking is unchanged and full Ubuntu suite/Firefox ad verification remain pending.
+
+## Build 189: add privacy-safe YouTube outcome classification
+Added bounded outcome classification covering enforcement, playback faults, player ad states, Skip Ad actions and JSON metadata changes without ever claiming confirmed ad-free playback. Full Ubuntu test suite and live Firefox/YouTube acceptance remain unverified.
