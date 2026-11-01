@@ -144,3 +144,17 @@ test("verified YouTube top frame can report enforcement without a URL or login d
  assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"enforcement"},
   {...youtube,frameId:1})).ok,false);
 });
+
+test("Build 158 verified top-level YouTube tab reports Skip Ad click without private data",async()=>{
+ const {hooks}=await setup();
+ assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"ad-skip"},youtube)).ok,true);
+ const rows=await hooks.message({action:"getPlaybackHealth",tabId:1});
+ assert.equal(rows.length,1);
+ assert.equal(rows[0].kind,"ad-skip");
+ assert.equal(rows[0].blockedMediaNearby,false);
+ for(const sender of [{...youtube,frameId:1},disney])
+  assert.equal((await hooks.message({action:"reportPlaybackHealth",kind:"ad-skip"},sender)).ok,false);
+ const dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.playbackDiagnostics[0].kind,"ad-skip");
+ assert.doesNotMatch(JSON.stringify(dashboard.playbackDiagnostics),/test-video|private|watch\?|http/);
+});

@@ -131,3 +131,13 @@ test("records a bounded coarse enforcement event, never a fake playback success"
  assert.deepEqual(H.recent(map,15,"www.youtube.com",102000).map(x=>x.kind),["enforcement"]);
  assert.equal(H.record(map,15,"www.google.com","enforcement",false,105000),false);
 });
+
+test("Build 158 only YouTube stores a coarse, rate-limited Skip Ad click",()=>{
+ const H=require("../src/playback-health.js"),store=new Map();
+ assert.equal(H.record(store,158,"www.youtube.com","ad-skip",false,1000),true);
+ assert.equal(H.record(store,158,"www.youtube.com","ad-skip",false,2000),false);
+ assert.equal(H.record(store,158,"www.disneyplus.com","ad-skip",false,1000),false);
+ assert.equal(H.record(store,158,"youtube.com.evil.test","ad-skip",false,1000),false);
+ assert.deepEqual(H.recent(store,158,"www.youtube.com",3000),
+  [{kind:"ad-skip",when:1000,blockedMediaNearby:false}]);
+});

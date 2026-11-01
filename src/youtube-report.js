@@ -27,7 +27,7 @@ function build(s,now=Date.now()){
   manuallyBlocked:r.block===true
  }));
  const playback=(Array.isArray(s.playbackDiagnostics)?s.playbackDiagnostics:[])
-  .slice(0,30).filter(x=>["enforcement","buffering","media-error"].includes(x?.kind))
+  .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip"].includes(x?.kind))
   .map(x=>({kind:x.kind,blockedMediaNearby:x.blockedMediaNearby===true}));
  return {format:"DK Live Block YouTube compatibility report",schemaVersion:1,
   exportedAt:new Date(now).toISOString(),website:s.site,tabId:s.tabId,
@@ -37,7 +37,7 @@ function build(s,now=Date.now()){
   blockedCount:number(s.blocked),permittedCount:number(s.allowedRequests),
   responseFiltering:responses,playback,
   networkEvidence:Triage.summarize(s),blocked,permitted,
-  limitations:"Counts show local observations, not proof of ad-free playback. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
+  limitations:"Counts show local observations, not proof of ad-free playback. An ad-skip event records a button click, not confirmed ad removal. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
 }
 function asText(report){
  const lines=["DK LIVE BLOCK | YOUTUBE COMPATIBILITY", "Exported: "+report.exportedAt,

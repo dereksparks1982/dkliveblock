@@ -3,7 +3,7 @@
    response payloads, or automatic request allowances. */
 (function(root){"use strict";
 const BUFFER_MS=5000,REPORT_INTERVAL=20000,TTL_MS=30*60*1000,MAX=30;
-const KINDS=new Set(["buffering","media-error","enforcement"]);
+const KINDS=new Set(["buffering","media-error","enforcement","ad-skip"]);
 function isYouTube(host){
  return typeof host==="string"&&/^(?:(?:[a-z0-9-]+\.)*)(?:youtube\.com|youtube-nocookie\.com)$/.test(host);
 }
@@ -54,7 +54,8 @@ function createProbe(){
  return {scan,reset};
 }
 function record(store,tab,siteHost,kind,blockedMediaNearby=false,now=Date.now()){
- if(!Number.isInteger(tab)||tab<0||!supportsHost(siteHost)||!KINDS.has(kind)||!Number.isFinite(now))return false;
+ if(!Number.isInteger(tab)||tab<0||!supportsHost(siteHost)||!KINDS.has(kind)||
+    kind==="ad-skip"&&!isYouTube(siteHost)||!Number.isFinite(now))return false;
  const previous=store.get(tab);
  const s=previous?.siteHost===siteHost?previous:{siteHost,rows:[]};
  s.rows=s.rows.filter(row=>now-row.when>=0&&now-row.when<TTL_MS);

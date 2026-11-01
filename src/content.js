@@ -274,7 +274,10 @@
  }
  function skipVideo(){
   if(!active||!youtubeSkip||!isYouTube||picking)return;
-  videoController.scan(document);
+  const result=videoController.scan(document);
+  // A click is not an ad-blocking victory or guaranteed successful skip.
+  if(result.clicked&&playbackHealthEnabled&&window===window.top)
+   browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:"ad-skip"}).catch(()=>{});
  }
  function rejectCookies(){
   if(!active||!cookieReject||picking||document.fullscreenElement)return;

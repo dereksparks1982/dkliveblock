@@ -68,3 +68,16 @@ test("Build 155 exports refusal and prefetch counters without exporting playback
  for(const privateString of ["PRIVATE_ID","PRIVATE_TITLE","PRIVATE_REASON"])
   assert.equal((txt+serialized).includes(privateString),false);
 });
+
+test("Build 158 skip-button evidence is not falsely reported as a blocked ad",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:158,
+  youtubeResponse:{observed:1,modified:0},playbackDiagnostics:[
+   {kind:"ad-skip",when:1000,blockedMediaNearby:false,videoId:"PRIVATE_ID",title:"PRIVATE_TITLE"},
+   {kind:"enforcement",when:2000,reason:"PRIVATE_REASON"}]});
+ const txt=Report.asText(report),json=JSON.stringify(report);
+ assert.equal(report.playback[0].kind,"ad-skip");
+ assert.ok(txt.includes("ad-skip"));
+ assert.match(report.limitations,/button click, not confirmed ad removal/);
+ for(const secret of ["PRIVATE_ID","PRIVATE_TITLE","PRIVATE_REASON"])
+  assert.equal((txt+json).includes(secret),false);
+});

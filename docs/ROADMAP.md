@@ -599,3 +599,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 157: align the YouTube skip controller and watcher for explicit alternative/localized ad labels and title-only Skip Ad buttons, with strict player context and Skip Intro protection.
 - [ ] Real Firefox ads, anti-adblock refusal, full Ubuntu Node/Python suite, signed snapshot and owner acceptance outstanding.
+
+- [x] Build 158: report coarse opt-in YouTube ad-skip button clicks with strict first-party top-frame validation and distinguish them from successful ad blocking.
+- [ ] Full Ubuntu Node/Python testing, actual ad-free YouTube playback and Disney+ validation, resource baseline, security audit and accepted snapshot/tag remain open.

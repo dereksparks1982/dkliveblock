@@ -463,7 +463,7 @@ function display(d){
   " · "+Model.number(responses.errors)+" processing errors. "+
   "These counts are not evidence of ad-free playback.":"";
  const playback=Array.isArray(d.playbackDiagnostics)?d.playbackDiagnostics.filter(row=>
-  ["enforcement","buffering","media-error"].includes(row?.kind)).slice(0,30):[];
+  ["enforcement","buffering","media-error","ad-skip"].includes(row?.kind)).slice(0,30):[];
  $("dashboardPlaybackState").textContent=!d.requestLog?
   "Private request logging is OFF; playback diagnostics are unavailable.":
   playback.length?playback.length+" observed playback diagnostic event(s).":
@@ -471,7 +471,8 @@ function display(d){
  render("dashboardPlaybackEvents",playback,"No playback diagnostics recorded.",row=>
   line(time(row.when)+" · "+(row.kind==="enforcement"?
     "YouTube refused playback (anti-adblock enforcement)":
-    row.kind==="buffering"?"Player stalled / buffering":"Video media error")+
+    row.kind==="buffering"?"Player stalled / buffering":
+    row.kind==="ad-skip"?"DK clicked a visible Skip Ad button (not proof of ad removal)":"Video media error")+
     (row.blockedMediaNearby?" · blocked media request nearby":"")));
  $("dashboardFilterDetails").textContent=d.filterBackend+" · "+
   Model.number(d.networkRules).toLocaleString()+" network filters · "+
