@@ -84,3 +84,7 @@ The independent review of Build 158 reported three failed Node tests (690/693 pa
 ## Build 204 (0.3.174): observed-working baseline preserved; test pending
 
 Focused V8 smoke validations check new filter-subscription outage guard and manually-authored scriptlet exception handling; these are **not** substitutes for the seven-phase Ubuntu/Node suite or real browser video checks. Do not promote Build 204 over the preserved Build 203 YouTube baseline until tests confirm that ordinary video playback and ad blocking remain intact.
+
+## Build 205 (0.3.175): independent parser remediation, not yet accepted
+
+Run `bash scripts/test-local.sh` on Ubuntu against the exact version and collect TAP failures. Particularly check the 9 baseline tests reported by Claude, the signed-link privacy fixture, and the unsupported HTML/snippet classification. Differential-test newly active option-only and wildcard rules in the user's real enabled subscriptions against the frozen Build 203 tag. Check YouTube watch, prerolls/midrolls, movies, Shorts and sponsored sidebar comparisons in the same browser profile; no actual Firefox verification has yet been performed for this source.

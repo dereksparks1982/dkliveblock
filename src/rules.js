@@ -1,7 +1,8 @@
 /* DK Live Block: shared rule helpers. */
 (function(g){"use strict";
 const TYPE={main_frame:"document",sub_frame:"subdocument",xmlhttprequest:"xmlhttprequest",imageset:"image",beacon:"ping"};
-const ALIASES={xhr:"xmlhttprequest",css:"stylesheet",frame:"subdocument"};
+const ALIASES={xhr:"xmlhttprequest",css:"stylesheet",frame:"subdocument",
+ doc:"document",ghide:"generichide",ehide:"elemhide",popunder:"popup"};
 const RES=new Set(["script","image","stylesheet","media","font","object","xmlhttprequest","subdocument","document","ping","websocket","other","popup"]);
 const SUFFIX=new Set(["co.uk","org.uk","ac.uk","gov.uk","net.uk","me.uk","co.nz","org.nz","govt.nz","ac.nz","net.nz","com.au","net.au","org.au","edu.au","gov.au","asn.au","id.au","com.br","net.br","org.br","gov.br","co.jp","ne.jp","or.jp","ac.jp","go.jp","co.kr","ne.kr","or.kr","go.kr","ac.kr","co.in","net.in","org.in","firm.in","gen.in","ind.in","ac.in","gov.in","com.mx","org.mx","gob.mx","com.ar","net.ar","org.ar","gob.ar","com.tr","com.cn","net.cn","org.cn","gov.cn","com.tw","org.tw","gov.tw","com.hk","com.sg","com.my","com.ph","com.pk","co.id","co.th","co.za","co.ke","com.ng","com.gh","co.ug","co.tz","co.il","org.il","gov.il","ac.il","com.eg","com.sa","com.ua","com.ru","github.io","pages.dev","netlify.app","vercel.app","blogspot.com","appspot.com","herokuapp.com","workers.dev","web.app","firebaseapp.com","azurewebsites.net","cloudfront.net","s3.amazonaws.com"]);
 function host(url){try{return new URL(url).hostname.toLowerCase().replace(/\.$/,"");}catch(_){return "";}}
@@ -68,11 +69,16 @@ function regex(pattern,matchCase=false){
  try{return new RegExp(start+s+end,matchCase?"":"i");}catch(_){return null;}
 }
 function network(raw){
- let line=raw.trim();if(!line||/^[!\[#]/.test(line)||/##|#@#|#@\?#|#\?#|#\$#|#%#|#@\$#/.test(line))return null;
+ let line=raw.trim();if(!line||/^[!\[#]/.test(line)||/#[@$?%^]*[#^]/.test(line))return null;
  const exception=line.startsWith("@@");if(exception)line=line.slice(2);
  let p=line,opts=[],i=line.lastIndexOf("$");
- if(i>0&&/^[a-z0-9~-]+(?:[=,]|$)/i.test(line.slice(i+1))){p=line.slice(0,i);opts=line.slice(i+1).split(",");}
- if(!p||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
+ // "$script,domain=..." and "$removeparam=..." are option-only rules.
+ // Their implicit URL pattern is "*", not the literal option text.
+ // In particular, do not silently accept unknown option syntax as a rule.
+ if(i>=0&&/^[a-z0-9~-]+(?:[=,]|$)/i.test(line.slice(i+1))){
+  p=i===0?"*":line.slice(0,i);opts=line.slice(i+1).split(",");
+ }
+ if(!p||p.startsWith("$")||p.length>2048||/\s/.test(p)||p.startsWith("javascript:"))return null;
  const include=new Set(),exclude=new Set();let scope="",targetScope="",denyallow="",third=null,important=false,badfilter=false,special="",matchCase=false,removeparam="",redirect="",methods=null;
  for(const item of opts){const neg=item[0]==="~",o=neg?item.slice(1):item;
   if((o.startsWith("domain=")||o.startsWith("from="))&&!neg){
@@ -110,8 +116,8 @@ function network(raw){
   if(o==="match-case"){matchCase=!neg;continue;}
   if(o==="important"&&!neg){important=true;continue;}
   if(o==="badfilter"&&!neg){badfilter=true;continue;}
-  if(["document","elemhide","generichide","genericblock"].includes(o)&&exception&&!neg){special=o;continue;}
   const resource=ALIASES[o]||o;
+  if(["document","elemhide","generichide","genericblock"].includes(resource)&&exception&&!neg){special=resource;continue;}
   if(RES.has(resource)){(neg?exclude:include).add(resource);continue;}return null;
  }
  // Entity scopes only affect network request matching. Do not broaden
@@ -132,7 +138,14 @@ function network(raw){
      !(scope||p.startsWith("||")))return null;
  }
  const compiled=regex(p,matchCase);if(!compiled)return null;
- let anchor="";if(p.startsWith("||")){const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?*: ]|$)/i.exec(p);if(m)anchor=m[1].toLowerCase();}
+ // Index by exact host only if syntax specifies a real hostname boundary.
+ // "||ad*.example", "||adserver" and "||example.*/ads" are prefixes,
+ // not full hosts. The token index must still see those rules.
+ let anchor="";
+ if(p.startsWith("||")){
+  const m=/^\|\|([a-z0-9.-]+)(?=[\^/|?:])/i.exec(p);
+  if(m&&!m[1].endsWith("."))anchor=m[1].toLowerCase();
+ }
  return {p,compiled,anchor,exception,include,exclude,scope,targetScope,denyallow,third,important,badfilter,special,removeparam,redirect,methods,key:[p,exception?"allow":"block",...opts.filter(x=>x!=="badfilter").sort()].join("|")};
 }
 

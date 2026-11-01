@@ -15,9 +15,9 @@ function category(raw){
    return /\$(?:[^,\s]*,)*(?:domain|from)=[^,\s]*\.\*/i.test(line)?
     "native_entity_domain":"native_network";
  }catch(_){return "invalid";}
- if(/##\+js\(|#@#\+js\(|#%#/.test(line))return "unsupported_scriptlet";
- if(/#\^#/.test(line))return "unsupported_html_filter";
- if(/#(?:@)?\?#|#(?:@)?\$#|##|#@#/.test(line)){
+ if(/##\+js\(|#@#\+js\(|#(?:@)?%#/.test(line))return "unsupported_scriptlet";
+ if(/#(?:@)?\^#/.test(line))return "unsupported_html_filter";
+ if(/#(?:@)?\?#|#(?:@)?\$\??#|##|#@#/.test(line)){
   if(/:(?:style|remove|upward|xpath|matches-css|matches-attr|watch-attr)\(/i.test(line))
    return "unsupported_extended_cosmetic";
   return "unsupported_cosmetic_other";

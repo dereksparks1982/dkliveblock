@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 204 / 0.3.174 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 205 / 0.3.175 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -128,3 +128,10 @@ Full Ubuntu and live Firefox tests still pending.
 - `0.3.174` protects working filter subscription caches from same-size error text masquerading as rule lists, with conservative syntax evidence and embedded response-markup checks. Small existing and initial custom lists remain allowed.
 - User-authored set-constant scriptlets now resolve exceptions before the 24-rule runtime cap and avoid multiple live values for one property path.
 - No change to `src/youtube-*.js`, player/network response interception, existing UI geometry, permissions, bundled vendor, or approved frozen Build 203 snapshot/tag. Full Linux and live Firefox verification remain pending.
+
+## Build 205: independent-audit parser corrections (unreleased)
+
+- Responds to confirmed Claude audit CF-2 (option-only `$script` / `$popup` / `$removeparam`), CF-3 (wildcard/prefix hostname indexing), CF-5 (HTML/snippet markup misclassified as supported network rules), and four conservative aliases from CF-4 (`doc`, `ghide`, `ehide`, `popunder`).
+- Native `cleanNavigation` now protects `X-Amz-Algorithm` alongside other AWS signed-query fields; this addresses the test discrepancy noted under CF-11. Script/filter coverage reporting distinguishes additional unsupported `#@^#`, `#@%#`, `#$?#` forms.
+- No changes to YouTube bridge, response handling, streaming playback, bundled Ghostery, permissions, new-tab logic or UI geometry. Full Ubuntu seven-phase and real Firefox acceptance are not yet verified; the preserved Build 203 tag remains the fallback.
+- Independent audit recommended instrumenting the YouTube bridge and investigating all nine reported Node test failures; **this work remains pending**, not claimed complete by Build 205.

@@ -762,3 +762,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 204: Guard against apparently plausible-size subscription failures that contain no recognizable filter syntax; reject embedded HTML/XML/JSON error snippets even after valid list headers. Fix manual set-constant scriptlet exceptions consuming the 24-rule runtime budget and conflicting path duplicates. Add targeted regression tests. The existing YouTube interception code and frozen Build 203 tag were not changed.
 - [ ] Run Build 204 full seven-phase Ubuntu checks and regression verify actual YouTube ad-free playback before accepting it over the Build 203 baseline.
+
+- [x] Build 205: source-verified fixes for independent audit CF-2 (option-only rules), CF-3 (wildcard/partial hostname anchoring), CF-5 (unsupported cosmetic/snippet classification), and conservative CF-4 aliases. Additional AWS signing guard and tests. No playback behavior edits.
+- [ ] Complete diagnostic-only YouTube bridge attribution counters and response-error categorization. Preserve baseline fail-open behavior; do not change player interception or infer which mechanism blocked ads until evidence exists.
+- [ ] Reproduce/triage Claude's 9/837 Node failures on Ubuntu; Build 205 addressed only selected source cases, and has not been independently retested with the full suite.
+- [ ] Build 206: isolate/benchmark matching performance and compare native/Ghostery/Build 203 verdicts before any index rewrite; plan main-frame and popup protections with safe allow/proceed UX.

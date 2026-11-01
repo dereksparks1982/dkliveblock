@@ -81,3 +81,13 @@ test("Build 183 native entity-domain coverage is quantified without overclaiming
  assert.equal(result.unsupported,2);
  assert.equal(JSON.stringify(result).includes("ads.example"),false);
 });
+
+test("Build 205 categorizes unfamiliar non-network syntax as unsupported, never network",()=>{
+ for(const [text,category] of [
+  ["news.example#^#div","unsupported_html_filter"],
+  ["news.example#@^#div","unsupported_html_filter"],
+  ["a.com#@%#//scriptlet('x')","unsupported_scriptlet"],
+  ["a.com#$?#x{color:red}","unsupported_cosmetic_other"],
+  ["$script,domain=a.com","native_network"]
+ ])assert.equal(Audit.category(text),category,text);
+});

@@ -86,7 +86,7 @@ class FilterEngine {
   // signature may cover the entire original query and its exact ordering.
   // Do not rewrite any part of these access, callback or signed URLs.
   const protectedQuery=new Set([...reserved,
-   "x-amz-signature","x-amz-credential","x-amz-security-token",
+   "x-amz-signature","x-amz-algorithm","x-amz-credential","x-amz-security-token",
    "x-goog-signature","x-goog-credential","x-goog-algorithm",
    "googleaccessid","policy","signature","sig"]);
   for(const key of url.searchParams.keys()){

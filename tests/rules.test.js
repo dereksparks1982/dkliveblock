@@ -664,3 +664,62 @@ test("Build 183 entity grammar never weakens origin and non-network validation",
   "||ads.example^$removeparam=clickid,domain=news.*"
  ])assert.equal(R.network(line),null,line);
 });
+
+
+test("Build 205 parses pattern-less option rules instead of dead URL strings",()=>{
+ for(const [line,type,origin,url,expected] of [
+  ["$script,domain=publisher.example","script","publisher.example","https://cdn.example/a.js",true],
+  ["$script,domain=publisher.example","image","publisher.example","https://cdn.example/a.jpg",false],
+  ["$script,domain=publisher.example","script","elsewhere.example","https://cdn.example/a.js",false],
+  ["$popup,domain=publisher.example","popup","publisher.example","https://ads.example/pop",true],
+  ["$popup,domain=publisher.example","script","publisher.example","https://ads.example/pop",false]
+ ]){
+  const parsed=R.network(line);
+  assert.ok(parsed,line);
+  assert.equal(parsed.p,"*",line);
+  const f=new FilterEngine(line);
+  assert.equal(f.checkRequest(url,type,origin).block,expected,line);
+ }
+ assert.equal(R.network("$removeparam=fbclid").p,"*");
+ const stripped=new FilterEngine("$removeparam=fbclid").cleanNavigation(
+  "https://news.example/article?fbclid=123&story=4");
+ assert.equal(stripped,"https://news.example/article?story=4");
+ for(const bad of ["$unknown-option","$script,unsupported=1","$","$script,","$javascript:alert(1)"])
+  assert.equal(R.network(bad),null,bad);
+});
+test("Build 205 wildcard and partial host anchors stay in token candidates",()=>{
+ const examples=[
+  ["||ad*.example.com^","https://ad1.example.com/x.js"],
+  ["||cdn*.tracker.net^","https://cdn42.tracker.net/a"],
+  ["||adserver","https://adserver123.com/x"],
+  ["||ads.example","https://ads.examplecdn.net/x"],
+  ["||example.*/ads","https://example.org/ads/x"]
+ ];
+ for(const [pattern,url] of examples){
+  assert.equal(R.network(pattern).anchor,"",pattern);
+  const f=new FilterEngine(pattern);
+  assert.equal(f.shouldBlock(url,"script","news.example"),true,pattern);
+  assert.equal(f.shouldBlock("https://unrelated.example/page","script","news.example"),false,pattern);
+ }
+ const strict=new FilterEngine("||ads.example^");
+ assert.equal(R.network("||ads.example^").anchor,"ads.example");
+ assert.equal(strict.shouldBlock("https://notads.example/x","script","news.example"),false);
+ assert.equal(strict.shouldBlock("https://sub.ads.example/x","script","news.example"),true);
+});
+test("Build 205 cosmetic and snippet syntax is not misclassified as network rules",()=>{
+ for(const line of ["news.example#^#div","news.example#@^#div",
+  "news.example#$?#x{color:red}","news.example#@%#//scriptlet('x')"]){
+  assert.equal(R.network(line),null,line);
+  const f=new FilterEngine(line);
+  assert.equal(f.networkCount,0,line);
+  assert.equal(f.unsupportedCount,1,line);
+ }
+});
+test("Build 205 recognizes a narrow set of common resource and policy aliases",()=>{
+ const f=new FilterEngine("||ads.example^$popunder");
+ assert.equal(f.shouldBlock("https://ads.example/ad","popup","site.example"),true);
+ assert.equal(f.shouldBlock("https://ads.example/ad","script","site.example"),false);
+ assert.equal(R.network("||ads.example^$doc").include.has("document"),true);
+ assert.equal(R.network("@@||site.example^$ghide").special,"generichide");
+ assert.equal(R.network("@@||site.example^$ehide").special,"elemhide");
+});

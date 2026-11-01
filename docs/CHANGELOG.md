@@ -1,3 +1,12 @@
+## Build 205 (0.3.175): independent-audit network correctness
+
+- Fixed option-only rules that were previously interpreted as literal URL strings, including `$removeparam=fbclid` and domain-scoped `$script`/`$popup`.
+- Fixed hostname indexing of wildcard and partial patterns that were silently ignored, including `||ad*.example.com^` and `||adserver`.
+- Rejected unsupported cosmetic/HTML/snippet syntaxes as network rules; improved the syntax-coverage classification, without executing downloaded scripts.
+- Added narrowly scoped aliases `doc`, `ghide`, `ehide`, `popunder` without enabling unimplemented `$all` or main-frame blocking.
+- Protected `X-Amz-Algorithm` in native navigation cleanup; added source-level regressions. No changes to YouTube player/network response code or approved UI layout.
+- Unreleased; full seven-phase Ubuntu/Firefox acceptance pending. Build 203 GitHub tag and snapshot preserved.
+
 ## Build 204 (0.3.174): filter-list cache integrity and scriptlet precedence
 
 - Retain a substantial, structured cached subscription if its replacement is full of unstructured outage messages, even at the same approximate line count. Recognize embedded HTML/XML/JSON errors after list headers. No remote code, no telemetry, no new permissions.

@@ -100,3 +100,10 @@ test("Build 147 social click IDs are not removed from signed payment or login UR
  const raw="https://shop.example/checkout?twclid=ad&li_fat_id=ad&signature=opaque";
  assert.equal(stripTrackingParameters(raw),null);
 });
+
+test("Build 205 option-only tracking cleanup protects signed AWS algorithm URLs",()=>{
+ const {FilterEngine}=require("../src/engine.js");
+ const e=new FilterEngine("$removeparam=utm_*");
+ const raw="https://storage.example/download?utm_source=campaign&X-Amz-Algorithm=AWS4-HMAC-SHA256&object=a";
+ assert.equal(e.cleanNavigation(raw),null);
+});
