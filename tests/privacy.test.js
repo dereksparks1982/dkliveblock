@@ -1,6 +1,7 @@
 "use strict";
 const test=require("node:test"),assert=require("node:assert/strict");
 const {stripTrackingParameters}=require("../src/privacy.js");
+require("../src/rules.js"); // engine.js reads DKRules at module initialization.
 test("remove marketing identifiers but preserve useful parameters and fragments",()=>{
  assert.equal(stripTrackingParameters("https://news.example/article?utm_source=mail&view=full&fbclid=abc#section"),"https://news.example/article?view=full#section");
 });

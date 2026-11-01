@@ -694,3 +694,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.130 / Build 160 (2026-10-31)
 - Extended site-level $elemhide/$generichide exceptions to the conservative automatic DOM ad-slot recognizer, which previously remained active even when ordinary cosmetic filtering was disabled for a site. The existing content-controller refresh restores recognition-only hidden elements when the background disables the feature, and re-enables it after the exception is removed. Added background mock integration test covering all-element and generic-only exemptions, site-scoped CSS retention, and restoration after the exception is removed. Still requires complete Ubuntu/real Firefox tests.
+
+### 0.3.131 / Build 161 (2026-10-31)
+- Repaired three test errors identified by the independent Build 158 review: obsolete signed-link rewrite assertion; missing DKRules module initialization in the standalone privacy suite; and malformed procedural cosmetic exception selector in the reliability contract.
+- Replaced fail-fast local testing with a seven-phase runner that completes every phase, reports every phase's pass/fail result, includes Node TAP test counts (including skipped/todo/cancelled cases), and returns a failing exit status when any phase fails.
+- Added an isolated runner integration test using synthetic Node/Python executables and intentionally failing phases to verify failure continuation and output accounting; no browser, network activity or repository-side CI.
+- Full checkout suite, live Firefox/YouTube and comparative blocking acceptance remain unverified. No public release.

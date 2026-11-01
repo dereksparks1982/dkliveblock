@@ -116,7 +116,7 @@ test("Build 147 common paid-click IDs are removed only on ordinary navigation",(
 test("Build 150 class/ID procedural rules remain site-limited and reversible",()=>{
  const f=new FilterEngine("news.example##.sponsor-card:has-text(Sponsored)"+
   "\nnews.example#?##banner:has(.paid-badge)"+
-  "\nnews.example#@?#banner:has(.paid-badge)");
+  "\nnews.example#@?##banner:has(.paid-badge)");
  assert.deepEqual(f.getProcedural("news.example"),[
   {selector:".sponsor-card",mode:"text",text:"Sponsored"}]);
  assert.deepEqual(f.getProcedural("unrelated.example"),[]);

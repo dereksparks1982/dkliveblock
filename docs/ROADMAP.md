@@ -608,3 +608,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 160: make explicit $elemhide/$generichide exceptions suppress generic automatic DOM ad recognition on the affected website; preserve scoped styles, and restore ordinary recognition when the exception is removed.
 - [ ] Verify dynamic DOM restoration against site exceptions with real Firefox, plus full Ubuntu regression/streaming acceptance.
+
+- [x] Build 161: repair the three documented test-side failures and remove fail-fast behavior from the offline gate; retain a nonzero final exit on any failed phase, summarize seven phases and aggregate Node TAP counts, and add deliberate-failure self-tests.
+- [ ] Build 161 acceptance: execute the complete seven-phase runner against this exact GitHub commit in a local Ubuntu checkout; record exact Node/Python counts and any remaining failures. Source-only review is not a green result.
+- [ ] Build 162: instrument offline native-versus-Ghostery network verdict comparisons, including unsupported exception and redirect fixtures, without changing production precedence.
+- [ ] Build 163 (only after green gate and differential evidence): separate authoritative subscription decisions from explicit DK user/site overrides; test login, media, popup and override safety.
