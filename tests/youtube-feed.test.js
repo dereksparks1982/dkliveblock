@@ -267,3 +267,40 @@ test("Build 141 ordinary data-only sponsored entries still disappear",()=>{
  assert.equal(result.changed,true);
  assert.equal(payload.results.length,1);
 });
+
+test("Build 151 ignores page-owned splice and constructor getters during ad removal",()=>{
+ for(const mode of ["constructor","splice"]){
+  const entries=[
+   {videoRenderer:{videoId:"first"}},
+   {adSlotRenderer:{id:"paid-1"}},
+   {videoRenderer:{videoId:"second"}},
+   {compactPromotedVideoRenderer:{id:"paid-2"}},
+   {videoRenderer:{videoId:"third"}}
+  ];
+  let calls=0;
+  if(mode==="constructor")
+   Object.defineProperty(entries,"constructor",{configurable:true,get(){
+    calls++;throw Error("page array constructor must not be read");
+   }});
+  else Object.defineProperty(entries,"splice",{configurable:true,value(){
+   calls++;throw Error("page splice must not be called");
+  }});
+  const output=F.prune({contents:entries,visitorData:"private"},browse);
+  assert.deepEqual(output,{changed:true,items:2});
+  assert.equal(calls,0);
+  assert.equal(entries.length,3);
+  assert.deepEqual([entries[0].videoRenderer.videoId,
+   entries[1].videoRenderer.videoId,entries[2].videoRenderer.videoId],
+   ["first","second","third"]);
+ }
+});
+test("Build 151 keeps other arrays intact when one has a read-only shift slot",()=>{
+ const normal=[{videoRenderer:{videoId:"real"}},{adSlotRenderer:{id:"paid"}}];
+ const protectedEntries=[{adSlotRenderer:{id:"paid"}},{videoRenderer:{videoId:"real"}}];
+ Object.defineProperty(protectedEntries,"1",{value:protectedEntries[1],
+  writable:false,configurable:true});
+ const result=F.prune({first:{contents:normal},second:{contents:protectedEntries}},browse);
+ assert.equal(result.changed,false);
+ assert.equal(normal.length,2);
+ assert.equal(protectedEntries.length,2);
+});

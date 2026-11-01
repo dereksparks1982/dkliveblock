@@ -577,3 +577,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 150: extend local cross-feature regression contract for class/ID cosmetic exceptions, getter-safe and refused YouTube JSON, exact ad-frame recognition, private tracking cleanup and ambiguous-charset stream protection.
 - [ ] **Release gate remains blocked:** full Ubuntu Node/Python suite, live Firefox YouTube/Disney+ (video, Shorts, free-with-ads films), resource use, security, and owner-approved snapshot/tag/release.
+
+- [x] Build 151: avoid page-controlled splice and constructor/Species getters during eligible YouTube sponsored feed/Shorts removal; preserve ordinary entries and global read-only preflight, with both feed and MAIN-world fixture tests.
+- [ ] **Release still blocked:** complete Ubuntu regression and Firefox ad-free *and* playable video, Shorts, ad-supported films, streaming compatibility, performance, security and owner-approved tag.

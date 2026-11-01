@@ -663,3 +663,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.120 / Build 150 (2026-10-31)
 - Consolidated recent engine, playback, ad recognition and privacy safety into the existing offline cross-feature regression contract. Covers modern Google ad-frame markers, bounded sponsored-text syntax, signed-link safeguards, YouTube fail-open response handling and malformed charset headers. Full regression and real Firefox acceptance still pending.
+
+### 0.3.121 / Build 151 (2026-10-31)
+- Replaced page-controlled array.splice-based YouTube sponsored-feed removal with bounded in-place indexed compaction. A site-supplied array constructor getter, Symbol.species or overridden splice method can no longer stop otherwise eligible sponsored entries from being removed by this path. Original video order, resource limits and cross-array preflight remain in place. Added feed and MAIN-world bootstrap regression fixtures. Source-only smoke checks passed; full Ubuntu test inventory and real Firefox playback/ad-free acceptance remain open.

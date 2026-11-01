@@ -309,3 +309,18 @@ test("Build 142 explicit playback refusal remains visible through own-data check
  p.send("enable");
  assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
 });
+
+test("Build 151 MAIN-world bootstrap handles arrays with hostile page methods",()=>{
+ const p=context(),entries=[{videoRenderer:{videoId:"organic"}},
+  {adSlotRenderer:{id:"advertisement"}}];
+ let accessed=0;
+ Object.defineProperty(entries,"constructor",{configurable:true,get(){
+  accessed++;throw Error("site-specific array constructor");
+ }});
+ p.window.ytInitialData={contents:entries};
+ assert.doesNotThrow(()=>p.send("enable"));
+ assert.equal(accessed,0);
+ assert.equal(entries.length,1);
+ assert.equal(entries[0].videoRenderer.videoId,"organic");
+ p.send("disable");
+});

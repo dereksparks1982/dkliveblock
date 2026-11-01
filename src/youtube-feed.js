@@ -118,8 +118,21 @@ function prune(payload,url){
        !desc.writable||!desc.configurable)return {changed:false,items:0};
    }
   }
-  for(const job of jobs)for(let i=job.indices.length-1;i>=0;i--)
-   job.array.splice(job.indices[i],1);
+  // Do not invoke page-owned .splice() or ArraySpeciesCreate. A website can
+  // override array.splice or install a throwing constructor / Symbol.species
+  // getter. The descriptors were checked above, so compact the existing
+  // indexed data slots in place, keeping organic entry order.
+  for(const job of jobs){
+   const originalLength=job.array.length,removed=new Set(job.indices);
+   let write=job.indices[0];
+   for(let read=write;read<originalLength;read++){
+    if(removed.has(read))continue;
+    if(read!==write)
+     job.array[write]=Object.getOwnPropertyDescriptor(job.array,String(read)).value;
+    write++;
+   }
+   job.array.length=originalLength-job.indices.length;
+  }
   return {changed:true,items:total};
  }catch(_){return {changed:false,items:0};}
 }
