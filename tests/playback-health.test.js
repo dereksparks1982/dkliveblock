@@ -141,3 +141,37 @@ test("Build 158 only YouTube stores a coarse, rate-limited Skip Ad click",()=>{
  assert.deepEqual(H.recent(store,158,"www.youtube.com",3000),
   [{kind:"ad-skip",when:1000,blockedMediaNearby:false}]);
 });
+
+test("Build 187 observes only transitions to YouTube ad-showing state",()=>{
+ const p=H.createAdProbe();
+ let visible=true;
+ const player={isConnected:true};
+ const page={visibilityState:"visible",hidden:false,
+  querySelector:()=>visible?{className:"html5-video-player ad-showing"}:null};
+ assert.equal(p.scan(player,page,1000),"ad-showing");
+ assert.equal(p.scan(player,page,2000),null,"ongoing ad cannot be counted twice");
+ visible=false;assert.equal(p.scan(player,page,3000),null);
+ visible=true;assert.equal(p.scan(player,page,4000),null,"class flapping is coalesced");
+ visible=false;p.scan(player,page,9000);
+ visible=true;assert.equal(p.scan(player,page,10000),"ad-showing");
+ page.hidden=true;assert.equal(p.scan(player,page,11000),null);
+ page.hidden=false;player.isConnected=false;
+ assert.equal(p.scan(player,page,20000),null);
+ player.isConnected=true;
+ page.querySelector=()=>{throw Error("hostile DOM");};
+ assert.equal(p.scan(player,page,21000),null);
+ p.reset();
+ page.querySelector=()=>({});
+ assert.equal(p.scan(player,page,22000),"ad-showing");
+});
+test("Build 187 ad-showing is private, rate-limited, YouTube-only diagnostic",()=>{
+ const events=new Map();
+ assert.equal(H.record(events,187,"www.youtube.com","ad-showing",false,1000),true);
+ assert.equal(H.record(events,187,"www.youtube.com","ad-showing",false,2000),false);
+ assert.equal(H.record(events,187,"www.youtube.com","ad-showing",false,23000),true);
+ assert.equal(H.record(events,187,"www.disneyplus.com","ad-showing",false,1000),false);
+ assert.equal(H.record(events,187,"youtube.com.attacker.example","ad-showing",false,1000),false);
+ const rows=H.recent(events,187,"www.youtube.com",24000);
+ assert.deepEqual(rows.map(x=>x.kind),["ad-showing","ad-showing"]);
+ assert.doesNotMatch(JSON.stringify(rows),/password|url|watch\?v=|title|cookie|videoId/);
+});

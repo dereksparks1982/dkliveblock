@@ -173,3 +173,16 @@ test("Build 176 standard export shows sanitized late YouTube cleanup outcome",()
  assert.match(E.asText(out),/cleaned late player metadata true/);
  assert.doesNotMatch(JSON.stringify(out),/SECRET_MOVIE_TITLE|secret\.example/);
 });
+
+test("Build 187 blocked export distinguishes observed ad state from blocked request counts",()=>{
+ const f=fixture();f.playbackDiagnostics=[
+  {kind:"ad-showing",when:1793410601000,
+   url:"https://www.youtube.com/watch?v=PRIVATE_ID",title:"PRIVATE_TITLE"},
+  {kind:"ad-skip",when:1793410602000,videoId:"PRIVATE_ID"}
+ ];
+ const out=E.build(f);
+ assert.deepEqual(out.playbackDiagnostics.map(x=>x.kind),["ad-showing"]);
+ const dump=JSON.stringify(out)+"\n"+E.asText(out);
+ assert.match(dump,/not proof of an ad played or blocked/);
+ assert.doesNotMatch(dump,/PRIVATE_ID|PRIVATE_TITLE/);
+});

@@ -3,7 +3,7 @@
    response payloads, or automatic request allowances. */
 (function(root){"use strict";
 const BUFFER_MS=5000,REPORT_INTERVAL=20000,TTL_MS=30*60*1000,MAX=30;
-const KINDS=new Set(["buffering","media-error","enforcement","ad-skip"]);
+const KINDS=new Set(["buffering","media-error","enforcement","ad-skip","ad-showing"]);
 function isYouTube(host){
  return typeof host==="string"&&/^(?:(?:[a-z0-9-]+\.)*)(?:youtube\.com|youtube-nocookie\.com)$/.test(host);
 }
@@ -24,6 +24,32 @@ function isUnavailable(video,document){
    !video||video.isConnected===false||!video.getClientRects?.().length||
    video.seeking||video.ended;
  }catch(_){return true;}
+}
+// Reports a transition to YouTube's own ad-showing player state, not
+// verified ad playback and NEVER a successfully blocked ad. No video ID,
+// time, URL, player payload, DOM text or telemetry leaves this function.
+function createAdProbe(){
+ let showing=false,last=-Infinity;
+ function scan(video,document,now=Date.now()){
+  if(!Number.isFinite(now)||!document||document.hidden===true||
+     document.visibilityState==="hidden"||!video||video.isConnected===false){
+   showing=false;return null;
+  }
+  let current=false;
+  try{
+   current=!!document.querySelector?.(
+    ".html5-video-player.ad-showing, #movie_player.ad-showing");
+  }catch(_){showing=false;return null;}
+  if(!current){showing=false;return null;}
+  if(showing)return null;
+  showing=true;
+  // Coalesce class flapping; do not accumulate counts during one ad break.
+  if(now-last<8000)return null;
+  last=now;
+  return "ad-showing";
+ }
+ function reset(){showing=false;last=-Infinity;}
+ return {scan,reset};
 }
 function createProbe(){
  let bufferingSince=null,lastReport=-Infinity,lastError=0,trackedVideo=null;
@@ -55,7 +81,7 @@ function createProbe(){
 }
 function record(store,tab,siteHost,kind,blockedMediaNearby=false,now=Date.now()){
  if(!Number.isInteger(tab)||tab<0||!supportsHost(siteHost)||!KINDS.has(kind)||
-    kind==="ad-skip"&&!isYouTube(siteHost)||!Number.isFinite(now))return false;
+    (kind==="ad-skip"||kind==="ad-showing")&&!isYouTube(siteHost)||!Number.isFinite(now))return false;
  const previous=store.get(tab);
  const s=previous?.siteHost===siteHost?previous:{siteHost,rows:[]};
  s.rows=s.rows.filter(row=>now-row.when>=0&&now-row.when<TTL_MS);
@@ -74,7 +100,7 @@ function recent(store,tab,siteHost,now=Date.now()){
 }
 function clear(store,tab){store.delete(tab);}
 const api=Object.freeze({BUFFER_MS,REPORT_INTERVAL,TTL_MS,MAX,isYouTube,platform,supportsHost,
- createProbe,record,recent,clear,isAdBreak,isUnavailable});
+ createProbe,createAdProbe,record,recent,clear,isAdBreak,isUnavailable});
 root.DKPlaybackHealth=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

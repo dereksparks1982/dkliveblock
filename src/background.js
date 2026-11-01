@@ -996,10 +996,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
   catch(_){return {ok:false};}
   if(msg.kind!=="buffering"&&msg.kind!=="media-error"&&msg.kind!=="enforcement"&&
-     msg.kind!=="ad-skip")return {ok:false};
+     msg.kind!=="ad-skip"&&msg.kind!=="ad-showing")return {ok:false};
   // Only the real YouTube top frame can record Skip Ad clicks.
-  if(msg.kind==="ad-skip"&&!DKPlaybackHealth.isYouTube(pageHost))return {ok:false};
-  const now=Date.now(),nearby=msg.kind==="ad-skip"?false:
+  if((msg.kind==="ad-skip"||msg.kind==="ad-showing")&&
+     !DKPlaybackHealth.isYouTube(pageHost))return {ok:false};
+  const now=Date.now(),nearby=
+   (msg.kind==="ad-skip"||msg.kind==="ad-showing")?false:
    DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
     .some(row=>row.pageHost===pageHost&&row.type==="media"&&
       now-row.when>=0&&now-row.when<=120000);

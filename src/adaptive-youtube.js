@@ -4,7 +4,7 @@
 (function(root){"use strict";
 const MAX_TABS=40,WINDOW_MS=2*60*1000,MIN_GAP_MS=20000,FALLBACK_MS=10*60*1000;
 const BAD=new Set(["buffering","media-error"]);
-const CONTEXT=new Set(["enforcement","ad-skip"]);
+const CONTEXT=new Set(["enforcement","ad-skip","ad-showing"]);
 const Model=typeof root.DKAdaptiveModel!=="undefined"?root.DKAdaptiveModel:
  typeof require==="function"?require("./adaptive-model.js"):null;
 function validSite(site){return typeof site==="string"&&
@@ -41,13 +41,15 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  if(x?.until)return unchanged;
  if(!x||now-x.first>WINDOW_MS){
   x={site,first:now,last:now,count:0,nearby:false,until:0,
-   sawMediaError:false,sawBuffering:false,sawEnforcement:false,sawAdSkip:false};
+   sawMediaError:false,sawBuffering:false,sawEnforcement:false,
+   sawAdSkip:false,sawAdShowing:false};
  }
  // Contextual observations suppress inappropriate fallback suggestions.
  // They NEVER count as failures or cause additional blocking.
  if(CONTEXT.has(kind)){
   if(kind==="enforcement")x.sawEnforcement=true;
   if(kind==="ad-skip")x.sawAdSkip=true;
+  if(kind==="ad-showing")x.sawAdShowing=true;
   x.last=now;store.delete(id);store.set(id,x);
   if(store.size>MAX_TABS)store.delete(store.keys().next().value);
   return unchanged;
@@ -57,7 +59,8 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  x.last=now;x.count++;x.nearby=x.nearby||blockedMediaNearby;
  x.sawMediaError=x.sawMediaError||kind==="media-error";
  x.sawBuffering=x.sawBuffering||kind==="buffering";
- if(x.count>=2&&x.nearby&&!x.sawEnforcement&&!x.sawAdSkip){
+ if(x.count>=2&&x.nearby&&!x.sawEnforcement&&!x.sawAdSkip&&
+    !x.sawAdShowing){
   const prediction=Model?.predict?.({
    faultCount:Math.min(x.count,3),blockedMediaEvidence:x.nearby,
    sawMediaError:x.sawMediaError,sawBuffering:x.sawBuffering,

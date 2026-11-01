@@ -713,3 +713,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 186: pin and vendor micrograd MIT training sources, ship a static six-feature local model, enforce deterministic tab/safety gates and correct Firefox manifest load ordering; 128 synthetic training states classify as expected.
 - [ ] Build 186 acceptance: complete Linux regression suite, real Firefox playback/ads, held-out real-world labeled evidence, model calibration and safety regression before claiming AI benefit.
 - [ ] Build 187: build privacy-safe, locally labeled feedback and a replayable offline holdout corpus to measure adaptation against unchanged deterministic mode. No automatic downloads of executable code or model weights.
+
+- [x] Build 187: add privacy-preserving, separately counted YouTube player `ad-showing` observation and show it in standard report, YouTube compatibility export and dashboard. Keep adaptive safety and site isolation. No ad-removal claim.
+- [ ] Build 187 acceptance: full exact-commit Linux Node/Python suite, independent Firefox control test with uBO disabled, ordinary video preroll/midroll and ad-supported movie comparison.
+- [ ] Build 188: use the new player-state evidence plus response/bridge diagnostics to distinguish ads shown, ads skipped, playback refused and confirmed ad suppression. Prioritize real missing filtering capabilities rather than unsupported parity claims.

@@ -40,7 +40,7 @@ function build(s,now=Date.now()){
   manuallyBlocked:r.block===true
  }));
  const playback=(Array.isArray(s.playbackDiagnostics)?s.playbackDiagnostics:[])
-  .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip"].includes(x?.kind))
+  .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip","ad-showing"].includes(x?.kind))
   .map(x=>({kind:x.kind,blockedMediaNearby:x.blockedMediaNearby===true}));
  return {format:"DK Live Block YouTube compatibility report",schemaVersion:1,
   experimentMode:["combined","response-only","bridge-only","observe"].includes(s.youtubeTestMode)?
@@ -52,7 +52,7 @@ function build(s,now=Date.now()){
   blockedCount:number(s.blocked),permittedCount:number(s.allowedRequests),
   responseFiltering:responses,playback,
   networkEvidence:Triage.summarize(s),blocked,permitted,
-  limitations:"Counts show local observations, not proof of ad-free playback. An ad-skip event records a button click, not confirmed ad removal. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
+  limitations:"Counts show local observations, not proof of ad-free playback. An ad-skip event records a button click, not confirmed ad removal. An ad-showing event is a player-state indicator, not independently confirmed ad playback. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
 }
 function asText(report){
  const lines=["DK LIVE BLOCK | YOUTUBE COMPATIBILITY", "Exported: "+report.exportedAt,
@@ -79,6 +79,8 @@ function asText(report){
  lines.push("","PLAYBACK HEALTH");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
  if(!report.playback.length)lines.push("No player health observations.");
+ else if(report.playback.some(x=>x.kind==="ad-showing"))
+  lines.push("ad-showing means YouTube marked its player as in an ad state; it does not prove the ad played or was blocked.");
  lines.push("","BLOCKED HOST/TYPE OBSERVATIONS");
  for(const row of report.blocked)lines.push(row.hostname+" · "+row.resourceType+
   " · "+row.filterSource+" · currently allowed "+row.currentlyAllowed+

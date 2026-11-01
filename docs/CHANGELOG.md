@@ -845,3 +845,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Vendored MIT-licensed karpathy/micrograd micro-training tools and attribution (training only), plus a deterministic Python training script for an offline six-feature linear classifier.
 - Bundled tiny, fixed JavaScript inference weights without runtime dependencies, external model downloads, network calls or user data. The classifier can only recommend/veto a temporary response-only mode inside the existing deterministic safety gate; enforcement/ad-skip evidence suppresses fallback.
 - Corrected Build 185 manifest omission: adaptive-model.js and adaptive-youtube.js are loaded before background.js. Added 128 synthetic model fixture checks and safety/license/load-order tests. Full Linux suite and real YouTube acceptance pending; not production-grade ad identification.
+
+### 0.3.157 / Build 187 (2026-11-01)
+- Add a read-only, transition-triggered YouTube `ad-showing` playback observation. It only records the coarse player class state, never raw URLs, media details or browsing identity. Suppresses continuous and flapping event counts.
+- Preserve the same opt-in/request logging, active-site, top-frame and hostname authorization checks. Ad-state observations cannot weaken filtering or trigger a fallback in the adaptive controller.
+- Surface this event separately in local YouTube compatibility, standard blocked-request exports and the Site Dashboard. Explicitly label it as unverified player ad state, not a successfully blocked or played ad.
+- Grounded in two provided YouTube exports (13/20 blocks; 10/12 first-party XHR blocks; no playback diagnostics). Synthetic V8 harness: 14 focused assertions passed; full Linux suite and real Firefox ad blocking unverified.

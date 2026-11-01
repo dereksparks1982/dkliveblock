@@ -135,3 +135,17 @@ test("Build 176 export distinguishes late player cleanup from empty ad slots",()
  assert.equal(JSON.stringify(report).includes("SECRET_VIDEO_ID"),false);
  assert.equal(JSON.stringify(report).includes("https://private.example"),false);
 });
+
+test("Build 187 export labels observed ad-showing separately from blocked ads",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:187,
+  playbackDiagnostics:[
+   {kind:"ad-showing",when:1,rawUrl:"https://www.youtube.com/watch?v=PRIVATE"},
+   {kind:"ad-skip",when:2,title:"PRIVATE_TITLE"},
+   {kind:"unknown-ad",when:3}
+  ]});
+ assert.deepEqual(report.playback.map(x=>x.kind),["ad-showing","ad-skip"]);
+ const dump=JSON.stringify(report)+"\n"+Report.asText(report);
+ assert.match(dump,/not independently confirmed ad playback/);
+ assert.match(dump,/ad-showing means YouTube marked/);
+ assert.doesNotMatch(dump,/PRIVATE_TITLE|watch\?v=PRIVATE/);
+});

@@ -96,7 +96,7 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
   privacyNotice:NOTE,youtubeCompatibility:Triage.summarize(snapshot),
   youtubePlaybackEvidence:youtubePlaybackEvidence(snapshot),
   playbackDiagnostics:Array.isArray(snapshot.playbackDiagnostics)?snapshot.playbackDiagnostics.slice(0,30).flatMap(row=>{
-   if(!["enforcement","buffering","media-error"].includes(row?.kind))return [];
+   if(!["enforcement","buffering","media-error","ad-showing"].includes(row?.kind))return [];
    return [{kind:row.kind,when:safeDate(row.when),blockedMediaNearby:row.blockedMediaNearby===true}];
   }):[],requests:records};
 }
@@ -140,6 +140,8 @@ function asText(report){
   }
  }
  if(!report.playbackDiagnostics?.length)lines.push("No playback-health incidents recorded; this does NOT confirm that ads were removed.");
+ if(report.playbackDiagnostics?.some(x=>x.kind==="ad-showing"))
+  lines.push("ad-showing: YouTube player advertised an ad state, not proof of an ad played or blocked.");
  else for(const event of report.playbackDiagnostics)
   lines.push(event.when+" · "+event.kind+(event.blockedMediaNearby?" · blocked media nearby":""));
  lines.push("");

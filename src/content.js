@@ -10,11 +10,15 @@
  const videoController=DKVideoAssist.createController();
  const cosmeticDebugger=DKCosmeticDebug.create(document);
  const healthProbe=isHealthSite?DKPlaybackHealth.createProbe():null;
+ const adProbe=isYouTube&&isHealthSite?DKPlaybackHealth.createAdProbe():null;
  function samplePlaybackHealth(){
   if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
   const player=document.querySelector("video.html5-main-video, #movie_player video, video");
   const kind=healthProbe.scan(player,document);
   if(kind)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind}).catch(()=>{});
+  // Observable player state, not proof of a played/blocked advertisement.
+  const adState=adProbe?.scan(player,document);
+  if(adState)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:adState}).catch(()=>{});
  }
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
@@ -416,7 +420,7 @@
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){
   const onNavigate=()=>{
-   healthProbe?.reset();videoController.reset?.();refresh();videoWatcher?.poke();
+   healthProbe?.reset();adProbe?.reset();videoController.reset?.();refresh();videoWatcher?.poke();
   };
   window.addEventListener("yt-navigate-finish",onNavigate,false);
   window.addEventListener("popstate",onNavigate,false);

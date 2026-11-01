@@ -75,3 +75,16 @@ test("Build 185 adaptive fallback is loaded before background and only uses exis
  assert.match(background,/youtubeAdaptive:DKYouTubeExperiment\.validSite/);
  assert.doesNotMatch(background,/DKAdaptiveYouTube\.allowMedia|DKAdaptiveYouTube\.disableFiltering/);
 });
+
+test("Build 187 observed YouTube ad state is context, not a fault or filtering permit",()=>{
+ const state=new Map();
+ const first=A.note(state,187,"www.youtube.com","ad-showing",false,100000);
+ assert.equal(first.changed,false);
+ assert.equal(A.mode(state,187,"www.youtube.com",100000),"combined");
+ const early=A.note(state,187,"www.youtube.com","buffering",true,125000);
+ assert.equal(early.changed,false);
+ const later=A.note(state,187,"www.youtube.com","media-error",true,150000);
+ assert.equal(later.changed,false,
+  "an ad state must suppress switching away from normal protections");
+ assert.equal(A.mode(state,187,"www.youtube.com",150001),"combined");
+});
