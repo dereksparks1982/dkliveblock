@@ -17,3 +17,15 @@ test("public release disclosures explain proxy and filter-list limitations",()=>
  assert.match(checklist,/Mozilla/);
  assert.match(checklist,/Not released/);
 });
+
+test("Build 219 candidate ZIP always requires source preflight and owner license",()=>{
+ const build=fs.readFileSync(path.join(root,"scripts/package-firefox.py"),"utf8");
+ assert.match(build,/amo-preflight\.py/);
+ assert.match(build,/--strict/);
+ assert.match(build,/owner_license/);
+ assert.match(build,/manifest\.json/);
+ const license=fs.readFileSync(path.join(root,"LICENSE"),"utf8");
+ assert.match(license,/NO MONETIZATION OF DK LIVE BLOCK ITSELF/);
+ const bible=fs.readFileSync(path.join(root,"COMPANY_BIBLE.md"),"utf8");
+ assert.match(bible,/Exactly ONE Git branch is allowed/);
+});
