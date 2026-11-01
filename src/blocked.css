@@ -1,0 +1,14 @@
+:root{color-scheme:dark;font:16px/1.55 system-ui,Arial,sans-serif;background:#111820;color:#f5f7fa}
+*{box-sizing:border-box}body{margin:0;padding:4rem 1.2rem}
+.warning-card{max-width:720px;margin:auto;padding:2.5rem;border:1px solid #546272;border-radius:14px;background:#1b2632}
+.brand{color:#9fd4fb;font-weight:700;letter-spacing:.09em;font-size:.75rem}
+h1{margin:.2em 0 .5em;font-size:clamp(1.7rem,4vw,2.4rem);color:#ffb3ae}
+.hostname{padding:1rem;background:#111820;border:1px solid #596474;word-break:break-word;font-weight:700}
+dl{display:grid;grid-template-columns:160px 1fr;gap:.25rem 1rem}dt{color:#bacbd8}dd{margin:0}
+.caution{border-left:3px solid #e7bb69;padding-left:1rem;color:#d7e2e9}
+a{color:#9fd4fb}a:focus-visible,button:focus-visible,input:focus-visible{outline:3px solid #9fd4fb;outline-offset:3px}
+button{font:inherit;padding:.6rem 1rem;border-radius:7px;border:1px solid #9ec1d2;background:#26455c;color:#fff;cursor:pointer}
+button:disabled{opacity:.45;cursor:not-allowed}#proceed{margin-top:1rem;border-color:#df8a70;background:#643322}
+#override{margin-top:1.5rem;padding-top:1.5rem;border-top:1px solid #596474}
+#override label{display:block}#status{min-height:1.5em;color:#f6d59b}.foot{margin-top:2rem;color:#bacbd8;font-size:.8rem}
+@media(max-width:520px){body{padding:1rem}.warning-card{padding:1.2rem}dl{grid-template-columns:1fr}dd{margin-bottom:.6rem}}
