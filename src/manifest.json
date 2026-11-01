@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.186",
+  "version": "0.3.187",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -47,6 +47,7 @@
       "subscription-cache.js",
       "subscription-update-guard.js",
       "threat-database.js",
+      "threat-warning.js",
       "domain-investigation.js",
       "settings.js",
       "notification-protection.js",
@@ -149,6 +150,7 @@
   },
   "web_accessible_resources": [
     "redirect/noop.js",
-    "redirect/empty.css"
+    "redirect/empty.css",
+    "blocked.html"
   ]
 }
