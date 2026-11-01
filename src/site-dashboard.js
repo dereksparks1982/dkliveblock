@@ -112,7 +112,7 @@ async function lookupBlockRegistration(){
  const target=selectedBlock;if(!target||!current?.ok||
   current.tabId!==target.tabId||current.site!==target.site)return;
  const result=$("blockRdapResult"),button=$("blockRdapLookup");
- button.disabled=true;result.textContent="Looking up public domain registration…";
+ button.disabled=true;result.textContent="Retrieving public registration, Firefox DNS and hosting-network evidence…";
  const token=++blockLookupToken;selectedBlock={...target,token};
  try{
   const response=await browser.runtime.sendMessage({
@@ -120,16 +120,44 @@ async function lookupBlockRegistration(){
   });
   if(!selectedBlock||selectedBlock.token!==token)return;
   if(response?.ok)registrationCache.set(DKBlockedExport.rowKey(target.site,target.tabId,target.host),response);
-  result.textContent=response?.error?response.error:
-   "Registered domain: "+response.domain+" · Registered organization: "+
-   (response.organization||"Not publicly disclosed")+" · Registrar: "+
-   (response.registrar||"Not disclosed")+
-   "\nRegistered: "+(response.registered||"Not disclosed")+
-   " · Updated: "+(response.updated||"Not disclosed")+
-   " · Expires: "+(response.expires||"Not disclosed")+
-   "\nNameservers: "+(Array.isArray(response.nameservers)&&response.nameservers.length?response.nameservers.join(", "):"Not disclosed")+
-   "\nDomain statuses: "+(Array.isArray(response.statuses)&&response.statuses.length?response.statuses.join(", "):"Not disclosed")+
-   "\nRegistration is not proof of who operated this request.";
+  if(response?.error){result.textContent=response.error;}
+  else {
+   const rows=[
+    "DOMAIN INVESTIGATION (public-source evidence only)",
+    "Observed hostname: "+target.host,
+    "Registered domain: "+(response.domain||"Not disclosed"),
+    "Registrant organization: "+(response.organization||"Not publicly disclosed"),
+    "Registrar: "+(response.registrar||"Not disclosed"),
+    "Registered: "+(response.registered||"Not disclosed"),
+    "Updated: "+(response.updated||"Not disclosed"),
+    "Expires: "+(response.expires||"Not disclosed"),
+    "Name servers: "+(response.nameservers?.join(", ")||"Not disclosed"),
+    "Domain statuses: "+(response.statuses?.join(", ")||"Not disclosed"),
+    "",
+    "THREAT-DATABASE EVIDENCE",
+    response.threatListing?.listed?
+     "Listed by "+response.threatListing.source+" as "+response.threatListing.category+
+      ". Database last updated: "+new Date(response.threatListing.updated).toLocaleString():
+     "Not listed in the local phishing database; absence does NOT establish safety.",
+    response.threatListing?.overridden?"You have overridden protection for this exact host.":"",
+    "",
+    "DNS AND HOSTING (not legal domain ownership)",
+    "DNS status: "+(response.dns?.status||"Not available"),
+    "Firefox-resolved IPs: "+(response.dns?.addresses?.join(", ")||"None returned"),
+    "Canonical hostname: "+(response.dns?.canonicalName||"Not reported"),
+    "Sampled IP network registration: "+(response.hostingAddress||"Not available"),
+    "",
+    "PUBLIC DOMAIN REGISTRATION: ALL RETAINED FIELDS",
+    JSON.stringify(response.publicRecord||"Unavailable",null,2),
+    "",
+    "SAMPLED HOSTING NETWORK REGISTRATION",
+    JSON.stringify(response.hosting||"Unavailable",null,2),
+    "",
+    "A registrar, registrant, service operator and IP network owner can differ.",
+    "Request intent is not established by public registration records."
+   ];
+   result.textContent=rows.join("\n");
+  }
  }catch(error){if(selectedBlock?.token===token)
   result.textContent="Could not retrieve RDAP: "+String(error.message||error).slice(0,140);
  }finally{button.disabled=false;}

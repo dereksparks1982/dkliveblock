@@ -128,3 +128,7 @@ All 19 focused runtime tests passed, including descriptor overwrite, shared-pref
 ## Build 215 (0.3.185): default-on phishing threat feed, unaccepted
 
 Eight isolated domain-level tests passed. The new ninth integration assertion and the complete Ubuntu suite require local Node execution. Before acceptance, verify first-run automatic fetch, domain-count status, controlled exact-host cancellation, behavior with ad-site allowlisting, manual exact-host exception, global and dedicated switches, old-cache retention after simulated outage and normal sign-in/banking/YouTube playback. A missing threat database must be displayed as missing, never described as safe. Test the feed's terms and upstream redistribution conditions before publishing this build; no live user browsing information is transmitted in per-site queries.
+
+## Build 216 (0.3.186): opt-in detailed domain investigation
+
+Six targeted module tests passed. Verify in real Firefox that a selected blocked domain's public RDAP registry details, Firefox DNS results and eligible IP-network record are displayed and exported without page URLs or cookies; confirm missing/redacted registrants remain unknown and a timeout still displays the available data. Compare requests with an unrecognized/unknown hostname and check none of the external lookups occur without a deliberate button click. Run the complete Ubuntu suite including the updated RDAP owner background integration fixture; do not mark Build 216 accepted until verified.

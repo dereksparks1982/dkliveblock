@@ -430,7 +430,35 @@ async function lookupBlockedDomain(id,target,expectedSite){
    .slice(0,8).map(item=>String(item?.ldhName||"").toLowerCase()).filter(DKManualRules.validHost);
   const statuses=(Array.isArray(registration.status)?registration.status:[])
    .slice(0,8).filter(value=>typeof value==="string"&&value.length<=70);
-  return {ok:true,domain,
+  const publicRecord=DKDomainInvestigation.registration(registration);
+  let dns={status:"Not fetched",addresses:[]},hosting=null,hostingAddress="";
+  try{
+   dns=DKDomainInvestigation.dns(await browser.dns.resolve(target));
+   const publicIP=dns.addresses.find(DKDomainInvestigation.publicIPv4);
+   if(publicIP){
+    // A sampled IP-network registrant is not necessarily the domain owner.
+    const stop=new AbortController(),limit=setTimeout(()=>stop.abort(),5000);
+    try{
+     const ipResult=await fetch("https://rdap.org/ip/"+encodeURIComponent(publicIP),{
+      credentials:"omit",cache:"no-store",signal:stop.signal,redirect:"follow",
+      headers:{"Accept":"application/rdap+json, application/json"}});
+     if(ipResult.ok&&new URL(ipResult.url||"https://rdap.org").protocol==="https:"&&
+        Number(ipResult.headers?.get?.("content-length")||0)<=200000){
+      const raw=await ipResult.text();
+      if(raw.length<=200000){
+       hosting=DKDomainInvestigation.network(JSON.parse(raw));
+       if(hosting)hostingAddress=publicIP;
+      }
+     }
+    }catch(_){/* DNS and domain registration remain available. */}
+    finally{clearTimeout(limit);}
+   }
+  }catch(_){dns={status:"Firefox DNS lookup unavailable",addresses:[]};}
+  const listed=DKThreatDB.match(data.threatDB,target);
+  return {ok:true,domain,checked:Date.now(),publicRecord,dns,hosting,hostingAddress,
+   threatListing:{listed:!!listed,category:listed?.category||"",
+    source:listed?.source||"",updated:listed?.updated||0,
+    overridden:data.settings.threatOverrides.includes(target)},
    organization:rdapRole(registration,"registrant"),
    registrar:rdapRole(registration,"registrar",true),
    registered:eventDate("registration"),updated:eventDate("last changed"),

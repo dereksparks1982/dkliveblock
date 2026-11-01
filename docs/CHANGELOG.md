@@ -1,3 +1,12 @@
+## Build 216 (0.3.186): user-triggered deep domain investigation and hosting evidence
+
+- Expanded the existing blocked-request "Look up domain registration" action into an opt-in Domain Investigation view. It preserves publicly available RDAP registration handle, status, events, nameservers, DNSSEC status, nested entity roles and public contact fields, notices, remarks, links and other registry metadata, while identifying the actual registration organization and registrar separately.
+- Firefox resolves the observed blocked hostname only after the user clicks Investigate. A sample of one public IPv4 address may additionally receive an IP-network RDAP lookup; this identifies hosting/network registration, **not necessarily the domain registrant or request operator**. Public/reserved IP tests prevent LAN/private addresses from being sent for IP network lookup.
+- Shows local phishing-feed listing and exact-host override status separately from DNS and RDAP; absence from the list is never called a safety verdict. Includes retained public findings in the existing user-triggered TXT/JSON blocked-request exports.
+- Existing authorization checks (only a currently recorded blocked hostname on a live website tab), 9-second domain RDAP deadline, strict HTTPS and response-length limits remain. Network RDAP adds an independent 5-second timeout and failure does not hide the other fields. Evidence is rendered with textContent, never page HTML.
+- Six focused module tests pass, including public data extraction, unsafe-link filtering, provider separation, DNS and reserved IP boundaries and source-level authorization. Full Ubuntu/background integration and real Firefox tests remain pending.
+- README stays focused on product features; no Actions, extension permissions, automatic cloud reputation queries or public release.
+
 ## Build 215 (0.3.185): default-on, independent phishing threat database
 
 - Added a separate locally matched threat-intelligence database using Phishing Army's maintained public phishing-domain feed. Fresh installs default to protection ON and automatic daily downloads while auto-update is enabled; no visited domains are queried against a server.

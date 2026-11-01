@@ -803,3 +803,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 216: full, opt-in domain investigation card including RDAP entity/public registration details, authoritative DNS evidence and hosting ASN where safely retrievable; make empty/unverified fields explicit and export the source/timestamps.
 - [ ] Expand threats only after source licensing and false-positive review, with independent categories for malware distribution, phishing, deceptive redirects and command-and-control, never simply treating an unknown hostname or TLD as malicious.
 - [ ] Add user-friendly blocked-navigation page with clear publisher evidence, source date and explicit per-domain proceed override; avoid full URLs in remote queries.
+
+- [x] Build 216: on-demand investigation of recorded blocked hostnames with detailed public domain RDAP records, Firefox DNS, sampled public IP-network RDAP, local phishing-list status, source caveats and optional TXT/JSON export. No background cloud reputation calls tied to browsing.
+- [ ] Add a user-friendly blocked-site interstitial and "proceed for this exact hostname" control, with explicit consent and safe navigation state, before expanding main-frame protection beyond the first phishing feed.
+- [ ] Expand verified categories only after feed/licensing review, and display multiple independent detections without mistaking mirrored feeds for independent sources.

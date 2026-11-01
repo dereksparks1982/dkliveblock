@@ -42,6 +42,11 @@ test("opt-in RDAP registration lookup is restricted to actually blocked live-tab
  assert.equal(allowed.domain,"doubleclick.net");
  assert.equal(allowed.organization,"Registrant Example LLC");
  assert.equal(allowed.registrar,"Sample Registrar");
+ assert.equal(allowed.publicRecord.entities[0].org,"Registrant Example LLC");
+ assert.equal(allowed.dns.addresses.length,0);
+ assert.equal(allowed.hosting,null);
+ assert.equal(allowed.threatListing.listed,false);
+ assert.equal(typeof allowed.checked,"number");
  assert.equal(allowed.registered,"2023-01-01");
  assert.equal(allowed.expires,"2030-01-01");
  assert.equal(allowed.nameservers[0],"ns1.example.net");

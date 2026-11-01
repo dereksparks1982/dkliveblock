@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 215 / 0.3.185 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 216 / 0.3.186 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -201,3 +201,10 @@ Full Ubuntu and live Firefox tests still pending.
 - Default `threatProtection:true` applies exact-host phishing blocks even when normal ad filtering is allowlisted; global off, a threat-specific checkbox, and explicit exact-host overrides all disable it as appropriate. Main-frame navigations are cancelled before query-stripping. Local UI shows source/count/updated/error; event evidence describes a phishing feed match, not an owner verdict.
 - One verified phishing category only, not complete malware/scam/c2 protection. The feed may be missing before initial successful download, may go stale, may contain false positives and may not cover every subdomain or page path. Additional vetted sources and warning/recovery navigation experience are pending.
 - Eight local module smoke checks passed in isolated JS, ninth source integration check registered in Linux suite. Full Ubuntu/Firefox acceptance remains pending, as does complete investigation card work.
+
+## Build 216: on-demand public domain and network investigation (unreleased)
+
+- A user clicking Investigate on a recorded blocked destination can see the fuller public RDAP registration object: registry handle, entity organization/name/email/phone/address **only when publicly returned**, roles, registration dates, status, DNSSEC, nameservers, notices, remarks and source links. Public ownership may still be redacted. Known operator hints and registrar/network ownership are clearly distinguished.
+- Firefox DNS resolution displays A/AAAA addresses and available canonical hostname data. A single eligible public IPv4 address may undergo its own explicit IP-network RDAP query, revealing infrastructure registrant and network range, not necessarily domain owner. Private/loopback/link-local/documentation addresses are never submitted. Both research calls happen only after the same explicit user action; no per-site background reputation lookups are added.
+- The local phishing-database presence and exact-host override flag appear as independent evidence. Updated Site Dashboard text panel and existing export methods retain these opt-in details, with size and string sanitization. Unknown facts remain labelled unavailable.
+- Six focused tests passed in an isolated JS runner; original RDAP integration fixture was extended but has not been run in complete Node suite. Full Ubuntu/Firefox acceptance is pending.

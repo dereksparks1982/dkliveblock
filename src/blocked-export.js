@@ -13,6 +13,20 @@ function safeDate(value){
  return typeof value==="number"&&Number.isFinite(value)&&value>0&&value<8640000000000000?
   new Date(value).toISOString():"Not recorded";
 }
+function publicFields(input,depth=0){
+ if(depth>6)return "Further nesting omitted";
+ if(typeof input==="string")return short(input,500);
+ if(typeof input==="number")return Number.isFinite(input)?input:null;
+ if(typeof input==="boolean"||input===null)return input;
+ if(Array.isArray(input))return input.slice(0,30).map(x=>publicFields(x,depth+1));
+ if(!input||typeof input!=="object")return null;
+ const output={};
+ for(const key of Object.keys(input).slice(0,30)){
+  if(!/^[a-zA-Z][a-zA-Z0-9_-]{0,60}$/.test(key))continue;
+  output[key]=publicFields(input[key],depth+1);
+ }
+ return output;
+}
 function safeRegistration(value){
  if(!value?.ok)return {status:"Not fetched; registration lookups require an explicit click."};
  const raw=value,statuses=Array.isArray(raw.statuses)?raw.statuses.slice(0,8):[],
@@ -24,7 +38,11 @@ function safeRegistration(value){
   registered:short(raw.registered,30)||"Not disclosed",
   updated:short(raw.updated,30)||"Not disclosed",
   expires:short(raw.expires,30)||"Not disclosed",
-  nameservers:nameservers.filter(Details.valid),statuses:statuses.map(x=>short(x,80)).filter(Boolean)};
+  nameservers:nameservers.filter(Details.valid),statuses:statuses.map(x=>short(x,80)).filter(Boolean),
+  checkedAt:safeDate(raw.checked),publicRegistration:publicFields(raw.publicRecord),
+  firefoxDNS:publicFields(raw.dns),hostingNetwork:publicFields(raw.hosting),
+  hostingSampleIP:short(raw.hostingAddress,48),
+  threatListing:publicFields(raw.threatListing)};
 }
 function rowKey(site,id,hostname){return String(id)+":"+site+":"+hostname;}
 // Include the same privacy-scrubbed YouTube diagnostics in the regular blocked
@@ -185,6 +203,10 @@ function asText(report){
     "  Nameservers: "+(r.nameservers.join(", ")||"Not disclosed"),
     "  Domain statuses: "+(r.statuses.join(", ")||"Not disclosed"));
   }
+  if(r.publicRegistration)lines.push("Public registration details: "+JSON.stringify(r.publicRegistration,null,2));
+  if(r.firefoxDNS)lines.push("Firefox DNS evidence: "+JSON.stringify(r.firefoxDNS,null,2));
+  if(r.hostingNetwork)lines.push("Sampled IP network RDAP: "+JSON.stringify(r.hostingNetwork,null,2));
+  if(r.threatListing)lines.push("Threat database evidence: "+JSON.stringify(r.threatListing,null,2));
   lines.push("Relevant research links:");
   for(const link of item.researchLinks)lines.push("  "+link.label+": "+link.url);
   lines.push("");
