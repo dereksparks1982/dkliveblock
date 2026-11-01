@@ -4,7 +4,7 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
-**Current development focus:** site-scoped XNXX.GOLD promotion removal and Facebook sponsored-feed/sidebar filtering (Build 232). Both require owner verification in Firefox before being considered complete.
+**Current development status (Build 232 / 0.3.202):** XNXX passed the owner's Firefox test. Facebook remains a confirmed failure: sponsored feed posts and right-rail ads are still visible. CBS playback currently works but requires a longer repeat check. Previously observed working YouTube, Disney+, 1337x and Pirate Bay protections remain regression baselines; none establishes full competitor parity.
 
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.

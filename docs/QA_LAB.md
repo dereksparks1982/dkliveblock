@@ -91,3 +91,12 @@ The owner also compared CBS News with DK Live Block disabled vs enabled: disabli
 Owner screenshot shows CBS News main homepage player on the right is black and cannot play with DK Live Block active. CBS article player previously stopped autoplay but became stuck after pressing Play. Owner requires manual Block Element hiding to reset on refresh and never save automatically; Build 227 stored CBS-specific CSS picker rules permanently. Build 229 removes those old CBS rules, removes new picker persistence paths, preserves the one CBS video configuration host identified in the blocked request report, and protects CBS player containers from cosmetic list rules. The owner previously observed CBS with many advertisements when the extension was off and usable with those advertisements suppressed when on. **Build 229 was not yet owner-tested in Firefox**; no claim of fixed video playback or store readiness.
 
 Build 229 follow-up acceptance: check the CBS News homepage video does **not** autoplay and **does** load after user Play, along with the article page case.
+
+## Owner browser acceptance update (November 1, 2026, Build 232 / 0.3.202)
+
+- **XNXX: PASS (owner-reported).** Owner explicitly accepted the tested site after Build 232, including the previously reported premium-promotion and sidebar-ad issue. This is a site-specific acceptance, not an assurance for all videos or future site variants.
+- **Facebook: FAIL (owner screenshot).** A feed post marked `Ad` (Dawn of Jets) and two advertisements under the right-hand `Sponsored` heading remained visible while DK Live Block was active. The Build 232 Facebook detector therefore cannot be called complete. Owner priority: fix feed and right rail without hiding legitimate posts, groups, navigation, or contacts. Reels acceptance remains open.
+- **CBS News: PROVISIONAL.** Owner reported playback working and could not reproduce a subsequent stall, but extended playback across breaks remains due for retesting.
+- **YouTube, Disney+, 1337x, The Pirate Bay:** user-observed success remains recorded; do not regress these working paths. These observations are not comprehensive parity tests.
+
+**Evidence scope:** Reports and screenshots are owner browser observations, not a complete independently executed acceptance matrix or a current Linux regression run.

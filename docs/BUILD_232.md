@@ -20,3 +20,9 @@
 - Use the supplied full GitHub wordmark as the entire visible button content, with no duplicate label; crop empty margins from the supplied Patreon wordmark and remove redundant text.
 - Use high-contrast grayscale and blend modes to visually suppress the raster images' baked pale checkerboard backgrounds; the ZIP artwork renders white on black, and Patreon has no surrounding white square.
 - Center icon/image content, support narrow screens, preserve keyboard accessibility and all existing links. Only `index.html`, `docs/index.html` and this build note changed; Firefox extension code/version untouched.
+
+## Documentation refresh following owner's browser tests
+- Nov 1: owner explicitly accepted XNXX (PASS); Facebook still shows sponsored feed and side-rail ads (FAIL); CBS playback is provisional pending long-duration repeat.
+- Website feature list now describes bundled engine, temporary per-page hiding, site-scoped exceptions, request inspection and honest development status.
+- Website links and approved button geometry, icons, colors and placement are untouched. Both Pages HTML mirrors remain byte-identical.
+- Download disclosures distinguish current GitHub source from potentially older unsigned Google Drive test archives. This is a documentation-only build with no extension version change or GitHub Actions.

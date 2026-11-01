@@ -1,7 +1,15 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 220 / 0.3.190 (2026-11-01), unreleased. Build 203 remains the tagged user-observed-working YouTube baseline.**
-This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
+**Latest repository source: Build 232 / 0.3.202 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
+Historical build sections below remain dated snapshots; this document distinguishes source implementation from browser acceptance and does not claim competitor parity.
+
+## Current browser acceptance (Build 232, owner-reported)
+- **XNXX PASS:** User confirmed site works in Firefox with the new premium-banner and ad cleanup.
+- **Facebook FAIL:** Sponsored feed and right-rail advertisements still visible despite Build 232; next targeted correction needed.
+- **CBS News PROVISIONAL:** Playback now runs, but a longer check across commercial breaks remains open.
+- **Prior observed successes:** YouTube, Disney+, 1337x and The Pirate Bay; preserve their existing filtering and popup behavior.
+- **Release remains blocked:** Full current Linux suite, security/performance evaluation, competitor coverage and Mozilla signing/owner release approval are not complete.
+
 
 ## Implemented source
 - Firefox MV2 extension with bundled Ghostery 2.20.3 plus native filtering, filter-list subscriptions, content hiding, user/site exceptions, popup defenses, network inspection and locally exported blocked/allowed request summaries.

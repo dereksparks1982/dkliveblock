@@ -1,9 +1,11 @@
-## Build 232: XNXX and Facebook site acceptance
+## Build 232: XNXX and Facebook site acceptance (owner results, November 1, 2026)
 - [x] Target the top XNXX.GOLD premium upsell with exact text, link hostname, geometry and player protections.
 - [x] Add MIT-attributed Facebook byline/ARIA/SVG/character-split ad labeling and bounded sidebar/feed removal.
-- [ ] Owner retests XNXX video, top GOLD banner, and right sidebar with DK on and off.
-- [ ] Owner retests Facebook main feed sponsored posts, Sponsored right rail, ordinary posts, Reels and Marketplace.
-- [ ] Keep accepted CBS, YouTube, Disney+, 1337x and Pirate Bay behavior unchanged.
+- [x] **XNXX PASS:** Owner accepted Build 232 in live Firefox. Preserve this site's working protections.
+- [ ] **Facebook FAIL:** Owner screenshot confirms a labeled Ad in the feed and Sponsored right-rail placements still display. Fix recognition without hiding genuine content.
+- [ ] **Facebook still to check:** Reels, Marketplace, groups, contacts and long scrolling after a fix.
+- [ ] **CBS PROVISIONAL:** Playback currently works, with longer ad-break recheck pending.
+- [ ] Keep owner-observed YouTube, Disney+, 1337x and Pirate Bay successes unchanged.
 
 # DK Live Block: feature and release gates
 
