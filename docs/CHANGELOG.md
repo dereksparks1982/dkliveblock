@@ -1,3 +1,10 @@
+## Build 224 (0.3.194): official GitHub source link and Firefox release metadata, unreleased
+
+- Added a clearly labeled, safe HTTPS GitHub Repository link to the existing toolbar footer and Settings → Help area; unchanged popup width, existing controls and Patreon integration.
+- Added Firefox manifest `homepage_url` pointing at the official source and support repository, without introducing any permissions or automatic browsing.
+- Expanded offline manifest checks and AMO preflight with negative cases for a missing, replaced or unsafe repository link. Updated the development warning so it no longer denies all owner-observed streaming success; full compatibility and parity still require testing.
+- Preserved YouTube/Disney+ filtering, original-tab guards, request outcomes, extension permissions and all other working behaviors. Did not create a package, tag, release, branch or GitHub Actions. The full seven-phase Linux suite and live Firefox checks have NOT been run for this source revision. Real npm-generated lockfile and exact vendor build remain release blockers.
+
 ## Build 222 (0.3.192): targeted preroll advertising missed in real Firefox test, unverified
 
 - Owner provided a real screenshot of a preroll advertisement visibly playing with normal DK protection enabled and a second screenshot showing zero blocked / 46 permitted browser requests. The attached November 1 permitted report confirms 46 completed requests in nine site/destination/type groups. **This is a confirmed missed advertisement**, not a working-site success.

@@ -156,3 +156,17 @@ test("Build 203 user-authored scriptlets packaged without dynamic executable sou
  const c=fs.readFileSync(path.join(root,"src/content.js"),"utf8");
  assert.match(c,/dk-live-block:safe-scriptlets/);
 });
+
+test("Build 224 exposes the canonical GitHub repository from Firefox and in both extension UIs",()=>{
+ const url="https://github.com/dereksparks1982/dkliveblock";
+ const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ assert.equal(manifest.homepage_url,url);
+ for(const page of ["popup.html","options.html"]){
+  const html=fs.readFileSync(path.join(root,"src",page),"utf8");
+  const links=[...html.matchAll(/<a\b[^>]*\bhref="https:\/\/github\.com\/dereksparks1982\/dkliveblock"[^>]*>/g)];
+  assert.equal(links.length,1,page+" must expose exactly one official source link");
+  assert.match(links[0][0],/\btarget="_blank"/);
+  assert.match(links[0][0],/\brel="noopener noreferrer"/);
+  assert.match(html,/GitHub Repository/);
+ }
+});

@@ -2,13 +2,13 @@
 
 **Owner goal:** submit DK Live Block for a public Mozilla Firefox Add-ons listing by the end of this week. **Target submission: Friday, November 6.** Mozilla's review/approval timing is outside our control; publication by Saturday, November 7 cannot be guaranteed.
 
-**Current source:** Build 221 / 0.3.191, unreleased. Release-integrity checks are now mandatory, but a real npm lockfile and actual browser/local acceptance are still outstanding. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
+**Current source:** Build 224 / 0.3.194, unreleased. Release-integrity checks are now mandatory, but a real npm lockfile and actual browser/local acceptance are still outstanding. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
 
 ## Current demonstrated success: preserve and retest
 
 The owner has observed successful ad blocking in regular YouTube videos, YouTube "Free with Ads" movies, Disney+ movies, CSI: Las Vegas on Disney+, and suppression of unwanted popups/visible ads on 1337x and The Pirate Bay. See `README.md` and `docs/QA_LAB.md`. These are genuine positive tests, but not a universal or measured comparison to uBlock Origin and Adblock Plus. **Do not interpret historical YouTube failures as the current outcome.**
 
-## Release blockers as of Build 219
+## Release blockers as of Build 224
 
 | Gate | Status | What clears it |
 | --- | --- | --- |
@@ -18,6 +18,7 @@ The owner has observed successful ad blocking in regular YouTube videos, YouTube
 | Complete current Linux regression suite | **NOT RUN** | Exact source checkout: `bash scripts/test-local.sh`, all seven phases with zero failures. Historical successes at old commits do not clear this. |
 | Full Firefox UI and streaming acceptance | PARTIAL | Clean Firefox profile, no competing blockers, ordinary YouTube and movie, Disney+ movie and television, 1337x and Pirate Bay, normal login/payment, whitelist/allowlisting, popup permissions, seek/subtitles/fullscreen, long session, RSS/CPU memory. Record exact candidate SHA and observed outcomes. |
 | Bundled asset / license / privacy / permissions audit | PARTIAL | `scripts/amo-preflight.py --strict` clean, `scripts/release-audit.py` clean; source audit and Mozilla permissions/metadata review. |
+| Official GitHub link and extension homepage | SOURCE-READY, FIREFOX RETEST OPEN | Footer and Settings → Help point to the canonical repository; manifest homepage also points there. Offline regression and real-browser click checks are pending. |
 | Public listing assets, source archive and reviewer notes | DRAFT | Approved icon and screenshots, accurate description and privacy disclosure, official third-party source links and reproducible source ZIP. |
 | Owner acceptance and Mozilla submission | **NOT AUTHORIZED YET** | Owner approves an exact tested commit/version, annotated tag and local unsigned package. Owner signs in to AMO, uploads packages, answers store questions. |
 | Mozilla validation/signing and public visibility | NOT STARTED | Depends on AMO validation and review; do not claim an approved release until AMO confirms it. |

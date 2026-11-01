@@ -824,3 +824,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 222 (0.3.192): targeted fallback filter for a separately hosted media preroll observed allowed in owner Firefox testing; add scope/type/normal-CDN/exception regression tests and record actual failure without claiming working status.
 - [ ] Build 222 acceptance: updated Firefox 0.3.192 real-video reload, confirm preroll removed AND normal video plays, verify all report reasons and source version, re-run entire Linux suite. Do not claim the original 0-block result was caused by a global failure or a site allowlist.
+
+- [x] Build 223 (0.3.193): narrowly scoped original-tab advertising takeover guard added for a reported video-site window case, with targeted tab/provenance/navigation regression tests. Browser acceptance and broader popup protection are still pending.
+- [x] Build 224 (0.3.194): official repository link in the existing popup footer and Settings Help, homepage metadata for Firefox, secure-link release gate and negative fixtures. Refresh stale release status text without changing blocking, UI control positions or permissions.
+- [ ] Build 224 acceptance: run all seven Linux regression phases, confirm popup/settings links open the right repo in Firefox without disturbing video playback or unwanted-popup protection, and review the AMO metadata. Reproducible npm dependency lock, exact vendor byte comparison, owner approval, and Mozilla signing remain blocked/open.

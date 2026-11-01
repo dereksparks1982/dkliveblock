@@ -57,6 +57,8 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 
 ## Support
 
+**Find the source:** The Firefox toolbar popup and Settings → Help link directly to the [official GitHub repository](https://github.com/dereksparks1982/dkliveblock). Firefox's add-on details can use the same homepage. These links are optional and do not send browsing diagnostics.
+
 **Bug reports and feature requests:** [elderredsoftworks@proton.me](mailto:elderredsoftworks@proton.me). The extension's Report a Problem feature prepares a draft for review; it never sends a report automatically. Please remove private URLs, tokens, and other sensitive information from any attached diagnostics.
 
 ## License

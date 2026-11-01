@@ -28,6 +28,9 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
     (root / "LICENSE").write_text("NO MONETIZATION\nTHIRD-PARTY", encoding="utf-8")
     (root / "README.md").write_text("Not for sale or commercial exploitation", encoding="utf-8")
     (root / "src/ghostery-vendor.js").write_bytes(b"x" * 100_100)
+    repo_link = '<a href="https://github.com/dereksparks1982/dkliveblock" target="_blank" rel="noopener noreferrer">GitHub Repository</a>'
+    for page in ("src/popup.html", "src/options.html"):
+        (root / page).write_text(repo_link, encoding="utf-8")
     write_json(root / "package.json", {
         "name": "dk-live-block",
         "version": "0.3.191",
@@ -38,6 +41,7 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
         "manifest_version": 2,
         "version": "0.3.191",
         "browser_specific_settings": {"gecko": {"id": "test@dk.invalid"}},
+        "homepage_url": "https://github.com/dereksparks1982/dkliveblock",
     })
     sri = "sha512-" + base64.b64encode(bytes(64)).decode("ascii")
     lock = {
@@ -81,6 +85,24 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
     write_json(root / "package-lock.json", lock)
     assert module.issues(root) == [], module.issues(root)
 
+    # The extension's actual source and support link must be present and safe.
+    popup = root / "src/popup.html"
+    popup.write_text(repo_link.replace('target="_blank"', 'target="_self"'), encoding="utf-8")
+    assert any("secure official GitHub" in x for x in module.issues(root))
+    popup.write_text(repo_link, encoding="utf-8")
+    options = root / "src/options.html"
+    options.write_text('<a href="https://unrelated.invalid/" target="_blank" rel="noopener noreferrer">Other</a>', encoding="utf-8")
+    assert any("secure official GitHub" in x for x in module.issues(root))
+    options.write_text(repo_link, encoding="utf-8")
+    test_manifest = root / "src/manifest.json"
+    data = json.loads(test_manifest.read_text(encoding="utf-8"))
+    data["homepage_url"] = "https://unrelated.invalid/"
+    write_json(test_manifest, data)
+    assert any("Manifest homepage_url" in x for x in module.issues(root))
+    data["homepage_url"] = "https://github.com/dereksparks1982/dkliveblock"
+    write_json(test_manifest, data)
+    assert module.issues(root) == [], module.issues(root)
+
     (root / "package-lock.json").unlink()
     assert any("Missing package-lock.json" in x for x in module.issues(root))
     write_json(root / "package-lock.json", lock)
@@ -97,6 +119,7 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
         "manifest_version": 2,
         "version": "0.3.191",
         "browser_specific_settings": {"gecko": {"id": "test@dk.invalid"}},
+        "homepage_url": "https://github.com/dereksparks1982/dkliveblock",
     })
 
     (root / "src/LICENSE-GHOSTERY.txt").unlink()

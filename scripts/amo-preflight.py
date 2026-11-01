@@ -7,6 +7,7 @@ import json
 import base64
 import binascii
 from pathlib import Path
+from html.parser import HTMLParser
 
 ROOT = Path(__file__).resolve().parent.parent
 CHECK_FILES = (
@@ -18,6 +19,22 @@ CHECK_FILES = (
 )
 GHOSTERY_VERSION = "2.20.3"
 ESBUILD_VERSION = "0.25.12"
+GITHUB_HOMEPAGE = "https://github.com/dereksparks1982/dkliveblock"
+
+class RepositoryLinkParser(HTMLParser):
+    """Find a safe, clickable official repository link without contacting GitHub."""
+    def __init__(self):
+        super().__init__()
+        self.found = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag != "a":
+            return
+        item = dict(attrs)
+        rel = set((item.get("rel") or "").lower().split())
+        if (item.get("href") == GITHUB_HOMEPAGE and item.get("target") == "_blank"
+                and {"noopener", "noreferrer"}.issubset(rel)):
+            self.found = True
 
 
 def issues(root: Path = ROOT) -> list[str]:
@@ -36,6 +53,17 @@ def issues(root: Path = ROOT) -> list[str]:
 
     manifest = parse("src/manifest.json")
     package = parse("package.json")
+    if manifest.get("homepage_url") != GITHUB_HOMEPAGE:
+        problems.append("Manifest homepage_url must point to the official GitHub repository")
+    for page in ("src/popup.html", "src/options.html"):
+        try:
+            markup = (root / page).read_text(encoding="utf-8")
+            parser = RepositoryLinkParser()
+            parser.feed(markup)
+            if not parser.found:
+                problems.append("Missing secure official GitHub repository link: " + page)
+        except (OSError, ValueError):
+            problems.append("Missing or invalid extension page for GitHub link: " + page)
     if manifest.get("manifest_version") != 2:
         problems.append("Unexpected manifest generation; review MV2 compatibility")
     if not isinstance(manifest.get("version"), str) or manifest.get("version") != package.get("version"):
