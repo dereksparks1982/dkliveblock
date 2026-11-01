@@ -122,12 +122,15 @@ test("Build 218 page uses file inputs and local-only safe text, no network calls
  const ui=fs.readFileSync(path.join(root,"youtube-lab-ui.js"),"utf8");
  const dashboard=fs.readFileSync(path.join(root,"site-dashboard.html"),"utf8");
  for(const id of ["baselineFile","candidateFile","compareReports","exportComparison",
-  "clearComparison","comparisonRows","comparisonWarnings","labStatus"])
+  "clearComparison","comparisonRows","comparisonWarnings","labStatus",
+  "baselineVideoType","candidateVideoType","baselinePlayback","candidatePlayback",
+  "baselineAds","candidateAds"])
   assert.ok(html.includes('id="'+id+'"'),id);
  assert.ok(html.includes('src="youtube-lab.js"'));
  assert.ok(html.includes('src="youtube-lab-ui.js"'));
  assert.ok(dashboard.includes('href="youtube-lab.html"'));
  assert.match(ui,/file\.text\(\)/);
+ assert.match(ui,/video types differ/i);
  assert.match(ui,/textContent/);
  assert.doesNotMatch(ui,/\bfetch\s*\(|XMLHttpRequest|sendBeacon|innerHTML|localStorage|eval\s*\(/);
  const manifest=JSON.parse(fs.readFileSync(path.join(root,"manifest.json"),"utf8"));
