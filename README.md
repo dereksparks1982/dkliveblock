@@ -1,8 +1,10 @@
+![DK Live Block neon banner](assets/images/DK%20Live%20Block%20Neon%20Banner.png)
+
 # DK Live Block
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
-> **Development status:** DK Live Block is unreleased source code. Firefox compatibility, streaming playback, security review, and feature parity with established blockers still require testing. It is not a finished or Mozilla-signed public release.
+> **Availability:** DK Live Block is available to download and use from this GitHub repository. The official Firefox Add-ons listing has not yet been approved by Mozilla. Full compatibility, streaming playback, security review, and feature parity with established blockers still require testing.
 
 ## What it does
 
