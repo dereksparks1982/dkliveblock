@@ -4,7 +4,6 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
-**Next-thread developer handoff (latest):** [Build 229 status, CBS player failure, temporary Block Element behavior, and Google Drive download requirement](docs/NEXT_THREAD_HANDOFF.md). Read this first when resuming work.
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
 
@@ -51,7 +50,6 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 
 ## Documentation
 
-- [**Next-thread handoff / latest unresolved issues**](docs/NEXT_THREAD_HANDOFF.md)
 - [Development history and release notes](docs/CHANGELOG.md)
 - [Current engineering state](docs/STATE.md)
 - [Roadmap and acceptance requirements](docs/ROADMAP.md)
