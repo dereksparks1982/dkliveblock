@@ -95,7 +95,7 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
     assert any("invalid JSON: src/manifest.json" in x for x in module.issues(root))
     write_json(root / "src/manifest.json", {
         "manifest_version": 2,
-        "version": "0.3.189",
+        "version": "0.3.191",
         "browser_specific_settings": {"gecko": {"id": "test@dk.invalid"}},
     })
 
