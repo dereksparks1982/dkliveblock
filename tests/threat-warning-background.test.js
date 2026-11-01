@@ -69,4 +69,12 @@ test("Build 217 phishing warning redirects are tab-bound and explicit exact-host
  assert.equal((await handlers.message({action:"closeThreatWarning",nonce:nonce2,confirm:true},sender2)).ok,true);
  assert.deepEqual(closes,[10]);
  assert.deepEqual(Array.from(saved.settings.threatOverrides),[victim]);
+ // Expired/stale warning cannot proceed, but its Close control remains usable.
+ const staleNonce="a".repeat(32);
+ tab.url=ext+"blocked.html#"+staleNonce;
+ const staleSender={...sender,url:tab.url,tab:{id:10,url:tab.url}};
+ assert.ok((await handlers.message({action:"proceedThreatWarning",nonce:staleNonce,confirm:true},staleSender)).error);
+ assert.equal((await handlers.message({action:"closeThreatWarning",nonce:staleNonce,confirm:true},staleSender)).ok,true);
+ assert.deepEqual(closes,[10,10]);
+ assert.deepEqual(Array.from(saved.settings.threatOverrides),[victim]);
 });
