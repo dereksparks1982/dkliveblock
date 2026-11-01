@@ -613,3 +613,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Build 161 acceptance: execute the complete seven-phase runner against this exact GitHub commit in a local Ubuntu checkout; record exact Node/Python counts and any remaining failures. Source-only review is not a green result.
 - [ ] Build 162: instrument offline native-versus-Ghostery network verdict comparisons, including unsupported exception and redirect fixtures, without changing production precedence.
 - [ ] Build 163 (only after green gate and differential evidence): separate authoritative subscription decisions from explicit DK user/site overrides; test login, media, popup and override safety.
+
+- [x] Build 162: local-only bounded native/Ghostery/production differential observer; synthetic exception, redirect/rewrite, method and page-policy examples; official runner inventory now includes the Build 161 runner self-test and Build 162 observer test.
+- [ ] Build 162 acceptance: full seven-phase Ubuntu test run and exact current-commit pass/fail counts (not yet verified).
+- [ ] Build 163: safe production verdict arbitration only after confirmed regressions and exception-rescue differential fixtures.

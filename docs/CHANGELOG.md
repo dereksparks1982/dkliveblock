@@ -700,3 +700,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Replaced fail-fast local testing with a seven-phase runner that completes every phase, reports every phase's pass/fail result, includes Node TAP test counts (including skipped/todo/cancelled cases), and returns a failing exit status when any phase fails.
 - Added an isolated runner integration test using synthetic Node/Python executables and intentionally failing phases to verify failure continuation and output accounting; no browser, network activity or repository-side CI.
 - Full checkout suite, live Firefox/YouTube and comparative blocking acceptance remain unverified. No public release.
+
+### 0.3.132 / Build 162 (2026-10-31)
+- Added an offline-only differential audit comparing native, bundled Ghostery and current hybrid network verdicts on 12 bounded synthetic cases. Tracks exception, missed blocking, redirect/rewrite and intentional policy bypass categories without logging URLs or live browser data.
+- Added offline Node regression tests for the category classifier, actual bundled vendor integration, and bounded privacy-safe audit output.
+- Registered the Build 161 runner self-test omitted from the official test list, as well as the new Build 162 observer test.
+- Production request handling is unchanged. Full current local test suite and actual Firefox playback remain unverified; no release.
