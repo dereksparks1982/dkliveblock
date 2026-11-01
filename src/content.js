@@ -24,9 +24,10 @@
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
+ const facebookRecognizer=typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
  function inspectAdSlots(){
   if(!active||!adRecognition||picking||!adRecognizer)return;
-  lastAdScan=Date.now();adRecognizer.scan();
+  lastAdScan=Date.now();adRecognizer.scan();facebookRecognizer?.scan();
  }
  function queueAdScan(){
   if(adScanTimer!==null||!active||!adRecognition||picking||!adRecognizer||
@@ -62,9 +63,10 @@
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall||distractionControl&&!nextDistractions)restoreAntiHidden();
    if(!nextActive)temporarySelectors=[];
    if(!nextActive||proceduralChanged){restoreHidden();cosmeticDebugger.restore();}
-   if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
+   if(!nextActive||adRecognition&&!s.adRecognition){adRecognizer?.restore();facebookRecognizer?.restore();}
    // Immediately undo an old automatic hide when its exact-site allowance is added.
    adRecognizer?.setExceptions(s.adRecognitionExceptions);
+   facebookRecognizer?.setExceptions(s.adRecognitionExceptions);
    const nextHealth=!!s.playbackHealthEnabled;
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
@@ -289,7 +291,8 @@
     let popups=false,ads=false;
     for(const item of records.slice(0,40)){
      if(!popups&&DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el)))popups=true;
-     if(!ads&&adRecognizer&&DKAdRecognition.relevantMutation(item))ads=true;
+     if(facebookRecognizer?.observeMutation(item))ads=true;
+     if(!ads&&adRecognizer&&DKAdRecognition.relevantMutation(item,host))ads=true;
      if(popups&&ads)break;
     }
     if(popups)queueOverlayScan();
@@ -298,7 +301,7 @@
    overlayObserver.observe(document.documentElement,{
     childList:true,subtree:true,attributes:true,
     attributeFilter:["class","style","hidden","aria-hidden","open","id","name",
-     "data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label"]
+     "data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label","aria-labelledby"]
    });
   }catch(_){overlayObserver=null;}
  }

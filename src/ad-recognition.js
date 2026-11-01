@@ -82,9 +82,11 @@ function collectScopes(document){
  }
  return scopes;
 }
-function relevantMutation(record){
+function relevantMutation(record,siteHost=""){
  if(!record)return false;
  if(record.type==="attributes"){
+  if((siteHost==="facebook.com"||siteHost.endsWith(".facebook.com"))&&
+     record.attributeName==="aria-labelledby")return true;
   if(!["class","id","name","data-ad-client","data-ad-slot","data-ad-unit","data-google-query-id","data-testid","aria-label"].includes(record.attributeName))return false;
   return hasStrongSignal(record.target);
  }
@@ -95,6 +97,13 @@ function relevantMutation(record){
  for(let i=0;i<count;i++){
   let el;try{el=items[i];}catch(_){continue;}
   try{
+   if((siteHost==="xnxx.com"||siteHost.endsWith(".xnxx.com"))&&
+      (el?.matches?.('a[href*="xnxx.gold"]')||
+       el?.querySelector?.('a[href*="xnxx.gold"]')))return true;
+   if((siteHost==="facebook.com"||siteHost.endsWith(".facebook.com"))&&
+      (el?.matches?.('[role="article"],[aria-posinset],[role="complementary"],[aria-labelledby]')||
+       el?.querySelector?.('[role="article"],[aria-posinset],[aria-labelledby]')||
+       /^(ad|sponsored)$/i.test(String(el?.textContent||"").trim())))return true;
    if(hasStrongSignal(el)||el?.querySelector?.(CANDIDATES)||
       el?.shadowRoot?.querySelector?.(CANDIDATES))return true;
   }catch(_){}
@@ -155,6 +164,35 @@ function sitePromotionCandidates(document,window){
  }catch(_){}
  return [];
 }
+
+function xnxxGoldCandidates(document,window){
+ try{
+  const host=String(window?.location?.hostname||document?.location?.hostname||"").toLowerCase();
+  if(host!=="xnxx.com"&&!host.endsWith(".xnxx.com"))return [];
+  const viewport=Number(window?.innerWidth)||0;
+  if(viewport<600)return [];
+  const anchors=document.querySelectorAll?.('a[href*="xnxx.gold"]')||[];
+  for(let i=0;i<Math.min(60,anchors.length);i++){
+   const a=anchors[i];let url;
+   try{url=new URL(String(a.getAttribute?.("href")||""),"https://www.xnxx.com");}catch(_){continue;}
+   if(!["http:","https:"].includes(url.protocol)||!["xnxx.gold","www.xnxx.gold"].includes(url.hostname))continue;
+   let node=a;
+   for(let d=0;d<5&&node;d++,node=node.parentElement){
+    if(node===document.body||node===document.documentElement)break;
+    const text=String(node.textContent||"").replace(/\s+/g," ").trim().toLowerCase();
+    if(!/^try xnxx\.gold\.? ad-free experience with extra content and features\.?$/.test(text))continue;
+    if(node.querySelector?.("video,audio,iframe,form,main,article,nav,[role='main'],#player"))continue;
+    const r=node.getBoundingClientRect?.();
+    if(!r||r.top<0||r.top>260||r.height<22||r.height>110||
+       r.width<viewport*.55||r.width>viewport*1.05)continue;
+    if(!node.style?.setProperty||!node.getClientRects?.().length)continue;
+    return [node];
+   }
+  }
+ }catch(_){}
+ return [];
+}
+
 function create(document,window,limit=60){
  const hidden=new Map(),max=Math.max(1,Math.min(100,limit));
  let cursor=0,allowed=[];
@@ -202,6 +240,7 @@ function create(document,window,limit=60){
    }catch(_){return false;}
   }
   for(const promo of sitePromotionCandidates(document,window))hide(promo);
+  for(const promo of xnxxGoldCandidates(document,window))hide(promo);
   const groups=[];let count=0;
   for(const scope of collectScopes(document)){
    try{
@@ -227,7 +266,7 @@ function create(document,window,limit=60){
  }
  return {scan,restore,prune,setExceptions,get hiddenCount(){return hidden.size;}};
 }
-const api={create,hasStrongSignal,safe,collectScopes,relevantMutation,sitePromotionCandidates,CANDIDATES};
+const api={create,hasStrongSignal,safe,collectScopes,relevantMutation,sitePromotionCandidates,xnxxGoldCandidates,CANDIDATES};
 root.DKAdRecognition=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

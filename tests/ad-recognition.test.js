@@ -406,3 +406,43 @@ test("Build 223 site promo exception preserves panel and allows reversible hidin
  scanner.setExceptions([".cams"]);
  assert.equal(panel.style.getPropertyValue("display"),"");
 });
+
+const FB=require("../src/facebook-ads.js");
+test("Build 232 Facebook limits host and label recognition to actual ads",()=>{
+ for(const h of ["facebook.com","www.facebook.com","m.facebook.com"])assert.equal(FB.isFacebook(h),true);
+ for(const h of ["notfacebook.com","facebook.com.evil.test","youtube.com","xnxx.com"])assert.equal(FB.isFacebook(h),false);
+ for(const s of ["Ad","Sponsored","S\u200bponsored"])assert.equal(FB.isAdLabel(s),true);
+ for(const s of ["Advertisement","Adventures","Shared","Suggested for you"])assert.equal(FB.isAdLabel(s),false);
+});
+test("Build 232 Facebook refuses an oversized, protected or top-level container",()=>{
+ const make=(w,protectedNode=false)=>({style:new Style(),isConnected:true,
+  matches:()=>protectedNode,querySelector:()=>protectedNode?{}:null,closest:()=>null,
+  querySelectorAll:()=>[],getBoundingClientRect:()=>({width:w,height:400})});
+ const doc={body:{},documentElement:{}};
+ assert.equal(FB.safeCard(make(520),doc),true);
+ assert.equal(FB.safeCard(make(1100),doc),false);
+ assert.equal(FB.safeCard(make(520,true),doc),false);
+ assert.equal(FB.create({location:{hostname:"youtube.com"}},{}),null);
+});
+test("Build 232 XNXX GOLD banner hides narrowly, restores and protects video",()=>{
+ const link={getAttribute:()=> "https://xnxx.gold/",parentElement:null};
+ const banner=ad({tag:"div",cls:"promo"});link.parentElement=banner;
+ banner.textContent="Try XNXX.GOLD. Ad-free experience with extra content and features.";
+ banner.getBoundingClientRect=()=>({left:0,top:54,width:1295,height:60});
+ banner.querySelector=()=>null;
+ const win={location:{hostname:"www.xnxx.com"},innerWidth:1295};
+ const doc={body:{},documentElement:{},querySelectorAll:q=>q.includes('a[href*="xnxx.gold"]')?[link]:[]};
+ const scanner=A.create(doc,win);
+ assert.equal(scanner.scan(),1);assert.equal(banner.style.getPropertyValue("display"),"none");
+ scanner.restore();assert.equal(banner.style.getPropertyValue("display"),"");
+ banner.querySelector=()=>({});
+ assert.equal(A.create(doc,win).scan(),0);
+ assert.equal(A.create(doc,{location:{hostname:"youtube.com"},innerWidth:1295}).scan(),0);
+});
+test("Build 232 site-specific dynamic mutation rules remain site-scoped",()=>{
+ const node={nodeType:1,matches:s=>s.includes("xnxx.gold"),querySelector:()=>null};
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:[node]},"www.xnxx.com"),true);
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:[node]},"example.com"),false);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"aria-labelledby",target:node},"www.facebook.com"),true);
+ assert.equal(A.relevantMutation({type:"attributes",attributeName:"aria-labelledby",target:node},"example.com"),false);
+});
