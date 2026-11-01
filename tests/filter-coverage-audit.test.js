@@ -51,3 +51,16 @@ test("Build 179 hide-only style filters count as supported, arbitrary styling re
  assert.equal(result.lines,6);
  assert.ok(!JSON.stringify(result).includes("news.example"));
 });
+
+test("Build 182 audit distinguishes supported literal computed CSS from regex forms",()=>{
+ const lines=[
+  "news.example##.banner:matches-css(position:fixed)",
+  "news.example##.banner:matches-css(z-index:9999)",
+  "news.example##.banner:matches-css(position:/fixed/)"
+ ].join("\n");
+ const out=Audit.analyze(lines);
+ assert.equal(out.categories.native_procedural,2);
+ assert.equal(out.categories.unsupported_extended_cosmetic,1);
+ assert.equal(out.supported,2);
+ assert.equal(out.unsupported,1);
+});

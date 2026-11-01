@@ -21,6 +21,25 @@ function matches(element,rule){
    return typeof value==="string"&&value.length<=90&&value===rule.value;
   }catch(_){return false;}
  }
+ if(rule.mode==="css"){
+  const allowed={
+   position:/^(fixed|absolute|sticky|relative|static)$/,
+   display:/^(none|block|flex|grid|inline|inline-block)$/,
+   visibility:/^(visible|hidden|collapse)$/,
+   opacity:/^(0(?:\.\d{1,3})?|1(?:\.0{1,3})?)$/,
+   "z-index":/^(auto|-?\d{1,6})$/
+  };
+  if(typeof rule.property!=="string"||typeof rule.value!=="string"||
+     !Object.prototype.hasOwnProperty.call(allowed,rule.property)||
+     !allowed[rule.property].test(rule.value))return false;
+  try{
+   const view=element.ownerDocument?.defaultView;
+   if(typeof view?.getComputedStyle!=="function")return false;
+   const style=view.getComputedStyle(element);
+   const value=style?.getPropertyValue?.(rule.property);
+   return typeof value==="string"&&value.trim().toLowerCase()===rule.value;
+  }catch(_){return false;}
+ }
  if(rule.mode==="has"&&typeof rule.target==="string"){
   try{return typeof element.querySelector==="function"&&Boolean(element.querySelector(rule.target));}
   catch(_){return false;}

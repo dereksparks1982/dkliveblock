@@ -819,3 +819,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Correct native-vs-Ghostery rule priority when a native ordinary exception masks a Ghostery-recognized `$important` subscription block, including entity-domain scopes that native parsing drops.
 - Maintain explicit manual rules and site-page policy precedence; ordinary vendor blocks still cannot cancel native exceptions, and vendor errors fail back to native.
 - Distinguish sanitized Ghostery important and vetted local redirect decisions in request provenance. Added real bundled Ghostery priority and source privacy regression fixtures. Targeted isolated V8 checks passed; Firefox and full suite pending.
+
+### 0.3.152 / Build 182 (2026-11-01)
+- Add narrow uBlock-style `:matches-css()` literal computed-style conditions to DK's host-scoped procedural parser, using bounded position/display/visibility/opacity/z-index properties and exact whitelisted values.
+- Extend procedural matcher, deduplication and exception keys; reuse reversible DOM hide with existing identity/player safeguards and scanning limits. No arbitrary CSS, regex, downloaded code or node removal.
+- Added dedicated parsing, computed-style, hostile-page, exception and audit regression tests. Focused V8 synthetic checks passed; live Firefox performance and full Linux suite remain pending. No YouTube ad parity claim.

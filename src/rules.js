@@ -129,7 +129,7 @@ function procedural(line){
  const match=/^([^#]+)(#@\?#|#\?#|#@#|##)(.+)$/.exec(line.trim());if(!match)return null;
  const scope=match[1].toLowerCase(),raw=match[3].trim();
  const standard=match[2]==="##"||match[2]==="#@#";
- if(standard&&!/:(?:has-text|contains|matches-attr)\(/i.test(raw))return null;
+ if(standard&&!/:(?:has-text|contains|matches-attr|matches-css)\(/i.test(raw))return null;
  const sites=scope.split(",");
  const included=sites.filter(h=>!h.startsWith("~"));
  if(!included.length||sites.length>16||
@@ -139,6 +139,22 @@ function procedural(line){
      !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part));
    }))
   return null;
+ // First-party, bounded literal subset of uBO :matches-css().
+ // No downloaded regular expressions, selector traversal, or style writes.
+ // The reversible page-side procedural hider applies existing player/login
+ // protection and never removes nodes from the document.
+ const css=/^([a-z.#][\w.#>\[\]="'\s:-]{0,160}):matches-css\(\s*(position|display|visibility|opacity|z-index)\s*:\s*([a-z0-9.+-]{1,32})\s*\)$/i.exec(raw);
+ if(css&&/^(?:[a-z]|[.#][a-z_])/i.test(css[1].trim())){
+  const property=css[2].toLowerCase(),value=css[3].toLowerCase();
+  if((property==="position"&&/^(?:fixed|absolute|sticky|relative|static)$/.test(value))||
+     (property==="display"&&/^(?:none|block|flex|grid|inline|inline-block)$/.test(value))||
+     (property==="visibility"&&/^(?:visible|hidden|collapse)$/.test(value))||
+     (property==="opacity"&&/^(?:0(?:\.\d{1,3})?|1(?:\.0{1,3})?)$/.test(value))||
+     (property==="z-index"&&/^(?:auto|-?\d{1,6})$/.test(value)))
+   return {scope,selector:css[1].trim(),mode:"css",property,value,
+    exception:match[2]==="#@?#"||match[2]==="#@#"};
+  return null;
+ }
  // Deliberately conservative subset of :matches-attr. Match a single
  // attribute's *literal* value only, without regexes or executable actions.
  // Domain-scoped rules only; generic/global procedural actions stay rejected.

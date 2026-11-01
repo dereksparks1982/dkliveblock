@@ -606,3 +606,23 @@ test("Build 179 rejects unsafe or non-hide :style filters without converting the
   "news.example##*:style(display:none!important)"
  ])assert.equal(R.cosmetic(value),null,value);
 });
+
+test("Build 182 native CSS predicates respect host scope, exceptions and scanning bounds",()=>{
+ const f=new FilterEngine([
+  "news.example##.overlay:matches-css(position:fixed)",
+  "news.example#@#.overlay:matches-css(position:fixed)",
+  "news.example##.sponsor:matches-css(z-index:9999)",
+  "news.example##.sponsor:matches-css(opacity:0.7)",
+  "news.example##.sponsor:matches-css(opacity:0.7)",
+  "other.example##.other:matches-css(display:flex)"
+ ].join("\n"));
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:".sponsor",mode:"css",property:"z-index",value:"9999"},
+  {selector:".sponsor",mode:"css",property:"opacity",value:"0.7"}
+ ]);
+ assert.deepEqual(f.getProcedural("news.example",{elemhide:true}),[]);
+ assert.deepEqual(f.getProcedural("safe.example"),[]);
+ assert.deepEqual(f.getProcedural("other.example"),[
+  {selector:".other",mode:"css",property:"display",value:"flex"}
+ ]);
+});

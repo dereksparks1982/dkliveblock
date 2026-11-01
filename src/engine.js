@@ -144,7 +144,8 @@ class FilterEngine {
   if(policy.document||policy.elemhide)return [];
   const matching=this.byHost(this.proceduralByHost,h).filter(x=>R.domains(h,x.scope,","));
   const key=x=>x.selector+"|"+x.mode+"|"+
-   (x.mode==="attr"?x.attribute+"="+x.value:(x.text||x.target));
+   (x.mode==="attr"?x.attribute+"="+x.value:x.mode==="css"?
+    x.property+"="+x.value:(x.text||x.target));
   const except=new Set(matching.filter(x=>x.exception).map(key));
   // Repeated entries in independently maintained lists must not consume
   // scarce page-world scan slots or multiply DOM querySelectorAll work.
@@ -155,7 +156,8 @@ class FilterEngine {
    seen.add(fingerprint);
    results.push({selector:x.selector,mode:x.mode,
     ...(x.mode==="text"?{text:x.text}:x.mode==="attr"?
-     {attribute:x.attribute,value:x.value}:{target:x.target})});
+     {attribute:x.attribute,value:x.value}:x.mode==="css"?
+     {property:x.property,value:x.value}:{target:x.target})});
    if(results.length>=300)break;
   }
   return results;

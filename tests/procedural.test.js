@@ -78,3 +78,40 @@ test("Build 172 rejects forged attributes or match expressions at runtime",()=>{
  assert.equal(matches(element,{...base,value:""}),false);
  assert.equal(matches(null,base),false);
 });
+
+test("Build 182 literal computed CSS predicates use only safe property values",()=>{
+ const {procedural}=require("../src/rules.js");
+ const rule=procedural("news.example##.overlay:matches-css(position: fixed)");
+ assert.equal(rule.mode,"css");
+ assert.equal(rule.property,"position");
+ assert.equal(rule.value,"fixed");
+ let reads=0;
+ const element={ownerDocument:{defaultView:{getComputedStyle(){
+  reads++;return {getPropertyValue:p=>p==="position"?"fixed":"none"};}}}};
+ assert.equal(matches(element,rule),true);
+ assert.equal(reads,1);
+ assert.equal(matches(element,{...rule,value:"absolute"}),false);
+ assert.equal(matches({ownerDocument:{defaultView:{getComputedStyle(){
+  throw Error("hostile page");
+ }}}},rule),false);
+ assert.equal(matches({},rule),false);
+});
+test("Build 182 procedural CSS cannot run regexes or enumerate arbitrary properties",()=>{
+ const {procedural}=require("../src/rules.js");
+ for(const rule of [
+  "news.example##.ad:matches-css(background-image:url(https://bad.invalid))",
+  "news.example##.ad:matches-css(position:/fixed/)",
+  "news.example##.ad:matches-css(opacity:99999)",
+  "news.example##.ad:matches-css(z-index:1e9)",
+  "##.ad:matches-css(position:fixed)"
+ ])assert.equal(procedural(rule),null,rule);
+ let calls=0;
+ const element={ownerDocument:{defaultView:{getComputedStyle(){
+  calls++;return {getPropertyValue:()=> "fixed"};}}}};
+ for(const rule of [
+  {selector:".ad",mode:"css",property:"background",value:"url(data:x)"},
+  {selector:".ad",mode:"css",property:"position",value:"/fixed/"},
+  {selector:".ad",mode:"css",property:"__proto__",value:"fixed"}
+ ])assert.equal(matches(element,rule),false);
+ assert.equal(calls,0);
+});

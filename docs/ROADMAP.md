@@ -693,3 +693,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 181: resolve measured hybrid precedence mismatch for Ghostery `$important` rules hidden behind incomplete native parsing, while preserving site/manual decisions and source privacy. Verified against real bundled Ghostery in synthetic V8 fixtures.
 - [ ] Build 181 full Linux test gate, real YouTube standard video/midroll/preroll, and non-YouTube sign-in/checkout/media regression testing.
 - [ ] Build 182: expand measured filter corpus and add only proven, safely applicable rule capabilities. No full scriptlet execution from remote lists.
+
+- [x] Build 182: bounded, independently implemented `:matches-css()` computed-style literal predicate with per-site scopes, exact exceptions and reversible hiding; verified in focused V8 tests.
+- [ ] Build 182 acceptance: full seven-phase local Node/Python suite, Firefox style/identity/player behavior and meaningful default-list syntax coverage measurement.
+- [ ] Build 183: extend evidence-based network/cosmetic parity with tests against real filter-list patterns; do not enable arbitrary remote scriptlets or CSS and do not claim YouTube success without actual playback proof.
