@@ -11,6 +11,12 @@ test("Build 162 distinguishes native/Ghostery mismatch categories",()=>{
  assert.equal(Audit.classify(own(true),{match:false}),"native_block_vendor_no_match");
  assert.equal(Audit.classify(own(false),{match:true,redirect:{resource:"empty"}}),
   "vendor_redirect_unsupported");
+ assert.equal(Audit.classify(own(false),{match:true,redirect:{resource:"opaque"}},
+  {production:{block:true,rule:{source:"ghostery-safe-redirect",redirect:"noop.js"}}}),
+  "vendor_vetted_redirect_applied");
+ assert.equal(Audit.classify(own(false),{match:true,redirect:{resource:"opaque"}},
+  {production:{block:true,rule:{source:"ghostery-safe-redirect",redirect:"https://evil.invalid/"}}}),
+  "vendor_redirect_unsupported");
  assert.equal(Audit.classify(own(false),{match:true,rewrite:{}}),
   "vendor_rewrite_unsupported");
  assert.equal(Audit.classify(own(false),{error:true}),"vendor_error");
@@ -49,4 +55,23 @@ test("Build 162 rejects unbounded and malformed corpus entries",()=>{
  assert.throws(()=>Audit.audit(env,Array(97).fill(Audit.SAMPLES[0])),/Bounded/);
  assert.throws(()=>Audit.audit(env,[{...Audit.SAMPLES[0],id:"bad url"}]),/Invalid/);
  assert.throws(()=>Audit.audit(env,[{...Audit.SAMPLES[0],origin:"not|a|hostname"}]),/Invalid/);
+});
+
+test("Build 188 exact packaged redirect verdicts are counted correctly",()=>{
+ const env=Audit.loadEnvironment(),results=Audit.audit(env);
+ const approved=results.find(r=>r.id==="vetted-script-redirect");
+ const unknown=results.find(r=>r.id==="unsupported-script-redirect");
+ assert.ok(approved,"expected vetted redirect case");
+ assert.ok(unknown,"expected unsupported redirect case");
+ assert.equal(approved.vendorRedirect,true);
+ assert.equal(approved.productionBlock,true);
+ assert.equal(approved.vettedLocalRedirect,true);
+ assert.equal(approved.category,"vendor_vetted_redirect_applied");
+ assert.equal(unknown.vettedLocalRedirect,false);
+ assert.notEqual(unknown.category,"vendor_vetted_redirect_applied");
+ assert.equal(Audit.summarize(results).caseCount,Audit.SAMPLES.length);
+ for(const row of results){
+  assert.equal(typeof row.vettedLocalRedirect,"boolean");
+  assert.ok(!("url" in row)&&!("rules" in row)&&!("origin" in row));
+ }
 });

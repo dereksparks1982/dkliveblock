@@ -717,3 +717,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 187: add privacy-preserving, separately counted YouTube player `ad-showing` observation and show it in standard report, YouTube compatibility export and dashboard. Keep adaptive safety and site isolation. No ad-removal claim.
 - [ ] Build 187 acceptance: full exact-commit Linux Node/Python suite, independent Firefox control test with uBO disabled, ordinary video preroll/midroll and ad-supported movie comparison.
 - [ ] Build 188: use the new player-state evidence plus response/bridge diagnostics to distinguish ads shown, ads skipped, playback refused and confirmed ad suppression. Prioritize real missing filtering capabilities rather than unsupported parity claims.
+
+- [x] Build 188: correctly classify bundled Ghostery redirect decisions in offline audit as applied vetted local replacements or unsupported redirects, based on the actual production verdict. Verified 13 synthetic audit cases with real bundled Ghostery.
+- [ ] Full local seven-phase Node/Python test gate on exact Build 188 tree, plus real Firefox acceptance with uBlock disabled and ordinary YouTube preroll/midroll outcomes documented.
+- [ ] Build 189: use corrected audit evidence to prioritize a meaningful missing filter capability; keep source privacy, explicit user decisions and playback protections authoritative.

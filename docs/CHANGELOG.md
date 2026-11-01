@@ -851,3 +851,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Preserve the same opt-in/request logging, active-site, top-frame and hostname authorization checks. Ad-state observations cannot weaken filtering or trigger a fallback in the adaptive controller.
 - Surface this event separately in local YouTube compatibility, standard blocked-request exports and the Site Dashboard. Explicitly label it as unverified player ad state, not a successfully blocked or played ad.
 - Grounded in two provided YouTube exports (13/20 blocks; 10/12 first-party XHR blocks; no playback diagnostics). Synthetic V8 harness: 14 focused assertions passed; full Linux suite and real Firefox ad blocking unverified.
+
+### 0.3.158 / Build 188 (2026-11-01)
+- Fix offline engine audit falsely labeling all Ghostery redirects unsupported after adding vetted inert local redirect integration. Report approved, actually applied `noop.js`/`empty.css` separately from unknown unsupported resources.
+- Include a bounded boolean production-redirect outcome in synthetic audit records, never private URL or source filter text. Add direct real-vendor fixture and regression test coverage for approved and unknown redirect cases.
+- Actual bundled Ghostery/native/hybrid audit completed 13 synthetic cases; no live browser behavior changed. Full Ubuntu regression and YouTube video acceptance remain unverified.

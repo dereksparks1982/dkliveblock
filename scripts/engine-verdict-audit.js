@@ -15,7 +15,9 @@ const SAMPLES=Object.freeze([
   url:"https://ads.example/banner.js",type:"script",origin:"news.example"},
  {id:"important-block",rules:"||ads.example^$important\n@@||ads.example^",
   url:"https://ads.example/banner.js",type:"script",origin:"news.example"},
- {id:"redirect-unavailable",rules:"||ads.example^$redirect=noop.js",
+ {id:"vetted-script-redirect",rules:"||ads.example^$redirect=noop.js",
+  url:"https://ads.example/banner.js",type:"script",origin:"news.example"},
+ {id:"unsupported-script-redirect",rules:"||ads.example^$redirect=unknown-resource.js",
   url:"https://ads.example/banner.js",type:"script",origin:"news.example"},
  {id:"method-post",rules:"||ads.example^$xmlhttprequest,method=POST",
   url:"https://ads.example/api",type:"xmlhttprequest",origin:"news.example",method:"POST"},
@@ -44,10 +46,12 @@ function eligible(row){
   !["popup","main_frame","document"].includes(row.type)&&
   /^https?:\/\//i.test(row.url)&&row.url.length<=16384;
 }
-function classify(native,verdict,{skipped=false}={}){
+function classify(native,verdict,{skipped=false,production=null}={}){
  if(skipped)return "production_skips_vendor";
  if(verdict?.error)return "vendor_error";
- if(verdict?.redirect)return "vendor_redirect_unsupported";
+ if(verdict?.redirect)return production?.rule?.source==="ghostery-safe-redirect"&&
+   ((production.rule.redirect==="noop.js")||(production.rule.redirect==="empty.css"))&&
+   production.block===true?"vendor_vetted_redirect_applied":"vendor_redirect_unsupported";
  if(verdict?.rewrite)return "vendor_rewrite_unsupported";
  if(native.block&&verdict?.exception)return "native_block_vendor_exception";
  if(native.rule?.exception&&verdict?.match&&!verdict?.exception)
@@ -64,11 +68,14 @@ function classify(native,verdict,{skipped=false}={}){
 }
 function state(native,vendor,hybrid,row){
  return Object.freeze({
-  id:row.id,category:classify(native,vendor,{skipped:!eligible(row)}),
+  id:row.id,category:classify(native,vendor,{skipped:!eligible(row),production:hybrid}),
   nativeBlock:!!native.block,nativeException:!!native.rule?.exception,
   vendorMatch:!!vendor?.match,vendorException:!!vendor?.exception,
   vendorRedirect:!!vendor?.redirect,vendorRewrite:!!vendor?.rewrite,
-  productionBlock:!!hybrid.block
+  productionBlock:!!hybrid.block,
+  vettedLocalRedirect:!!(hybrid?.block&&
+   hybrid?.rule?.source==="ghostery-safe-redirect"&&
+   (hybrid.rule.redirect==="noop.js"||hybrid.rule.redirect==="empty.css"))
  });
 }
 function audit(env,rows=SAMPLES){
