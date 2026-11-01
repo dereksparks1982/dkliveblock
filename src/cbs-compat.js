@@ -7,6 +7,14 @@ function playerConfig(request,site){
   return url.protocol==="https:"&&!url.username&&!url.password&&url.hostname==="doppler-config.cbsivideo.com";
  }catch(_){return false;}
 }
+function autoplayProtection(page){
+ if(typeof page!=="string"||page.length>2048)return false;
+ try{
+  const url=new URL(page);
+  return url.protocol==="https:"&&["cbsnews.com","www.cbsnews.com"].includes(url.hostname)&&
+   (url.pathname==="/"||url.pathname.startsWith("/news/"));
+ }catch(_){return false;}
+}
 function clearLegacyCBS(text){
  if(typeof text!=="string"||!text)return {text:typeof text==="string"?text:"",removed:0};
  let removed=0;
@@ -17,7 +25,7 @@ function clearLegacyCBS(text){
  });
  return {text:lines.join("\n"),removed};
 }
-const api=Object.freeze({isCBS,playerConfig,clearLegacyCBS});
+const api=Object.freeze({isCBS,playerConfig,autoplayProtection,clearLegacyCBS});
 root.DKCBSCompat=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

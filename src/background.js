@@ -1524,10 +1524,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    youtubeDiagnosticsEnabled:active&&data.settings.requestLog&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,
-   // CBS News article embeds must wait for a deliberate player interaction.
-   // Do not affect CBS's video/live pages or any standalone YouTube/Disney+ tab.
-   cbsAutoplay:active&&/^https:\/\/(?:www\.)?cbsnews\.com\/news\//i.test(sender.tab?.url||"")&&
-    sender.tab?.url?.length<2048,
+   // CBS News homepage and article embeds wait for a real Play gesture.
+   // Keep live/video pages and unrelated streaming hosts untouched.
+   cbsAutoplay:active&&DKCBSCompat.autoplayProtection(sender.tab?.url||""),
    // Block Element uses page-only CSS; never return saved picker selectors.
    css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{

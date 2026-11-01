@@ -32,6 +32,15 @@ test("Build 229: CBS recognized video player containers survive cosmetic filteri
  assert.deepEqual(video.safeCosmetics([".ad",".video-player",".jwplayer"],"www.cbsnews.com"),[".ad"]);
  assert.deepEqual(video.safeCosmetics([".ad",".video-player"],"example.com"),[".ad",".video-player"]);
 });
+test("Build 229: CBS homepage and article must wait for Play",()=>{
+ assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/"),true);
+ assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/?news=top"),true);
+ assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/news/story-slug"),true);
+ assert.equal(CBS.autoplayProtection("https://www.cbsnews.com/live/"),false);
+ assert.equal(CBS.autoplayProtection("https://www.youtube.com/news/story"),false);
+ assert.equal(CBS.autoplayProtection("http://www.cbsnews.com/"),false);
+ assert.ok(bg.includes("DKCBSCompat.autoplayProtection(sender.tab?.url"));
+});
 test("Build 229: existing CBS article autoplay guard remains scoped",()=>{
  assert.ok(bg.includes("cbsAutoplay:active&&"));
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
