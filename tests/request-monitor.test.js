@@ -68,3 +68,41 @@ test("Build 201 captures only valid hosts, times and fixed private-safe reasons"
  assert.equal(M.note(store,1,"safe","User-approved hostname/type exception"),true);
  assert.doesNotMatch(JSON.stringify(M.snapshot(store,1)),/PRIVATE|SECRET|password|watch/);
 });
+
+test("Build 213 FIFO eviction requires no linear request-ID map scan",()=>{
+ const store=new Map();M.start(store,213,"news.example",1000);
+ const state=store.get(213);
+ state.byId[Symbol.iterator]=()=>{throw Error("linear map scan forbidden");};
+ for(let i=0;i<M.MAX+50;i++)assert.equal(M.record(store,213,"news.example",{
+  requestId:"PRIVATE_ID_"+i,url:"https://cdn.example/image"+i,
+  method:"GET",type:"image"},1000+i),true);
+ const report=M.snapshot(store,213);
+ assert.equal(report.seen,M.MAX+50);
+ assert.equal(report.rows.length,M.MAX);
+ assert.equal(report.dropped,50);
+ assert.equal(report.counts.pending,M.MAX+50,
+  "lifetime totals still count evicted requests");
+ assert.equal(state.byId.has("PRIVATE_ID_0"),false);
+ assert.equal(state.byId.has("PRIVATE_ID_50"),true);
+ assert.equal(M.transition(store,213,"PRIVATE_ID_0","blocked"),false);
+ assert.equal(M.transition(store,213,"PRIVATE_ID_50","allowed",{statusCode:200}),true);
+ assert.doesNotMatch(JSON.stringify(report),/PRIVATE_ID_/);
+});
+test("Build 213 synthetic popup evicts tracked request IDs directly",()=>{
+ const store=new Map();M.start(store,214,"site.example",1000);
+ M.record(store,214,"site.example",{requestId:"PRIVATE_OLD",
+  url:"https://tracking.example/pixel",type:"image"},1001);
+ const state=store.get(214);
+ state.byId[Symbol.iterator]=()=>{throw Error("linear map scan forbidden");};
+ for(let i=0;i<M.MAX;i++)
+  assert.equal(M.syntheticBlock(store,214,"site.example",
+   "https://popup.example/redirect?secret=PRIVATE", "popup",1010+i),true);
+ const result=M.snapshot(store,214);
+ assert.equal(result.rows.length,M.MAX);
+ assert.equal(result.dropped,1);
+ assert.equal(state.byId.has("PRIVATE_OLD"),false);
+ assert.equal(M.transition(store,214,"PRIVATE_OLD","allowed"),false);
+ assert.equal(result.counts.pending,1,"historical counts are retained");
+ assert.equal(result.counts.blocked,M.MAX);
+ assert.doesNotMatch(JSON.stringify(result),/PRIVATE_OLD|PRIVATE|secret/);
+});

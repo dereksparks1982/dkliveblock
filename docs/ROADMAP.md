@@ -792,3 +792,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 212: unify strict popup claim freshness and temporary new-tab approval time validation with rollback and expiry checks. Prevent stale claimed navigation cancellation, preserve user-selected one-time opening.
 - [ ] Run actual Firefox popup allow/deny tests on selected sources, including about:blank, quick navigation, source-site change, clock adjustment and permitted user-opened tabs, before treating the hardening as accepted.
+
+- [x] Build 213: remove O(1,500) byId scans from every overflow of the bounded 1,500-row Network Monitor, while preserving cumulative counts and privacy-safe snapshot fields. Add two long-session overflow regressions.
+- [ ] Measure a high-volume real Firefox capture using local synthetic traffic and compare memory/CPU and exported counts; do not claim measured speedups before the Ubuntu suite and browser checks.

@@ -1,6 +1,9 @@
 /* DK Live Block Build 35: bounded, local-only, per-tab network monitor. */
 (function(root){"use strict";
 const MAX=1500;
+// The request ID already exists in byId; keep a private, non-exported row
+// reference so FIFO eviction never scans 1,500 map entries.
+const ROW_ID=Symbol("privateRequestId");
 const STATES=new Set(["pending","allowed","blocked","failed","redirected"]);
 const METHOD=/^[A-Z]{1,12}$/;
 function hostname(url){
@@ -39,10 +42,11 @@ function record(sessions,tab,siteHost,details,now=Date.now()){
  const method=typeof details.method==="string"&&METHOD.test(details.method)?details.method:"";
  const item={host:dest,type:type||"other",method,status:"pending",httpStatus:null,
   when:now,error:"",reason:""};
+ item[ROW_ID]=id;
  s.rows.push(item);s.byId.set(id,item);s.seen++;s.counts.pending++;s.revision++;
  if(s.rows.length>MAX){
   const dropped=s.rows.shift();s.dropped++;
-  for(const [key,value] of s.byId)if(value===dropped){s.byId.delete(key);break;}
+  if(dropped[ROW_ID]!==undefined)s.byId.delete(dropped[ROW_ID]);
  }
  return true;
 }
@@ -80,7 +84,7 @@ function syntheticBlock(sessions,tab,siteHost,url,type,now=Date.now()){
   method:"",status:"blocked",httpStatus:null,when:now,error:"",reason:"Popup rule"};
  s.rows.push(item);s.seen++;s.counts.blocked++;s.revision++;
  if(s.rows.length>MAX){const removed=s.rows.shift();s.dropped++;
-  for(const [id,row] of s.byId)if(row===removed){s.byId.delete(id);break;}}
+  if(removed[ROW_ID]!==undefined)s.byId.delete(removed[ROW_ID]);}
  return true;
 }
 function snapshot(sessions,tab){

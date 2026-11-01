@@ -1,3 +1,10 @@
+## Build 213 (0.3.183): constant-time network-monitor record retirement
+
+- Eliminated a linear `byId` map scan each time the 1,500-row voluntary Network Monitor buffer overflows. Each observed request retains its existing private ID mapping via an internal symbol that is never included in report objects or serialized snapshots; removing the oldest row directly deletes its map entry.
+- Applies the same cleanup to synthetic blocked-popup records, whose eviction previously also scanned all request IDs. Cumulative network-state totals and dropped-row counts keep their documented lifetime meaning; the visible list remains capped.
+- Two new tests simulate more than 1,500 requests and popup records, explicitly forbid Map iteration during evictions, validate eviction/late transition semantics, and assert no request identifiers or private URLs are exported. All 8 focused Network Monitor tests passed.
+- No new permissions, telemetry, UI edits, YouTube filtering changes, GitHub Actions, or release. Full Ubuntu and real Firefox performance verification remain pending.
+
 ## Build 212 (0.3.182): strict popup clock integrity and temporary approval lifecycle
 
 - Corrected a strict popup tab-claim bug: a clock rollback formerly made negative elapsed times appear within the 30-second protection window, potentially blocking legitimate navigation. Invalid, stale, rollback or malformed claims now expire and are erased before they can cause cancellation.

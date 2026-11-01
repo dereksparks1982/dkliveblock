@@ -116,3 +116,7 @@ Page-level pruning sample events are optional and strictly capped (16 per page/t
 ## Build 212 (0.3.182): strict popup time validation
 
 Focused V8 tests pass 9/9 including three new rollback/expiry cases. Check actual Firefox source tab allow-once, blocked popunder duplicate events, tab closure and reused ID, and global/host disable behavior. The new approval records live only in memory and are not persisted. Full Ubuntu regression and real browser acceptance still pending.
+
+## Build 213 (0.3.183): Network Monitor retirement performance
+
+Two synthetic overflow regressions confirm the private request-ID Map is never iterated while evicting either network requests or synthetic popup blocks, even as total records exceed the visible cap. Eight focused tests passed. Lifetime counters remain cumulative intentionally. Validate the seven-phase Linux suite and opt-in Network Monitor exports with actual Firefox sessions before acceptance.

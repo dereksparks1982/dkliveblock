@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 212 / 0.3.182 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 213 / 0.3.183 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -182,3 +182,9 @@ Full Ubuntu and live Firefox tests still pending.
 - Centralized validation of strict popup tab-claim freshness, requiring nonnegative elapsed time and rejecting future/invalid timestamps before cancelling newly opened tabs. Previous direct `Date.now()-claim.when<=CLAIM_MS` could treat a future claim as active after clock rollback.
 - Explicitly approved new tabs now use bounded `since`/`until` records to ensure a rollback cannot silently prolong an allow decision; invalid entries are dropped. Popup permit status follows consumption's established time window.
 - Still limited to high-risk opted-in strict sites. No extra host coverage, runtime dependencies, UI changes, YouTube code edits, or GitHub Actions. 9 focused unit tests passed. Full Linux/browser acceptance pending.
+
+## Build 213: bounded network monitor without linear ID-map evictions (unreleased)
+
+- The opt-in per-tab Network Monitor retains historical cumulative status totals while keeping only the 1,500 most recent rows. Each internal row now associates its request ID via a private Symbol property, letting both ordinary and synthetic-popup overflow evict the old request mapping in constant time rather than iterating the Map.
+- Exported rows remain explicitly projected from safe hostname/type/status/time fields, so no raw ID, URL path, query, cookie or response payload is added. Site-scoped controls and allowed/blocked toggles are unchanged.
+- Eight focused V8 tests passed, including two overflow regressions with deliberately iteration-disabled ID maps; full Ubuntu browser and performance measurement remain pending.
