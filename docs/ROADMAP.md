@@ -17,6 +17,21 @@ Status: UNRELEASED. Do not claim ABP feature parity or verified video ad blockin
 ### Constraints
 Never advertise a package for download before it meets the user's ABP-or-better requirement. Avoid misrepresenting unsupported filters as working. Keep video playback intact if an advertising rule would break the player.
 
+## Cross-browser support (planned; Firefox remains the reference build)
+
+**Goal:** DK Live Block should be available on all major desktop browsers, with mobile support where the browser permits extensions. No existing Firefox behavior, filter coverage, privacy settings, or playback reliability may be sacrificed to claim cross-browser support. All ports are future work, not shipping or verified today.
+
+- [ ] **Mozilla Firefox (desktop, Linux/Windows/macOS):** finish the existing Firefox release, CBS playback repair, browser acceptance, and signed permanent-install distribution.
+- [ ] **Google Chrome:** build a separate Chromium Manifest V3 package and adapt network blocking to `declarativeNetRequest` plus compatible APIs; document limitations and test real ad blocking rather than reusing the Firefox XPI.
+- [ ] **Microsoft Edge:** package and test the Chromium MV3 build for Edge's add-on distribution and permissions behavior.
+- [ ] **Brave, Opera, and Vivaldi:** validate the Chromium MV3 package in each browser, including extension UI, filter updates, video playback, popup rules, and native helper support. Publish dedicated instructions/store listings where appropriate.
+- [ ] **Apple Safari (macOS):** investigate a Safari Web Extension build, Apple signing/distribution requirements, and differences in filtering and extension APIs; only advertise parity after real macOS Safari tests.
+- [ ] **Firefox for Android:** assess support for the extension's APIs and mobile UI, test Android-specific restrictions, and publish only after device validation.
+- [ ] **Samsung Internet / Safari on iPhone and iPad:** research whether their supported extension/content-blocker systems can implement DK Live Block's features; treat these as separate mobile adaptations, not automatic compatibility from desktop packages.
+- [ ] **Cross-browser maintenance:** shared filtering core with browser-specific adapters/manifests; capability matrix and honest feature disclosures; per-browser regression tests, manual live playback/ad checks, update and signing strategy, and independent release approvals.
+
+**Sequence:** finish Firefox first; then Chrome/Edge and the other Chromium browsers; then Safari and mobile browsers. No GitHub Actions or automatic store submission. Browser store policies and signing are distribution requirements, not permission to silently change product design.
+
 ## Completed development checks
 
 - Automated regression tests are maintained locally; earlier CI results are historical only.
