@@ -7,7 +7,8 @@ h1{font-size:clamp(2rem,5vw,3.2rem);margin:8px 0}h2{font-size:1.6rem;line-height
 .lead{font-size:1.22rem;color:var(--muted);max-width:700px;margin:0 auto 24px}
 a{color:var(--a)}a:focus-visible{outline:3px solid var(--a);outline-offset:4px}
 .links{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;margin:22px 0 44px}
-.button{display:inline-block;padding:12px 17px;border:1px solid var(--a);border-radius:9px;background:var(--a);color:#06191a;text-decoration:none;font-weight:700}
+.button{display:inline-flex;align-items:center;justify-content:center;gap:9px;padding:12px 17px;border:1px solid var(--a);border-radius:9px;background:var(--a);color:#06191a;text-decoration:none;font-weight:700;white-space:nowrap}
+.button img{display:block;width:23px;height:23px;flex:0 0 23px;object-fit:contain}
 /* Brand lettering sequence: black / cyan / white / cyan. Keep geometry unchanged. */
 .button.ink{background:#03090b;border-color:#00e8eb;color:#00e8eb}
 .button.cyan{background:#00e4e6;border-color:#00e4e6;color:#04171a}
@@ -20,7 +21,7 @@ footer{text-align:center;color:var(--muted);padding:0 24px 35px}
 </style></head><body><header>
 <img alt="DK Live Block banner" width="820" src="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/assets/images/DK%20Live%20Block%20Neon%20Banner.png">
 <h1>Take back your browser.</h1><p class="lead">Free Firefox ad blocking, tracker protection, popup prevention, and control over unwanted page clutter. From Elderred Softworks LLC.</p>
-<nav class="links" aria-label="Downloads and support"><a class="button ink" href="https://drive.google.com/uc?export=download&amp;id=1vTY9-sxLg5LHX8Y9GMJNPAJNk181WEiQ">Download source ZIP</a><a class="button cyan" href="https://drive.google.com/uc?export=download&amp;id=1oVCzonDix-ivOqqSVW2nllhqVlasR3-O">Download Firefox XPI</a><a class="button white" href="https://github.com/dereksparks1982/dkliveblock">GitHub repository</a><a class="button cyan" href="https://www.patreon.com/c/dkliveblock">Support on Patreon</a></nav>
+<nav class="links" aria-label="Downloads and support"><a class="button ink" href="https://drive.google.com/uc?export=download&amp;id=1vTY9-sxLg5LHX8Y9GMJNPAJNk181WEiQ"><img src="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/assets/images/zip.png" alt="" aria-hidden="true" width="23" height="23"><span>Download source</span></a><a class="button cyan" href="https://drive.google.com/uc?export=download&amp;id=1oVCzonDix-ivOqqSVW2nllhqVlasR3-O"><img src="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/assets/images/xpi-icon-7534751-512.png" alt="" aria-hidden="true" width="23" height="23"><span>Download Firefox XPI</span></a><a class="button white" href="https://github.com/dereksparks1982/dkliveblock"><img src="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/assets/images/github.png" alt="" aria-hidden="true" width="23" height="23"><span>GitHub repository</span></a><a class="button cyan" href="https://www.patreon.com/c/dkliveblock"><img src="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/assets/images/patreon.webp" alt="" aria-hidden="true" width="23" height="23"><span>Patreon</span></a></nav>
 </header><main><section><h2>What it does</h2><div class="cards">
 <article><h3>Block ads and trackers</h3><p>Bundled filtering technology, including commonly used filter lists. No Acceptable Ads program and no paid feature gates.</p></article>
 <article><h3>Stop unwanted popups</h3><p>Controls for intrusive new tabs and page clutter, with site-specific choices.</p></article>
