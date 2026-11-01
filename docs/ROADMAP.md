@@ -689,3 +689,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 180: implement and separately test bounded first-party YouTube bootstrap-assignment interception, in addition to existing late retry and JSON.parse instrumentation; safe teardown and observation-only remain mandatory.
 - [ ] Run complete Linux test gate and controlled real Firefox matrix on exact Build 180 source, including uBO disabled, normal preroll/midroll and movie playback. Diagnose any anti-adblock refusals before shipping.
 - [ ] Build 181: strengthen native/Ghostery rule and exception reconciliation; log meaningful match evidence without leaking private URLs.
+
+- [x] Build 181: resolve measured hybrid precedence mismatch for Ghostery `$important` rules hidden behind incomplete native parsing, while preserving site/manual decisions and source privacy. Verified against real bundled Ghostery in synthetic V8 fixtures.
+- [ ] Build 181 full Linux test gate, real YouTube standard video/midroll/preroll, and non-YouTube sign-in/checkout/media regression testing.
+- [ ] Build 182: expand measured filter corpus and add only proven, safely applicable rule capabilities. No full scriptlet execution from remote lists.

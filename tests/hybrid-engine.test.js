@@ -162,3 +162,41 @@ test("Build 178 real bundled Ghostery rescues redirects the native parser drops"
  const outside=hybrid.checkRequest("https://ads.example/ad.js","script","other.example");
  assert.equal(outside.rule?.redirect||"","");
 });
+
+test("Build 181 real Ghostery important entity-domain block wins ordinary native exception",()=>{
+ const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
+ const ctx=loadEnvironment();
+ const text=[
+  "@@||ads.example^$script",
+  "||ads.example^$important,script,domain=news.*"
+ ].join("\n");
+ const native=new ctx.DKFilter.FilterEngine(text);
+ const x=native.checkRequest("https://ads.example/ad.js","script","news.example");
+ assert.equal(x.block,false,"native parser drops entity-domain important block");
+ assert.equal(x.rule?.exception,true);
+ const engine=ctx.DKHybridEngine.create(text);
+ assert.equal(engine.backend,"hybrid");
+ const decision=engine.checkRequest("https://ads.example/ad.js","script","news.example");
+ assert.equal(decision.block,true);
+ assert.equal(decision.rule.important,true);
+ assert.equal(decision.rule.source,"ghostery-important");
+ assert.equal(engine.checkRequest("https://ads.example/ad.js","script","other.example").block,
+  false,"domain-scoped important rule must not apply outside allowed site");
+});
+test("Build 181 user manual exceptions outrank Ghostery important list blocks",()=>{
+ const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
+ const ctx=loadEnvironment();
+ const source="||ads.example^$important,script,domain=news.*";
+ const engine=ctx.DKHybridEngine.create(source,undefined,
+  "@@||ads.example^$script,domain=news.example");
+ assert.equal(engine.checkRequest("https://ads.example/ad.js","script","news.example").block,false);
+ const other=ctx.DKHybridEngine.create(source,undefined,
+  "||ads.example^$script,domain=news.example");
+ assert.equal(other.checkRequest("https://ads.example/ad.js","script","news.example").block,true);
+});
+test("Build 181 ordinary Ghostery block never cancels an existing native exception",()=>{
+ const vendor={FiltersEngine:{parse:()=>({match:()=>({match:true,
+  filter:{isImportant:()=>false}})})},Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("@@||ads.example^$script",vendor);
+ assert.equal(e.checkRequest("https://ads.example/ad.js","script","news.example").block,false);
+});

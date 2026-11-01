@@ -18,3 +18,17 @@ test("never expose custom subscription URL or raw secret as filter source",()=>{
  assert.equal(P.identify({p:"[User-selected block]"},index),"User-selected host/type block");
  assert.equal(P.clean("Custom subscription 9"),"Custom subscription 9");
 });
+
+test("Build 181 network verdict attribution never reveals private rule syntax",()=>{
+ const index=P.create([{name:"https://private.example/filters?token=secret",
+  text:"||ads.example^$important,script,domain=news.*"}],R.network);
+ assert.equal(P.identify({p:"[Ghostery important network filter]",
+  important:true,source:"ghostery-important"},index),
+  "Embedded Ghostery important subscription rule");
+ assert.equal(P.identify({p:"[Ghostery vetted local redirect]",
+  source:"ghostery-safe-redirect",redirect:"noop.js"},index),
+  "Embedded Ghostery vetted local redirect");
+ assert.equal(P.identify({p:"[Ghostery vetted local redirect]",
+  source:"ghostery-safe-redirect",redirect:"https://bad.invalid"},index),
+  "Unattributed active filter");
+});

@@ -28,7 +28,10 @@ function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
     const selected=manual.checkRequest(url,type,origin,policy,method);
     if(selected.rule)return selected;
    }
-   if(own.rule?.exception||own.rule?.important||!this.vendor)return own;
+   // Keep important native blocks and explicit page policy. A native
+   // subscription exception is not final: Ghostery may understand a more
+   // specific $important rule (e.g. entity domains) that native dropped.
+   if(own.rule?.important||!this.vendor)return own;
    if(typeof url!=="string"||url.length>16384||!/^https?:\/\//i.test(url))return own;
    try{
     const sourceUrl=/^https?:\/\//i.test(origin||"")?origin:
@@ -39,6 +42,15 @@ function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
     // a plain native block that DK's partial parser cannot correctly exempt.
     if(verdict?.exception)
      return {block:false,rule:{p:"[Ghostery network exception]",exception:true}};
+    if(own.rule?.exception){
+     // Only a real Ghostery $important block outranks a less-specific
+     // native exception. Ordinary vendor blocks still respect the exception.
+     if(verdict?.match===true&&!verdict.redirect&&!verdict.rewrite&&
+        verdict.filter?.isImportant?.()===true)
+      return {block:true,rule:{p:"[Ghostery important network filter]",
+       important:true,source:"ghostery-important"}};
+     return own;
+    }
     // Permit only two audited extension-owned inert replacements.
     // Ghostery's returned dataUrl/body must NEVER become a redirect target,
     // nor may an arbitrary subscribed URL or executable resource be loaded.

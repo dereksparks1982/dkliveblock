@@ -26,6 +26,11 @@ function create(sections,parse=x=>DKRules.network(x)){
 function identify(rule,index){
  if(rule?.p==="[User-selected block]")return "User-selected host/type block";
  if(rule?.p==="[Ghostery network filter]")return "Embedded Ghostery filter match";
+ if(rule?.source==="ghostery-important"&&rule?.important===true)
+  return "Embedded Ghostery important subscription rule";
+ if(rule?.source==="ghostery-safe-redirect"&&
+    ["noop.js","empty.css"].includes(rule.redirect))
+  return "Embedded Ghostery vetted local redirect";
  if(!rule?.key)return "Unattributed active filter";
  const set=index?.keys?.get(rule.key);
  if(!set?.size)return "Unattributed active filter";

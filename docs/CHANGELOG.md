@@ -814,3 +814,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Add strictly optional, reversible YouTube bootstrap-assignment interception in active MAIN-world bridge mode. Removes only previously recognized player-ad fields on newly assigned eligible data; preserves media structures, refusals, read-only/hostile accessors and ordinary page ownership.
 - Preserve original data-property semantics on disable, do not clobber later page overrides, and keep observe-only read-only.
 - Add four targeted regression fixtures, adjust timing-sensitive tests to recognize the earlier assignment cleanup, and verify 11 isolated V8 scenarios. No live Firefox, full Linux gate or ad-free parity claim.
+
+### 0.3.151 / Build 181 (2026-11-01)
+- Correct native-vs-Ghostery rule priority when a native ordinary exception masks a Ghostery-recognized `$important` subscription block, including entity-domain scopes that native parsing drops.
+- Maintain explicit manual rules and site-page policy precedence; ordinary vendor blocks still cannot cancel native exceptions, and vendor errors fail back to native.
+- Distinguish sanitized Ghostery important and vetted local redirect decisions in request provenance. Added real bundled Ghostery priority and source privacy regression fixtures. Targeted isolated V8 checks passed; Firefox and full suite pending.
