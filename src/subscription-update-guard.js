@@ -23,7 +23,7 @@ function count(text){
  return n;
 }
 function check(previous,proposed){
- if(typeof proposed!=="string"||proposed.length>MAX_CHARS||proposed.includes("\\u0000")||!withinLineLimit(proposed))
+ if(typeof proposed!=="string"||proposed.length>MAX_CHARS||proposed.includes("\u0000")||!withinLineLimit(proposed))
   return {accept:false,reason:"Invalid or oversized replacement filter list."};
  const next=count(proposed),before=count(previous?.text);
  // New subscriptions and legitimately small custom lists cannot be judged

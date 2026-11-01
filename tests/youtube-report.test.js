@@ -161,3 +161,11 @@ test("Build 190 report explicitly classifies observed ad state without claiming 
  const html=fs.readFileSync(path.join(__dirname,"../src/site-dashboard.html"),"utf8");
  assert.ok(html.indexOf('src="youtube-outcome.js"')<html.indexOf('src="youtube-report.js"'));
 });
+
+test("Build 198 refuses untrusted filter backend labels in voluntary export",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:198,
+  filterBackend:"https://private.example/watch?token=SECRET"});
+ assert.equal(report.filterBackend,"Unknown");
+ assert.doesNotMatch(JSON.stringify(report)+Report.asText(report),/SECRET|private.example/);
+ assert.equal(Report.build({ok:true,site:"youtube.com",tabId:198,filterBackend:"hybrid"}).filterBackend,"hybrid");
+});

@@ -49,7 +49,7 @@ function build(s,now=Date.now()){
   exportedAt:new Date(now).toISOString(),website:s.site,tabId:s.tabId,
   protectionEnabled:s.globalEnabled===true,siteAllowlisted:s.sitePaused===true,
   temporaryPause:s.temporarilyPaused===true,requestLogEnabled:s.requestLog===true,
-  filterBackend:typeof s.filterBackend==="string"?s.filterBackend.slice(0,60):"Unknown",
+  filterBackend:["native","hybrid"].includes(s.filterBackend)?s.filterBackend:"Unknown",
   blockedCount:number(s.blocked),permittedCount:number(s.allowedRequests),
   responseFiltering:responses,playback,playbackAssessment:Outcome.summarize(s),
   networkEvidence:Triage.summarize(s),blocked,permitted,

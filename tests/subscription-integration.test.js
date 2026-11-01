@@ -61,10 +61,11 @@ test("conditional 304 updates reuse valid cached lists, preserve last-good on er
 
 test("Build 197 list refresh refuses corrupt, oversized and excessive-line updates",()=>{
  const G=require("../src/subscription-update-guard.js");
- const old={text:"||old.example^\\n".repeat(150)};
- assert.equal(G.check(old,"||new.example^\\n".repeat(150)).accept,true);
- assert.equal(G.check(old,"||new.example^\\n".repeat(20)).accept,false);
- assert.equal(G.check(old,"||new.example^\\u0000\\n".repeat(150)).accept,false);
+ const old={text:"||old.example^\n".repeat(150)};
+ assert.equal(G.check(old,"||new.example^\n".repeat(150)).accept,true);
+ assert.equal(G.check(old,"||new.example^\n".repeat(20)).accept,false);
+ assert.equal(G.check(old,"||new.example^\u0000\n".repeat(150)).accept,false);
+ assert.match(G.check(old,"||new.example^\u0000\n".repeat(150)).reason,/Invalid/);
  assert.equal(G.check(old,"x".repeat(G.MAX_CHARS+1)).accept,false);
- assert.equal(G.check(old,"\\n".repeat(G.MAX_LINES+1)).accept,false);
+ assert.equal(G.check(old,"\n".repeat(G.MAX_LINES+1)).accept,false);
 });

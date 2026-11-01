@@ -739,3 +739,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 197: reject corrupt or oversized filter-list updates.
 - [ ] Build 197 full-suite, independent Firefox and competitor parity acceptance remains open.
+
+- [x] Build 198: fix NUL-list validation and sanitize exported engine names.
+- [ ] Full seven-phase suite and real Firefox verification remain pending.

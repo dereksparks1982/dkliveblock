@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 197 / 0.3.167 (2026-11-01), unreleased.**
+**Source snapshot: Build 198 / 0.3.168 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -100,3 +100,6 @@ Corrected a Build 194 revoke() syntax error and test alias, and made YouTube's a
 
 ## Build 197: reject corrupt or oversized filter-list updates
 The built-in subscription refresh guard now rejects NUL-bearing lists, oversized replacements and candidates exceeding its bounded line budget before considering the list-shrink threshold; existing working cached lists remain authoritative. Full seven-phase Linux runner and real Firefox playback remain unverified.
+
+## Build 198: fix NUL-list validation and sanitize exported engine names
+The list-refresh guard now rejects actual NUL bytes, not the escaped text sequence; corrected Build 197 fixture newline escapes. The YouTube export limits filterBackend to the known native/hybrid labels, eliminating another untrusted output field. Focused actual module assertions passed. Full Ubuntu suite and live Firefox acceptance remain unverified.
