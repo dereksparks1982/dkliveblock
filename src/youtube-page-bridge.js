@@ -176,7 +176,17 @@ function reportBootstrap(phase){
   }));
  }catch(_){/* Never interfere with the page on diagnosis failure. */}
 }
-let scheduledBootstrapSamples=false;
+let observationOnly=false,sampleGeneration=0;
+function scheduleBootstrapSamples(){
+ if(typeof setTimeout!=="function")return;
+ const generation=++sampleGeneration;
+ for(const [phase,delay] of [["late-1s",1000],["late-3s",3000]]){
+  setTimeout(()=>{
+   if(sampleGeneration===generation&&(enabled||observationOnly))
+    reportBootstrap(phase);
+  },delay);
+ }
+}
 function pruneExistingBootstrap(observe=true){
  if(observe)reportBootstrap("pre-enable");
  // A data property already loaded by YouTube may still be consumed during
@@ -194,6 +204,7 @@ function pruneExistingBootstrap(observe=true){
  if(observe)reportBootstrap("post-enable");
 }
 function enable(){
+ if(observationOnly){observationOnly=false;sampleGeneration++;}
  if(enabled){
   // On SPA navigation YouTube may replace bootstrap data without a reload.
   // Reprocess on an explicit refresh, but do not install a second hook.
@@ -202,11 +213,7 @@ function enable(){
  }
  enabled=true;
  pruneExistingBootstrap();
- if(!scheduledBootstrapSamples&&typeof setTimeout==="function"){
-  scheduledBootstrapSamples=true;
-  setTimeout(()=>{if(enabled)reportBootstrap("late-1s");},1000);
-  setTimeout(()=>{if(enabled)reportBootstrap("late-3s");},3000);
- }
+ scheduleBootstrapSamples();
  if(typeof g.fetch==="function"){
   oldFetch=g.fetch;
   wrappedFetch=function(...args){
@@ -273,7 +280,10 @@ function enable(){
  }
 }
 function disable(){
- if(!enabled)return;enabled=false;
+ if(!enabled&&!observationOnly)return;
+ const wasEnabled=enabled;
+ enabled=false;observationOnly=false;sampleGeneration++;
+ if(!wasEnabled)return;
  if(wrappedFetch&&g.fetch===wrappedFetch)
   try{g.fetch=oldFetch;}catch(_){}
  const proto=g.XMLHttpRequest?.prototype;
@@ -290,8 +300,16 @@ function disable(){
  wrappedFetch=null;oldFetch=null;oldOpen=null;oldSend=null;wrappedOpen=null;wrappedSend=null;
  oldText=null;oldResponse=null;wrappedText=null;wrappedResponse=null;
 }
+function observe(){
+ if(observationOnly)return;
+ disable();observationOnly=true;
+ // Observe mode never mutates player JSON or wraps fetch/XHR.
+ reportBootstrap("pre-enable");reportBootstrap("post-enable");
+ scheduleBootstrapSamples();
+}
 document.addEventListener(EVENT,event=>{
  if(event.detail==="enable")enable();
+ else if(event.detail==="observe")observe();
  else if(event.detail==="disable")disable();
 },false);
 if(typeof Event==="function"&&document.dispatchEvent)

@@ -637,3 +637,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 167: read-only first-load YouTube bootstrap observations before/after existing cleanup and 1s/3s later. Fixed, coarse fields only; guarded first-party top-frame reports; up to four ephemeral per-tab observations in compatibility TXT/JSON export.
 - [ ] Build 167 gate: full Ubuntu seven-phase Node/Python suite including new bridge/response/export tests; live Firefox A/B playback and observational evidence; do not infer success from synthetic probes.
 - [ ] Build 168: repeatable, clean-profile YouTube experiment and playback-state matrix before implementing invasive player HTML hooks or outbound API changes.
+
+- [x] Build 168: temporary tab-scoped YouTube test switchboard (combined / Firefox response only / page bridge only / observe-only). Source module is pure and bounded, and all modes are controlled through the existing site dashboard without touching global preferences or default playback behavior.
+- [ ] Build 168 gate: run all 7 local test phases and 116 registered Node test files, then do a clean Firefox A/B YouTube playback matrix using exports from each temporary mode. No assertion of working anti-adblock protection before observed results.
+- [ ] After initial A/B evidence: focus fixes only on the layer empirically responsible for blocking or playback refusal; no speculative YouTube HTML interception or GPL scriptlet copying.

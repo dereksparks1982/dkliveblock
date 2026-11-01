@@ -98,3 +98,13 @@ test("Build 167 exports coarse first-load timing without private player data",()
  assert.match(exported,/pre-enable: data/);
  assert.doesNotMatch(exported,/SECRET_VIDEO|watch\?v=|videoId/);
 });
+
+test("Build 168 compatibility exports identify the selected experimental mode",()=>{
+ const base={ok:true,site:"www.youtube.com",tabId:168,
+  youtubeTestMode:"response-only",youtubeResponse:{enabled:true,supported:true}};
+ const report=Report.build(base);
+ assert.equal(report.experimentMode,"response-only");
+ assert.match(Report.asText(report),/Temporary experiment mode: response-only/);
+ assert.equal(Report.build({...base,youtubeTestMode:"unknown"}).experimentMode,"combined");
+ assert.equal(Report.build({...base,youtubeTestMode:"https://private.test/secret"}).experimentMode,"combined");
+});

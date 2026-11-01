@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.137, Build 167.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.138, Build 168.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -47,3 +47,5 @@ No GitHub Actions, hosted build runners, automatic releases, or public downloads
 ## License
 
 Original application source is currently MIT licensed. Bundled Ghostery and Mozilla Public Suffix List components use MPL-2.0 and third-party filter lists have their own license terms. A future licensing decision does not revoke MIT rights already granted.
+
+**YouTube compatibility testing:** The Site Dashboard now has a collapsed, temporary test-mode selector for the current YouTube tab. Use Normal, Response only, Page bridge only, or Observe only, then manually reload the video page and export YouTube diagnostics. Observe only disables player JSON rewrites, not DK's ordinary network rules; it does not claim ad-free playback. Temporary selections expire automatically and are not stored in Firefox settings.

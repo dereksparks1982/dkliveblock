@@ -462,3 +462,23 @@ test("Build 167 probe never invokes hostile bootstrap accessors",()=>{
  for(const task of p.timers)task.fn();
  assert.equal(p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed").length,2);
 });
+
+test("Build 168 observe-only mode does not wrap fetch or mutate bootstrap",()=>{
+ const p=context();
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{id:1}]};
+ p.send("observe");
+ assert.equal(p.window.fetch,p.originalFetch);
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ const obs=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed");
+ assert.deepEqual(obs.map(x=>x.detail.phase),["pre-enable","post-enable"]);
+ assert.deepEqual(obs.map(x=>x.detail.adFields),[1,1]);
+ p.send("enable");
+ assert.notEqual(p.window.fetch,p.originalFetch);
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
+ p.send("observe");
+ assert.equal(p.window.fetch,p.originalFetch);
+ p.send("disable");
+ const count=p.emitted.length;
+ for(const task of p.timers)task.fn();
+ assert.equal(p.emitted.length,count,"pending timer must not report after disable");
+});

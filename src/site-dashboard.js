@@ -197,6 +197,16 @@ function exportYouTube(kind){
 }
 $("dashboardYouTubeExportJSON").addEventListener("click",()=>exportYouTube("json"));
 $("dashboardYouTubeExportText").addEventListener("click",()=>exportYouTube("txt"));
+$("dashboardYouTubeApplyMode").addEventListener("click",()=>withAction(async()=>{
+ const d=current;
+ await verifyCurrentTab(d);
+ const mode=$("dashboardYouTubeMode").value;
+ const outcome=await browser.runtime.sendMessage({action:"setYouTubeTestMode",
+  tabId:d.tabId,expectedSite:d.site,mode});
+ if(!outcome?.ok)throw Error(outcome?.error||"Could not change YouTube test mode.");
+ await refresh();
+ notice("YouTube test mode: "+outcome.mode+". Reload the selected video tab to test.");
+}));
 function setButtons(d){
  for(const id of ["dashboardTab","dashboardRefresh","dashboardRefreshTabs"])
   $(id).disabled=busy;
@@ -205,6 +215,8 @@ function setButtons(d){
  $("dashboardCookie").disabled=busy||!d?.ok||!d.siteActive||!d.cookieRejectEnabled;
  $("dashboardDistraction").disabled=busy||!d?.ok||!d.siteActive||!d.distractionEnabled;
  $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
+ $("dashboardYouTubeMode").disabled=busy||!d?.youtubeTestMode;
+ $("dashboardYouTubeApplyMode").disabled=busy||!d?.youtubeTestMode||!d.siteActive;
  $("dashboardAllowedList").querySelectorAll("input[type=checkbox]").forEach(input=>{
   input.disabled=busy||!d?.ok||!d.globalEnabled||d.temporarilyPaused;
  });
@@ -237,6 +249,7 @@ function clearDisplay(message){
  $("dashboardPlaybackState").textContent="";
  $("dashboardYouTubeTriage").hidden=true;
  $("dashboardYouTubeTriage").textContent="";
+ $("dashboardYouTubeExperiment").hidden=true;
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -430,6 +443,14 @@ function display(d){
  }
  const triage=DKYouTubeTriage.summarize(d);
  $("dashboardYouTubeExportControls").hidden=!triage.applicable;
+ $("dashboardYouTubeExperiment").hidden=!triage.applicable;
+ if(triage.applicable){
+  const selectedMode=["combined","response-only","bridge-only","observe"]
+   .includes(d.youtubeTestMode)?d.youtubeTestMode:"combined";
+  $("dashboardYouTubeMode").value=selectedMode;
+  $("dashboardYouTubeModeState").textContent="Selected mode: "+selectedMode+
+   ". Switches are temporary; reload YouTube after changing mode.";
+ }
  $("dashboardYouTubeExportJSON").disabled=busy||!triage.applicable;
  $("dashboardYouTubeExportText").disabled=busy||!triage.applicable;
  $("dashboardYouTubeTriage").hidden=!triage.applicable;

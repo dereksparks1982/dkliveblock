@@ -118,10 +118,13 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
+function youtubeMode(id,site){return DKYouTubeExperiment.get(data.youtubeExperiment,id,site);}
+function youtubePolicy(id,site){return DKYouTubeExperiment.policy(youtubeMode(id,site),
+ data.settings.youtubeResponseFilter===true);}
 function sourceSections(){
  const entries=[{name:"Built-in fallback",text:SEED}];
  for(const k of Object.keys(SOURCES))
@@ -402,9 +405,9 @@ function recordBlock(tabId,url,type,rule){
 }
 // Firefox MV2 response filtering: modify only known player JSON ad fields.
 browser.webRequest.onHeadersReceived?.addListener(d=>{
- if(!data.ready||!data.settings.enabled||!data.settings.youtubeResponseFilter||
-    data.tempPaused.has(d.tabId))return;
+ if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return;
  const site=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
+ if(!youtubePolicy(d.tabId,site).response)return;
  if(!activeTab(d.tabId,site)||!DKYouTubeResponse.eligible(d,site))return;
  DKYouTubeResponse.attach(d,browser.webRequest);
 },{urls:["https://*.youtube.com/youtubei/v1/player*",
@@ -459,9 +462,10 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const doc=d.documentUrl||d.originUrl||"";
  if(data.settings.youtubeResponseFilter&&typeof browser.webRequest.filterResponseData==="function"&&
     DKYouTubeResponse.requestEligible(d,top)){
-  DKYouTubeResponse.observeRequest(d.tabId,d.url);
+  if(youtubePolicy(d.tabId,top).response)
+   DKYouTubeResponse.observeRequest(d.tabId,d.url);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
-   "YouTube player JSON request reserved for response-side filtering");
+   "YouTube player JSON request kept available during experiment");
   return {};
  }
  const contextHost=host(doc)||top;
@@ -576,6 +580,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
    DKRequestControls.dropTab(data.requestControls,id);
+   data.youtubeExperiment.delete(id);
    DKPopupHistory.clear(data.popupHistory,id);
    DKPopupTrap.revoke(data.popupTrapPermits,id);
    data.popupTrapCounts.delete(id);
@@ -589,6 +594,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   autoVideoTimes.delete(id);DKAllowedActivity.clear(data.allowedActivity,id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
+ data.youtubeExperiment.delete(id);
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
@@ -780,6 +786,23 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {ok:true,blocked:outcome.blocked,changed:outcome.changed,
    count:DKAllowedActivity.list(data.manualBlocks,liveSite).length};
  }
+ if(msg.action==="setYouTubeTestMode"){
+  if(fromContent||!Number.isInteger(id)||id<0||
+     typeof msg.expectedSite!=="string"||!DKYouTubeExperiment.MODES.includes(msg.mode))
+   return {error:"Invalid YouTube experiment request."};
+  let tab;
+  try{tab=await browser.tabs.get(id);}catch(_){return {error:"Tab no longer exists."};}
+  const liveSite=host(tab?.url||"");
+  if(!/^https:\/\//i.test(tab?.url||"")||!DKYouTubeExperiment.validSite(liveSite)||
+     liveSite!==msg.expectedSite||data.hosts.get(id)!==liveSite)
+   return {error:"YouTube tab changed; refresh the dashboard first."};
+  if(!DKYouTubeExperiment.set(data.youtubeExperiment,id,liveSite,msg.mode))
+   return {error:"Invalid experiment mode."};
+  DKYouTubeResponse.clear(id);
+  DKPlaybackHealth.clear(data.playbackHealth,id);
+  try{await browser.tabs.sendMessage(id,{action:"refresh"});}catch(_){}
+  return {ok:true,mode:youtubeMode(id,liveSite),reloadRecommended:true};
+ }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
@@ -828,7 +851,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    popupCleanupPaused:data.settings.popupProtectionPaused.some(h=>DKRules.sub(site,h)),
    requestLog,allowedRequests:permitted.total,allowedGroups:permitted.groups,
    selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,site),
-   youtubeResponse:DKYouTubeResponse.validPage(site)?{enabled:data.settings.youtubeResponseFilter===true,supported:typeof browser.webRequest.filterResponseData==="function",...DKYouTubeResponse.stats(id)}:null,
+   youtubeTestMode:DKYouTubeExperiment.validSite(site)?youtubeMode(id,site):null,
+   youtubeResponse:DKYouTubeResponse.validPage(site)?{enabled:youtubePolicy(id,site).response,supported:typeof browser.webRequest.filterResponseData==="function",...DKYouTubeResponse.stats(id)}:null,
    filterBackend:String(data.engine.backend||"Local").slice(0,64),
    networkRules:data.engine.networkCount||0,cosmeticRules:data.engine.cosmetic.length,
    unsupportedRules:data.engine.unsupportedCount||0,
@@ -1113,7 +1137,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
   return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,adRecognitionExceptions:adExceptions,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
-   youtubePageAssistEnabled:active&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
+   youtubePageAssistEnabled:active&&youtubePolicy(sender.tab?.id??-1,h).bridge&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
+   youtubePageAssistMode:active&&sender.frameId===0&&DKYouTubeResponse.validPage(h)?
+    (youtubePolicy(sender.tab?.id??-1,h).observe?"observe":
+     youtubePolicy(sender.tab?.id??-1,h).bridge?"enable":"disable"):"disable",
    youtubeDiagnosticsEnabled:active&&data.settings.requestLog&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+

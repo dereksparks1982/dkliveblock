@@ -737,3 +737,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Sent only coarse status booleans and counts to the local top-frame diagnostic channel; retained no video IDs, titles, URLs, player contents or credentials. Untrusted page-origin events cannot make blocking decisions.
 - Extended per-tab response stats and the existing user-triggered YouTube compatibility TXT/JSON export with those ephemeral observations.
 - Added regression tests for stable page-world observations, accessor-safety, per-tab bounds/cleanup and privacy-safe report output. Full current Linux tests and real Firefox playback remain unverified. No release.
+
+### 0.3.138 / Build 168 (2026-10-31)
+- Added temporary, tab-local YouTube response-only / page-bridge-only / observe-only test modes alongside the original combined mode, accessible from a collapsed section of the existing Site Dashboard.
+- Mode changes validate a current extension-selected YouTube tab, expire in one hour, reset diagnostics, survive a same-host reload, and clear on tab close or domain change. Observe-only reports coarse bootstrap indicators without altering player JSON; ordinary network filters are unaffected.
+- Existing YouTube compatibility reports include the selected mode, enabling reproducible side-by-side playback evidence. The new pure mode module and page bridge behavior have additional regression tests.
+- No GitHub Actions, user downloads, remote code, public release, or claim of verified Firefox playback. Full Linux regression and browser A/B acceptance remain pending.

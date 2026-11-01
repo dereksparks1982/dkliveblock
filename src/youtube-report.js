@@ -39,6 +39,8 @@ function build(s,now=Date.now()){
   .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip"].includes(x?.kind))
   .map(x=>({kind:x.kind,blockedMediaNearby:x.blockedMediaNearby===true}));
  return {format:"DK Live Block YouTube compatibility report",schemaVersion:1,
+  experimentMode:["combined","response-only","bridge-only","observe"].includes(s.youtubeTestMode)?
+   s.youtubeTestMode:"combined",
   exportedAt:new Date(now).toISOString(),website:s.site,tabId:s.tabId,
   protectionEnabled:s.globalEnabled===true,siteAllowlisted:s.sitePaused===true,
   temporaryPause:s.temporarilyPaused===true,requestLogEnabled:s.requestLog===true,
@@ -53,7 +55,9 @@ function asText(report){
   "Website: "+report.website,"Tab: "+report.tabId,"Protection: "+report.protectionEnabled,
   "Site allowlisted: "+report.siteAllowlisted,"Tab paused: "+report.temporaryPause,
   "Captured request logging: "+report.requestLogEnabled,
-  "Filter backend: "+report.filterBackend,"Blocked count: "+report.blockedCount,
+  "Filter backend: "+report.filterBackend,
+  "Temporary experiment mode: "+report.experimentMode,
+  "Blocked count: "+report.blockedCount,
   "Permitted count: "+report.permittedCount,
   "Player-response filtering enabled: "+report.responseFiltering.enabled,
   "Firefox response filter available: "+report.responseFiltering.supported];

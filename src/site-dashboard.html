@@ -92,6 +92,19 @@
 <button id="dashboardYouTubeExportJSON" type="button">Export YouTube diagnostics (.json)</button>
 <button id="dashboardYouTubeExportText" type="button">Export YouTube diagnostics (.txt)</button>
 </div>
+<details id="dashboardYouTubeExperiment" hidden>
+<summary>YouTube compatibility test modes (temporary, optional)</summary>
+<p>Compare two independent filtering methods. Change only the selected YouTube tab. Reload the video tab after applying a mode. Resets after one hour, when the tab closes, or when you leave YouTube.</p>
+<label>Test mode
+<select id="dashboardYouTubeMode">
+<option value="combined">Normal (both methods)</option>
+<option value="response-only">Response filter only</option>
+<option value="bridge-only">Page bridge only</option>
+<option value="observe">Observe only (no player JSON changes)</option>
+</select></label>
+<button id="dashboardYouTubeApplyMode" type="button">Apply to selected tab</button>
+<p role="status" id="dashboardYouTubeModeState"></p>
+</details>
 <div id="dashboardPlaybackEvents" aria-label="Streaming playback events"></div></section>
 <section><h2>Recently blocked popups</h2>
 <p>Firefox may not reveal a destination if a tab was stopped while blank. No URLs, paths or query strings are displayed.</p>

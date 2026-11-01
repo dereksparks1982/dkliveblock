@@ -56,7 +56,8 @@
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(isYouTube&&window===window.top&&typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:youtube-response-control",{
-     detail:s.youtubePageAssistEnabled?"enable":"disable"
+     detail:["enable","observe"].includes(s.youtubePageAssistMode)?
+      s.youtubePageAssistMode:s.youtubePageAssistEnabled?"enable":"disable"
     }));
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){/* A broken extension must not break the page. */}
