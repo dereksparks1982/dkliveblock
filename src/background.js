@@ -613,7 +613,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  const contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc),d.method||"");
  if(!result.block){
-  notePermittedDecision(d,top,"filter-engine-permitted");
+  notePermittedDecision(d,top,result.rule?.exception?"filter-exception":"filter-engine-permitted");
   return {};
  }
  // A manual allowance never overrides popup protection or page navigation.
