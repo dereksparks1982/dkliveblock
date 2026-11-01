@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 219 / 0.3.189 (2026-11-01), unreleased. Build 203 remains the tagged user-observed-working YouTube baseline.**
+**Source snapshot: Build 220 / 0.3.190 (2026-11-01), unreleased. Build 203 remains the tagged user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -232,3 +232,8 @@ Full Ubuntu and live Firefox tests still pending.
 - **Hard blocker:** a real `package-lock.json` and byte-for-byte reproducibility of the pinned Ghostery bundle are missing/unverified. No fabricated lockfile or vendor hash was committed. Source builds require official npm dependencies and a successful exact-commit test run on the owner's Linux system.
 - **Untouched:** all production ad/streaming filtering paths, the owner-approved UI geometry, Build 203 backup tag, one-branch `main` policy. Source documentation and packaging paths only, manifest user-facing description and version increment. No Actions.
 - **Still open:** exact Build 219 complete local Node/Python results; clean Firefox/YouTube/Disney+/1337x/Pirate Bay stability and privacy acceptance; third-party source attribution/license review; final candidate source package, owner approval and Mozilla upload/review. No claim of AMO-ready status.
+
+
+## Build 220 (0.3.190): effective permitted request reason evidence
+
+Owner feedback exposed a specific limitation: the original permitted reports only grouped destination hostname and resource type and could not say *why* filtering allowed a completed request. The logged tab event now retains a capped, privacy-scrubbed reason identifier at `onBeforeRequest`, reconciles to successful `onCompleted` via private in-memory Firefox request ID, and records method, HTTP response code, completion time and stable sequence. Bounded per-tab summaries and individual event details are shown in the existing Site Dashboard and both TXT/JSON permitted exports. The decision category identifies what DK did, not whether a request is harmless or exactly what its server-side action was. Unknown decisions are labeled as such. No raw URLs, paths, queries, cookies, headers, content or private IDs enter exports. Historic reports cannot be retroactively enriched. Focused V8 syntax/privacy smoke passed; the full seven-phase suite and live Firefox verification remain pending. There were no changes to filtering outcomes, YouTube/Disney+ ad blocking, popup interception, approved UI layout, branch or Actions policy.
