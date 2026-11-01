@@ -706,3 +706,10 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Added offline Node regression tests for the category classifier, actual bundled vendor integration, and bounded privacy-safe audit output.
 - Registered the Build 161 runner self-test omitted from the official test list, as well as the new Build 162 observer test.
 - Production request handling is unchanged. Full current local test suite and actual Firefox playback remain unverified; no release.
+
+### 0.3.133 / Build 163 (2026-10-31)
+- Fixed native-first exception arbitration: safe Ghostery exception decisions can now rescue ordinary subscription blocks that DK's partial native parser would otherwise enforce.
+- Explicit user-authored custom filter lines are evaluated independently and take priority over default subscription outcomes.
+- Preserved native important blocks, page exceptions, popup-only enforcement, main-frame policy and safe fallback on Ghostery failure.
+- Extended unit tests for manual block/allow priority, exception rescue, vendor matcher invocation, and changed method-forwarding behavior.
+- Full Linux regression and actual Firefox site/video acceptance still pending. No release.

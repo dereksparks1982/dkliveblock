@@ -144,7 +144,7 @@ function rebuild(){
  // Settings such as ad recognition, logs, video skipping and site pauses do
  // not change the filter text. Skip re-parsing huge subscriptions for them.
  if(next!==lastCompiledRules){
-  data.engine=typeof DKHybridEngine!=="undefined"?DKHybridEngine.create(next):new DKFilter.FilterEngine(next);
+  data.engine=typeof DKHybridEngine!=="undefined"?DKHybridEngine.create(next,undefined,data.settings.customRules):new DKFilter.FilterEngine(next);
   lastCompiledRules=next;
   data.ruleSources=DKRuleProvenance.create(sourceSections());
   filterRevision++;

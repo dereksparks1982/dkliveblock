@@ -617,3 +617,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 162: local-only bounded native/Ghostery/production differential observer; synthetic exception, redirect/rewrite, method and page-policy examples; official runner inventory now includes the Build 161 runner self-test and Build 162 observer test.
 - [ ] Build 162 acceptance: full seven-phase Ubuntu test run and exact current-commit pass/fail counts (not yet verified).
 - [ ] Build 163: safe production verdict arbitration only after confirmed regressions and exception-rescue differential fixtures.
+
+- [x] Build 163: separate manual user rules from compiled subscription rules for explicit block/allow priority; consult Ghostery exceptions before returning ordinary native subscription blocks; preserve popup, main-frame, page and native important protections.
+- [ ] Build 163 full local seven-phase runner and real Firefox auth/media compatibility still unverified.
+- [ ] Build 164: improve offline corpus with targeted exception/provenance/redirect cases, filter-syntax coverage measurement and safe adapter tests.

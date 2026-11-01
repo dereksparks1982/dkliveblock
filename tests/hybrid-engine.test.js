@@ -43,11 +43,13 @@ test("Ghostery allow rules cannot override a native important block",()=>{
  const engine=Hybrid.create("||ads.example^$important",override);
  assert.equal(engine.checkRequest("https://ads.example/a.js","script","site.example").block,true);
 });
-test("Ghostery allow rules cannot override a normal native block",()=>{
+test("Build 163 Ghostery exceptions rescue ordinary native subscription blocks",()=>{
  const override={FiltersEngine:{parse:()=>({match:()=>({match:false,exception:{}})})},
   Request:{fromRawDetails:x=>x}};
  const engine=Hybrid.create("||legacy.example^",override);
- assert.equal(engine.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
+ const decision=engine.checkRequest("https://legacy.example/a.js","script","site.example");
+ assert.equal(decision.block,false);
+ assert.equal(decision.rule.exception,true);
 });
 
 test("Ghostery network rules cannot close newly opened tabs",()=>{
@@ -59,12 +61,12 @@ test("page generic-block policy stops supplementary matching",()=>{
  const e=Hybrid.create("",vendor);
  assert.equal(e.checkRequest("https://ghostery-only.example/a.js","script","site.example",{genericblock:true}).block,false);
 });
-test("already-blocked requests never invoke the additional vendor matcher",()=>{
+test("Build 163 native blocks consult Ghostery for possible exceptions",()=>{
  let calls=0;
  const spy={...vendor,FiltersEngine:{parse:()=>({match:()=>{calls++;return {match:false};}})}};
  const e=Hybrid.create("||legacy.example^",spy);
  assert.equal(e.checkRequest("https://legacy.example/a.js","script","site.example").block,true);
- assert.equal(calls,0);
+ assert.equal(calls,1);
 });
 
 test("Build 81 hybrid forwards request method and keeps native method restrictions",()=>{
@@ -74,5 +76,38 @@ test("Build 81 hybrid forwards request method and keeps native method restrictio
  const e=Hybrid.create("||ads.example^$xmlhttprequest,method=POST",provider);
  assert.equal(e.checkRequest("https://ads.example/a","xmlhttprequest","news.example",{},"POST").block,true);
  assert.equal(e.checkRequest("https://ads.example/a","xmlhttprequest","news.example",{},"GET").block,false);
- assert.deepEqual(seen,["GET"]);
+ assert.deepEqual(seen,["POST","GET"]);
+});
+
+test("Build 163 explicit manual blocks outrank Ghostery exceptions",()=>{
+ const allow={FiltersEngine:{parse:()=>({match:()=>({match:false,exception:{}})})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("||ads.example^",allow,"||ads.example^$script");
+ assert.equal(e.checkRequest("https://ads.example/a.js","script","site.example").block,true);
+ assert.equal(e.checkRequest("https://ads.example/a.png","image","site.example").block,false);
+});
+test("Build 163 explicit manual exceptions outrank vendor-only blocking",()=>{
+ const block={FiltersEngine:{parse:()=>({match:()=>({match:true})})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("||ads.example^",block,"@@||ads.example^$domain=site.example");
+ const decision=e.checkRequest("https://ads.example/a.js","script","site.example");
+ assert.equal(decision.block,false);
+ assert.equal(decision.rule.exception,true);
+ assert.equal(e.checkRequest("https://ads.example/a.js","script","elsewhere.example").block,true);
+});
+test("Build 163 native important rules and page allows keep existing safety contract",()=>{
+ let calls=0;
+ const allow={FiltersEngine:{parse:()=>({match:()=>{calls++;return {match:false,exception:{}};}})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("||ads.example^$important",allow);
+ assert.equal(e.checkRequest("https://ads.example/a.js","script","site.example").block,true);
+ assert.equal(e.checkRequest("https://ads.example/a.js","script","site.example",{document:true}).block,false);
+ assert.equal(calls,0);
+});
+test("Build 163 malformed vendor matches fail back to native blocking",()=>{
+ const bad={FiltersEngine:{parse:()=>({match(){throw Error("broken")}})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("||ads.example^",bad);
+ assert.equal(e.checkRequest("https://ads.example/a.js","script","site.example").block,true);
+ assert.match(e.diagnostic,/matching error/);
 });
