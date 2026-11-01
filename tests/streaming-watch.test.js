@@ -95,3 +95,31 @@ test("Build 57 detects localized labels and title changes inside the watcher",()
  }
  assert.equal(f.clicks,6);
 });
+
+test("Build 156 ignores routine progress mutations inside the player",()=>{
+ const playerChild={nodeType:1,matches:()=>false,
+  closest:selector=>selector.includes(".html5-video-player")?{}:null,
+  querySelector:()=>{throw Error("Attribute checks must never scan a subtree");}};
+ const update={type:"attributes",attributeName:"style",target:playerChild};
+ assert.equal(W.relevant([update]),false);
+ assert.equal(W.relevant([{...update,attributeName:"data-progress"}]),false);
+});
+test("Build 156 still detects player-root ad state changes and nested new skip buttons",()=>{
+ const player={nodeType:1,matches:s=>s.includes("#movie_player"),
+  closest:()=>null,querySelector:()=>null};
+ assert.equal(W.relevant([{type:"attributes",attributeName:"class",target:player}]),true);
+ const ordinary={nodeType:1,matches:()=>false,closest:()=>null,querySelector:()=>null};
+ const ad={nodeType:1,matches:s=>s.includes("ytp-ad-skip-button"),
+  closest:()=>null,querySelector:()=>null};
+ assert.equal(W.relevant([{type:"childList",target:ordinary,addedNodes:[ad]}]),true);
+ const nested={nodeType:1,matches:()=>false,closest:()=>null,
+  querySelector:s=>s.includes("Skip Ad")?ad:null};
+ assert.equal(W.relevant([{type:"childList",target:ordinary,addedNodes:[nested]}]),true);
+});
+test("Build 156 ignores unrelated content insertions while honoring ad-module changes",()=>{
+ const unrelated={nodeType:1,matches:()=>false,closest:()=>null,querySelector:()=>null};
+ assert.equal(W.relevant([{type:"childList",target:unrelated,addedNodes:[unrelated]}]),false);
+ const adArea={nodeType:1,matches:()=>false,
+  closest:s=>s.includes(".ytp-ad-module")?{}:null,querySelector:()=>null};
+ assert.equal(W.relevant([{type:"attributes",attributeName:"hidden",target:adArea}]),true);
+});

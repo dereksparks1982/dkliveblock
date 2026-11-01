@@ -679,3 +679,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 ### 0.3.125 / Build 155 (2026-10-31)
 - Distinguished explicitly refused/errored YouTube player JSON from ordinary unchanged responses with no video IDs, reasons or raw payloads logged. Added a prefetch request category separate from player in tab statistics, dashboard and TXT/JSON report. Preserved older counters and treated refused as a subset of unchanged. Protected streaming onstop from writing original bytes behind an attempted modified output when the Firefox filter throws. Added focused privacy, failure-injection and regression cases. Browser playback and full local suite still require real testing.
 - Corrected two existing JavaScript test-file syntax blockers (Build 153 missing object brace; Build 154 async test declaration). The complete test files now parse, allowing the Linux suite to reach their assertions.
+
+### 0.3.126 / Build 156 (2026-10-31)
+- Reduced unnecessary YouTube skip-button scans: ignore routine playback progress/caption mutations in general player descendants, while reacting to actual skip controls, ad modules, player-root ad-state changes, and newly inserted nested skip elements. Maintained bounded mutation sampling and debounce. Added explicit positive/negative watcher regression fixtures. Browser acceptance and full Linux suite pending.

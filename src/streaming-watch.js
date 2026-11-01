@@ -3,23 +3,37 @@
 (function(root){"use strict";
 const PLAYER=".html5-video-player, #movie_player, .ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
 const SKIP=".ytp-ad-skip-button, .ytp-ad-skip-button-modern, .ytp-skip-ad-button, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container, button[aria-label='Skip Ad' i], button[aria-label='Skip Ads' i], button[aria-label='Skip Advertisement' i], button[aria-label='Skip Commercial' i], button[aria-label='Skip Commercials' i], button[aria-label='Skip Advertisements' i], button[aria-label='Passer l’annonce' i], button[aria-label='Werbung überspringen' i], button[aria-label='Saltar anuncio' i], button[aria-label='Reklamı geç' i], button[aria-label='Пропустить рекламу'], button[aria-label='تخطي الإعلان'], button[aria-label='跳过广告']";
-function elementRelated(node){
+const AD_AREA=".ytp-ad-module, .ytp-ad-skip-button-slot, .ytp-ad-skip-button-container";
+const ATTRS=new Set(["class","style","hidden","aria-hidden","aria-disabled",
+ "aria-label","disabled","title"]);
+function elementRelated(node,descendants=true){
  if(!node||node.nodeType!==1)return false;
- try{return !!(node.matches?.(PLAYER+", "+SKIP)||node.closest?.(PLAYER)||node.querySelector?.(SKIP));}
- catch(_){return false;}
+ try{
+  // Ordinary progress bars and captions live below #movie_player and may
+  // mutate every frame. Never treat their shared player ancestor as a skip
+  // event; inspect dedicated ad controls or the player root itself.
+  return !!(node.matches?.(PLAYER+", "+SKIP)||
+   node.closest?.(AD_AREA)||
+   descendants&&node.querySelector?.(SKIP));
+ }catch(_){return false;}
 }
 function relevant(records){
  if(!Array.isArray(records))return false;
  for(const record of records.slice(0,40)){
   if(!record||!record.target)continue;
-  if(elementRelated(record.target))return true;
-  if(record.type==="childList"){
-   // Only examine a bounded number of inserted nodes, never the full page.
-   const added=record.addedNodes;
-   // A large NodeList must NOT be copied just to inspect its first 12 nodes.
-   const count=Math.min(12,Number.isSafeInteger(added?.length)?added.length:0);
-   for(let i=0;i<count;i++)if(elementRelated(added[i]))return true;
+  if(record.type==="attributes"){
+   if(record.attributeName&&!ATTRS.has(record.attributeName))continue;
+   if(elementRelated(record.target,false))return true;
+   continue;
   }
+  if(record.type!=="childList")continue;
+  // A changing video player shell is relevant, but not arbitrary activity
+  // in its descendants. The inserted nodes reveal newly created ad controls.
+  if(elementRelated(record.target,false))return true;
+  const added=record.addedNodes;
+  // Never materialize a huge NodeList only to inspect the first 12 entries.
+  const count=Math.min(12,Number.isSafeInteger(added?.length)?added.length:0);
+  for(let i=0;i<count;i++)if(elementRelated(added[i]))return true;
  }
  return false;
 }

@@ -593,3 +593,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 155: surface privacy-preserving player/prefetch refusal counts and distinguish prefetch requests, without mislabeling an unchanged refusal as blocked advertising.
 - [x] Build 155: avoid duplicate original bytes after a failed attempted modified Firefox stream write, while preserving pre-write fail-open behavior.
 - [ ] Full Ubuntu JavaScript/Python suite, Firefox stream fault injection, YouTube anti-adblock/live video/Shorts/movie ad-free playback, Disney+ and owner acceptance remain unverified.
+
+- [x] Build 156: eliminate repeated automatic skip scans caused by ordinary progress UI changes; retain actual preroll, midroll and player-root ad-state detection.
+- [ ] Firefox live skip and ad-free playback, memory/CPU baselines, and full Ubuntu Node/Python regression remain outstanding.
