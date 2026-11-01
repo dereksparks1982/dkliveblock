@@ -58,13 +58,21 @@
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
+   if(typeof CustomEvent==="function"&&document.dispatchEvent)
+    document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{
+     detail:JSON.stringify(nextActive&&Array.isArray(s.safeScriptlets)?s.safeScriptlets:[])
+    }));
    if(isYouTube&&window===window.top&&typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:youtube-response-control",{
      detail:["enable","observe"].includes(s.youtubePageAssistMode)?
       s.youtubePageAssistMode:s.youtubePageAssistEnabled?"enable":"disable"
     }));
    applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
-  }catch(_){/* A broken extension must not break the page. */}
+  }catch(_){
+   if(typeof CustomEvent==="function"&&document.dispatchEvent)
+    try{document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{detail:"[]"}));}
+    catch(__){}
+  }
  }
  function restoreHidden(){
   for(const [el,old] of hidden){

@@ -39,13 +39,12 @@ function shouldInspectMutation(record,isHidden){
   }
   return likelyOverlay(el);
  }
- if(record.addedNodes?.length){
-  let inspected=0;
-  for(const node of record.addedNodes){
-   if(++inspected>12)break;
-   if(likelyOverlay(node))return true;
-   try{if(node?.querySelector?.(OVERLAY))return true;}catch(_){}
-  }
+ const nodes=record.addedNodes;
+ const count=Math.min(12,Number.isSafeInteger(nodes?.length)?nodes.length:0);
+ for(let i=0;i<count;i++){
+  let node;try{node=nodes[i];}catch(_){continue;}
+  if(likelyOverlay(node))return true;
+  try{if(node?.querySelector?.(OVERLAY))return true;}catch(_){}
  }
  return false;
 }

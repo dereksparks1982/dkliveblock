@@ -141,3 +141,18 @@ test("background VM fixtures use the exact Firefox manifest script list",()=>{
   assert.doesNotMatch(source,/for\(const name of \[/,"Stale manually maintained script list: "+filename);
  }
 });
+
+test("Build 203 user-authored scriptlets packaged without dynamic executable sources",()=>{
+ const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ const own=m.content_scripts.find(x=>x.world==="MAIN"&&
+  x.js.includes("safe-scriptlet-runtime.js"));
+ assert.ok(own);
+ assert.deepEqual(own.js,["safe-scriptlet-runtime.js"]);
+ assert.equal(own.all_frames,true);
+ assert.ok(m.background.scripts.indexOf("safe-scriptlet-rules.js")<
+  m.background.scripts.indexOf("background.js"));
+ const b=fs.readFileSync(path.join(root,"src/background.js"),"utf8");
+ assert.match(b,/DKSafeScriptletRules\.select\(data\.settings\.customRules,h\)/);
+ const c=fs.readFileSync(path.join(root,"src/content.js"),"utf8");
+ assert.match(c,/dk-live-block:safe-scriptlets/);
+});

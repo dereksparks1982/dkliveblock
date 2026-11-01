@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.172",
+  "version": "0.3.173",
   "description": "Unreleased, independent Firefox ad and tracker blocker",
   "browser_specific_settings": {
     "gecko": {
@@ -73,6 +73,7 @@
       "adaptive-model.js",
       "adaptive-youtube.js",
       "redirect-resources.js",
+      "safe-scriptlet-rules.js",
       "background.js"
     ],
     "persistent": true
@@ -125,6 +126,17 @@
       ],
       "run_at": "document_start",
       "all_frames": false,
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "safe-scriptlet-runtime.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
       "world": "MAIN"
     }
   ],

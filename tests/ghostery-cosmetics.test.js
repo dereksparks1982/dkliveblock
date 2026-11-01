@@ -79,3 +79,13 @@ test("Build 164 user-allowed selectors are omitted from supplemental Ghostery CS
  assert.doesNotMatch(css,/\.ad-slot/);
  assert.match(css,/\.other-ad/);
 });
+
+test("Build 203 validates same-host page paths for real Ghostery cosmetic matching",()=>{
+ const paths=[],vendor={getCosmeticsFilters:opts=>{
+  paths.push(opts.url);return {active:true,styles:".ad-slot {display:none!important;}"};}};
+ G.styles(vendor,"news.example",{page:"https://news.example/article?lang=en"});
+ G.styles(vendor,"news.example",{page:"https://attacker.test/secret"});
+ G.styles(vendor,"news.example",{page:"https://user:pw@news.example/"});
+ assert.deepEqual(paths,["https://news.example/article?lang=en",
+  "https://news.example/","https://news.example/"]);
+});

@@ -1247,7 +1247,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const adExceptions=active?DKCosmeticExceptions.list(data.settings.customRules,h).slice(0,120):[];const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   const cookieAllowed=!data.settings.cookieRejectPaused.some(x=>DKRules.sub(top,x));
   const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
-  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,adRecognitionExceptions:adExceptions,
+  return {active,safeScriptlets:active?DKSafeScriptletRules.select(data.settings.customRules,h):[],youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,adRecognitionExceptions:adExceptions,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    youtubePageAssistEnabled:active&&youtubePolicy(sender.tab?.id??-1,h).bridge&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    youtubePageAssistMode:active&&sender.frameId===0&&DKYouTubeResponse.validPage(h)?
@@ -1257,7 +1257,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
-      streaming:DKVideoAssist.isStreamingHost(h),policy,
+      streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
       protectSelector:selector=>DKVideoAssist.protectSelector(selector)||adExceptions.includes(selector)
     }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}

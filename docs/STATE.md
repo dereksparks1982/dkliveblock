@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 202 / 0.3.172 (2026-11-01), unreleased.**
+**Source snapshot: Build 203 / 0.3.173 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -118,3 +118,7 @@ Full Ubuntu suite and live Firefox video/controls acceptance remain unverified.
 ## Build 202
 Major integrated YouTube filtering package: the passive observe-only mode no longer exempts first-party JSON calls from native/Ghostery network rules; response-only requires an available Firefox response hook and bridge-only still reaches the MAIN-world filter. The local ad recognizer now hides six explicitly identified YouTube desktop/mobile ad renderer elements while protecting normal video tiles, media players, and existing user exceptions. The ad observer inspects at most 12 insertion nodes without invoking potentially hostile NodeList iterators. Includes real background request-mode integration and DOM safety/performance regression fixtures.
 Full Ubuntu suite and live Firefox ad-free video compatibility remain unverified.
+
+## Build 203
+Major competitor-source-driven upgrade: explicit user-authored, domain-scoped safe set-constant scriptlet functionality with exception handling and a bundled MAIN runtime; validated current-page Ghostery cosmetic context; bounded popup mutation inspection; new real parser/runtime/DOM/manifest regressions and a public source-code comparison. No remote executable scripts, subscription-provided scriptlets, new permissions, GitHub Actions, user commands or UI geometry changes.
+Full Ubuntu and live Firefox tests still pending.

@@ -60,3 +60,16 @@ test("Build 63 banner or VPN notification insertions trigger overlay scanning",(
  assert.equal(G.likelyOverlay(el({cls:"bottom-banner"})),true);
  assert.equal(G.shouldInspectMutation({type:"childList",addedNodes:[el({cls:"vpn-notification"})]}),true);
 });
+
+test("Build 203 million-node DOM insertions do not execute page iterators",()=>{
+ let visits=0;
+ const nodes=new Proxy({length:1000000},{get(target,key){
+  if(key===Symbol.iterator)throw Error("untrusted iterator invoked");
+  if(/^\d+$/.test(String(key))){visits++;return el({cls:"normal-content"});}
+  return target[key];
+ }});
+ assert.equal(G.shouldInspectMutation({type:"childList",addedNodes:nodes}),false);
+ assert.equal(visits,12);
+ assert.equal(G.shouldInspectMutation({type:"childList",
+  addedNodes:[el({cls:"adblock-modal"})]}),true);
+});

@@ -31,7 +31,16 @@ function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
  }
  return out.join("\n");
 }
-function styles(vendor,host,{streaming=false,policy={},safeSelector=x=>x,protectSelector=()=>false}={}){
+function pageURL(host,raw){
+ try{
+  if(typeof raw!=="string"||raw.length>8192)return "https://"+host+"/";
+  const u=new URL(raw);
+  if(!/^https?:$/.test(u.protocol)||u.username||u.password||u.hostname!==host)
+   return "https://"+host+"/";
+  return raw;
+ }catch(_){return "https://"+host+"/";}
+}
+function styles(vendor,host,{streaming=false,policy={},page="",safeSelector=x=>x,protectSelector=()=>false}={}){
  // Native $document/$elemhide exceptions must also govern the supplementary
  // Ghostery layer. Otherwise a user's allowed site can remain hidden.
  if(streaming||policy?.document||policy?.elemhide||
@@ -41,7 +50,7 @@ function styles(vendor,host,{streaming=false,policy={},safeSelector=x=>x,protect
  if(!valid(domain))return "";
  try{
   const value=vendor.getCosmeticsFilters({
-   hostname:host,domain,url:"https://"+host+"/",
+   hostname:host,domain,url:pageURL(host,page),
    getBaseRules:policy?.generichide!==true,getInjectionRules:true,getExtendedRules:false,
    getRulesFromHostname:true,getRulesFromDOM:false
   });
@@ -50,7 +59,7 @@ function styles(vendor,host,{streaming=false,policy={},safeSelector=x=>x,protect
   return sanitize(value?.styles,safeSelector,protectSelector);
  }catch(_){return "";}
 }
-const API=Object.freeze({sanitize,styles});
+const API=Object.freeze({sanitize,styles,pageURL});
 root.DKGhosteryCosmetics=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
