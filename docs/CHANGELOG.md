@@ -505,7 +505,7 @@ A Patreon button is included in the toolbar and settings footer, but it stays di
 
 The real **@ghostery/adblocker 2.20.3** JavaScript engine is **committed at `src/ghostery-vendor.js`** and loaded automatically by the Firefox extension. Its 479,492-byte bundled file comes from the local build and has SHA-256 `ad116ca8d04d716bda3d02e19a35137428b71ae13c6c1f390600830cd8d7e0f9`. It requires no npm, Node.js, package download, or build step on an end user's machine. The final Firefox extension package includes it by default alongside the other `src/` assets. DK's pause, exceptions, streaming/login safeguards, and filter list choices stay in control. New developer builds can optionally regenerate this checked-in file using the pinned local npm dependencies; regeneration is **not required** for Firefox users.
 
-MPL-2.0 applies to the embedded Ghostery code (`src/LICENSE-GHOSTERY.txt`). DK original application code remains MIT. The offline Ghostery network block/exception smoke check passed; full live Firefox, YouTube and Disney+ testing remains outstanding.
+MPL-2.0 applies to the embedded Ghostery code (`src/LICENSE-GHOSTERY.txt`). DK original application code is licensed under the repository root LICENSE. The offline Ghostery network block/exception smoke check passed; full live Firefox, YouTube and Disney+ testing remains outstanding.
 
 ## Build 19: conservative on-page ad recognition
 
