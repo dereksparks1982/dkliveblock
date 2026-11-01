@@ -691,3 +691,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.129 / Build 159 (2026-10-31)
 - Fixed supplementary Ghostery cosmetic CSS violating native $document/$elemhide site exclusions. Both source engines now honor the same website exception policy. Native $generichide passes getBaseRules:false to the bundled Ghostery CSS engine, preserving scoped hostname rules while disabling generic CSS. Added mock and embedded-vendor regression fixtures. No new permissions, scripts, downloads, UI rearrangements or Actions. Full Ubuntu/Firefox suite and real-browser acceptance still outstanding.
+
+### 0.3.130 / Build 160 (2026-10-31)
+- Extended site-level $elemhide/$generichide exceptions to the conservative automatic DOM ad-slot recognizer, which previously remained active even when ordinary cosmetic filtering was disabled for a site. The existing content-controller refresh restores recognition-only hidden elements when the background disables the feature, and re-enables it after the exception is removed. Added background mock integration test covering all-element and generic-only exemptions, site-scoped CSS retention, and restoration after the exception is removed. Still requires complete Ubuntu/real Firefox tests.

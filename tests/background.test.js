@@ -190,3 +190,47 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  listeners.updated(30,{status:"loading"},{url:page});
  assert.equal((await listeners.message({action:"status",url:page,tabId:30})).popupHiddenCount,0);
 });
+
+test("Build 160 native elemhide and generichide suppress automatic ad recognition for that website",async()=>{
+ const actions={},reg=name=>({addListener(fn){actions[name]=fn;},removeListener(){}});
+ let stored={settings:{autoUpdate:false,customRules:
+  "##.global-ad\nnews.example##.site-ad\n@@||news.example^$elemhide"}};
+ const page="https://news.example/article",tab={id:160,url:page};
+ const browser={
+  webRequest:{onBeforeRequest:reg("before"),onErrorOccurred:reg("error"),
+   onCompleted:reg("completed")},
+  proxy:{onRequest:reg("proxy"),onError:reg("proxyError")},
+  dns:{resolve:async()=>({addresses:[]})},
+  webNavigation:{onCreatedNavigationTarget:reg("popup")},
+  tabs:{onUpdated:reg("updated"),onRemoved:reg("removed"),
+   query:async()=>[tab],get:async()=>tab,sendMessage:async()=>{}},
+  alarms:{onAlarm:reg("alarm"),create:async()=>{}},
+  runtime:{onMessage:reg("message")},
+  browserAction:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
+  storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
+ };
+ const timer=(fn,ms,...args)=>{const t=setTimeout(fn,ms,...args);if(ms>=60000)t.unref();return t;};
+ const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,Date,AbortController,console,
+  fetch:async()=>{throw Error("No list downloads during offline test")},
+  setTimeout:timer,clearTimeout});
+ for(const name of backgroundScripts)
+  vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
+ await new Promise(resolve=>setTimeout(resolve,30));
+ const get=async()=>actions.message({action:"getStyle",url:page},{tab,url:page,frameId:0});
+ let style=await get();
+ assert.equal(style.active,true);
+ assert.equal(style.adRecognition,false,"elemhide must disable generic DOM recognizer");
+ assert.doesNotMatch(style.css,/\.global-ad|\.site-ad/);
+ assert.equal((await actions.message({action:"saveSettings",settings:{
+  customRules:"##.global-ad\nnews.example##.site-ad\n@@||news.example^$generichide"}})).ok,true);
+ style=await get();
+ assert.equal(style.adRecognition,false,"generichide must disable automatic generic recognition");
+ assert.doesNotMatch(style.css,/\.global-ad/);
+ assert.match(style.css,/\.site-ad/,"site-specific CSS must remain enabled");
+ assert.equal((await actions.message({action:"saveSettings",settings:{
+  customRules:"##.global-ad\nnews.example##.site-ad"}})).ok,true);
+ style=await get();
+ assert.equal(style.adRecognition,true,"ordinary site must regain automatic ad recognition");
+ assert.match(style.css,/\.global-ad/);
+ assert.match(style.css,/\.site-ad/);
+});

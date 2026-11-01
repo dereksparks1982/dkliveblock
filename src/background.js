@@ -1096,7 +1096,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="getStyle"){const policy=data.engine.getPagePolicy(url),top=data.hosts.get(sender.tab?.id)||h,active=activeTab(sender.tab?.id??-1,h)&&activeTab(sender.tab?.id??-1,top)&&!policy.document;const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   const cookieAllowed=!data.settings.cookieRejectPaused.some(x=>DKRules.sub(top,x));
   const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
-  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition,
+  return {active,youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    youtubePageAssistEnabled:active&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,

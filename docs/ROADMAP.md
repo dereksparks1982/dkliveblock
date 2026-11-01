@@ -605,3 +605,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 159: ensure native $document/$elemhide/$generichide website exceptions also govern bundled Ghostery cosmetic hiding without needlessly discarding site-specific selectors.
 - [ ] Verify Ghostery filter policy integration, temporary website exceptions and authorized media playback in real Firefox; full Ubuntu suite remains open.
+
+- [x] Build 160: make explicit $elemhide/$generichide exceptions suppress generic automatic DOM ad recognition on the affected website; preserve scoped styles, and restore ordinary recognition when the exception is removed.
+- [ ] Verify dynamic DOM restoration against site exceptions with real Firefox, plus full Ubuntu regression/streaming acceptance.
