@@ -789,3 +789,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 211: add 16-event bounded, private page-world YouTube prune observations for six existing interception paths, with top-frame validation and separate local export counters. No changes to blocking decisions.
 - [ ] Compare Build 211 reports against the saved Build 203 on regular videos, ads-supported films, Shorts and the right-side sponsored rail; note both page-bridge and background rewrite totals, avoiding causal overclaims.
 - [ ] Run complete Ubuntu suite and investigate historical nine Node failures from independent review; still no parity claim.
+
+- [x] Build 212: unify strict popup claim freshness and temporary new-tab approval time validation with rollback and expiry checks. Prevent stale claimed navigation cancellation, preserve user-selected one-time opening.
+- [ ] Run actual Firefox popup allow/deny tests on selected sources, including about:blank, quick navigation, source-site change, clock adjustment and permitted user-opened tabs, before treating the hardening as accepted.

@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 211 / 0.3.181 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 212 / 0.3.182 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -176,3 +176,9 @@ Full Ubuntu and live Firefox tests still pending.
 - The isolated content controller accepts at most 16 page events; background checks host, top frame, request-log consent and active protection before saving capped tab counts. Outputs appear in YouTube and combined blocked-request exports with explicit untrusted-source caveats.
 - Data can be forged by the webpage and may miss prunes after the cap. It does not establish ad-free playback or become evidence for adaptive changes. Background response-filter stats remain separate.
 - Two direct page-bridge tests and two note/report tests passed in limited V8 smoke checks; full offline tests and live Firefox remain pending. The original Build 203 backup and tag are untouched.
+
+## Build 212: strict popup claim and approval clock hardening (unreleased)
+
+- Centralized validation of strict popup tab-claim freshness, requiring nonnegative elapsed time and rejecting future/invalid timestamps before cancelling newly opened tabs. Previous direct `Date.now()-claim.when<=CLAIM_MS` could treat a future claim as active after clock rollback.
+- Explicitly approved new tabs now use bounded `since`/`until` records to ensure a rollback cannot silently prolong an allow decision; invalid entries are dropped. Popup permit status follows consumption's established time window.
+- Still limited to high-risk opted-in strict sites. No extra host coverage, runtime dependencies, UI changes, YouTube code edits, or GitHub Actions. 9 focused unit tests passed. Full Linux/browser acceptance pending.

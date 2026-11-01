@@ -112,3 +112,7 @@ Six new synthetic cases plus all 10 prior runtime checks passed under an isolate
 ## Build 211 (0.3.181): YouTube bridge observation only
 
 Page-level pruning sample events are optional and strictly capped (16 per page/tab), with fixed string kinds only. Background verifies active YouTube top frame and local request-log setting. These remain page-forgeable, can undercount when caps are reached, and do not prove video advertisements were blocked. Compare reports to manually observed results, run complete Ubuntu offline test suite, and preserve the Build 203 rollback before any browser acceptance.
+
+## Build 212 (0.3.182): strict popup time validation
+
+Focused V8 tests pass 9/9 including three new rollback/expiry cases. Check actual Firefox source tab allow-once, blocked popunder duplicate events, tab closure and reused ID, and global/host disable behavior. The new approval records live only in memory and are not persisted. Full Ubuntu regression and real browser acceptance still pending.

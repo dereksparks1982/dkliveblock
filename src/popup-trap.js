@@ -36,6 +36,14 @@ function consumeOnce(permits,tabId,now=Date.now()){
  permits.delete(tabId);
  return now>=expires-GRACE_MS&&now<=expires;
 }
+function permitActive(permits,tabId,now=Date.now()){
+ const expires=permits.get(tabId);
+ if(!Number.isInteger(tabId)||tabId<0||!validClock(now)||
+    !validClock(expires)||now<expires-GRACE_MS||now>expires){
+  permits.delete(tabId);return false;
+ }
+ return true;
+}
 function revoke(permits,tabId){permits.delete(tabId);}
 function claim(claims,newTabId,sourceTabId,now=Date.now()){
  if(!Number.isInteger(newTabId)||newTabId<0||
@@ -49,7 +57,37 @@ function claim(claims,newTabId,sourceTabId,now=Date.now()){
  while(claims.size>MAX_CLAIMS)claims.delete(claims.keys().next().value);
  return true;
 }
-const API=Object.freeze({protectedHost,shouldBlock,grantOnce,consumeOnce,revoke,claim,
+function claimActive(claims,newTabId,now=Date.now()){
+ const entry=claims.get(newTabId);
+ if(!entry)return false;
+ if(!Number.isInteger(newTabId)||newTabId<0||
+    !Number.isInteger(entry.sourceTabId)||entry.sourceTabId<0||
+    entry.sourceTabId===newTabId||!validClock(now)||
+    !validClock(entry.when)||now<entry.when||now-entry.when>CLAIM_MS){
+  claims.delete(newTabId);return false;
+ }
+ return true;
+}
+function allowTab(allowed,newTabId,now=Date.now()){
+ if(!Number.isInteger(newTabId)||newTabId<0||!validClock(now,CLAIM_MS))
+  return false;
+ allowed.set(newTabId,{since:now,until:now+CLAIM_MS});
+ while(allowed.size>MAX_CLAIMS)allowed.delete(allowed.keys().next().value);
+ return true;
+}
+function tabAllowed(allowed,newTabId,now=Date.now()){
+ const entry=allowed.get(newTabId);
+ if(!entry)return false;
+ if(!Number.isInteger(newTabId)||newTabId<0||
+    !validClock(now)||!validClock(entry.since,CLAIM_MS)||
+    entry.until!==entry.since+CLAIM_MS||
+    now<entry.since||now>entry.until){
+  allowed.delete(newTabId);return false;
+ }
+ return true;
+}
+const API=Object.freeze({protectedHost,shouldBlock,grantOnce,consumeOnce,
+ permitActive,revoke,claim,claimActive,allowTab,tabAllowed,
  GRACE_MS,CLAIM_MS,MAX_CLAIMS});
 root.DKPopupTrap=API;
 if(typeof module!=="undefined")module.exports=API;

@@ -184,7 +184,7 @@ function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data
  strictPopupAvailable:DKPopupTrap.protectedHost(h),
  strictPopupEnabled:DKPopupTrap.shouldBlock(h,data.settings.strictPopupSites,activeTab(id,h)),
  strictPopupBlocked:data.popupTrapCounts.get(id)||0,
- popupPermitActive:(data.popupTrapPermits.get(id)||0)>Date.now(),
+ popupPermitActive:DKPopupTrap.permitActive(data.popupTrapPermits,id),
  tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,filterBackend:data.engine.backend,filterDiagnostic:data.engine.diagnostic,filterRevision,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
 async function downloadList(url,followRedirects=true,previous=null){
  const stop=new AbortController(),timer=setTimeout(()=>stop.abort(),20000);
@@ -502,10 +502,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  return {cancel:true};
 },{urls:["<all_urls>"]},["blocking"]);
 function popupTrapClaimActive(tabId){
- const claim=data.popupTrapClaims.get(tabId);
- if(!claim)return false;
- if(Date.now()-claim.when<=DKPopupTrap.CLAIM_MS)return true;
- data.popupTrapClaims.delete(tabId);return false;
+ return DKPopupTrap.claimActive(data.popupTrapClaims,tabId);
 }
 // Strict mode closes unwanted new tabs from selected aggressive popunder sites
 // even when they first open about:blank or lead to an ever-changing ad domain.
@@ -514,8 +511,7 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
  if(!data.ready||!Number.isInteger(sourceTabId)||sourceTabId<0||
    !Number.isInteger(newTabId)||newTabId<0||newTabId===sourceTabId)return "not-applicable";
  const now=Date.now();
- const approvedUntil=data.popupTrapAllowed.get(newTabId);
- if(approvedUntil&&approvedUntil>now)return "allowed";
+ if(DKPopupTrap.tabAllowed(data.popupTrapAllowed,newTabId,now))return "allowed";
  if(popupTrapClaimActive(newTabId))return "blocked";
  // Cached source identity is useful for early detection, but only Firefox's
  // current source-tab URL may authorize destructive tab removal.
@@ -529,11 +525,9 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
   return "not-applicable";
  // Re-check after possible asynchronous source-tab lookup.
  if(popupTrapClaimActive(newTabId))return "blocked";
- if((data.popupTrapAllowed.get(newTabId)||0)>Date.now())return "allowed";
+ if(DKPopupTrap.tabAllowed(data.popupTrapAllowed,newTabId,Date.now()))return "allowed";
  if(DKPopupTrap.consumeOnce(data.popupTrapPermits,sourceTabId)){
-  data.popupTrapAllowed.set(newTabId,Date.now()+DKPopupTrap.CLAIM_MS);
-  if(data.popupTrapAllowed.size>DKPopupTrap.MAX_CLAIMS)
-   data.popupTrapAllowed.delete(data.popupTrapAllowed.keys().next().value);
+  DKPopupTrap.allowTab(data.popupTrapAllowed,newTabId,Date.now());
   return "allowed";
  }
  if(!DKPopupTrap.claim(data.popupTrapClaims,newTabId,sourceTabId))return "blocked";

@@ -1,3 +1,10 @@
+## Build 212 (0.3.182): strict popup clock integrity and temporary approval lifecycle
+
+- Corrected a strict popup tab-claim bug: a clock rollback formerly made negative elapsed times appear within the 30-second protection window, potentially blocking legitimate navigation. Invalid, stale, rollback or malformed claims now expire and are erased before they can cause cancellation.
+- Converted explicitly approved newly opened tabs to bounded `since`/`until` grants, so moving the clock backward cannot prolong or reactivate an exception; rejects invalid/overflowing grant timestamps. Existing source-tab one-time permission status uses the same checked validity window as actual consumption.
+- Retains site-specific strict protection for the previously approved Pirate Bay/1337x patterns, source-tab live-host verification, tab-closure invalidation and explicit one-time user permits. No widening to arbitrary websites or blanket popup interception.
+- Added three regression tests; 9/9 focused popup guard tests passed in isolated V8. Full Ubuntu/browser test suite pending. No README, YouTube playback code, UI geometry or new permissions changed.
+
 ## Build 211 (0.3.181): bounded YouTube page-bridge prune evidence
 
 - Instrumented only successful, existing page-level YouTube ad-metadata prunes: bootstrap, page JSON.parse, fetch JSON/text, and XHR JSON/text. No new removal rules or behavioral rewrites.
