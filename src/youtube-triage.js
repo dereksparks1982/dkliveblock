@@ -21,7 +21,7 @@ function summarize(snapshot){
    else other++;
   }else other++;
  }
- const sortedSources=[...sources].filter(x=>typeof x==="string"&&x.length<=80)
+ const sortedSources=[...sources].filter(x=>typeof x==="string"&&x.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(x))
   .slice(0,8).sort();
  return {applicable:true,recorded:events.length,firstPartyXHR,firstPartyImage,
   mediaBlocked,advertisingInfrastructure,other,

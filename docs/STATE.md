@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 190 / 0.3.160 (2026-11-01), unreleased.**
+**Source snapshot: Build 191 / 0.3.161 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -88,3 +88,6 @@ Added bounded outcome classification covering enforcement, playback faults, play
 
 ## Build 190: include conservative outcome assessment in YouTube exports
 The voluntary TXT/JSON YouTube report now includes explicit evidence category, bounded counts and a false-success disclaimer; the script is bundled locally in the Site Dashboard. Full Ubuntu test suite and live Firefox/YouTube acceptance remain unverified.
+
+## Build 191: sanitize YouTube first-party filter attribution
+Filter-list names in YouTube triage must use a strict text-only character set, so an untrusted subscription label cannot appear in a diagnostic export as a URL, multiline injection, or private query string. The full Linux regression suite and live Firefox acceptance are unverified.

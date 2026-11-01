@@ -30,3 +30,13 @@ test("non-YouTube sites cannot inherit YouTube player diagnosis",()=>{
  assert.equal(Y.summarize({ok:true,site:"youtube.com.attacker.test",requestLog:true,recentBlocks:[]}).applicable,false);
  assert.equal(Y.isYouTube("www.youtube.com"),true);
 });
+
+test("Build 191 does not leak URL-bearing source labels from YouTube XHR blocks",()=>{
+ const r=Y.summarize({ok:true,site:"www.youtube.com",requestLog:true,recentBlocks:[
+  {host:"www.youtube.com",type:"xmlhttprequest",ruleEvidence:{subscription:"https://private.example/watch?secret=1"}},
+  {host:"www.youtube.com",type:"xmlhttprequest",ruleEvidence:{subscription:"EasyList"}},
+  {host:"www.youtube.com",type:"xmlhttprequest",ruleEvidence:{subscription:"PRIVATE\\nline"}}]});
+ assert.equal(r.firstPartyXHR,3);
+ assert.deepEqual(r.firstPartySources,["EasyList"]);
+ assert.doesNotMatch(JSON.stringify(r),/private.example|PRIVATE|secret=1/);
+});
