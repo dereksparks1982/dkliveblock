@@ -28,6 +28,19 @@ function measure(fn,repetitions=3){
  }
  return Math.round(median(results)*1000)/1000;
 }
+// Count URL hostname parses in the actual engine. This is deterministic
+// work avoided, independent of variable wall-clock timing or GC.
+function hostnameParses(env,filters,requests){
+ const original=env.DKRules.host;
+ let count=0;
+ env.DKRules.host=function(url){count++;return original(url);};
+ try{
+  const engine=new env.DKFilter.FilterEngine(filters);
+  for(const request of requests)
+   engine.checkRequest(request.url,request.type,request.origin,{},request.method);
+  return count;
+ }finally{env.DKRules.host=original;}
+}
 function bench(options={}){
  const n=options.ruleCount??600,k=options.requestCount??80;
  const env=Audit.loadEnvironment(),{filters,requests}=inputs(n,k);
@@ -41,7 +54,10 @@ function bench(options={}){
   native.shouldBlock(r.url,r.type,r.origin,{},r.method);});
  const hybridMatchMs=measure(()=>{for(const r of requests)
   hybrid.shouldBlock(r.url,r.type,r.origin,{},r.method);});
+ const nativeHostnameParses=hostnameParses(env,filters,requests);
  const result={syntheticOnly:true,ruleCount:n,requestCount:k,
+  nativeHostnameParses,
+  nativeHostnameParsesPerRequest:nativeHostnameParses/k,
   nativeParseMedianMs:nativeParseMs,hybridParseMedianMs:hybridParseMs,
   nativeMatchBatchMedianMs:nativeMatchMs,hybridMatchBatchMedianMs:hybridMatchMs,
   heapAfterMinusBeforeBytes:after-before,
@@ -53,4 +69,4 @@ if(require.main===module){
  console.log("Timing is local Node process data, NOT real Firefox performance.");
  console.log(JSON.stringify(bench(),null,2));
 }
-module.exports={inputs,median,measure,bench,MAX_RULES,MAX_REQUESTS};
+module.exports={inputs,median,measure,hostnameParses,bench,MAX_RULES,MAX_REQUESTS};

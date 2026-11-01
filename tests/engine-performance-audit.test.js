@@ -22,3 +22,27 @@ test("Build 166 local timing helper is nonnegative and repeatable on synthetic w
  const value=P.measure(()=>{let x=0;for(let i=0;i<100;i++)x+=i;});
  assert.ok(Number.isFinite(value)&&value>=0);
 });
+
+test("Build 175 profiling counts actual hostname parses without changing match results",()=>{
+ let calls=0;
+ const shared={host:url=>{calls++;return new URL(url).hostname;}};
+ class FakeEngine{
+  checkRequest(url,type,origin,policy,method){
+   assert.equal(type,"image");
+   assert.equal(method,"GET");
+   shared.host(url);
+   return {block:false};
+  }
+ }
+ const env={DKRules:shared,DKFilter:{FilterEngine:FakeEngine}};
+ const before=shared.host;
+ const requests=P.inputs(4,5).requests;
+ assert.equal(P.hostnameParses(env,"synthetic-only",requests),5);
+ assert.equal(calls,5);
+ assert.equal(shared.host,before,"instrumentation must restore engine helper");
+ assert.throws(()=>P.hostnameParses({
+  DKRules:shared,DKFilter:{FilterEngine:class{
+   checkRequest(){throw Error("simulated matcher failure");}
+  }}}, "synthetic-only", requests),/simulated matcher failure/);
+ assert.equal(shared.host,before,"host helper must be restored after failure");
+});

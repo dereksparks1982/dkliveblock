@@ -46,10 +46,26 @@ class FilterEngine {
   }
   return result;
  }
- candidates(url){const result=this.generic.slice(),parts=R.host(url).split(".");
-  for(let i=0;i<parts.length;i++){const rules=this.hostIndex.get(parts.slice(i).join("."));if(rules)result.push(...rules);}
+ candidates(url,requestHost){
+  // checkRequest already resolved this hostname for third-party rules.
+  // Avoid a second URL parse on every request while keeping external
+  // candidates(url) callers backward-compatible.
+  const host=requestHost===undefined?R.host(url):requestHost;
+  const result=this.generic.slice(),parts=host.split(".");
+  for(let i=0;i<parts.length;i++){
+   const rules=this.hostIndex.get(parts.slice(i).join("."));
+   if(rules)result.push(...rules);
+  }
+  // Host-anchored lists need no expensive URL-length token scan.
+  if(!this.tokenIndex.size)return result;
   const lower=url.toLowerCase(),seen=new Set();
-  for(let i=0;i<lower.length-3;i++){const token=lower.slice(i,i+4);if(seen.has(token))continue;seen.add(token);const rules=this.tokenIndex.get(token);if(rules)result.push(...rules);}
+  for(let i=0;i<lower.length-3;i++){
+   const token=lower.slice(i,i+4);
+   if(seen.has(token))continue;
+   seen.add(token);
+   const rules=this.tokenIndex.get(token);
+   if(rules)result.push(...rules);
+  }
   return result;
  }
  cleanNavigation(raw){
@@ -106,7 +122,7 @@ class FilterEngine {
   if(typeof url!=="string"||url.length>16384||!/^https?:/i.test(url)||policy.document)return {block:false,rule:null};
   const target=R.host(url),kind=R.TYPE[type]||type||"other";
   let block=null,allow=null,important=null;
-  for(const r of this.candidates(url)){
+  for(const r of this.candidates(url,target)){
    if(kind==="popup"&&!r.include.has("popup"))continue;
    if(r.methods){
     const m=typeof method==="string"?method.toUpperCase():"";

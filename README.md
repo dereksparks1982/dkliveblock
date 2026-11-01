@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.144, Build 174.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.145, Build 175.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -27,6 +27,8 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 **Current toggle state in exports (Build 173):** blocked-request and YouTube TXT/JSON reports now distinguish an event blocked in the past from a current remembered Allow or explicit manual Block on the same host/resource type. These remain privacy-sanitized site-level summaries, not per-URL rules.
 
 **Build 174 security hardening:** messages with a browser-supplied foreign origin but no tab are no longer treated as trusted extension UI. Malformed website-exception settings now fail validation before any settings are changed; persistent request-allowance storage failures are covered by a rollback regression test. No new permissions or user-facing controls.
+
+**Build 175 native filtering optimization:** The native matcher now reuses the already-parsed request hostname, avoiding duplicate URL parsing, and skips token scanning when no unanchored token-indexed rules are installed. Candidate order, page exceptions, request types, Ghostery arbitration and YouTube responses remain unchanged. The offline benchmark now counts hostname parses per request; full Linux and Firefox measurements are pending.
 
 ## Development status
 

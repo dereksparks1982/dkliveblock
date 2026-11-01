@@ -519,3 +519,49 @@ test("Build 172 refuses regex, scripts and unbounded literal attribute filters",
   "news.example##div:matches-attr(data-ad=)"
  ])assert.equal(R.procedural(bad),null,bad);
 });
+
+test("Build 175 native request matching parses target hostname only once",()=>{
+ const previous=R.host;
+ let calls=0;
+ R.host=(url)=>{calls++;return previous(url);};
+ try{
+  const engine=new FilterEngine("||ads.example^$image\n@@||ads.example/allow^$image"+
+   "\n||other.example^$script");
+  const yes=engine.checkRequest("https://sub.ads.example/pixel.png","image","news.example");
+  assert.equal(yes.block,true);
+  assert.equal(calls,1,"target URL must not be parsed twice by candidate collection");
+  calls=0;
+  assert.equal(engine.checkRequest("https://sub.ads.example/allow","image","news.example").block,false);
+  assert.equal(calls,1);
+ }finally{R.host=previous;}
+});
+test("Build 175 precomputed host candidate lookup matches legacy public API",()=>{
+ const engine=new FilterEngine("||ads.example^$image\n@@||ads.example/safe^"+
+  "\n*/bannerads/*$image\n||cdn.example^$script"+
+  "\n*$script,domain=news.example");
+ for(const url of [
+  "https://ads.example/bannerads/1.png",
+  "https://sub.ads.example/safe",
+  "https://cdn.example/bannerads/ad.js",
+  "https://site.example/ordinary.js",
+  "https://other.example/asset.png"
+ ]){
+  const legacy=engine.candidates(url).map(x=>x.key);
+  const precomputed=engine.candidates(url,R.host(url)).map(x=>x.key);
+  assert.deepEqual(precomputed,legacy,url);
+ }
+ assert.equal(engine.checkRequest("https://cdn.example/x.js","script","news.example").block,true);
+ assert.equal(engine.checkRequest("https://site.example/bannerads/ad.png","image","news.example").block,true);
+ assert.equal(engine.checkRequest("https://sub.ads.example/safe","image","news.example").block,false);
+});
+test("Build 175 host-only filter sets skip token matching without skipping generic rules",()=>{
+ const hostOnly=new FilterEngine("||ads.example^$image\n*$script");
+ assert.equal(hostOnly.tokenIndex.size,0);
+ assert.equal(hostOnly.checkRequest("https://ads.example/banner","image","news.example").block,true);
+ assert.equal(hostOnly.checkRequest("https://safe.example/script.js","script","news.example").block,true);
+ assert.equal(hostOnly.checkRequest("https://safe.example/image.png","image","news.example").block,false);
+ const tokens=new FilterEngine("*/sponsor_banner/*$image");
+ assert.ok(tokens.tokenIndex.size>0);
+ assert.equal(tokens.checkRequest("https://safe.example/sponsor_banner/a.png","image","news.example").block,true);
+ assert.equal(tokens.checkRequest("https://safe.example/news/a.png","image","news.example").block,false);
+});

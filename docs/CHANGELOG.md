@@ -779,3 +779,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Changed settings update flow to reject malformed custom subscriptions and invalid site-exception arrays before mutating any settings or cached-list choices.
 - Extended security regressions for foreign and extension origins, mixed invalid settings, in-memory rollback, and failed persistent request allowances.
 - Focused source/branch checks passed; complete Ubuntu regression and real Firefox acceptance remain pending. No GitHub Actions or release.
+
+### 0.3.145 / Build 175 (2026-10-31)
+- Reduced repeated URL parsing in native network matching: checkRequest passes its already-parsed hostname to candidate selection.
+- Avoided URL-length token scanning for filter corpora with no unanchored token-indexed rules, without changing generic or host-indexed rule evaluation.
+- Added deterministic parse-call instrumentation to the standalone synthetic engine benchmark and regression tests for request verdict preservation, request-type and exception behavior.
+- Targeted synthetic module checks passed. Actual full Ubuntu regression, measured speedups, streaming/Firefox acceptance and public release remain pending.

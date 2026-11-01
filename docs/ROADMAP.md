@@ -665,3 +665,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 174: explicit foreign no-tab messages rejected, multi-field settings inputs prevalidated before mutation, and persistent blocked-request Allow save failures covered by rollback tests.
 - [ ] Build 174 acceptance: complete local seven-phase Node/Python suite plus real Firefox message/permissions/settings persistence checks.
 - [ ] Build 175: run/offline benchmark native/hybrid filter matching and prioritize measurable optimization while preserving ad-supported movie playback.
+
+- [x] Build 175: reuse parsed request hostname during native candidate selection and bypass token scanning only when no token-indexed rules exist. Keep external candidate API and verdict precedence, add regression cases and synthetic parse-call counter.
+- [ ] Build 175 acceptance: full local Node/Python suite and real measured before/after Firefox CPU, memory and browsing responsiveness. No numerical speedup claim without timing data.
+- [ ] Build 176: expand offline matching differential/parity corpus with manual exceptions, important rules, domain boundaries and HTTP method cases. Fix only demonstrated mismatches.
