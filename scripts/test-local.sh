@@ -98,6 +98,9 @@ check_companion(){
 check_release(){
  local rc=0
  python3 scripts/test-release-audit.py || rc=1
+ python3 scripts/test-amo-preflight.py || rc=1
+ python3 scripts/test-package-contents.py || rc=1
+ python3 scripts/amo-preflight.py --report || rc=1
  python3 scripts/release-audit.py || rc=1
  node scripts/build-200-audit.js || rc=1
  return "$rc"
