@@ -16,6 +16,7 @@ const REASONS=Object.freeze({
  "youtube-player-preserved":"A YouTube player JSON request was retained for the selected compatibility filtering route.",
  "manual-exception":"A user-approved site/hostname/type exception overrode an automatic block decision.",
  "filter-engine-permitted":"Active filtering inspected the request and did not choose to block it.",
+ "filter-exception":"An explicit matching filter-list or user-authored exception allowed this request.",
  "decision-not-recorded":"This request completed, but the exact initial filtering decision was not captured."
 });
 const METHOD=/^(GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS|CONNECT|TRACE)$/;
