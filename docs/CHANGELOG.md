@@ -1,3 +1,11 @@
+## Build 218 (0.3.188): YouTube A/B evidence lab, offline only
+
+- Introduced a self-contained `youtube-lab.html` page accessible from the Site Dashboard. It reads two voluntarily selected DK Live Block YouTube JSON diagnostic reports (750 KB max each) entirely in Firefox.
+- Strictly validates the existing report schema, known YouTube hostname/mode enums and bounded counters. Projects only minimal playback/response/error/bridge and filter state fields into memory, discarding raw report hostnames, IDs, request entries, personal URLs and other arbitrary data.
+- Compares response-filter attachments and modification observations, untrusted page-bridge samples, ad-state observations and player-health faults. Explicit warnings flag mismatched settings, incomplete logging, video errors and anti-adblock refusal. No diagnostic count is presented as proof of ad removal.
+- Optional structured manual observations record whether the selected video was ordinary, a movie or a Short, whether content played, and whether an ad was visibly seen. A separate user-clicked button exports only the sanitized comparison JSON.
+- Added dedicated negative-schema/privacy/comparison/asset tests to the existing local suite, README and roadmap updates. No player bridge or YouTube response rewriting changes, no Actions, no telemetry or new permissions, no public build. Full Ubuntu/Firefox acceptance is still open.
+
 ## Build 217 (0.3.187): private local phishing warning and explicit exact-host proceed
 
 - Added a bundled, accessible, local warning page for Phishing Army exact-host main-frame navigation matches, with publisher evidence, cached list date and explicit false-positive caveat. Background content requests and non-GET navigations remain cancelled.
