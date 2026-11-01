@@ -305,6 +305,28 @@ function updateLists(){if(data.updateJob)return data.updateJob;
   return {updated,checked,errors};
  })().finally(()=>{data.updateJob=null;});return data.updateJob;
 }
+// Permitted audit reasons are kept only until Firefox completes/fails the
+// request. Never retain request IDs in exports, URLs, headers or payloads.
+const pendingAllowedDecisions=new Map();
+function notePermittedDecision(d,site,reason){
+ if(!data.settings.requestLog||!Number.isInteger(d?.tabId)||d.tabId<0||
+    !DKAllowedActivity.hostname(site)||d.requestId===undefined||d.requestId===null)return;
+ let rows=pendingAllowedDecisions.get(d.tabId);
+ if(!rows){rows=new Map();pendingAllowedDecisions.set(d.tabId,rows);}
+ const id=String(d.requestId).slice(0,90);
+ if(!id)return;
+ if(rows.size>=600)rows.delete(rows.keys().next().value);
+ rows.set(id,{site,reason,method:typeof d.method==="string"?d.method:""});
+}
+function popPermittedDecision(d){
+ const rows=pendingAllowedDecisions.get(d.tabId);
+ if(!rows)return null;
+ const id=String(d.requestId??"").slice(0,90);
+ const entry=rows.get(id)||null;
+ rows.delete(id);
+ if(!rows.size)pendingAllowedDecisions.delete(d.tabId);
+ return entry;
+}
 function addNetworkIssue(tabId,url,type,error){
  if(tabId<0||!data.settings.requestLog)return;
  const target=host(url);if(!target)return;
@@ -355,6 +377,7 @@ browser.proxy?.onError?.addListener(e=>{
  data.proxyErrors.push({error,when:Date.now()});if(data.proxyErrors.length>8)data.proxyErrors.shift();
 });
 browser.webRequest.onErrorOccurred?.addListener(d=>{
+ popPermittedDecision(d);
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"failed",{error:d.error});
  if(d.type!=="image"&&d.type!=="imageset"&&d.type!=="main_frame")return;
  const id=String(d.requestId??"");
@@ -363,10 +386,15 @@ browser.webRequest.onErrorOccurred?.addListener(d=>{
  addNetworkIssue(d.tabId,d.url,d.type,d.error);
 },{urls:["<all_urls>"]});
 browser.webRequest.onCompleted?.addListener(d=>{
+ const decision=popPermittedDecision(d);
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"allowed",{statusCode:d.statusCode});
  if(data.ready&&data.settings.requestLog&&Number.isInteger(d.tabId)&&d.tabId>=0){
   const site=data.hosts.get(d.tabId)||"";
-  if(site)DKAllowedActivity.observe(data.allowedActivity,d.tabId,site,d.url,d.type);
+  if(site)DKAllowedActivity.observe(data.allowedActivity,d.tabId,site,d.url,d.type,Date.now(),{
+   reason:decision?.site===site?decision.reason:"decision-not-recorded",
+   method:decision?.site===site?decision.method:d.method,
+   statusCode:d.statusCode
+  });
  }
 },{urls:["<all_urls>"]});
 browser.webRequest.onBeforeRedirect?.addListener(d=>{
@@ -502,7 +530,11 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(d.type==="main_frame"&&popupTrapClaimActive(d.tabId))return {cancel:true};
  // Only user-started tab captures are recorded; never store raw URLs, headers or payloads.
  DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
- if(!data.ready||!data.settings.enabled)return {};
+ if(!data.ready||!data.settings.enabled){
+  notePermittedDecision(d,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),
+   data.ready?"global-disabled":"protection-not-ready");
+  return {};
+ }
  // Independent threat blocking applies even when the originating website
  // is allowed for advertising. An override is exact-host only.
  const threat=data.settings.threatProtection?
@@ -543,14 +575,27 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   recordBlock(d.tabId,d.url,d.type,{p:"[User-selected block]"});
   return {cancel:true};
  }
- if(!activeTab(d.tabId,top))return {};
+ if(!activeTab(d.tabId,top)){
+  notePermittedDecision(d,top,data.tempPaused.has(d.tabId)?"tab-paused":
+   data.settings.paused.some(h=>DKRules.sub(top,h))?"site-allowlisted":"protection-not-ready");
+  return {};
+ }
  // Opt-in rescue: only media requests on the specifically selected streaming site.
  // No script, XHR, tracking, or navigation requests are exempted.
- if(DKVideoAssist.mediaRecoveryAllowed(top,d.type,data.settings.mediaRecovery))return {};
+ if(DKVideoAssist.mediaRecoveryAllowed(top,d.type,data.settings.mediaRecovery)){
+  notePermittedDecision(d,top,"media-recovery");
+  return {};
+ }
  // Explicit temporary repair: one tab, one hostname and one request type, expires in 10 min.
- if(DKStreamingRepair.matches(data.streamingAllowances,d.tabId,top,host(d.url),d.type))return {};
+ if(DKStreamingRepair.matches(data.streamingAllowances,d.tabId,top,host(d.url),d.type)){
+  notePermittedDecision(d,top,"streaming-repair");
+  return {};
+ }
  // Allow narrowly identified sign-in assets, never unrelated Google trackers.
- if(DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||""))return {};
+ if(DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||"")){
+  notePermittedDecision(d,top,"authentication-preserved");
+  return {};
+ }
  // Allow first-party player JSON only for an actively modifying route.
  // Observe-only must preserve normal subscribed network verdicts, and
  // manually selected request blocks remain authoritative above.
@@ -562,15 +607,20 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
    DKYouTubeResponse.observeRequest(d.tabId,d.url);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
    "YouTube player JSON request kept available during experiment");
+  notePermittedDecision(d,top,"youtube-player-preserved");
   return {};
  }
  const contextHost=host(doc)||top;
  const result=data.engine.checkRequest(d.url,d.type,contextHost,data.engine.getPagePolicy(doc),d.method||"");
- if(!result.block)return {};
+ if(!result.block){
+  notePermittedDecision(d,top,"filter-engine-permitted");
+  return {};
+ }
  // A manual allowance never overrides popup protection or page navigation.
  // It matches one exact site, destination hostname and Firefox resource type.
  if(DKRequestControls.matches(data.requestControls,d.tabId,top,host(d.url),d.type)){
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,"User-approved hostname/type exception");
+  notePermittedDecision(d,top,"manual-exception");
   return {};
  }
  const replacement=DKRedirectResources.url(result.rule,d.type,browser.runtime);
@@ -682,7 +732,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   // Keep the per-site popup count across reloads; host changes clear it above.
   DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);
-  autoVideoTimes.delete(id);DKAllowedActivity.clear(data.allowedActivity,id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
+  autoVideoTimes.delete(id);DKAllowedActivity.clear(data.allowedActivity,id);pendingAllowedDecisions.delete(id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
  data.youtubeExperiment.delete(id);
@@ -690,7 +740,7 @@ browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
- DKThreatWarning.clear(data.threatWarnings,id);data.threatWarningPending.delete(id);DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
+ DKThreatWarning.clear(data.threatWarnings,id);data.threatWarningPending.delete(id);DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);pendingAllowedDecisions.delete(id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate){
  updateLists().catch(console.warn);
  if(data.settings.threatProtection)updateThreatDatabase().catch(console.warn);
@@ -1021,7 +1071,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    distractionPaused:data.settings.distractionPaused.some(h=>DKRules.sub(site,h)),
    popupCleanupEnabled:data.settings.antiAdblock||data.settings.paywallPopups,
    popupCleanupPaused:data.settings.popupProtectionPaused.some(h=>DKRules.sub(site,h)),
-   requestLog,threatDatabase:threatStatus(),allowedRequests:permitted.total,allowedGroups:permitted.groups,
+   requestLog,threatDatabase:threatStatus(),allowedRequests:permitted.total,
+   allowedGroups:permitted.groups,allowedEvents:permitted.events,
    selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,site),
    youtubeTestMode:DKYouTubeExperiment.validSite(site)?youtubeMode(id,site):null,
    youtubeAdaptive:DKYouTubeExperiment.validSite(site)&&sameTab?
