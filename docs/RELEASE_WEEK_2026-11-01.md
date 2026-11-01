@@ -2,7 +2,7 @@
 
 **Owner goal:** submit DK Live Block for a public Mozilla Firefox Add-ons listing by the end of this week. **Target submission: Friday, November 6.** Mozilla's review/approval timing is outside our control; publication by Saturday, November 7 cannot be guaranteed.
 
-**Starting code:** Build 219 / 0.3.189, unreleased. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
+**Current source:** Build 220 / 0.3.190, unreleased. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
 
 ## Current demonstrated success: preserve and retest
 
