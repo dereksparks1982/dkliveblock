@@ -33,7 +33,8 @@ function grant(state,tab,site,dest,type,scope,now=Date.now()){
  const record=choice(site,dest,type,scope);
  if(!record)return {error:"Only a specific site, request hostname, and resource type can be allowed."};
  const validTab=Number.isInteger(tab)&&tab>=0;
- if(scope==="temporary"&&!validTab)return {error:"A current tab is required."};
+ if(scope==="temporary"&&(!validTab||!Number.isFinite(now)||now<0||now>Number.MAX_SAFE_INTEGER-TTL))
+  return {error:"A valid current tab and clock are required."};
  const target=scope==="temporary"?(state.temporary.get(tab)||[]):state[scope];
  const key=idOf(record);
  const next=target.filter(x=>idOf(x)!==key);
@@ -44,7 +45,7 @@ function grant(state,tab,site,dest,type,scope,now=Date.now()){
  return {ok:true,rule:record,expires:scope==="temporary"?now+TTL:null};
 }
 function matches(state,tab,site,dest,type,now=Date.now()){
- const c=choice(site,dest,type,"session");if(!c)return false;
+ const c=choice(site,dest,type,"session");if(!c||!Number.isFinite(now)||now<0)return false;
  const test=r=>r.site===site&&r.host===dest&&r.type===type;
  if(state.remember.some(test)||state.session.some(test))return true;
  const temp=state.temporary.get(tab)||[];
@@ -58,7 +59,7 @@ function matches(state,tab,site,dest,type,now=Date.now()){
 }
 function list(state,tab,site,now=Date.now()){
  const rows=[];
- if(!host(site))return rows;
+ if(!host(site)||!Number.isFinite(now)||now<0)return rows;
  for(const scope of ["remember","session","temporary"]){
   const values=scope==="temporary"?(state.temporary.get(tab)||[]):state[scope];
   for(const entry of values){

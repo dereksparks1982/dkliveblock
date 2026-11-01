@@ -41,3 +41,15 @@ test("activity inspector distinguishes observations and guesses",()=>{
  assert.equal(ordinary.certainty,"unknown");
  assert.match(ordinary.access,/not evidence of filesystem/);
 });
+
+test("Build 193 temporary exceptions reject malformed time values",()=>{
+ const table=P.make();
+ for(const now of [NaN,Infinity,-1,Number.MAX_SAFE_INTEGER]){
+  assert.ok(P.grant(table,193,"site.example","cdn.example","media","temporary",now).error);
+ }
+ assert.equal(P.grant(table,193,"site.example","cdn.example","media","temporary",1000).ok,true);
+ assert.equal(P.matches(table,193,"site.example","cdn.example","media",NaN),false);
+ assert.equal(P.matches(table,193,"site.example","cdn.example","media",-1),false);
+ assert.deepEqual(P.list(table,193,"site.example",NaN),[]);
+ assert.equal(P.matches(table,193,"site.example","cdn.example","media",1001),true);
+});

@@ -730,3 +730,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 192: correct cross-site streaming issue counts.
 - [ ] Build 192 gate: run seven-phase Linux tests and controlled Firefox playback/security verification.
+
+- [x] Build 193: reject invalid temporary request-allowance clocks.
+- [ ] Build 193 acceptance: full Linux tests and supervised real Firefox/privacy/YouTube matrix.
