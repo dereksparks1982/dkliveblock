@@ -60,4 +60,6 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 
 ## License
 
-Original application source is currently MIT licensed. Bundled Ghostery and Mozilla Public Suffix List components use MPL-2.0, and third-party filter lists have their own license terms. A future licensing decision cannot revoke rights already granted under MIT.
+**Free to use, not to monetize.** Individuals and companies may use DK Live Block for free, including inside for-profit businesses. No one may sell, repackage, distribute for payment, or otherwise profit from DK Live Block itself or a derivative offering without written permission from Elderred Softworks LLC / DK LAB. The original code in newly distributed versions is covered by the [DK Live Block Free Use / No Monetization License](LICENSE), a **custom source-available license**, not an OSI-approved open-source license.
+
+**Important historical limitation:** Earlier publicly available original-code versions were MIT licensed, and those already granted rights cannot be revoked retroactively. Bundled Ghostery and Mozilla Public Suffix List components retain MPL-2.0 permissions, and filter lists/other third-party assets retain their own license terms. Legal and Mozilla Add-ons policy review remain required before public release.
