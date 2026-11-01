@@ -16,6 +16,18 @@
 - **Experiments with streaming-ad filtering:** includes bounded YouTube player-response and page-level protections, observation modes, and playback diagnostics. Results vary, and not every video or streaming provider is supported.
 - **Offers optional tools:** includes opt-in cookie rejection, video watch-later features, and Linux companion integrations under development.
 
+## Successful real-world Firefox tests (November 1, 2026)
+
+**DK Live Block has successfully blocked advertising in the project owner's live Firefox testing:**
+
+- **YouTube regular videos:** the owner observed regular video advertisements being blocked during playback.
+- **YouTube "Free with Ads" movies:** the owner observed movie advertisements being blocked during playback.
+- **Disney+ movies:** the owner reported that advertisements appeared to be blocked while watching a movie. The movie-session export recorded **20 blocked requests**, including an EasyList block against `us-east-2.ads.digital.disneyadvertising.com`.
+- **Disney+, CSI: Las Vegas:** the owner observed successful ad blocking while watching the program. A separate playback-session export recorded **22 blocked requests**, including the same Disney advertising hostname.
+- **1337x:** the owner observed unwanted advertising popups/new-tab focus takeovers prevented. A separate export recorded **17 blocked requests** on a 1337x mirror.
+
+The Disney+ logged-in landing-page check separately recorded **49 blocked requests**; it is not being presented as a movie test. **These are positive user-observed browser outcomes**, supported where available by sanitized network-filter reports. A blocked request alone does not prove that a video ad was suppressed, and results do not guarantee coverage for every title, session, browser or site. Full regression testing, competitor parity assessment and public-release approval are still pending. See [the detailed real-world QA record](docs/QA_LAB.md).
+
 ## Project principles
 
 - No Acceptable Ads program, sponsored placements, promotional ads, paid feature gates, or forced telemetry.
