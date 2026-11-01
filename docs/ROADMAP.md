@@ -742,3 +742,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 198: fix NUL-list validation and sanitize exported engine names.
 - [ ] Full seven-phase suite and real Firefox verification remain pending.
+
+- [x] Build 199: compare YouTube report outcomes offline without false success claims.
+- [ ] Validate report comparability in matched real Firefox sessions, run full Linux suite.

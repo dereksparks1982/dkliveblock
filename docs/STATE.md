@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 198 / 0.3.168 (2026-11-01), unreleased.**
+**Source snapshot: Build 199 / 0.3.169 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -103,3 +103,6 @@ The built-in subscription refresh guard now rejects NUL-bearing lists, oversized
 
 ## Build 198: fix NUL-list validation and sanitize exported engine names
 The list-refresh guard now rejects actual NUL bytes, not the escaped text sequence; corrected Build 197 fixture newline escapes. The YouTube export limits filterBackend to the known native/hybrid labels, eliminating another untrusted output field. Focused actual module assertions passed. Full Ubuntu suite and live Firefox acceptance remain unverified.
+
+## Build 199: compare YouTube report outcomes offline without false success claims
+Added side-by-side categorical comparison of two locally exported YouTube compatibility reports. Comparison displays only experiment modes and deltas for player ad-state observations, playback faults and modified JSON responses. It neither uploads evidence nor declares either mode ad-free. A bounded optional offline developer CLI is included. Full Ubuntu suite and real Firefox acceptance unverified.

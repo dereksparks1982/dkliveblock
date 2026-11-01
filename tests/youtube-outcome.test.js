@@ -21,3 +21,19 @@ test("malformed and huge outcome counters cannot leak or overwhelm reports",()=>
  assert.equal(out.observations,30);
  assert.doesNotMatch(JSON.stringify(out),/PRIVATE/);
 });
+
+test("Build 199 compares voluntary exports using only categorical outcomes",()=>{
+ const a={experimentMode:"observe",responseFiltering:{modified:0},playback:[
+  {kind:"ad-showing",watchUrl:"https://private.example/watch?token=SECRET"},
+  {kind:"buffering"}],website:"www.youtube.com",account:"PRIVATE_ACCOUNT"};
+ const b={experimentMode:"combined",responseFiltering:{modified:2},playback:[],account:"SECRET"};
+ const compared=Outcome.compare(a,b);
+ assert.equal(Outcome.summarize(a).category,"playback-fault-observed");
+ assert.equal(compared.baselineMode,"observe");
+ assert.equal(compared.candidateMode,"combined");
+ assert.equal(compared.deltaAdState,-1);
+ assert.equal(compared.deltaFaults,-1);
+ assert.equal(compared.deltaModifiedResponses,2);
+ assert.equal(compared.verifiedAdFree,false);
+ assert.doesNotMatch(JSON.stringify(compared),/PRIVATE|SECRET|watch|token|account|youtube.com/);
+});
