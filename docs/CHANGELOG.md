@@ -743,3 +743,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Mode changes validate a current extension-selected YouTube tab, expire in one hour, reset diagnostics, survive a same-host reload, and clear on tab close or domain change. Observe-only reports coarse bootstrap indicators without altering player JSON; ordinary network filters are unaffected.
 - Existing YouTube compatibility reports include the selected mode, enabling reproducible side-by-side playback evidence. The new pure mode module and page bridge behavior have additional regression tests.
 - No GitHub Actions, user downloads, remote code, public release, or claim of verified Firefox playback. Full Linux regression and browser A/B acceptance remain pending.
+
+### 0.3.139 / Build 169 (2026-10-31)
+- Added an Allow checkbox beside every eligible historical blocked request in the Site Dashboard, using existing site/hostname/type-scoped remembered request allowances.
+- Requires explicit warning and trusted extension UI, live matching tab, local blocked-event history and active protection. Reversing a switch restores original automatic filter rules without creating an unrelated permanent block.
+- Manual selective blocks, popup events, and navigations are not overridable from blocked history. Storage errors roll back changes. Added model, UI-contract and background regression coverage.
+- Production YouTube response/bridge behavior remains unchanged; full Linux regression and live-browser acceptance remain unverified.

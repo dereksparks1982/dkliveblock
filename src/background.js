@@ -803,6 +803,64 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   try{await browser.tabs.sendMessage(id,{action:"refresh"});}catch(_){}
   return {ok:true,mode:youtubeMode(id,liveSite),reloadRecommended:true};
  }
+ if(msg.action==="setBlockedRequestAllowed"){
+  // Only extension UI may create persistent exceptions for observed blocked
+  // events. A site page cannot call this action or invent an event.
+  if(fromContent||!Number.isInteger(id)||id<0||
+     typeof msg.expectedSite!=="string"||typeof msg.allow!=="boolean"||
+     !DKRequestControls.choice(msg.expectedSite,msg.host,msg.type,"remember"))
+   return {error:"Invalid blocked-request control."};
+  let liveSite;
+  try{
+   const tab=await browser.tabs.get(id);
+   if(!/^https?:\/\//i.test(tab?.url||""))
+    return {error:"Choose an ordinary website tab."};
+   liveSite=host(tab.url);
+  }catch(_){return {error:"Website tab no longer exists."};}
+  if(!liveSite||liveSite!==msg.expectedSite||data.hosts.get(id)!==liveSite)
+   return {error:"Website changed; refresh the dashboard before editing."};
+  if(msg.allow){
+   if(msg.confirm!==true||!data.ready||!data.settings.requestLog||!activeTab(id,liveSite))
+    return {error:"Explicit approval, request history, and active protection are required."};
+   if(!(data.logs.get(id)||[]).some(x=>x.host===msg.host&&x.type===msg.type&&
+      x.type!=="popup"))
+    return {error:"That hostname and request type are not in this tab's blocked history."};
+   // Do not erase explicitly user-selected blocks: those have their own controls.
+   if(DKAllowedActivity.matches(data.manualBlocks,liveSite,msg.host,msg.type))
+    return {error:"An explicit manual block is active. Remove it from Permitted requests first."};
+  }
+  const oldRemember=data.requestControls.remember.slice();
+  const oldSession=data.requestControls.session.slice();
+  const oldTemp=(data.requestControls.temporary.get(id)||[]).slice();
+  let changed=false;
+  if(msg.allow){
+   const wasRemembered=data.requestControls.remember.some(x=>x.site===liveSite&&
+    x.host===msg.host&&x.type===msg.type);
+   const grant=DKRequestControls.grant(data.requestControls,id,liveSite,
+    msg.host,msg.type,"remember");
+   if(!grant.ok)return grant;
+   changed=!wasRemembered;
+  }else{
+   // Turning the switch off restores ordinary filtering; it does not
+   // manufacture a new block from a historical event.
+   for(const scope of ["remember","session","temporary"])
+    changed=DKRequestControls.revoke(data.requestControls,id,
+     liveSite,msg.host,msg.type,scope)||changed;
+  }
+  if(!changed)return {ok:true,allowed:msg.allow,changed:false};
+  try{
+   await browser.storage.local.set({
+    requestAllowances:data.requestControls.remember
+   });
+  }catch(_){
+   data.requestControls.remember=oldRemember;
+   data.requestControls.session=oldSession;
+   if(oldTemp.length)data.requestControls.temporary.set(id,oldTemp);
+   else data.requestControls.temporary.delete(id);
+   return {error:"Saving failed; prior request allowances restored."};
+  }
+  return {ok:true,allowed:msg.allow,changed:true,scope:"site+hostname+type"};
+ }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};

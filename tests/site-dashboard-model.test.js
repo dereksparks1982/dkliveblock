@@ -68,3 +68,25 @@ test("permitted groups are bounded and saved manual switches remain visible when
  assert.deepEqual(M.permittedRows({...normal,requestLog:false}).map(x=>x.host),
   ["avatars.githubusercontent.com","api.github.com"]);
 });
+
+test("Build 169 blocked history allows only exact site/host/resource type",()=>{
+ const page={site:"www.youtube.com",
+  requestAllowances:[{host:"www.youtube.com",type:"xmlhttprequest",scope:"remember"}],
+  selectiveBlocks:[]};
+ const row={host:"www.youtube.com",type:"xmlhttprequest",ruleType:"filter"};
+ assert.deepEqual(M.blockedControl(page,row),{eligible:true,allowed:true,manualBlock:false});
+ assert.equal(M.blockedControl(page,{...row,type:"script"}).allowed,false);
+ assert.equal(M.blockedControl(page,{...row,host:"youtube.com"}).allowed,false);
+ assert.deepEqual(M.blockedControl({...page,requestAllowances:[],
+  selectiveBlocks:[{host:"www.youtube.com",type:"xmlhttprequest"}]},row),
+  {eligible:false,allowed:false,manualBlock:true});
+});
+test("Build 169 cannot allow blocked popup entries or invalid destinations",()=>{
+ const page={site:"news.example",requestAllowances:[]};
+ for(const row of [
+  {host:"ads.example",type:"popup",ruleType:"popup"},
+  {host:"ads.example",type:"main_frame",ruleType:"engine"},
+  {host:"ads.example/private?token=1",type:"script",ruleType:"engine"},
+  {host:"ads.example",type:"unknown",ruleType:"filter"}
+ ])assert.equal(M.blockedControl(page,row).eligible,false);
+});

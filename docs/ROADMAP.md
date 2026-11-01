@@ -641,3 +641,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 168: temporary tab-scoped YouTube test switchboard (combined / Firefox response only / page bridge only / observe-only). Source module is pure and bounded, and all modes are controlled through the existing site dashboard without touching global preferences or default playback behavior.
 - [ ] Build 168 gate: run all 7 local test phases and 116 registered Node test files, then do a clean Firefox A/B YouTube playback matrix using exports from each temporary mode. No assertion of working anti-adblock protection before observed results.
 - [ ] After initial A/B evidence: focus fixes only on the layer empirically responsible for blocking or playback refusal; no speculative YouTube HTML interception or GPL scriptlet copying.
+
+- [x] Build 169: blocked history now has reversible Allow checkboxes beside existing Details controls, with exact site/host/type scope, persistent remembered decisions, live-tab/observed-event checks, popup/manual-block exclusions and regression coverage.
+- [ ] Build 169 acceptance: complete seven-phase local Ubuntu suite on exact Build 169 HEAD, followed by real Firefox toggle-on/off checking; no public release yet.
+- [ ] Build 170: use current YouTube bootstrap/report evidence to identify why ordinary-video playback fails while ad-supported Shutter Island can play; preserve observed working movie behavior; avoid speculative rewriting until controlled A/B results.

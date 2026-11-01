@@ -77,7 +77,19 @@ function permittedRows(data){
  }
  return [...seen.values()];
 }
-const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances,permittedRows});
+// A blocked history entry is NOT a URL-specific filter. Controls apply to
+// future requests on exactly this site + destination hostname + resource type.
+function blockedControl(data,row){
+ const host=hostname(row?.host),type=row?.type,site=hostname(data?.site);
+ if(!site||!host||!RESOURCE_TYPES.has(type)||type==="popup"||
+    type==="main_frame"||row?.ruleType==="popup")
+  return {eligible:false,allowed:false,manualBlock:false};
+ const allowed=allowances(data).some(x=>x.host===host&&x.type===type);
+ const manualBlock=(Array.isArray(data?.selectiveBlocks)?data.selectiveBlocks:[])
+  .some(x=>x?.host===host&&x?.type===type);
+ return {eligible:!manualBlock,allowed,manualBlock};
+}
+const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances,permittedRows,blockedControl});
 root.DKSiteDashboardModel=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

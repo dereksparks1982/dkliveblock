@@ -154,3 +154,21 @@ test("script dependencies load before blocked reports",()=>{
  const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
  assert.ok(html.indexOf("youtube-triage.js")<html.indexOf("blocked-export.js"));
 });
+
+test("Build 169 blocked request history exposes reversible hostname/type controls",()=>{
+ const html=fs.readFileSync(path.join(root,"src/site-dashboard.html"),"utf8");
+ const ui=fs.readFileSync(path.join(root,"src/site-dashboard.js"),"utf8");
+ const bg=fs.readFileSync(path.join(root,"src/background.js"),"utf8");
+ assert.match(html,/Allow switches affect future requests/);
+ assert.match(ui,/function blockedLine\(row,d\)/);
+ assert.match(ui,/Model\.blockedControl\(d,row\)/);
+ assert.match(ui,/render\("dashboardRecent",requests,"No recent blocked requests\.",row=>blockedLine\(row,d\)\)/);
+ assert.match(ui,/action:"setBlockedRequestAllowed"/);
+ assert.match(ui,/checkbox\.type="checkbox"/);
+ assert.match(ui,/detail\.textContent="Details"/);
+ assert.match(bg,/msg\.action==="setBlockedRequestAllowed"/);
+ assert.match(bg,/DKRequestControls\.choice\(msg\.expectedSite,msg\.host,msg\.type,"remember"\)/);
+ assert.match(bg,/data\.logs\.get\(id\)/);
+ assert.match(bg,/DKAllowedActivity\.matches\(data\.manualBlocks/);
+ assert.doesNotMatch(ui,/innerHTML\s*=|eval\(/);
+});

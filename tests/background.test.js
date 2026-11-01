@@ -42,6 +42,26 @@ test("background blocks seeded ads, logs host-only requests, then pauses the sit
  assert.equal(log.length,1);
  assert.equal(log[0].host,"doubleclick.net");
  assert.equal(JSON.stringify(log).includes("/pixel"),false);
+ // Build 169: blocked history controls create site/hostname/type-scoped,
+ // reversible user approvals, not broad website allowlisting.
+ const choice={action:"setBlockedRequestAllowed",tabId:1,expectedSite:"site.test",
+  host:"doubleclick.net",type:"image",allow:true,confirm:true};
+ const hostile=await listeners.message(choice,{tab:{id:1,url:"https://site.test/"},
+  url:"https://site.test/",frameId:0});
+ assert.match(hostile.error,/extension interface/i);
+ const missing=await listeners.message({...choice,host:"unseen.example"});
+ assert.match(missing.error,/not in this tab/);
+ const denied=await listeners.message({...choice,confirm:false});
+ assert.match(denied.error,/approval/);
+ const allowed=await listeners.message(choice);
+ assert.equal(allowed.ok,true);
+ assert.equal(stored.requestAllowances.length,1);
+ assert.equal(listeners.network(request).cancel,undefined);
+ assert.equal(listeners.network({...request,type:"script"}).cancel,true);
+ const reverted=await listeners.message({...choice,allow:false,confirm:false});
+ assert.equal(reverted.ok,true);
+ assert.equal(stored.requestAllowances.length,0);
+ assert.equal(listeners.network(request).cancel,true);
  const unsafe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"bad^$important"});
  assert.match(unsafe.error,/Invalid/);
  const safe=await listeners.message({action:"allowHost",url:"https://site.test/",host:"doubleclick.net"});

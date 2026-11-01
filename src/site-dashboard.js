@@ -82,6 +82,11 @@ function showBlock(row){
  addDetail("Website tab",current.site);
  addDetail("When",time(row.when));
  addDetail("Request type",info.resource+" ("+row.type+")");
+ const control=Model.blockedControl(current,row);
+ addDetail("Future matching requests",!control.eligible?"Not toggleable":
+  control.allowed?"Manually allowed on this website":
+  "Automatic filter rules apply. Use the Allow toggle beside the event.");
+ addDetail("Control scope","Exact website + destination hostname + request type, not a single URL.");
  addDetail("Third-party relation",info.thirdParty===null?"Not established":info.thirdParty?"Different hostname from website":"Same website or subdomain");
  addDetail("Why DK Live Block stopped it",info.why);
  addDetail("Filter engine",row.ruleEvidence?.source||"Not recorded");
@@ -217,9 +222,11 @@ function setButtons(d){
  $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
  $("dashboardYouTubeMode").disabled=busy||!d?.youtubeTestMode;
  $("dashboardYouTubeApplyMode").disabled=busy||!d?.youtubeTestMode||!d.siteActive;
- $("dashboardAllowedList").querySelectorAll("input[type=checkbox]").forEach(input=>{
-  input.disabled=busy||!d?.ok||!d.globalEnabled||d.temporarilyPaused;
- });
+ for(const id of ["dashboardAllowedList","dashboardRecent"])
+  $(id).querySelectorAll("input[type=checkbox]").forEach(input=>{
+   input.disabled=busy||!d?.ok||!d.globalEnabled||d.temporarilyPaused||
+    (id==="dashboardRecent"&&(!d.siteActive||input.dataset.ineligible==="true"));
+  });
  $("dashboardMonitor").disabled=busy||!d?.ok;
  const hasRows=!!(d?.ok&&d.requestLog&&Model.requestRows(d).length);
  $("dashboardExportText").disabled=busy||!hasRows;
@@ -391,6 +398,58 @@ function permittedLine(row,siteStatus){
  label.append(desc,checkbox);div.append(label,inspect);
  return div;
 }
+async function toggleBlockedRequest(row,allow,input){
+ if(loading||busy||!current?.ok){input.checked=!allow;return;}
+ const snapshot=current;
+ busy=true;setButtons(current);
+ try{
+  await verifyCurrentTab(snapshot);
+  if(allow&&!window.confirm(
+   "Allow future "+row.type+" requests to "+row.host+" on "+snapshot.site+
+   "? This exact hostname and request type will be exempted from automatic filters "+
+   "on this website until you turn the switch off, including across tabs and browser restarts. "+
+   "Some matching requests may be ads or trackers. Any matching manual block will be removed.")){
+    input.checked=false;return;
+  }
+  const reply=await browser.runtime.sendMessage({
+   action:"setBlockedRequestAllowed",tabId:snapshot.tabId,
+   expectedSite:snapshot.site,host:row.host,type:row.type,
+   allow,confirm:allow
+  });
+  if(!reply?.ok)throw Error(reply?.error||"Could not update this blocked request.");
+  await refresh();
+  notice((allow?"Allowing":"Restoring normal filters for")+" future "+row.type+
+   " requests to "+row.host+" on "+snapshot.site+". Reload the website to check.");
+ }catch(error){input.checked=!allow;notice(error?.message||"Could not update blocked request.");}
+ finally{busy=false;setButtons(current);}
+}
+function blockedLine(row,d){
+ const div=document.createElement("div");div.className="dashboard-line allowed-request-line";
+ const label=document.createElement("label");label.className="allowed-request-label";
+ const desc=document.createElement("span");
+ desc.textContent=(row.sequence?"#"+row.sequence+" · ":"")+time(row.when)+
+  " · "+row.host+" · "+row.type;
+ const control=Model.blockedControl(d,row);
+ const checkbox=document.createElement("input");checkbox.type="checkbox";
+ checkbox.checked=control.allowed;
+ checkbox.dataset.ineligible=String(!control.eligible);
+ checkbox.disabled=busy||!control.eligible||!d.siteActive;
+ checkbox.setAttribute("aria-label","Allow future "+row.type+
+  " requests to "+row.host+" on "+d.site);
+ checkbox.title=control.manualBlock?
+  "This destination has an explicit manual block. Manage it under Permitted requests.":
+  control.eligible?"Checked: allow future matching requests. Unchecked: normal filtering.":
+  "Popup and navigation controls cannot be overridden from this list.";
+ checkbox.addEventListener("change",()=>{
+  const allow=checkbox.checked;checkbox.disabled=true;
+  toggleBlockedRequest(row,allow,checkbox).catch(error=>
+   notice(error?.message||"Could not update this request."));
+ });
+ const detail=document.createElement("button");detail.type="button";
+ detail.textContent="Details";detail.addEventListener("click",()=>showBlock(row));
+ label.append(desc,checkbox);div.append(label,detail);
+ return div;
+}
 function display(d){
  selectedAllowed=null;$("dashboardAllowedDetails").hidden=true;
  if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
@@ -415,11 +474,10 @@ function display(d){
  const requests=Model.requestRows(d);
  $("dashboardLogState").textContent=!d.requestLog?
   "Private request logging is OFF. Turn it on in Settings to show future blocks.":
-  requests.length?requests.length+" retained blocked events for "+d.site+" (refresh for latest).":
+  requests.length?requests.length+" retained blocked events for "+d.site+
+   ". Switches allow future matching hostname/type requests, not individual past URLs.":
   "No recent blocked request records for this tab.";
- render("dashboardRecent",requests,"No recent blocked requests.",row=>
-  line((row.sequence?"#"+row.sequence+" · ":"")+time(row.when)+" · "+row.host+" · "+row.type,
-   "Details",()=>showBlock(row)));
+ render("dashboardRecent",requests,"No recent blocked requests.",row=>blockedLine(row,d));
  render("dashboardPopupHistory",Model.popupRows(d),
   d.requestLog?"No recent popup closures.":"Popup history is unavailable while private request logging is off.",
   row=>line(time(row.when)+" · "+row.host+" · "+row.reason));
