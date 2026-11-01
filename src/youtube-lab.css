@@ -1,0 +1,13 @@
+body.youtube-lab main{max-width:1020px}
+.youtube-lab .lab-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:1rem;margin:1rem 0}
+.youtube-lab .lab-grid label{display:block}
+.youtube-lab .lab-grid input,.youtube-lab .lab-grid select{display:block;width:100%;margin:.4rem 0;max-width:100%}
+.youtube-lab .lab-actions{display:flex;flex-wrap:wrap;gap:.7rem;padding:1rem 0}
+.youtube-lab #comparisonWarnings p{padding:.45rem .75rem;border-left:3px solid #aa6848;background:rgba(124,82,37,.12)}
+.youtube-lab .lab-scroll{overflow-x:auto}
+.youtube-lab table{width:100%;border-collapse:collapse;min-width:510px}
+.youtube-lab td,.youtube-lab th{padding:.6rem;text-align:left;border-bottom:1px solid #8886;font-variant-numeric:tabular-nums}
+.youtube-lab table td:not(:first-child),.youtube-lab table th:not(:first-child){text-align:right}
+.youtube-lab #comparisonSummary{font-weight:600}
+.youtube-lab #comparisonCaveat{font-size:.9em}
+.youtube-lab button:disabled{opacity:.55;cursor:not-allowed}
