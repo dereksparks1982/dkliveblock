@@ -28,3 +28,20 @@ The user tested DK Live Block enabled on a 1337x mirror and observed an advertis
 **Development candidate:** Testing occurred after the Build 214 (v0.3.184) local-update instruction. The JSON itself does not carry an extension version or commit SHA; treat the exact tested revision as **user-context inferred, not export-verified**.
 
 **Next acceptance checks:** Repeat against both named mirror hosts when convenient, confirm a normal user-authorized new tab still opens using the explicit permit, verify strict blocking when enabled and no unintended blocking after pause/allowlisting, and inspect popup history/count separately. This single successful observation is not evidence that strict protection works on all sites.
+
+
+## Owner-observed live ad blocking: YouTube and Disney+ (November 1, 2026)
+
+**Status: positive owner-observed Firefox tests, not a universal compatibility or release certificate.** The owner has explicitly confirmed successful advertising suppression on ordinary YouTube videos and on YouTube movies marked "Free with Ads." These newer successful observations supersede older unresolved symptom reports **for the sessions tested**. Protect the preserved working YouTube backup/tag and do not rewrite player interception based on stale reports.
+
+Disney+ observations and voluntary local blocked-request exports were collected on the same date:
+
+| Session | What the owner observed | What the export establishes |
+| --- | --- | --- |
+| Logged-in Disney+ landing page | Signed in and browsing, not playing a video | **49** blocked third-party background requests, mostly EasyPrivacy; not a video ad test. |
+| Disney+ movie | Movie viewing with ads appearing to be blocked | **20** blocked network requests; one EasyList hit on `us-east-2.ads.digital.disneyadvertising.com` using `||disneyadvertising.com^`. |
+| Disney+, CSI: Las Vegas | Owner reported ad blocking working during this program | **22** blocked network requests; one EasyList hit on the same Disney advertising hostname. |
+
+The two Disney+ playback-session reports are **separate exports**, not cumulative measurements of all browsing or proof that 20 or 22 video advertisements would have played. Their `playbackDiagnostics` arrays are empty, so the exports do not independently confirm a playable video or absence of on-screen ad breaks. The ad-blocking outcome comes from the owner's visual observation; the report independently verifies the listed request blocks. The private full exports were supplied to the development conversation and were **not added to the public repository**.
+
+**Regression baseline for future builds:** Preserve owner-observed working advertising suppression on ordinary YouTube videos, YouTube "Free with Ads" films, Disney+ films and CSI: Las Vegas, and 1337x unsolicited advertising tabs. Do not loosen filters or change YouTube/Disney+ player paths as an unsubstantiated repair. Compare future changes against this documented working behavior; continue the separate seven-phase offline suite, long-playback checks, and authorized release review. Exact extension commit/version is not embedded in the site exports and is therefore not independently established by those JSON files.
