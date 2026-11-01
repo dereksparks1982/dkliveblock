@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 203 / 0.3.173 (2026-11-01), unreleased.**
+**Source snapshot: Build 204 / 0.3.174 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -122,3 +122,9 @@ Full Ubuntu suite and live Firefox ad-free video compatibility remain unverified
 ## Build 203
 Major competitor-source-driven upgrade: explicit user-authored, domain-scoped safe set-constant scriptlet functionality with exception handling and a bundled MAIN runtime; validated current-page Ghostery cosmetic context; bounded popup mutation inspection; new real parser/runtime/DOM/manifest regressions and a public source-code comparison. No remote executable scripts, subscription-provided scriptlets, new permissions, GitHub Actions, user commands or UI geometry changes.
 Full Ubuntu and live Firefox tests still pending.
+
+## Build 204: network-list retention and scriptlet precedence (unreleased)
+
+- `0.3.174` protects working filter subscription caches from same-size error text masquerading as rule lists, with conservative syntax evidence and embedded response-markup checks. Small existing and initial custom lists remain allowed.
+- User-authored set-constant scriptlets now resolve exceptions before the 24-rule runtime cap and avoid multiple live values for one property path.
+- No change to `src/youtube-*.js`, player/network response interception, existing UI geometry, permissions, bundled vendor, or approved frozen Build 203 snapshot/tag. Full Linux and live Firefox verification remain pending.

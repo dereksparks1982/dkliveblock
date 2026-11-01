@@ -36,9 +36,17 @@ function select(text,host){
   if(r.all){disabled=true;continue;}
   const id=r.path+"|"+r.value;
   if(r.exception)removed.add(id);
-  else if(added.size<24)added.set(id,{name:r.name,path:r.path,value:r.value});
+  else added.set(id,{name:r.name,path:r.path,value:r.value});
  }
- return disabled?[]:[...added].filter(([id])=>!removed.has(id)).map(([,rule])=>rule);
+ // Resolve exceptions before applying the 24-shim runtime limit.
+ // Otherwise 24 excepted entries can hide later eligible user rules.
+ const selected=[],paths=new Set();
+ if(!disabled)for(const [id,rule] of added){
+  if(removed.has(id)||paths.has(rule.path))continue;
+  selected.push(rule);paths.add(rule.path);
+  if(selected.length>=24)break;
+ }
+ return selected;
 }
 const API=Object.freeze({validHost,validPath,parse,select});
 root.DKSafeScriptletRules=API;

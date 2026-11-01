@@ -80,3 +80,7 @@ The independent review of Build 158 reported three failed Node tests (690/693 pa
 ## Build 200 checkpoint (2026-11-01)
 
 0.3.170 is an **unreleased development source checkpoint**. Its full seven-phase Ubuntu suite has NOT been rerun and its actual Firefox YouTube/Disney+ playback, signed-in paths and ad removal are unverified. The new source audit is deliberately not an acceptance certificate. No public release or signing is authorized.
+
+## Build 204 (0.3.174): observed-working baseline preserved; test pending
+
+Focused V8 smoke validations check new filter-subscription outage guard and manually-authored scriptlet exception handling; these are **not** substitutes for the seven-phase Ubuntu/Node suite or real browser video checks. Do not promote Build 204 over the preserved Build 203 YouTube baseline until tests confirm that ordinary video playback and ad blocking remain intact.

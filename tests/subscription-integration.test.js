@@ -82,3 +82,30 @@ test("Build 201 refuses HTML, XML and JSON errors without corrupting list cache"
  assert.equal(G.check(previous,"||new.example^\n".repeat(150)).accept,true);
  assert.equal(G.check(null,"<html>bad</html>").accept,false);
 });
+
+test("Build 204 refuses apparently healthy counts of error text and embedded markup",()=>{
+ const G=require("../src/subscription-update-guard.js");
+ const old={text:"[Adblock Plus 2.0]\n! Title: Previous\n"+
+  "||ads.example^$script\n".repeat(200)};
+ const garbage="[Adblock Plus 2.0]\n! Title: Outage\n"+
+  "Service temporarily unavailable\n".repeat(200);
+ const unsafe=G.check(old,garbage);
+ assert.equal(unsafe.accept,false);
+ assert.match(unsafe.reason,/recognizable filter syntax/);
+ const embedded="[Adblock Plus 2.0]\n! Title: CDN\n"+
+  "||ads.example^\n".repeat(200)+"<html>failure</html>\n";
+ assert.equal(G.check(old,embedded).accept,false);
+ assert.match(G.check(old,embedded).reason,/error page/);
+ assert.equal(G.check(old,"||fresh.example^\n".repeat(190)).accept,true);
+ assert.equal(G.check(null,"someword\n".repeat(10)).accept,true,
+  "do not forbid new deliberate literal custom subscriptions");
+ const report=G.check(old,garbage);
+ assert.equal(JSON.stringify(report).includes("Service"),false);
+ assert.equal(G.profile(old.text).structured,200);
+ assert.equal(G.profile(garbage).structured,0);
+ const padded="[Adblock Plus 2.0]\n! Title: Broken with padding\n"+
+  "||real-ad.example^\n".repeat(30)+
+  "Service temporarily unavailable\n".repeat(170);
+ assert.equal(G.check(old,padded).accept,false,
+  "a sprinkling of real rules must not mask catastrophic lost rules");
+});

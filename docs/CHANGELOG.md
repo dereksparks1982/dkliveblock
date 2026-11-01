@@ -1,3 +1,9 @@
+## Build 204 (0.3.174): filter-list cache integrity and scriptlet precedence
+
+- Retain a substantial, structured cached subscription if its replacement is full of unstructured outage messages, even at the same approximate line count. Recognize embedded HTML/XML/JSON errors after list headers. No remote code, no telemetry, no new permissions.
+- Resolve user-authored, site-scoped set-constant scriptlet exceptions before the 24-active limit, and select at most one shim per property path.
+- Add focused failures-as-regressions tests. The frozen Build 203 YouTube-working source and player/response code are unchanged. Full Ubuntu and browser verification are still pending.
+
 # DK Live Block: archived development notes
 
 Source history retained from the former README. A feature description is not proof of successful Firefox testing. The roadmap remains the acceptance authority.
