@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 216 / 0.3.186 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 217 / 0.3.187 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -208,3 +208,10 @@ Full Ubuntu and live Firefox tests still pending.
 - Firefox DNS resolution displays A/AAAA addresses and available canonical hostname data. A single eligible public IPv4 address may undergo its own explicit IP-network RDAP query, revealing infrastructure registrant and network range, not necessarily domain owner. Private/loopback/link-local/documentation addresses are never submitted. Both research calls happen only after the same explicit user action; no per-site background reputation lookups are added.
 - The local phishing-database presence and exact-host override flag appear as independent evidence. Updated Site Dashboard text panel and existing export methods retain these opt-in details, with size and string sanitization. Unknown facts remain labelled unavailable.
 - Six focused tests passed in an isolated JS runner; original RDAP integration fixture was extended but has not been run in complete Node suite. Full Ubuntu/Firefox acceptance is pending.
+
+## Build 217: browser-owned phishing warning and opt-in exact-host proceed (unreleased)
+
+- Matching top-level HTTP(S) GET requests are redirected to a bundled Firefox extension warning, rather than a silent cancellation. Suspicious subresources and non-GET navigations remain cancelled as before.
+- The interstitial identifies only the exact hostname, the Phishing Army feed and the cached source update date, with explicit caveats about possible false positives. The original URL's path, query and fragment are not copied to the warning, persisted to storage, or sent to the publisher.
+- The background generates a 128-bit browser-crypto nonce tied to one tab and a three-minute in-memory record. An extension web-accessible page alone is not authorization. A proceeding user must acknowledge risk, then save a previously supported exact-host override. Only a clean HTTPS homepage for that hostname is opened. Error paths fail closed; close-tab is available.
+- Added self-contained module/source and mocked Firefox-message regression tests; registered in the local seven-phase runner. Full local Node/Python suite and real Firefox page redirect tests have **not** been executed in this tool environment. Site/YouTube/video protections are otherwise unchanged. No GitHub Actions or public release.
