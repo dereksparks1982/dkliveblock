@@ -233,4 +233,10 @@ test("Build 160 native elemhide and generichide suppress automatic ad recognitio
  assert.equal(style.adRecognition,true,"ordinary site must regain automatic ad recognition");
  assert.match(style.css,/\.global-ad/);
  assert.match(style.css,/\.site-ad/);
+ assert.equal((await actions.message({action:"saveSettings",settings:{
+  customRules:"##.global-ad\nnews.example##.site-ad\nnews.example#@#.site-ad"}})).ok,true);
+ style=await get();
+ assert.deepEqual(Array.from(style.adRecognitionExceptions),[".site-ad"]);
+ assert.doesNotMatch(style.css,/\.site-ad\s*\{/);
+ assert.match(style.css,/\.global-ad/);
 });

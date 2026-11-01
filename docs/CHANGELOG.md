@@ -713,3 +713,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Preserved native important blocks, page exceptions, popup-only enforcement, main-frame policy and safe fallback on Ghostery failure.
 - Extended unit tests for manual block/allow priority, exception rescue, vendor matcher invocation, and changed method-forwarding behavior.
 - Full Linux regression and actual Firefox site/video acceptance still pending. No release.
+
+### 0.3.134 / Build 164 (2026-10-31)
+- Propagated validated exact-site manual cosmetic exceptions from the background style response to automatic ad recognition.
+- Implemented bounded recognition exception matching, immediate restoration of previously hidden elements, and re-scanning after allow rules are removed.
+- Ensured supplementary Ghostery CSS cannot re-hide an explicitly allowed exact selector; retained authentication/player selector protections.
+- Added DOM, background integration and vendor CSS regressions. Complete Ubuntu suite and real Firefox behavior still require verification.

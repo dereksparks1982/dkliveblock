@@ -621,3 +621,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 163: separate manual user rules from compiled subscription rules for explicit block/allow priority; consult Ghostery exceptions before returning ordinary native subscription blocks; preserve popup, main-frame, page and native important protections.
 - [ ] Build 163 full local seven-phase runner and real Firefox auth/media compatibility still unverified.
 - [ ] Build 164: improve offline corpus with targeted exception/provenance/redirect cases, filter-syntax coverage measurement and safe adapter tests.
+
+- [x] Build 164: exact-site #@# cosmetic exceptions now protect matching elements against automatic DOM recognition, restore previously hidden elements on update, and prevent supplementary Ghostery CSS from re-hiding exact selectors.
+- [ ] Build 164 acceptance: full Linux regression including background and DOM mocks, real Firefox site allow/remove changes and normal ad recognition.
+- [ ] Build 165: quantify filtering-language compatibility and unsupported rule categories using bounded offline local list analysis.

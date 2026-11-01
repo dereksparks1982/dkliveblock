@@ -266,3 +266,35 @@ test("Build 148 accepts slash-form Google Ad Manager iframe IDs and names",()=>{
   ad({tag:"iframe",cls:"",attrs:[["name","google_ads_iframe_/../normal?"]]})
  ])assert.equal(A.hasStrongSignal(malformed),false);
 });
+
+test("Build 164 exact-site cosmetic allowances restore auto-hidden ad slots",()=>{
+ const node=ad({cls:"ad-slot",tag:"div"});
+ node.matches=selector=>selector===".ad-slot";
+ const scanner=A.create(documentFor([node]),{});
+ assert.equal(scanner.scan(),1);
+ assert.equal(node.style.getPropertyValue("display"),"none");
+ scanner.setExceptions([".ad-slot"]);
+ assert.equal(scanner.hiddenCount,0);
+ assert.equal(node.style.getPropertyValue("display"),"");
+ assert.equal(scanner.scan(),0,"allowed selector must never be hidden again");
+ scanner.setExceptions([]);
+ assert.equal(scanner.scan(),1,"removing an exception enables normal ad recognition");
+ scanner.restore();
+ assert.equal(node.style.getPropertyValue("display"),"");
+});
+test("Build 164 allowed container ancestors also protect ad descendants",()=>{
+ const node=ad({cls:"ad-slot",tag:"div"});
+ node.closest=selector=>selector===".manually-allowed"?{}:null;
+ const scanner=A.create(documentFor([node]),{});
+ scanner.setExceptions([".manually-allowed"]);
+ assert.equal(scanner.scan(),0);
+ assert.equal(node.style.getPropertyValue("display"),"");
+});
+test("Build 164 invalid CSS selectors are harmless and bounded",()=>{
+ const node=ad({cls:"ad-slot",tag:"div"});
+ node.matches=selector=>{if(selector==="???")throw Error("invalid CSS");return false;};
+ const scanner=A.create(documentFor([node]),{});
+ scanner.setExceptions(["???",4,".bad\\n#", ";injected",".a".repeat(300)]);
+ assert.equal(scanner.scan(),1);
+ scanner.restore();
+});

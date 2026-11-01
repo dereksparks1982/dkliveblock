@@ -110,16 +110,31 @@ function safe(element,document){
 }
 function create(document,window,limit=60){
  const hidden=new Map(),max=Math.max(1,Math.min(100,limit));
- let cursor=0;
- function restore(){
-  for(const [el,old] of hidden){
-   try{
-    if(!el.isConnected||el.style.getPropertyValue("display")!=="none"||
-       el.style.getPropertyPriority("display")!=="important")continue;
-    if(old.value)el.style.setProperty("display",old.value,old.priority);
-    else el.style.removeProperty("display");
-   }catch(_){}
+ let cursor=0,allowed=[];
+ function allowedElement(el){
+  for(const selector of allowed){
+   try{if(el.matches?.(selector)||el.closest?.(selector))return true;}catch(_){}
   }
+  return false;
+ }
+ function restoreOne(el,old){
+  try{
+   if(!el.isConnected||el.style.getPropertyValue("display")!=="none"||
+      el.style.getPropertyPriority("display")!=="important")return;
+   if(old.value)el.style.setProperty("display",old.value,old.priority);
+   else el.style.removeProperty("display");
+  }catch(_){}
+ }
+ function setExceptions(selectors){
+  allowed=Array.isArray(selectors)?[...new Set(selectors.slice(0,120).filter(s=>
+   typeof s==="string"&&s.length>0&&s.length<=240&&s===s.trim()&&
+   !/[\r\n{};]/.test(s)))]:[];
+  for(const [el,old] of hidden){
+   if(allowedElement(el)){restoreOne(el,old);hidden.delete(el);}
+  }
+ }
+ function restore(){
+  for(const [el,old] of hidden)restoreOne(el,old);
   hidden.clear();cursor=0;
  }
  function prune(){for(const el of hidden.keys())if(!el.isConnected)hidden.delete(el);}
@@ -143,7 +158,7 @@ function create(document,window,limit=60){
   // Fair across regular DOM and open shadow roots, capped at 120 checks.
   while(inspected<Math.min(count,120)&&removed<6){
    const el=byIndex((begin+inspected)%count);inspected++;
-   if(!safe(el,document))continue;
+   if(!safe(el,document)||allowedElement(el))continue;
    try{
     const tracked=hidden.has(el);
     if(!tracked&&hidden.size>=max)continue;
@@ -159,7 +174,7 @@ function create(document,window,limit=60){
   cursor=(begin+Math.max(1,inspected))%count;
   return removed;
  }
- return {scan,restore,prune,get hiddenCount(){return hidden.size;}};
+ return {scan,restore,prune,setExceptions,get hiddenCount(){return hidden.size;}};
 }
 const api={create,hasStrongSignal,safe,collectScopes,relevantMutation,CANDIDATES};
 root.DKAdRecognition=api;

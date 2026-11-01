@@ -70,3 +70,12 @@ test("Build 159 generichide disables Ghostery base rules but keeps site-specific
  G.styles(vendor,"news.example",{policy:{}});
  assert.equal(seen[1].getBaseRules,true);
 });
+
+test("Build 164 user-allowed selectors are omitted from supplemental Ghostery CSS",()=>{
+ const vendor={getCosmeticsFilters:()=>({
+  active:true,styles:".ad-slot {display:none!important;} .other-ad {display:none!important;}"
+ })};
+ const css=G.styles(vendor,"news.example",{protectSelector:x=>x===".ad-slot"});
+ assert.doesNotMatch(css,/\.ad-slot/);
+ assert.match(css,/\.other-ad/);
+});

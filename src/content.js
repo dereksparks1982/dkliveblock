@@ -46,6 +46,8 @@
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall||distractionControl&&!nextDistractions)restoreAntiHidden();
    if(!nextActive||proceduralChanged){restoreHidden();cosmeticDebugger.restore();}
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
+   // Immediately undo an old automatic hide when its exact-site allowance is added.
+   adRecognizer?.setExceptions(s.adRecognitionExceptions);
    const nextHealth=!!s.playbackHealthEnabled;
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
