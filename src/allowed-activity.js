@@ -59,7 +59,7 @@ function observe(table,tabId,site,url,type,now=Date.now(),extra={}){
  row.count=Math.min(MAX_COUNT,row.count+1);row.last=now;
  bump(row.reasons,info.reason);bump(row.methods,info.method);
  bump(row.httpStatuses,info.status===null?"Unknown":String(info.status));
- activity.events.push({host:dest,type,when:now,method:info.method,
+ activity.events.push({host:dest,type,when:now,sequence:activity.total,method:info.method,
   httpStatus:info.status,reason:info.reason});
  if(activity.events.length>MAX_EVENTS)activity.events.shift();
  // Refresh insertion order and discard oldest host/type groups when capped.
