@@ -25,6 +25,8 @@ const METRICS=Object.freeze([
 function isYouTube(value){
  if(typeof value!=="string"||value.length>100||value!==value.toLowerCase()||
     /[^a-z0-9.-]/.test(value))return false;
+ if(value.split(".").some(label=>!label||label.length>63||
+     !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)))return false;
  return [...HOSTS].some(h=>value===h||value.endsWith("."+h));
 }
 function integer(value,label){
@@ -81,6 +83,7 @@ function parse(text){
   },
   observedEvents:report.playback.length
  };
+ Object.freeze(sample.metrics);Object.freeze(sample.flags);
  return Object.freeze(sample);
 }
 function compare(before,after){
