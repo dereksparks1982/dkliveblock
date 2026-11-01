@@ -15,6 +15,7 @@ const REASONS=Object.freeze({
  "youtube-player-preserved":"YouTube player JSON was retained for the selected compatibility route.",
  "manual-exception":"User-approved site/hostname/type exception overrode an automatic block.",
  "filter-engine-permitted":"Active filter engine evaluated the request without blocking it.",
+ "filter-exception":"A matching filter-list or user-authored exception explicitly allowed this request.",
  "decision-not-recorded":"Initial filtering decision was not captured."
 });
 function explain(key){return Object.hasOwn(REASONS,key)?REASONS[key]:REASONS["decision-not-recorded"];}
