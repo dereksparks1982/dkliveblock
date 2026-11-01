@@ -1,3 +1,10 @@
+## Build 217 (0.3.187): private local phishing warning and explicit exact-host proceed
+
+- Added a bundled, accessible, local warning page for Phishing Army exact-host main-frame navigation matches, with publisher evidence, cached list date and explicit false-positive caveat. Background content requests and non-GET navigations remain cancelled.
+- The original blocked URL is never placed in warning-page navigation or saved to disk. A per-tab 128-bit random token expires after three minutes; a direct link to the web-accessible page cannot grant an exception.
+- Optional user acknowledgement saves only the exact listed hostname through the existing threat-override setting; navigation opens its HTTPS homepage instead of replaying private query parameters. Settings failures roll back, and the warning provides a close-tab exit.
+- Added module/DOM/Firefox-message-flow regression tests and registered both in the Linux-only suite. No new permissions, remote JavaScript, telemetry, external engines, YouTube player changes, GitHub Actions or public package. Full seven-phase Node/Python and real Firefox acceptance remain pending.
+
 ## Build 216 (0.3.186): user-triggered deep domain investigation and hosting evidence
 
 - Expanded the existing blocked-request "Look up domain registration" action into an opt-in Domain Investigation view. It preserves publicly available RDAP registration handle, status, events, nameservers, DNSSEC status, nested entity roles and public contact fields, notices, remarks, links and other registry metadata, while identifying the actual registration organization and registrar separately.
