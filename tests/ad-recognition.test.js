@@ -298,3 +298,43 @@ test("Build 164 invalid CSS selectors are harmless and bounded",()=>{
  assert.equal(scanner.scan(),1);
  scanner.restore();
 });
+
+test("Build 202 recognizes precise YouTube ad tiles and leaves real video cards alone",()=>{
+ const paid=["ytd-ad-slot-renderer","ytd-display-ad-renderer",
+  "ytd-in-feed-ad-layout-renderer","ytd-promoted-sparkles-web-renderer",
+  "ytd-promoted-video-renderer","ytm-promoted-video-renderer"];
+ for(const tag of paid){
+  const node=ad({cls:"",tag}),scanner=A.create(documentFor([node]),{});
+  assert.equal(A.hasStrongSignal(node),true,tag);
+  assert.equal(scanner.scan(),1);
+  assert.equal(node.style.getPropertyValue("display"),"none");
+  scanner.restore();assert.equal(node.style.getPropertyValue("display"),"");
+ }
+ for(const tag of ["ytd-video-renderer","ytd-rich-item-renderer",
+  "ytm-video-with-context-renderer","ytd-playlist-video-renderer"])
+  assert.equal(A.hasStrongSignal(ad({cls:"",tag})),false,tag);
+});
+test("Build 202 manual exceptions and protected players still win against ad tags",()=>{
+ const protectedNode=ad({cls:"",tag:"ytd-ad-slot-renderer",excluded:true});
+ assert.equal(A.safe(protectedNode,documentFor([protectedNode])),false);
+ const allowed=ad({cls:"",tag:"ytd-ad-slot-renderer"});
+ allowed.matches=selector=>selector==="ytd-ad-slot-renderer";
+ const scanner=A.create(documentFor([allowed]),{});
+ scanner.setExceptions(["ytd-ad-slot-renderer"]);
+ assert.equal(scanner.scan(),0);
+ scanner.setExceptions([]);
+ assert.equal(scanner.scan(),1);
+ scanner.restore();
+});
+test("Build 202 giant DOM insertions cannot invoke untrusted NodeList iterator",()=>{
+ let reads=0;
+ const added=new Proxy({length:1000000},{get(target,key){
+  if(key===Symbol.iterator)throw Error("Untrusted iterator must not run");
+  if(/^\d+$/.test(String(key))){reads++;return ad({cls:"content",tag:"div"});}
+  return target[key];
+ }});
+ assert.equal(A.relevantMutation({type:"childList",addedNodes:added}),false);
+ assert.equal(reads,12);
+ assert.equal(A.relevantMutation({type:"childList",
+  addedNodes:[ad({cls:"",tag:"ytd-ad-slot-renderer"})]}),true);
+});

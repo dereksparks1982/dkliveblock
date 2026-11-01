@@ -31,7 +31,13 @@ function policy(mode,enabled=true){
   observe:active&&mode==="observe"
  });
 }
-const API=Object.freeze({MODES,MAX_TABS,TTL,validSite,get,set,policy});
+// Passive observation does not bypass network filtering. A bridge-only
+// request remains available even when Firefox has no response-filter API.
+function preserveRequest(mode,enabled,canFilter){
+ const selected=policy(mode,enabled);
+ return selected.bridge||(selected.response&&canFilter===true);
+}
+const API=Object.freeze({MODES,MAX_TABS,TTL,validSite,get,set,policy,preserveRequest});
 root.DKYouTubeExperiment=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

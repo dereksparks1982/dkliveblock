@@ -28,3 +28,16 @@ test("Build 168 mode storage is bounded, resettable and does not store URLs",()=
  assert.equal(X.get(m,X.MAX_TABS,"youtube.com",1003),"combined");
  assert.equal(JSON.stringify([...m.values()]).includes("https:"),false);
 });
+
+test("Build 202 observe-only never creates an accidental network allowlist",()=>{
+ for(const mode of X.MODES){
+  const expected=mode!=="observe";
+  assert.equal(X.preserveRequest(mode,true,true),expected,mode);
+  assert.equal(X.preserveRequest(mode,false,true),false,mode);
+ }
+ assert.equal(X.preserveRequest("response-only",true,false),false);
+ assert.equal(X.preserveRequest("bridge-only",true,false),true);
+ assert.equal(X.preserveRequest("combined",true,false),true);
+ assert.equal(X.preserveRequest("observe",true,false),false);
+ assert.equal(X.preserveRequest("bad",true,true),false);
+});

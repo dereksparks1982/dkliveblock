@@ -87,3 +87,53 @@ test("Build 75 first-party YouTube player call reaches response rewriting, but u
  assert.equal(paused.ok,true);
  assert.equal(listeners.before(player).cancel,undefined,"allowlisting still works");
 });
+
+test("Build 202 real background mode routing respects subscription filters",async()=>{
+ const listeners={},reg=name=>({addListener(fn){listeners[name]=fn;},removeListener(){}});
+ let stored={settings:{autoUpdate:false,customRules:
+  "||www.youtube.com/youtubei/v1/player$xhr\n||www.youtube.com/youtubei/v1/browse$xhr"}};
+ let activeFilter=null;
+ const browser={
+  webRequest:{
+   onBeforeRequest:reg("before"),onHeadersReceived:reg("headers"),
+   onErrorOccurred:reg("error"),onCompleted:reg("completed"),
+   filterResponseData(){activeFilter={out:[],closed:0,
+    write(chunk){this.out.push(Buffer.from(chunk));},
+    close(){this.closed++;},disconnect(){this.closed++;}};
+    return activeFilter;}
+  },
+  proxy:{onRequest:reg("proxy"),onError:reg("proxyError")},dns:{resolve:async()=>({addresses:[]})},
+  webNavigation:{onCreatedNavigationTarget:reg("popup")},
+  tabs:{onUpdated:reg("updated"),onRemoved:reg("removed"),query:async()=>[],
+   get:async id=>({id,url:"https://www.youtube.com/watch?v=private"}),
+   sendMessage:async()=>({})},
+  alarms:{onAlarm:reg("alarm"),create:async()=>{}},
+  runtime:{onMessage:reg("message")},
+  browserAction:{setBadgeText:async()=>{},setBadgeBackgroundColor:async()=>{}},
+  storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
+ };
+ const timeout=(fn,ms)=>{const t=setTimeout(fn,ms);if(ms>=60000)t.unref();return t;};
+ const context=vm.createContext({browser,URL,TextEncoder,TextDecoder,console,Date,AbortController,
+  setTimeout:timeout,clearTimeout,fetch:async()=>{throw Error("no remote list updates");}});
+ for(const name of scripts)
+  vm.runInContext(fs.readFileSync(path.join(__dirname,"../src",name),"utf8"),context,{filename:name});
+ await new Promise(resolve=>setTimeout(resolve,30));
+ listeners.updated(1,{url:"https://www.youtube.com/watch?v=private"},{url:"https://www.youtube.com/watch?v=private"});
+
+ const player={tabId:1,type:"xmlhttprequest",method:"POST",
+  documentUrl:"https://www.youtube.com/watch?v=private",
+  url:"https://www.youtube.com/youtubei/v1/player"};
+ assert.equal(listeners.before(player).cancel,undefined);
+ const select=mode=>listeners.message({action:"setYouTubeTestMode",tabId:1,
+   expectedSite:"www.youtube.com",mode});
+ assert.equal((await select("observe")).ok,true);
+ assert.equal(listeners.before(player).cancel,true,"observe-only must not disable network filtering");
+ assert.equal((await select("bridge-only")).ok,true);
+ assert.equal(listeners.before(player).cancel,undefined,"bridge-only must receive player JSON");
+ assert.equal((await select("response-only")).ok,true);
+ assert.equal(listeners.before(player).cancel,undefined,"response-only must receive player JSON");
+ assert.equal((await select("combined")).ok,true);
+ assert.equal(listeners.before(player).cancel,undefined);
+ assert.equal(listeners.before({...player,documentUrl:"https://youtube.com.evil.test"}).cancel,
+   true,"non-YouTube documents never get a request exemption");
+});

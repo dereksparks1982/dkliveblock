@@ -2,8 +2,12 @@
    Uses local DOM attributes only: no telemetry, network fetches, or page scripts.
    Reversible, bounded and avoids players, authentication, payments, and articles. */
 (function(root){"use strict";
+const YOUTUBE_AD_TAGS=new Set(["ytd-ad-slot-renderer","ytd-display-ad-renderer",
+ "ytd-in-feed-ad-layout-renderer","ytd-promoted-sparkles-web-renderer",
+ "ytd-promoted-video-renderer","ytm-promoted-video-renderer"]);
 const CANDIDATES=[
  "ins.adsbygoogle","amp-ad","amp-auto-ads",
+ ...YOUTUBE_AD_TAGS,
  "[data-ad-client][data-ad-slot]","[data-ad-unit][data-ad-slot]",
  "[data-google-query-id]",
  "[id^='div-gpt-ad-']","iframe[id^='google_ads_iframe_']",
@@ -22,7 +26,7 @@ function hasStrongSignal(element){
   const cls=typeof element.className==="string"?element.className:"";
   const id=String(element.id||"");
   const aria=String(element.getAttribute?.("aria-label")||"").trim().toLowerCase();
-  if(tag==="amp-ad"||tag==="amp-auto-ads")return true;
+  if(tag==="amp-ad"||tag==="amp-auto-ads"||YOUTUBE_AD_TAGS.has(tag))return true;
   if(tag==="ins"&&/(?:^|\s)adsbygoogle(?:\s|$)/.test(cls))return true;
   if(element.hasAttribute?.("data-ad-client")&&element.hasAttribute?.("data-ad-slot"))return true;
   if(element.hasAttribute?.("data-ad-unit")&&element.hasAttribute?.("data-ad-slot"))return true;
@@ -85,9 +89,11 @@ function relevantMutation(record){
   return hasStrongSignal(record.target);
  }
  if(record.type!=="childList")return false;
- let checked=0;
- for(const el of record.addedNodes||[]){
-  if(++checked>12)break;
+ // Limit DOM work to 12 indexed nodes, never invoke an untrusted iterator.
+ const items=record.addedNodes;
+ const count=Math.min(12,Number.isSafeInteger(items?.length)?items.length:0);
+ for(let i=0;i<count;i++){
+  let el;try{el=items[i];}catch(_){continue;}
   try{
    if(hasStrongSignal(el)||el?.querySelector?.(CANDIDATES)||
       el?.shadowRoot?.querySelector?.(CANDIDATES))return true;

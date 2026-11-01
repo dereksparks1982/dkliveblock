@@ -468,11 +468,12 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(DKStreamingRepair.matches(data.streamingAllowances,d.tabId,top,host(d.url),d.type))return {};
  // Allow narrowly identified sign-in assets, never unrelated Google trackers.
  if(DKAuthProtection.isCriticalRequest(d.url,d.type,d.documentUrl||d.originUrl||""))return {};
- // The player JSON response must reach our bounded response filter. A generic
- // EasyList/Ghostery rule cannot cancel this single trusted first-party call,
- // unless the user explicitly added a manual block above. Not a site allowlist.
+ // Allow first-party player JSON only for an actively modifying route.
+ // Observe-only must preserve normal subscribed network verdicts, and
+ // manually selected request blocks remain authoritative above.
  const doc=d.documentUrl||d.originUrl||"";
- if(data.settings.youtubeResponseFilter&&typeof browser.webRequest.filterResponseData==="function"&&
+ if(DKYouTubeExperiment.preserveRequest(youtubeMode(d.tabId,top),data.settings.youtubeResponseFilter,
+     typeof browser.webRequest.filterResponseData==="function")&&
     DKYouTubeResponse.requestEligible(d,top)){
   if(youtubePolicy(d.tabId,top).response)
    DKYouTubeResponse.observeRequest(d.tabId,d.url);
