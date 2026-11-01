@@ -4,6 +4,8 @@ from __future__ import annotations
 
 import argparse
 import json
+import base64
+import binascii
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -67,20 +69,52 @@ def issues(root: Path = ROOT) -> list[str]:
         problems.append("Missing package-lock.json: reviewer build cannot be reproduced with npm ci")
     else:
         lock = parse("package-lock.json")
+        if lock.get("name") != package.get("name"):
+            problems.append("Lockfile root package name mismatch")
         if lock.get("lockfileVersion") not in (2, 3):
             problems.append("Unsupported npm lockfile version")
         packages = lock.get("packages", {})
         root_pkg = packages.get("", {}) if isinstance(packages, dict) else {}
+        if root_pkg.get("name", package.get("name")) != package.get("name"):
+            problems.append("Lockfile root package entry name mismatch")
         if root_pkg.get("version") != package.get("version"):
             problems.append("Lockfile root version does not match package.json")
         if root_pkg.get("dependencies", {}).get("@ghostery/adblocker") != GHOSTERY_VERSION:
             problems.append("Lockfile root Ghostery dependency mismatch")
         if root_pkg.get("devDependencies", {}).get("esbuild") != ESBUILD_VERSION:
             problems.append("Lockfile root esbuild dependency mismatch")
-        if not isinstance(packages, dict) or "node_modules/@ghostery/adblocker" not in packages:
-            problems.append("Lockfile missing resolved Ghostery package")
-        if not isinstance(packages, dict) or "node_modules/esbuild" not in packages:
-            problems.append("Lockfile missing resolved esbuild package")
+        for dependency, expected in (("@ghostery/adblocker", GHOSTERY_VERSION), ("esbuild", ESBUILD_VERSION)):
+            item = packages.get("node_modules/" + dependency) if isinstance(packages, dict) else None
+            if not isinstance(item, dict) or item.get("version") != expected:
+                problems.append("Lockfile missing or mismatched resolved " + dependency + " package")
+        # A version alone is not an immutable, reproducible transitive dependency.
+        # Do not accept local links, unofficial tarball hosts or unverifiable hashes.
+        if isinstance(packages, dict):
+            for path, entry in packages.items():
+                if path == "":
+                    continue
+                if (not isinstance(path, str) or not path.startswith("node_modules/")
+                        or "/../" in path or not isinstance(entry, dict)
+                        or entry.get("link") is True):
+                    problems.append("Unsupported linked or malformed npm lock package entry")
+                    continue
+                if not isinstance(entry.get("version"), str) or not entry["version"]:
+                    problems.append("Lock package lacks an exact version: " + path[:100])
+                resolved = entry.get("resolved")
+                if not isinstance(resolved, str) or not resolved.startswith("https://registry.npmjs.org/"):
+                    problems.append("Lock package not resolved from official npm registry: " + path[:100])
+                integrity = entry.get("integrity")
+                valid = False
+                if isinstance(integrity, str) and integrity.startswith("sha512-"):
+                    try:
+                        digest = base64.b64decode(integrity[7:], validate=True)
+                        valid = len(digest) == 64
+                    except (ValueError, binascii.Error):
+                        pass
+                if not valid:
+                    problems.append("Lock package missing valid SHA512 integrity: " + path[:100])
+        else:
+            problems.append("Lockfile packages index missing")
 
     return problems
 
