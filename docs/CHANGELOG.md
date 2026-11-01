@@ -1,3 +1,11 @@
+## Build 219 (0.3.189): Firefox Add-ons source/readiness engineering, unreleased
+
+- Recorded a realistic **November 6, 2026 submission target**, subject to test and owner approval; Mozilla's store approval/visibility cannot be guaranteed by November 7. Added a daily sprint gate matrix and truthful draft AMO listing/reviewer notes.
+- Added offline `amo-preflight.py` with strict package-only mode and nonblocking report mode. Detects absent/invalid owner license, vendor MPL notices, manifest/package mismatch, missing reviewer docs, missing actual npm lockfile and mismatched pinned Ghostery/esbuild dependency metadata. Added independent malformed/source fixture checks.
+- Hardened the *opt-in* unsigned package builder to run strict preflight and the complete Linux suite, include the custom original-code `LICENSE` inside the archive, preserve upstream notices, reject symlinks and hidden/temp artifacts, and verify archive members. No ZIP was built or submitted.
+- Added deterministic package inventory failure-injection checks to local test runner; version updated to `0.3.189` with a user-facing, non-internal extension description.
+- **Unresolved:** project has no `package-lock.json`; exact-source Ghostery rebuild is not verified. Complete seven-phase Linux/Firefox acceptance, legal/third-party review, owner approval and AMO listing remain blocked. **No changes** to working ad blocking, streaming/popup logic, UI geometry, or the Build 203 rollback tag. Only `main` used; no Actions.
+
 ## Build 218 (0.3.188): YouTube A/B evidence lab, offline only
 
 - Introduced a self-contained `youtube-lab.html` page accessible from the Site Dashboard. It reads two voluntarily selected DK Live Block YouTube JSON diagnostic reports (750 KB max each) entirely in Firefox.
