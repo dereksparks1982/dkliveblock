@@ -57,3 +57,24 @@ test("Build 137 class selectors use the existing bounded procedural matcher",()=
  assert.equal(matches({textContent:"Sponsored link"},rule),true);
  assert.equal(matches({textContent:"Regular news"},rule),false);
 });
+
+test("Build 172 matches literal attributes without regex evaluation or page writes",()=>{
+ const {procedural}=require("../src/rules.js");
+ const rule=procedural("news.example##div.ad:matches-attr(data-ad=promoted)");
+ let reads=0;
+ const element={getAttribute(name){reads++;return name==="data-ad"?"promoted":null;}};
+ assert.equal(matches(element,rule),true);
+ assert.equal(reads,1);
+ assert.equal(matches({getAttribute:()=>null},rule),false);
+ assert.equal(matches({getAttribute:()=>"organic"},rule),false);
+ assert.equal(matches({getAttribute:()=>{throw Error("hostile page");}},rule),false);
+ assert.equal(matches({getAttribute:()=>"x".repeat(100)},rule),false);
+});
+test("Build 172 rejects forged attributes or match expressions at runtime",()=>{
+ const element={getAttribute:()=>"/^promoted/"};
+ const base={selector:"div.ad",mode:"attr",attribute:"data-ad",value:"promoted"};
+ assert.equal(matches(element,{...base,attribute:"../private"}),false);
+ assert.equal(matches(element,{...base,value:"/^(x+)+/"}),false);
+ assert.equal(matches(element,{...base,value:""}),false);
+ assert.equal(matches(null,base),false);
+});

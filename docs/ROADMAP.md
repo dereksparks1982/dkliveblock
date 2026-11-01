@@ -653,3 +653,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 171: comprehensive source asset closure (background/content/HTML/CSS, icons, redirect resources) with no network calls, missing/remote/traversal fixture tests, and official test inventory registration. Audited 87 references across 10 pages against GitHub HEAD, all present.
 - [ ] Verify the full 7-phase Node/Python Linux runner against Build 171 exact commit; full source checkout currently unavailable in the isolated tool runtime.
 - [ ] Build 172: safe, bounded new native ABP-compatible filtering options with deliberate parser/runtime regression coverage; preserve working YouTube movie path.
+
+- [x] Build 172: safe, literal-only procedural :matches-attr attribute matching, scoped to explicit website hosts, with exception/duplicate handling and negative/malformed fixtures. No HTML response filtering or arbitrary scriptlets.
+- [ ] Build 172 gate: full seven-phase Ubuntu suite and Firefox ad-slot false-positive/regression checks; no verified parity or release claim.
+- [ ] Build 173: safer request-control visibility and root-cause diagnostics, preserving video playback while expanding observable filtering capability.

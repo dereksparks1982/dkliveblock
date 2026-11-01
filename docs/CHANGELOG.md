@@ -761,3 +761,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Registered regression tests that detect missing packaged scripts/styles/redirects and unsafe references.
 - Verified the new audit logic on the current GitHub source tree and all ten extension HTML pages: 87 references, 0 missing; test runner inventory has 117 unique Node test files.
 - This source-level audit is **not** a complete Linux regression run. No live Firefox or streaming verification and no release.
+
+### 0.3.142 / Build 172 (2026-10-31)
+- Added a deliberately bounded, site-scoped literal-only :matches-attr(name=value) procedural cosmetic filter. Uses exact DOM attribute values without executing regexes or scriptlets.
+- Preserves site-specific #@# and #@?# exceptions, existing scan budgets, protected media/identity UI and reversible hiding.
+- Added parser/engine/DOM regressions for quoted literals, exact exceptions, hostile getters and unsupported pattern/action rejection.
+- Standalone source smoke passed; the complete Linux suite and real Firefox acceptance remain unverified. No release.

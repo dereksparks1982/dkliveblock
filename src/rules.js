@@ -114,7 +114,7 @@ function procedural(line){
  const match=/^([^#]+)(#@\?#|#\?#|#@#|##)(.+)$/.exec(line.trim());if(!match)return null;
  const scope=match[1].toLowerCase(),raw=match[3].trim();
  const standard=match[2]==="##"||match[2]==="#@#";
- if(standard&&!/:(?:has-text|contains)\(/i.test(raw))return null;
+ if(standard&&!/:(?:has-text|contains|matches-attr)\(/i.test(raw))return null;
  const sites=scope.split(",");
  const included=sites.filter(h=>!h.startsWith("~"));
  if(!included.length||sites.length>16||
@@ -124,6 +124,22 @@ function procedural(line){
      !h.split(".").every(part=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(part));
    }))
   return null;
+ // Deliberately conservative subset of :matches-attr. Match a single
+ // attribute's *literal* value only, without regexes or executable actions.
+ // Domain-scoped rules only; generic/global procedural actions stay rejected.
+ const attribute=/^([a-z.#][\w.#>[\]="'\s:-]{0,160}):matches-attr\(([a-zA-Z_][a-zA-Z0-9_:-]{0,63})=([^()]{1,120})\)$/i.exec(raw);
+ if(attribute&&/^(?:[a-z]|[.#][a-z_])/i.test(attribute[1].trim())){
+  let literal=attribute[3].trim();
+  if(literal.length>=2&&(literal[0]==='"'&&literal.endsWith('"')||
+     literal[0]==="'"&&literal.endsWith("'")))literal=literal.slice(1,-1);
+  if(literal.length>=1&&literal.length<=90&&
+     /^[a-zA-Z0-9 _.:/@+-]+$/.test(literal)&&
+     !(literal[0]==="/"&&literal.endsWith("/")))
+   return {scope,selector:attribute[1].trim(),mode:"attr",
+    attribute:attribute[2],value:literal,
+    exception:match[2]==="#@?#"||match[2]==="#@#"};
+  return null;
+ }
  const contains=/^([a-z.#][\w.#>[\]="'\s:-]{0,160})(?::-abp-contains|:-abp-has-text|:has-text|:contains)\(([^()]{1,120})\)$/i.exec(raw);
  if(contains){
   if(!/^(?:[a-z]|[.#][a-z_])/i.test(contains[1].trim()))return null;

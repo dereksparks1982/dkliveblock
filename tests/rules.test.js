@@ -487,3 +487,35 @@ test("Build 149 rejects request-only options on navigation query cleaners",()=>{
  assert.equal(allowed.cleanNavigation("https://shop.example/?utm_source=a&utm_medium=b&sku=19"),
   "https://shop.example/?sku=19");
 });
+
+test("Build 172 accepts bounded site-scoped literal attribute procedural filters",()=>{
+ const a=R.procedural("news.example##div.ad:matches-attr(data-ad=promoted)");
+ assert.deepEqual(a,{scope:"news.example",selector:"div.ad",mode:"attr",
+  attribute:"data-ad",value:"promoted",exception:false});
+ const f=new FilterEngine("news.example##div.ad:matches-attr(data-ad=promoted)"+
+  "\nnews.example##span.ad:matches-attr(data-ad='featured')");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"div.ad",mode:"attr",attribute:"data-ad",value:"promoted"},
+  {selector:"span.ad",mode:"attr",attribute:"data-ad",value:"featured"}
+ ]);
+ assert.deepEqual(f.getProcedural("other.example"),[]);
+});
+test("Build 172 attribute exceptions suppress only exact selector and literal value",()=>{
+ const f=new FilterEngine("news.example##div.ad:matches-attr(data-ad=promoted)"+
+  "\nnews.example##div.ad:matches-attr(data-ad=featured)"+
+  "\nnews.example#@#div.ad:matches-attr(data-ad=promoted)");
+ assert.deepEqual(f.getProcedural("news.example"),[
+  {selector:"div.ad",mode:"attr",attribute:"data-ad",value:"featured"}
+ ]);
+ assert.deepEqual(f.getProcedural("news.example",{elemhide:true}),[]);
+});
+test("Build 172 refuses regex, scripts and unbounded literal attribute filters",()=>{
+ for(const bad of [
+  "news.example##div:matches-attr(data-ad=/^sponsor/)",
+  "news.example##div:matches-attr(data-ad=advert;display:none)",
+  "news.example##div:matches-attr(data-ad=promotion\\nforced)",
+  "news.example##div:matches-attr(data-ad="+ "x".repeat(92)+")",
+  "##div:matches-attr(data-ad=promoted)",
+  "news.example##div:matches-attr(data-ad=)"
+ ])assert.equal(R.procedural(bad),null,bad);
+});
