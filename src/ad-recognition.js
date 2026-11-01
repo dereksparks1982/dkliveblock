@@ -114,6 +114,47 @@ function safe(element,document){
  }catch(_){return false;}
  return true;
 }
+
+// Some sites render their own commercial sidebar as ordinary page markup,
+// with no ad classes, third-party ad script or network request to block.
+// Only recognize the exact owner-observed cam promotion on this one site.
+function sitePromotionCandidates(document,window){
+ try{
+  const hostname=String(window?.location?.hostname||document?.location?.hostname||"").toLowerCase();
+  if(hostname!=="xnxx.com"&&!hostname.endsWith(".xnxx.com"))return [];
+  const viewport=Number(window?.innerWidth)||0;
+  if(viewport<600||!document?.querySelectorAll)return [];
+  const headings=document.querySelectorAll("h2,h3,h4,h5,h6,header,strong,div,span");
+  const count=Math.min(2400,headings.length||0);
+  let examined=0;
+  for(let i=0;i<count;i++){
+   const heading=headings[i];
+   if(!heading||typeof heading.textContent!=="string")continue;
+   const title=heading.textContent.trim().replace(/\s+/g," ").toLowerCase();
+   if(title!=="chat with live girls")continue;
+   let node=heading.parentElement,selected=null;
+   for(let depth=0;node&&depth<7;depth++,node=node.parentElement){
+    if(node===document.body||node===document.documentElement)break;
+    const rect=node.getBoundingClientRect?.();
+    if(!rect||!Number.isFinite(rect.width)||!Number.isFinite(rect.left)||
+       !Number.isFinite(rect.height)||rect.width<180||rect.width>Math.min(560,viewport*.48)||
+       rect.left<viewport*.48||rect.height<140||rect.height>2200)continue;
+    if(node.querySelector?.("main,article,form,video[controls],.html5-video-player,#movie_player,#player,[role='main']"))continue;
+    const label=typeof node.textContent==="string"?node.textContent:"";
+    if(label.length>5000)continue;
+    const clips=node.querySelectorAll?.("img,video")?.length||0;
+    // Require the label AND a multi-preview commercial panel, not a
+    // heading in an article, player, or another site navigation widget.
+    if(clips>=2&&(/click to see more/i.test(label)||/cam girls/i.test(label)||clips>=4))
+     selected=node;
+    examined++;
+   }
+   if(selected?.isConnected!==false&&selected?.style?.setProperty&&selected?.getClientRects?.().length)
+    return [selected];
+  }
+ }catch(_){}
+ return [];
+}
 function create(document,window,limit=60){
  const hidden=new Map(),max=Math.max(1,Math.min(100,limit));
  let cursor=0,allowed=[];
@@ -147,6 +188,20 @@ function create(document,window,limit=60){
  function scan(){
   if(!document?.querySelectorAll)return 0;
   prune();
+  let removed=0;
+  function hide(el){
+   if(!el||allowedElement(el)||el.isConnected===false||!el.style?.setProperty||!el.getClientRects?.().length)return false;
+   try{
+    const tracked=hidden.has(el);
+    if(!tracked&&hidden.size>=max)return false;
+    if(tracked&&el.style.getPropertyValue("display")==="none"&&
+      el.style.getPropertyPriority("display")==="important")return false;
+    hidden.set(el,{value:el.style.getPropertyValue("display"),
+      priority:el.style.getPropertyPriority("display")});
+    el.style.setProperty("display","none","important");removed++;return true;
+   }catch(_){return false;}
+  }
+  for(const promo of sitePromotionCandidates(document,window))hide(promo);
   const groups=[];let count=0;
   for(const scope of collectScopes(document)){
    try{
@@ -154,35 +209,25 @@ function create(document,window,limit=60){
     if(list.length){groups.push(list);count+=list.length;}
    }catch(_){}
   }
-  if(!count){cursor=0;return 0;}
+  if(!count){cursor=0;return removed;}
   const byIndex=n=>{
    for(const group of groups){if(n<group.length)return group[n];n-=group.length;}
    return null;
   };
-  let inspected=0,removed=0;
+  let inspected=0;
   const begin=cursor%count;
   // Fair across regular DOM and open shadow roots, capped at 120 checks.
   while(inspected<Math.min(count,120)&&removed<6){
    const el=byIndex((begin+inspected)%count);inspected++;
    if(!safe(el,document)||allowedElement(el))continue;
-   try{
-    const tracked=hidden.has(el);
-    if(!tracked&&hidden.size>=max)continue;
-    if(tracked&&el.style.getPropertyValue("display")==="none"&&
-      el.style.getPropertyPriority("display")==="important")continue;
-    // If the site changed a previously hidden slot, preserve its newest
-    // inline display for rollback rather than restoring an outdated style.
-    hidden.set(el,{value:el.style.getPropertyValue("display"),
-      priority:el.style.getPropertyPriority("display")});
-    el.style.setProperty("display","none","important");removed++;
-   }catch(_){}
+   hide(el);
   }
   cursor=(begin+Math.max(1,inspected))%count;
   return removed;
  }
  return {scan,restore,prune,setExceptions,get hiddenCount(){return hidden.size;}};
 }
-const api={create,hasStrongSignal,safe,collectScopes,relevantMutation,CANDIDATES};
+const api={create,hasStrongSignal,safe,collectScopes,relevantMutation,sitePromotionCandidates,CANDIDATES};
 root.DKAdRecognition=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
