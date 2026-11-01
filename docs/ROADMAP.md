@@ -805,5 +805,9 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Add user-friendly blocked-navigation page with clear publisher evidence, source date and explicit per-domain proceed override; avoid full URLs in remote queries.
 
 - [x] Build 216: on-demand investigation of recorded blocked hostnames with detailed public domain RDAP records, Firefox DNS, sampled public IP-network RDAP, local phishing-list status, source caveats and optional TXT/JSON export. No background cloud reputation calls tied to browsing.
-- [ ] Add a user-friendly blocked-site interstitial and "proceed for this exact hostname" control, with explicit consent and safe navigation state, before expanding main-frame protection beyond the first phishing feed.
+- [x] Build 217: packaged blocked-site interstitial with publisher/date evidence, tab-bound short-lived nonce, explicit checked exact-host exception, safe homepage navigation, and separate subresource cancellation. Full Firefox acceptance pending.
 - [ ] Expand verified categories only after feed/licensing review, and display multiple independent detections without mistaking mirrored feeds for independent sources.
+
+- [x] Build 217 (0.3.187): local phishing warning page and exact-host proceed option. Extension page contains no blocked URL, uses a cryptographic tab-bound three-minute token, labels list claims as evidence rather than confirmed identity, saves opt-in overrides only on explicit acknowledgement, and keeps unrelated ad/tracker filtering unchanged.
+- [ ] Build 217 acceptance: complete seven-phase Ubuntu Node/Python suite, Firefox main-frame redirect and new-tab tests, persistence-error rollback, private browsing checks, false-positive UX, and phishing-list update/revocation verification. No release approval.
+- [ ] Build 218 candidate: review real Firefox YouTube regular-video vs ads-funded movie failure with sanitized source attribution, run full test suite, and address measured filtering gaps only. Preserve the user-observed-working Build 203 baseline.
