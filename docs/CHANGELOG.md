@@ -499,7 +499,7 @@ DK Live Block can fetch a tightly restricted, version-numbered, data-only YouTub
 
 ## Voluntary Patreon support
 
-A Patreon button is included in the toolbar and settings footer, but it stays disabled with a **Coming soon** label until the official Patreon creator page is configured. Later, set the verified HTTPS page in `PATREON_URL` in `src/support.js` and ship a normal extension update. The extension does not request payments, contact Patreon automatically, or track supporters. Donations are optional and do not unlock features. Users, including businesses, may use DK Live Block free of charge. The requested no-resale/no-software-monetization policy is a future licensing decision; current source remains MIT-licensed and already-granted rights are unaffected.
+A Patreon button is included in the toolbar and settings footer, but it stays disabled with a **Coming soon** label until the official Patreon creator page is configured. Later, set the verified HTTPS page in `PATREON_URL` in `src/support.js` and ship a normal extension update. The extension does not request payments, contact Patreon automatically, or track supporters. Donations are optional and do not unlock features. Users and businesses may use DK Live Block for free, but selling, paid repackaging, or monetizing DK Live Block itself or modified versions is prohibited.
 
 ## Build 19: embedded Ghostery engine
 
