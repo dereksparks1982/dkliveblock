@@ -971,7 +971,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Included coarse, sanitized adaptive state in tab diagnostics and automatic expiry handling; six new tests and 15 isolated behavioral checks. Full Ubuntu suite and actual Firefox preroll/midroll/anti-adblock results remain unverified.
 
 ### 0.3.156 / Build 186 (2026-11-01)
-- Vendored MIT-licensed karpathy/micrograd micro-training tools and attribution (training only), plus a deterministic Python training script for an offline six-feature linear classifier.
+- Vendored karpathy/micrograd micro-training tools with required upstream attribution (training only), plus a deterministic Python training script for an offline six-feature linear classifier.
 - Bundled tiny, fixed JavaScript inference weights without runtime dependencies, external model downloads, network calls or user data. The classifier can only recommend/veto a temporary response-only mode inside the existing deterministic safety gate; enforcement/ad-skip evidence suppresses fallback.
 - Corrected Build 185 manifest omission: adaptive-model.js and adaptive-youtube.js are loaded before background.js. Added 128 synthetic model fixture checks and safety/license/load-order tests. Full Linux suite and real YouTube acceptance pending; not production-grade ad identification.
 
