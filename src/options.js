@@ -6,12 +6,13 @@ const listKeys=[...primaryKeys,...regionKeys];
 const listNames={...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,item.name])),easylist:"EasyList: advertisements",easyprivacy:"EasyPrivacy: tracking",
  cookies:"EasyList Cookie: cookie notices",annoyances:"Fanboy Annoyances: distractions",
  social:"Fanboy Social: social widgets"};
-const flagKeys=["autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
+const flagKeys=["threatProtection","autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
 let lastSettings=null;
 function collect(){
  const s={listEnabled:{},paused:$("paused").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean),customRules:$("customRules").value,customSubscriptions:$("customSubscriptions").value.split(/\r?\n/).map(x=>x.trim()).filter(Boolean)};
  for(const key of listKeys)s.listEnabled[key]=$(key).checked;
  for(const key of flagKeys)s[key]=$(key).checked;
+ s.threatOverrides=$("threatOverrides").value.split(/\r?\n/).map(x=>x.trim().toLowerCase()).filter(Boolean);
  return s;
 }
 async function load(){
@@ -25,6 +26,8 @@ async function load(){
  $("customRules").value=s.customRules||"";
  $("customSubscriptions").value=(s.customSubscriptions||[]).join("\n");
  $("paused").value=(s.paused||[]).join("\n");
+ $("threatOverrides").value=(s.threatOverrides||[]).join("\n");
+ showThreatStatus(data.threatDatabase);
  renderAllowedSites(s.paused||[]);
  await renderCleanupExceptions();
  try{
@@ -45,6 +48,26 @@ async function load(){
  $("youtubeRollback").disabled=!pack.version;
  $("updated").textContent=Object.values(data.listState).map(x=>x.name+": "+(x.updated?new Date(x.updated).toLocaleString():"not downloaded")+(x.error?" [last update failed: "+x.error+"]":"")).join(" · ");
 }
+function showThreatStatus(status){
+ const node=$("threatStatus");if(!node)return;
+ if(!status||status.error&&!status.ready){
+  node.textContent="Threat database unavailable. No threat domains are blocked until a valid list downloads."+
+   (status?.error?" "+status.error:"");return;
+ }
+ node.textContent=(status.enabled?"Threat protection ON":"Threat protection OFF")+
+  " · "+status.count+" locally cached phishing hostnames"+
+  (status.updated?" · Updated "+new Date(status.updated).toLocaleString():" · Not downloaded yet")+
+  (status.stale?" · Data is stale":"")+
+  " · "+status.overrides+" exact-host overrides"+
+  (status.error?" · Last update failed: "+status.error:"");
+}
+$("threatRefresh").addEventListener("click",async()=>{
+ const button=$("threatRefresh");button.disabled=true;
+ $("threatStatus").textContent="Checking the public phishing feed…";
+ try{showThreatStatus(await browser.runtime.sendMessage({action:"refreshThreatDatabase"}));}
+ catch(error){$("threatStatus").textContent="Update unavailable: "+String(error?.message||error).slice(0,130);}
+ finally{button.disabled=false;}
+});
 function makeLine(){const row=document.createElement("div");row.className="log-row";return row;}
 function listStatus(record){
  if(!record?.updated)return "Not downloaded yet"+(record?.error?" · Last error: "+record.error:"");

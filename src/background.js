@@ -9,7 +9,7 @@ const SOURCES={
  ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,{name:item.name,url:item.url}]))
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","##.adsbygoogle","##ins.adsbygoogle","##amp-ad","##amp-auto-ads","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com##ytd-in-feed-ad-layout-renderer","youtube.com##ytd-display-ad-renderer","youtube.com##ytd-promoted-sparkles-web-renderer","youtube.com##ytm-ad-slot-renderer","youtube.com###player-ads"].join("\n");
-const DEFAULT={enabled:true,paused:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
+const DEFAULT={enabled:true,threatProtection:true,threatOverrides:[],paused:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
  ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeResponseFilter:true,youtubeSkip:true,adRecognition:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
@@ -118,7 +118,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={threatDB:{hosts:new Set(),count:0,updated:0},threatUpdateJob:null,threatError:"",settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -145,6 +145,43 @@ function sourceSections(){
 function assemble(){const all=[SEED];for(const k of Object.keys(SOURCES)){if(data.settings.listEnabled[k]&&data.lists[k]?.text)all.push(data.lists[k].text);}for(const u of data.settings.customSubscriptions||[])if(data.customLists[u]?.text)all.push(data.customLists[u].text);if(data.youtubeRules?.text)all.push(data.youtubeRules.text);if(data.settings.customRules)all.push(data.settings.customRules);return all.join("\n");}
 async function persist(){await browser.storage.local.set({settings:data.settings,lists:data.lists,customLists:data.customLists,listErrors:data.listErrors,youtubeRules:data.youtubeRules,youtubePrevious:data.youtubePrevious,youtubeHeldVersion:data.youtubeHeldVersion});}
 async function persistSettings(){await browser.storage.local.set({settings:data.settings});}
+function threatStatus(){
+ return {...DKThreatDB.status(data.threatDB,data.settings.threatProtection,
+  data.settings.threatOverrides.length),error:data.threatError||""};
+}
+function updateThreatDatabase(){
+ if(data.threatUpdateJob)return data.threatUpdateJob;
+ const task=(async()=>{
+  const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);
+  try{
+   // Fetch a public list, never a browsing-domain lookup.
+   const response=await fetch(DKThreatDB.SOURCE.url,{
+    credentials:"omit",cache:"no-cache",signal:controller.signal,redirect:"follow",
+    headers:{"Accept":"text/plain"}});
+   const finalURL=new URL(response.url||DKThreatDB.SOURCE.url);
+   if(!response.ok||finalURL.protocol!=="https:"||
+      !["phishing.army","www.phishing.army"].includes(finalURL.hostname))
+    throw Error("Threat feed unavailable or redirected outside its publisher.");
+   if(Number(response.headers?.get?.("content-length")||0)>DKThreatDB.MAX_BYTES)
+    throw Error("Threat feed exceeds local size limit.");
+   const text=await response.text(),parsed=DKThreatDB.parse(text);
+   if(parsed.error)throw Error(parsed.error);
+   if(!DKThreatDB.shouldReplace(data.threatDB,parsed))
+    throw Error("Threat feed shrank unexpectedly; keeping last verified list.");
+   const updated=Date.now();
+   await browser.storage.local.set({threatCache:{text,updated}});
+   data.threatDB={hosts:parsed.hosts,count:parsed.count,updated};
+   data.threatError="";
+   return {ok:true,...threatStatus()};
+  }catch(error){
+   data.threatError=String(error?.message||"Threat update failed").slice(0,150);
+   return {ok:false,error:data.threatError,...threatStatus()};
+  }finally{clearTimeout(timer);}
+ })();
+ data.threatUpdateJob=task;
+ task.finally(()=>{if(data.threatUpdateJob===task)data.threatUpdateJob=null;});
+ return task;
+}
 function refreshTabs(){browser.tabs.query({}).then(t=>Promise.all(t.map(tab=>browser.tabs.sendMessage(tab.id,{action:"refresh"}).catch(()=>{})))).catch(()=>{});}
 function rebuild(){
  const next=assemble();
@@ -438,6 +475,16 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  // Only user-started tab captures are recorded; never store raw URLs, headers or payloads.
  DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
  if(!data.ready||!data.settings.enabled)return {};
+ // Independent threat blocking applies even when the originating website
+ // is allowed for advertising. An override is exact-host only.
+ const threat=data.settings.threatProtection?
+  DKThreatDB.match(data.threatDB,host(d.url),data.settings.threatOverrides):null;
+ if(threat){
+  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
+  rememberOwnBlock(d.requestId);
+  recordBlock(d.tabId,d.url,d.type,{p:"[Phishing Army phishing threat feed]"});
+  return {cancel:true};
+ }
  if(d.type==="main_frame"){
   if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url))||
      d.method&&String(d.method).toUpperCase()!=="GET")return {};
@@ -608,7 +655,10 @@ browser.tabs.onRemoved.addListener(id=>{
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
  DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
-browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate)updateLists().catch(console.warn);});
+browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate){
+ updateLists().catch(console.warn);
+ if(data.settings.threatProtection)updateThreatDatabase().catch(console.warn);
+}});
 browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(!msg||typeof msg.action!=="string")return {};
  // Firefox provides sender.tab for extension pages opened in ordinary tabs.
@@ -902,9 +952,13 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    type:String(row.type||"").slice(0,30),
    when:Number.isFinite(row.when)?row.when:0,
    sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=1?row.sequence:0,
-   ruleType:row.type==="popup"?"popup":row.rule?"filter":"engine",
+   ruleType:row.type==="popup"?"popup":
+    row.rule==="[Phishing Army phishing threat feed]"?"threat":row.rule?"filter":"engine",
    registeredDomain:DKPublicSuffix.registrable(row.host),
-   ruleEvidence:{...DKRuleEvidence.explain(row.rule),subscription:DKRuleProvenance.clean(row.ruleSource)}
+   ruleEvidence:row.rule==="[Phishing Army phishing threat feed]"?
+    {source:"Local phishing threat database",subscription:"Phishing Army",
+     pattern:"Exact hostname in the downloaded phishing feed"}:
+    {...DKRuleEvidence.explain(row.rule),subscription:DKRuleProvenance.clean(row.ruleSource)}
   })):[];
   const popupEvents=sameTab&&requestLog?
    DKPopupHistory.getRecent(data.popupHistory,id,site).slice(0,8):[];
@@ -931,7 +985,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    distractionPaused:data.settings.distractionPaused.some(h=>DKRules.sub(site,h)),
    popupCleanupEnabled:data.settings.antiAdblock||data.settings.paywallPopups,
    popupCleanupPaused:data.settings.popupProtectionPaused.some(h=>DKRules.sub(site,h)),
-   requestLog,allowedRequests:permitted.total,allowedGroups:permitted.groups,
+   requestLog,threatDatabase:threatStatus(),allowedRequests:permitted.total,allowedGroups:permitted.groups,
    selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,site),
    youtubeTestMode:DKYouTubeExperiment.validSite(site)?youtubeMode(id,site):null,
    youtubeAdaptive:DKYouTubeExperiment.validSite(site)&&sameTab?
@@ -947,7 +1001,29 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    requestAllowances:allowance
   };
  }
- if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules};
+ if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules,threatDatabase:threatStatus()};
+ if(msg.action==="getThreatStatus"){
+  if(fromContent||sender?.tab)return {error:"Extension interface only."};
+  return threatStatus();
+ }
+ if(msg.action==="refreshThreatDatabase"){
+  if(fromContent||sender?.tab)return {error:"Extension interface only."};
+  return updateThreatDatabase();
+ }
+ if(msg.action==="setThreatOverride"){
+  if(fromContent||sender?.tab||msg.confirm!==true||
+     typeof msg.host!=="string"||!DKThreatDB.valid(msg.host)||
+     typeof msg.allow!=="boolean")
+   return {error:"Confirm a valid exact hostname to change its threat protection."};
+  const current=data.settings.threatOverrides;
+  const updated=msg.allow?
+   DKThreatDB.overrides([...current,msg.host]):
+   current.filter(item=>item!==msg.host);
+  if(!updated)return {error:"Threat override list is full (250 hostnames maximum)."};
+  data.settings.threatOverrides=updated;
+  await persistSettings();
+  return {ok:true,overrides:updated.slice(),...threatStatus()};
+ }
  if(msg.action==="getNotificationControl"){
   if(fromContent)return {error:"Extension interface only."};
   return DKNotificationProtection.status(browser);
@@ -1428,6 +1504,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
        s[featureKey].some(h=>!DKManualRules.validHost(h))))
     return {error:"Site protection exceptions require valid hostnames (up to 500)."};
   }
+  if("threatOverrides" in s&&!DKThreatDB.overrides(s.threatOverrides))
+   return {error:"Threat exceptions must be up to 250 valid exact hostnames."};
   if(Array.isArray(s.paused)&&
      (s.paused.length>DKSiteAllowlist.LIMIT||
       s.paused.some(x=>!DKManualRules.validHost(x))))
@@ -1447,6 +1525,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    await DKContextMenu.sync(browser,data.settings.showContextMenu);
   }
   if(typeof s.autoUpdate==="boolean")data.settings.autoUpdate=s.autoUpdate;
+  if(typeof s.threatProtection==="boolean")data.settings.threatProtection=s.threatProtection;
+  if(Array.isArray(s.threatOverrides))data.settings.threatOverrides=
+   DKThreatDB.overrides(s.threatOverrides)||data.settings.threatOverrides;
   if(typeof s.autoYouTubeRules==="boolean")data.settings.autoYouTubeRules=s.autoYouTubeRules;
   if(typeof s.youtubeResponseFilter==="boolean")data.settings.youtubeResponseFilter=s.youtubeResponseFilter;
   if(typeof s.youtubeSkip==="boolean")data.settings.youtubeSkip=s.youtubeSkip;
@@ -1481,18 +1562,21 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   // Newly enabled subscriptions work immediately without waiting for tomorrow's alarm.
   const needsDownload=(data.settings.autoYouTubeRules&&!data.youtubeRules?.text)||Object.keys(SOURCES).some(k=>data.settings.listEnabled[k]&&!data.lists[k]?.text)||(data.settings.customSubscriptions||[]).some(u=>!data.customLists[u]?.text);
   if(needsDownload)updateLists().catch(console.warn);
+  if(data.settings.threatProtection&&data.settings.autoUpdate&&!data.threatDB.count)
+   updateThreatDatabase().catch(console.warn);
   return {ok:true};
  }
  return {error:"Unknown action"};
 });
 async function boot(){
  try{
-  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload","requestAllowances","manualBlocks"]);
+  const stored=await browser.storage.local.get(["settings","lists","customLists","listErrors","youtubeRules","youtubePrevious","youtubeHeldVersion","lastVideoDownload","requestAllowances","manualBlocks","threatCache"]);
   if(videoJob.state==="idle"){
    const previous=restoreVideoJob(stored.lastVideoDownload);
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
   }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  data.threatDB=DKThreatDB.restore(stored.threatCache);
   data.notificationControl=await DKNotificationProtection.sync(browser,
    data.settings.enabled&&data.settings.blockNotificationPrompts);
   await DKContextMenu.sync(browser,data.settings.showContextMenu);
@@ -1523,6 +1607,9 @@ async function boot(){
    data.settings.customSubscriptions.some(url=>!data.customLists[url]?.text);
   if(data.settings.autoUpdate&&(needsDownload||Date.now()-data.settings.lastUpdate>86400000))
    updateLists().catch(console.warn);
+  if(data.settings.threatProtection&&data.settings.autoUpdate&&
+     (!data.threatDB.count||Date.now()-data.threatDB.updated>DKThreatDB.AGE_MS))
+   updateThreatDatabase().catch(console.warn);
  }catch(e){console.error("DK Live Block startup:",e);data.ready=true;}
 }
 DKContextMenu.install(browser,()=>data.ready&&data.settings.showContextMenu===true,

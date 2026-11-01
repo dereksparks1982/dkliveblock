@@ -1,6 +1,6 @@
 /* DK Live Block: view-only local site activity model. Never stores raw URLs. */
 (function(root){"use strict";
-const RESOURCE_TYPES=new Set(["script","image","imageset","stylesheet","media","font","object",
+const RESOURCE_TYPES=new Set(["main_frame","script","image","imageset","stylesheet","media","font","object",
  "xmlhttprequest","sub_frame","ping","beacon","websocket","other","popup"]);
 const SCOPES=new Set(["temporary","session","remember"]);
 function status(data){
@@ -38,7 +38,7 @@ function requestRows(data){
        (/^\|\|[a-z0-9.-]+\^$/.test(row.ruleEvidence.pattern)||
         ["Rule text not exposed by embedded matcher","No matched pattern was recorded","Matching pattern withheld: may contain a URL path or private parameter"].includes(row.ruleEvidence.pattern))?
        row.ruleEvidence.pattern:"Pattern withheld"}}:{}),
-   ruleType:["popup","filter","engine"].includes(row.ruleType)?row.ruleType:"engine"}];
+   ruleType:["popup","filter","engine","threat"].includes(row.ruleType)?row.ruleType:"engine"}];
  });
 }
 function popupRows(data){

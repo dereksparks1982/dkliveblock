@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 214 / 0.3.184 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 215 / 0.3.185 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -194,3 +194,10 @@ Full Ubuntu and live Firefox tests still pending.
 - User-authored fixed constant shims now verify descriptor ownership on a repeated same-settings refresh. If a page replaced an intercepted own property descriptor, the runtime restores any abandoned child shims before reattempting installation, without clobbering the page-owned replacement on later disable.
 - The shared-prefix structure from Build 210, three-component path cap, protected-global allowlist and no-eval requirement remain. Accessor-backed paths are never read. Page-forgeable DOM events remain untrusted with no extension privileges.
 - Nineteen focused runtime tests passed in an isolated V8 harness, including three new descriptor-overwrite scenarios. Full Ubuntu test suite and real Firefox reliability tests remain pending.
+
+## Build 215: first separate local threat-intelligence database (unreleased)
+
+- New `DKThreatDB` module reads only plain phishing hostnames from `https://phishing.army/download/phishing-army-domains.txt`, bounded to 12 MB/250,000 entries and rejecting markup, overly sparse/error responses, public suffix lookalikes and large unexplained coverage drops. It stores last-good source data in Firefox local extension storage and never uploads browsing URLs. A request to update the list does contact the publisher and can reveal the extension user's IP.
+- Default `threatProtection:true` applies exact-host phishing blocks even when normal ad filtering is allowlisted; global off, a threat-specific checkbox, and explicit exact-host overrides all disable it as appropriate. Main-frame navigations are cancelled before query-stripping. Local UI shows source/count/updated/error; event evidence describes a phishing feed match, not an owner verdict.
+- One verified phishing category only, not complete malware/scam/c2 protection. The feed may be missing before initial successful download, may go stale, may contain false positives and may not cover every subdomain or page path. Additional vetted sources and warning/recovery navigation experience are pending.
+- Eight local module smoke checks passed in isolated JS, ninth source integration check registered in Linux suite. Full Ubuntu/Firefox acceptance remains pending, as does complete investigation card work.

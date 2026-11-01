@@ -34,7 +34,8 @@ function summary(host,type,site,ruleType){
   ["media","font","stylesheet","script","xmlhttprequest"].includes(type)?
   "Could affect website functionality. Blocking alone does not establish that it is nonessential.":
   "Not established. A blocked request is not proof of danger or malicious behavior.";
- const why=ruleType==="popup"?"Blocked by a popup/new-tab rule or protection policy.":
+ const why=ruleType==="threat"?"Listed by Phishing Army as a phishing hostname; default threat protection blocked it. A listing does not establish the registrant's intent.":
+  ruleType==="popup"?"Blocked by a popup/new-tab rule or protection policy.":
   ruleType==="filter"?"Matched a locally applied network filtering rule.":
   "Blocked by the extension's active filtering engine; the exact filter/list may not be available.";
  return {host:name,resource,thirdParty:third,operator:item?item[1]:"Unverified",

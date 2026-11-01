@@ -124,3 +124,7 @@ Two synthetic overflow regressions confirm the private request-ID Map is never i
 ## Build 214 (0.3.184): manual-scriptlet recovery after site property replacement
 
 All 19 focused runtime tests passed, including descriptor overwrite, shared-prefix abandonment/restoration, and readonly intermediate reattachment without invoking accessors. Verify changes in real Firefox with user-authored test rules only. Full seven-phase Ubuntu suite and user-observed YouTube ad-free playback baseline comparison remain pending.
+
+## Build 215 (0.3.185): default-on phishing threat feed, unaccepted
+
+Eight isolated domain-level tests passed. The new ninth integration assertion and the complete Ubuntu suite require local Node execution. Before acceptance, verify first-run automatic fetch, domain-count status, controlled exact-host cancellation, behavior with ad-site allowlisting, manual exact-host exception, global and dedicated switches, old-cache retention after simulated outage and normal sign-in/banking/YouTube playback. A missing threat database must be displayed as missing, never described as safe. Test the feed's terms and upstream redistribution conditions before publishing this build; no live user browsing information is transmitted in per-site queries.

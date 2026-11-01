@@ -1,3 +1,12 @@
+## Build 215 (0.3.185): default-on, independent phishing threat database
+
+- Added a separate locally matched threat-intelligence database using Phishing Army's maintained public phishing-domain feed. Fresh installs default to protection ON and automatic daily downloads while auto-update is enabled; no visited domains are queried against a server.
+- Strictly validate plain hostname-only feeds (HTTPS publisher, bounded size/count, malformed/error-page rejection and suspicious feed-shrink retention). Last-good data is kept when downloads fail; stale status is visible and public harmless demonstration domains are excluded from genuine phishing classification.
+- Check the exact destination hostname before ordinary ad filters on Firefox subresource and page navigation requests. Ad-filter website exceptions do not silently override threat decisions. Protection can be switched off globally or overridden for up to 250 exact hostnames in Settings. A separate, explicit threat override action is available for future richer inspection workflows.
+- Show cached entry count, source, refresh date, freshness and update errors. Label threat blocks as Phishing Army phishing listings in local Site Dashboard records and optional exports, not as verified ownership or malware evidence.
+- Nine new offline tests added for feed parsing, containment, exact-host decisions, overrides, registration exclusion, cache, stale status and source wiring. Eight domain-level smoke tests passed; full Ubuntu suite/Firefox browser behavior remains unverified.
+- No telemetry, cloud per-site lookups, new browser permissions, GitHub Actions, public release or README release notes.
+
 ## Build 214 (0.3.184): repair replaced page-owned manual scriptlet descriptors on refresh
 
 - The fixed, user-authored `set-constant` runtime now checks whether its own property interceptors still exist when settings refresh with an unchanged configuration. A website may redefine a configurable data property without calling a shim setter; previously an identical refresh silently skipped reinstating the protection.

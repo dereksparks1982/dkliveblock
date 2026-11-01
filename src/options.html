@@ -1,6 +1,17 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Live Block settings</title><link rel="stylesheet" href="style.css"></head>
 <body class="options"><header><strong>DK LIVE BLOCK</strong><small>Privacy first. Everything free.</small></header><main>
 <h1>Protection settings</h1>
+<section id="threat-protection">
+<h2>Threat database &amp; protection</h2>
+<label><input id="threatProtection" type="checkbox"> Block domains listed by the phishing threat feed (recommended, ON by default)</label>
+<p>Threat protection is separate from advertising filters. It checks a locally cached database before a website or resource loads, including when a website is allowlisted for ads. Only exact reported hostnames are blocked. A listing is not proof of a site's owner or intent.</p>
+<p id="threatStatus" role="status">Threat database status loading…</p>
+<button id="threatRefresh" type="button">Update threat database now</button>
+<p>Source: <a href="https://phishing.army/blocking-policy/" target="_blank" rel="noopener noreferrer">Phishing Army's phishing-domain intelligence</a>. The extension downloads the list, not your visited URLs. The publisher sees an IP requesting a feed update. Updates normally run daily when automatic updates are enabled. More threat categories will require independently reviewed feeds.</p>
+<h3>Threat protection overrides</h3>
+<p>Enter <strong>exact destination hostnames</strong>, one per line, to allow despite a listing. Overrides may expose you to deceptive pages. Remove an entry to restore protection. Turning off the main switch disables threat-list blocking without affecting ordinary ad filtering.</p>
+<textarea id="threatOverrides" rows="4" maxlength="64000" spellcheck="false" placeholder="listed-hostname.example.net"></textarea>
+</section>
 <section id="strict-popup-protection"><h2>Strict popunder and scam-tab protection</h2>
 <label><input id="strictPopupSites" type="checkbox"> Block all new tabs and windows launched from The Pirate Bay and 1337x sites (recommended)</label>
 <p>Enabled by default. This stops new tabs opened from these sites even when the destination is blank or uses a constantly changing ad domain. It may also block a legitimate link you intentionally open in another tab. Magnet downloads and normal same-tab navigation are not targeted.</p>

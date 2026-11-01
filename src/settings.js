@@ -1,6 +1,7 @@
 /* DK Live Block: defensive restoration of local settings and cached filter data. */
 (function(root){"use strict";
-const BOOLEAN=["enabled","autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
+const Threat=root.DKThreatDB||typeof require==="function"&&require("./threat-database.js");
+const BOOLEAN=["threatProtection","enabled","autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
 function object(x){return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}
 function restoreSettings(raw,defaults,keys){
  const src=object(raw),value={...defaults,listEnabled:{...defaults.listEnabled},paused:[],mediaRecovery:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[]};
@@ -17,6 +18,7 @@ function restoreSettings(raw,defaults,keys){
   if(Array.isArray(src[key]))
    value[key]=[...new Set(src[key].filter(h=>typeof h==="string"&&DKManualRules.validHost(h)))].slice(0,500);
  }
+ value.threatOverrides=Threat.overrides(src.threatOverrides??[])||[];
  value.customRules=typeof src.customRules==="string"&&src.customRules.length<=1000000?src.customRules:"";
  const subs=DKSubscriptions.validate(src.customSubscriptions??[]);
  value.customSubscriptions=subs.urls||[];

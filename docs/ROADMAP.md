@@ -798,3 +798,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 214: recheck descriptor ownership on same-configuration manual scriptlet refresh, enabling recovery if a page redefines a hooked property without calling its setter. Add 3 regression cases and keep page-owned replacement values on disable.
 - [ ] Real Firefox SPA simulations: alternate direct assignment, `Object.defineProperty`, site-owned getter changes, and user enable/disable. Confirm no interference with normal YouTube page bridge under active default settings.
+
+- [x] Build 215: default-on, locally cached phishing threat database with publisher-attributed listings, daily refresh, last-good retention, exact-host allow overrides, and visibly separate settings/status from ad filters. A threat listing is not a verified identity judgment.
+- [ ] Build 216: full, opt-in domain investigation card including RDAP entity/public registration details, authoritative DNS evidence and hosting ASN where safely retrievable; make empty/unverified fields explicit and export the source/timestamps.
+- [ ] Expand threats only after source licensing and false-positive review, with independent categories for malware distribution, phishing, deceptive redirects and command-and-control, never simply treating an unknown hostname or TLD as malicious.
+- [ ] Add user-friendly blocked-navigation page with clear publisher evidence, source date and explicit per-domain proceed override; avoid full URLs in remote queries.
