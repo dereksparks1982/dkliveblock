@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,pickerSelectors=[],picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let temporarySelectors=[],active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,pickerSelectors=[],picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
@@ -41,7 +41,7 @@
  }
  function applyPickerCSS(){
   if(!document.documentElement)return;
-  const safe=active?pickerSelectors.filter(s=>typeof s==="string"&&s.length>0&&s.length<=600):[];
+  const safe=active?[...new Set([...pickerSelectors,...temporarySelectors])].filter(s=>typeof s==="string"&&s.length>0&&s.length<=600):[];
   if(!safe.length){pickerStyle?.remove();pickerStyle=null;return;}
   if(!pickerStyle||!pickerStyle.isConnected){
    pickerStyle=document.createElement("style");pickerStyle.id="dk-live-block-picker-style";
@@ -60,6 +60,7 @@
    const proceduralChanged=JSON.stringify(nextProcedural)!==JSON.stringify(procedural);
    // Do not flash already-hidden notices on ordinary navigation or rule refresh.
    if(active&&!nextActive||antiAdblock&&!nextAnti||paywallPopups&&!nextPaywall||distractionControl&&!nextDistractions)restoreAntiHidden();
+   if(!nextActive)temporarySelectors=[];
    if(!nextActive||proceduralChanged){restoreHidden();cosmeticDebugger.restore();}
    if(!nextActive||adRecognition&&!s.adRecognition)adRecognizer?.restore();
    // Immediately undo an old automatic hide when its exact-site allowance is added.
@@ -367,22 +368,11 @@
   event.preventDefault();event.stopImmediatePropagation();
   const selector=cleanSelector(event.target);
   if(!selector||selector.length>600){if(banner)banner.textContent="Unable to select this element. Esc cancels.";return;}
+  // A selected element is hidden for this document only, not written to
+  // customRules. A normal Firefox page refresh restores it automatically.
   endPicker();
-  try{
-   const result=await browser.runtime.sendMessage({action:"addElementRule",selector});
-   if(!result?.ok){
-    if(startPicker()&&banner)
-     banner.textContent="Could not save: "+String(result?.error||"Try a different element.").slice(0,90)+". Esc cancels.";
-    return;
-   }
-   // Use a stylesheet instead of permanent inline styles: Undo and site pauses
-   // can remove the rule immediately. A successful save should hide at once.
-   if(!pickerSelectors.includes(selector))pickerSelectors.push(selector);
-   applyPickerCSS();
-   refresh(); // Reconcile with the authoritative saved rules and undo state.
-  }catch(_){
-   if(startPicker()&&banner)banner.textContent="Could not save the rule. Esc cancels.";
-  }
+  if(!temporarySelectors.includes(selector))temporarySelectors.push(selector);
+  applyPickerCSS();
  }
  function keys(e){if(e.key==="Escape"){e.preventDefault();endPicker();}}
  async function maybeRememberVideo(){
@@ -412,6 +402,11 @@
  browser.runtime.onMessage.addListener(msg=>{
   if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
+  if(msg.action==="undoTemporaryHide"){
+   const selector=temporarySelectors.pop();
+   if(selector)applyPickerCSS();
+   return Promise.resolve({ok:true,restored:!!selector});
+  }
   if(msg.action==="inspectCosmeticDebug"){
    if(!active||msg.siteHost!==host||window!==window.top)return Promise.resolve({error:"Inspector unavailable on this page."});
    return Promise.resolve({ok:true,rows:DKCosmeticDebug.inspect(document,msg.selectors)});

@@ -76,3 +76,12 @@ The exact extension version/commit, count of ad breaks, independent video/player
 
 The owner reported no visible advertising on CBS News in the tested session, but observed a sidebar video on a `www.cbsnews.com/news/...` article start playing without a deliberate click. The owner also reported the Firefox right-click **Block element with DK Live Block** command selects an object but does not hide it when chosen. Preserve the current apparently successful CBS network blocking and Patreon link. New acceptance checks: reload a normal CBS article and confirm the sidebar video remains paused until clicked; explicitly click Play and confirm playback works; open an unrelated site and YouTube/Disney+ to confirm no autoplay control leaks. Block a harmless article sidebar element, confirm immediate disappearance and persistence after reload; Undo the rule and confirm visibility returns. No Firefox test was run at code-commit time.
 
+
+## November 1, 2026: owner CBS News and element-picker results (Build 227)
+
+The owner tested Build 227 in Firefox and verified that the right-click Block Element picker actually hides the selected element, including after reloading. However, this persistence was unwanted for the picker: the owner accidentally hid the CBS video player while testing, and explicitly requested that a **normal webpage reload restore manually picked elements**. Build 228 changes *new* picker selections to in-document hiding only. Previously stored cosmetic rules from the old picker require using the existing popup Undo hide control to remove the saved rule once.
+
+CBS News article video autoplay was successfully prevented by Build 227. However, a deliberate Play click left the player in an infinite spinner. Build 228 releases the page's player after a trusted player-control click, including clicking a video overlay and a replaced video element. This is a hypothesis-driven change; owner Firefox testing is still required.
+
+The owner also compared CBS News with DK Live Block disabled vs enabled: disabling revealed extensive advertising and an endlessly scrolling ad feed; re-enabling produced a much more usable article. Treat this as *owner-observed successful CBS advertising suppression*. Do not weaken network filters in an autoplay fix.
+

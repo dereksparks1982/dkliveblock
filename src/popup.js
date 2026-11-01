@@ -195,7 +195,19 @@ $("cosmeticDebugger").addEventListener("click",()=>browser.tabs.create({
 }));
 $("picker").addEventListener("click",async()=>{try{const result=await browser.tabs.sendMessage(tab.id,{action:"startPicker"});if(result.ok)window.close();}catch(e){$("info").textContent="Reload the tab and try again."; }});
 $("update").addEventListener("click",async()=>{$("update").disabled=true;try{const result=await browser.runtime.sendMessage({action:"updateLists"});$("info").textContent=result.updated+" changed; "+result.checked+" checked; "+result.errors.length+" failed.";}catch(e){$("info").textContent=e.message;}finally{$("update").disabled=false;}});
-$("undo").addEventListener("click",async()=>{const r=await browser.runtime.sendMessage({action:"undoElementRule",url:tab.url,tabId:tab.id});$("info").textContent=r.ok?"Last hidden element restored. Reload this tab.":r.error;});
+$("undo").addEventListener("click",async()=>{
+ try{
+  const latest=await browser.tabs.sendMessage(tab.id,{action:"undoTemporaryHide"}).catch(()=>null);
+  if(latest?.restored){$("info").textContent="Last page-only hidden element restored.";return;}
+  // Older versions saved selections in custom rules. Preserve an Undo
+  // option for those existing rules without making new picks permanent.
+  const r=await browser.runtime.sendMessage({action:"undoElementRule",url:tab.url,tabId:tab.id});
+  if(r.ok){
+   await browser.tabs.sendMessage(tab.id,{action:"refresh"}).catch(()=>{});
+   $("info").textContent="Last saved hidden element restored. Reload if necessary.";
+  }else $("info").textContent=r.error||"Nothing to restore.";
+ }catch(error){$("info").textContent="Could not restore: "+String(error?.message||error);}
+});
 $("recovery").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("settings").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dependencies").addEventListener("click",()=>browser.tabs.create({url:browser.runtime.getURL("options.html#dependencies")}));

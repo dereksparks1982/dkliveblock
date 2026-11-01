@@ -267,3 +267,12 @@ The owner observed the right-click picker highlights a selection but does not hi
 
 CBS News article tabs receive narrowly scoped, explicitly click-to-play HTML5 video protection in all frames of the originating tab through a new local helper. It removes autoplay from unapproved videos and pauses unsolicited `play` events, while allowing trusted interaction in the video's actual player controls. CBS home, live and standalone videos, unrelated sites and direct streaming tabs are not opted in. Inline video inside cross-origin embeds may need live Firefox validation. Only local DOM events, no surveillance or extra permissions. Owner-observed CBS ad suppression and working Patreon preserved.
 
+
+## Build 228 (0.3.198): user-initiated CBS playback and nonpersistent picker
+
+Owner-verified: Build 227 CBS article videos stopped autoplay, but manual Play could spin forever. The 227 script continued pausing video on `play` and mutations even if a replacement player was initialized after a user click. Build 228 treats a trusted click inside the actual video rectangle or a player control as authorization, then removes the play interceptor and mutation observer until document navigation. Other article clicks do not unlock playback. No changes to network filters, streaming sites, support link or approved UI geometry.
+
+Owner-verified: Block Element hides chosen items, but saving them across reloads is not wanted. Build 228 keeps newly chosen selectors in page memory and applies local CSS only; a normal webpage reload resets all new manual picks. The toolbar Undo hide restores latest page-only pick first; older saved picker rules remain in custom rules and can be removed using Undo hide. No automatic deletion of user custom filter rules.
+
+Owner observed extensive CBS advertising with extension disabled and an ad-free usable page with extension enabled. Manual Firefox validation of Build 228 playback remains pending.
+

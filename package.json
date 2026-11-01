@@ -1,7 +1,7 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.3.197",
+  "version": "0.3.198",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
     "verify:ghostery": "node scripts/build-ghostery.mjs --verify",

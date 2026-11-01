@@ -1,3 +1,9 @@
+## Build 228 (0.3.198): CBS manual playback and temporary element hiding
+
+- On CBS News articles, the autoplay guard now disengages its video play-event and DOM listeners on a trusted click inside the player or known play controls. This handles player overlays and videos created after a click, intended to prevent the infinite buffering spinner introduced in Build 227. Other article clicks do not enable automatic playback; the guard re-arms on full navigation.
+- Block Element selections now hide only for the current webpage document, not persist to permanent custom filters. Refresh brings a manually hidden element back. Existing toolbar Undo hide restores a temporary choice first and can still undo older saved picker rules. Old rules are not silently deleted.
+- Updated isolated regression tests, build version and QA notes. No CBS ad-filter, YouTube/Disney+, Patreon, permissions or README changes; no GitHub Actions. Owner live Firefox verification is pending.
+
 ## Build 227 (0.3.197): working Block Element picker and CBS News autoplay controls
 
 - Element picker now confirms the saved cosmetic rule before hiding the selected target; a failed save shows a retry message rather than silently doing nothing. Exact-site selected CSS is independently applied after successful selection, remains effective despite an oversized filter-list CSS budget, and is removed after Undo/disable on the next refresh. Background rejects invalid, duplicated or over-limit selectors.
