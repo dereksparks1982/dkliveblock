@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 217 / 0.3.187 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 218 / 0.3.188 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -9,13 +9,13 @@ This document describes verified repository state and missing acceptance evidenc
 - Build 161 corrected three identified test fixtures. Build 162 adds bounded synthetic native/Ghostery/hybrid verdict comparison, and registers the previously omitted runner self-test. No production blocking rule changes.
 
 ## Outstanding evidence / known risks
-- **Offline suite**: complete current Build 200 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
+- **Offline suite**: complete current Build 218 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
 - **Engine correctness**: Build 163 now consults Ghostery exceptions before enforcing ordinary native subscription blocks. Other precedence, unsupported syntax, important rules and real-browser compatibility remain unverified.
 - **YouTube**: Build 167 records coarse first-load bootstrap observations. Build 168 adds a temporary YouTube test switchboard that separates response filtering, page-bridge filtering and observe-only diagnostics, without changing the default combined behavior. Existing first-party JSON transformations, page bridge and Skip Ad assistant have not passed real Firefox anti-adblock, preroll, midroll, ad-supported film and ordinary-video playback acceptance. No evidence of reliable ad-free playback is claimed.
 - **Security and distribution**: complete permissions/privacy and Linux native-companion audit, long-session performance measurements, Mozilla signing and owner-approved release remain open.
 
 ## Next milestones and gates
-1. Run **all seven offline phases** at exact Build 188 HEAD, resolve any remaining failures, record evidence.
+1. Run **all seven offline phases** at exact Build 218 HEAD, resolve any remaining failures, record evidence.
 2. Build 162 differential observatory implemented; full Ubuntu execution remains pending.
 3. Build 163: exception-rescue and manual precedence changes landed; additional differential/browser verification needed.
 4. Instrument and test YouTube with a clean, controlled Firefox matrix, then implement fixes supported by observed results.
@@ -215,3 +215,10 @@ Full Ubuntu and live Firefox tests still pending.
 - The interstitial identifies only the exact hostname, the Phishing Army feed and the cached source update date, with explicit caveats about possible false positives. The original URL's path, query and fragment are not copied to the warning, persisted to storage, or sent to the publisher.
 - The background generates a 128-bit browser-crypto nonce tied to one tab and a three-minute in-memory record. An extension web-accessible page alone is not authorization. A proceeding user must acknowledge risk, then save a previously supported exact-host override. Only a clean HTTPS homepage for that hostname is opened. Error paths fail closed; close-tab is available.
 - Added self-contained module/source and mocked Firefox-message regression tests; registered in the local seven-phase runner. Full local Node/Python suite and real Firefox page redirect tests have **not** been executed in this tool environment. Site/YouTube/video protections are otherwise unchanged. No GitHub Actions or public release.
+
+## Build 218: offline YouTube evidence comparison (unreleased)
+
+- The existing YouTube compatibility JSON report can now be analyzed in a separate `youtube-lab.html` page without uploading it or modifying any Firefox filter modes automatically. The Site Dashboard has an explicit link to the new lab. No existing UI geometry was moved.
+- Two selected reports are size-limited and strictly parsed against the real v1 YouTube report format; internal comparison retains only allowed numeric counters and settings/mode enum flags. Hostnames, tab IDs, videos and raw network data are discarded. A user may explicitly export a sanitized comparison and manually label which video type, ads and playback were actually observed.
+- Cross-mode comparisons call out meaningful mismatches, incomplete playback evidence, anti-adblock refusal, page-world event limitations and distinct response-filter counter changes. No claim that source-level changes are effective in Firefox or that ad-free playback occurred.
+- New dedicated parser/compare/UI source tests are registered in the Ubuntu local suite. Their source was syntax-checked in an isolated runtime; the complete Linux Node/Python suite and real YouTube/Disney+ Firefox tests remain **unexecuted** and mandatory. Build 203 rollback and all blocking logic remain unchanged.
