@@ -602,3 +602,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 158: report coarse opt-in YouTube ad-skip button clicks with strict first-party top-frame validation and distinguish them from successful ad blocking.
 - [ ] Full Ubuntu Node/Python testing, actual ad-free YouTube playback and Disney+ validation, resource baseline, security audit and accepted snapshot/tag remain open.
+
+- [x] Build 159: ensure native $document/$elemhide/$generichide website exceptions also govern bundled Ghostery cosmetic hiding without needlessly discarding site-specific selectors.
+- [ ] Verify Ghostery filter policy integration, temporary website exceptions and authorized media playback in real Firefox; full Ubuntu suite remains open.

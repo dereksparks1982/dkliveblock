@@ -31,15 +31,18 @@ function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
  }
  return out.join("\n");
 }
-function styles(vendor,host,{streaming=false,safeSelector=x=>x,protectSelector=()=>false}={}){
- if(streaming||!valid(host)||typeof vendor?.getCosmeticsFilters!=="function")return "";
+function styles(vendor,host,{streaming=false,policy={},safeSelector=x=>x,protectSelector=()=>false}={}){
+ // Native $document/$elemhide exceptions must also govern the supplementary
+ // Ghostery layer. Otherwise a user's allowed site can remain hidden.
+ if(streaming||policy?.document||policy?.elemhide||
+    !valid(host)||typeof vendor?.getCosmeticsFilters!=="function")return "";
  const domain=typeof DKPublicSuffix!=="undefined"?DKPublicSuffix.registrable(host):
   host.split(".").slice(-2).join(".");
  if(!valid(domain))return "";
  try{
   const value=vendor.getCosmeticsFilters({
    hostname:host,domain,url:"https://"+host+"/",
-   getBaseRules:true,getInjectionRules:true,getExtendedRules:false,
+   getBaseRules:policy?.generichide!==true,getInjectionRules:true,getExtendedRules:false,
    getRulesFromHostname:true,getRulesFromDOM:false
   });
   if(value?.active===false)return "";

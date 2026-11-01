@@ -27,3 +27,22 @@ test("real bundled engine handles network blocks and DK scoped exceptions",()=>{
  assert.equal(e.checkRequest("https://ads.example/a.js","popup","news.example").block,false);
  assert.equal(e.checkRequest("https://ads.example/a.js","script","news.example",{document:true}).block,false);
 });
+
+test("Build 159 Ghostery cosmetic bridge obeys native website exceptions",()=>{
+ const env=loadVendor();
+ const styles=require("../src/ghostery-cosmetics.js");
+ const rules="##.global-ad\nnews.example##.specific-ad"+
+  "\n@@||quiet.example^$elemhide"+
+  "\n@@||news.example^$generichide";
+ const hybrid=env.DKHybridEngine.create(rules),vendor=hybrid.vendor;
+ const quiet=hybrid.getPagePolicy("https://quiet.example/article");
+ assert.equal(quiet.elemhide,true);
+ assert.equal(styles.styles(vendor,"quiet.example",{policy:quiet}),"");
+ const page=hybrid.getPagePolicy("https://news.example/article");
+ assert.equal(page.generichide,true);
+ let baseSeen=false;
+ const wrapper={getCosmeticsFilters(opts){baseSeen=opts.getBaseRules===false;
+  return vendor.getCosmeticsFilters(opts);}};
+ styles.styles(wrapper,"news.example",{policy:page});
+ assert.equal(baseSeen,true);
+});

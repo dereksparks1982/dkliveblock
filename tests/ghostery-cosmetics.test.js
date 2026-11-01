@@ -44,3 +44,29 @@ test("real Ghostery output is one CSS stylesheet string with comma-separated sel
  assert.match(css,/\.simple/);
  assert.doesNotMatch(css,/video|#player|opacity|DO_NOT_EXECUTE/);
 });
+
+test("Build 159 native document and elemhide exceptions also stop Ghostery CSS",()=>{
+ let called=0;
+ const vendor={getCosmeticsFilters(){called++;return {
+  active:true,styles:".advertisement {display:none!important;}"};
+ }};
+ for(const policy of [{document:true},{elemhide:true},{document:true,elemhide:true}]){
+  assert.equal(G.styles(vendor,"shop.example",{policy}),"");
+ }
+ assert.equal(called,0,"exception must prevent vendor CSS request");
+ assert.match(G.styles(vendor,"shop.example",{policy:{}}),/advertisement/);
+ assert.equal(called,1);
+});
+test("Build 159 generichide disables Ghostery base rules but keeps site-specific hiding",()=>{
+ const seen=[],vendor={getCosmeticsFilters(opts){
+  seen.push(opts);return {active:true,styles:".site-ad {display:none!important;}"};
+ }};
+ const css=G.styles(vendor,"news.example",{policy:{generichide:true}});
+ assert.match(css,/site-ad/);
+ assert.equal(seen.length,1);
+ assert.equal(seen[0].getBaseRules,false,"must not inject global hiding CSS");
+ assert.equal(seen[0].getRulesFromHostname,true);
+ assert.equal(seen[0].getInjectionRules,true);
+ G.styles(vendor,"news.example",{policy:{}});
+ assert.equal(seen[1].getBaseRules,true);
+});

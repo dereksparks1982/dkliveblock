@@ -688,3 +688,6 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.128 / Build 158 (2026-10-31)
 - Added a coarse local playback-health event only when YouTube's visible Skip Ad control is clicked. This is explicitly NOT proof that the ad was blocked. Limited to verified active top-level YouTube tabs with existing opt-in local diagnostics, with bounded rate limits and no private URL or video data. Shows event in existing dashboard and voluntary YouTube report without moving UI geometry. Disney+ cannot claim a YouTube skip event. New scope, authorization and privacy tests; full Linux suite and browser acceptance pending.
+
+### 0.3.129 / Build 159 (2026-10-31)
+- Fixed supplementary Ghostery cosmetic CSS violating native $document/$elemhide site exclusions. Both source engines now honor the same website exception policy. Native $generichide passes getBaseRules:false to the bundled Ghostery CSS engine, preserving scoped hostname rules while disabling generic CSS. Added mock and embedded-vendor regression fixtures. No new permissions, scripts, downloads, UI rearrangements or Actions. Full Ubuntu/Firefox suite and real-browser acceptance still outstanding.

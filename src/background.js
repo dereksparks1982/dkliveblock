@@ -1102,7 +1102,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
    paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
-      streaming:DKVideoAssist.isStreamingHost(h),
+      streaming:DKVideoAssist.isStreamingHost(h),policy,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
       protectSelector:selector=>DKVideoAssist.protectSelector(selector)
     }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
