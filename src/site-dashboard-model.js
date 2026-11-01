@@ -61,12 +61,47 @@ function allowances(data){
    expires:Number.isFinite(row.expires)?row.expires:0}];
  });
 }
+// Never project arbitrary data from a browser message into an export.
+const ALLOW_REASONS=new Set([
+ "global-disabled","site-allowlisted","tab-paused","protection-not-ready",
+ "media-recovery","streaming-repair","authentication-preserved",
+ "youtube-player-preserved","manual-exception","filter-engine-permitted",
+ "decision-not-recorded"
+]);
+const ALLOW_METHOD=/^(GET|HEAD|POST|PUT|PATCH|DELETE|OPTIONS|CONNECT|TRACE|Unknown)$/;
+function safeCounts(value,max=20){
+ if(!value||typeof value!=="object"||Array.isArray(value))return {};
+ return Object.fromEntries(Object.entries(value).slice(0,max).filter(([k,v])=>
+  typeof k==="string"&&k.length<=50&&/^[a-zA-Z0-9-]+$/.test(k)&&
+  Number.isSafeInteger(v)&&v>=0&&v<=9999999));
+}
+function permittedEvents(data){
+ if(!data?.requestLog||!Array.isArray(data.allowedEvents))return [];
+ return data.allowedEvents.slice(0,400).flatMap(row=>{
+  const host=hostname(row?.host),type=String(row?.type||"");
+  if(!host||!RESOURCE_TYPES.has(type)||type==="popup"||type==="main_frame")return [];
+  return [{host,type,
+   when:Number.isSafeInteger(row.when)&&row.when>=0?row.when:0,
+   sequence:Number.isSafeInteger(row.sequence)&&row.sequence>=0?row.sequence:0,
+   method:ALLOW_METHOD.test(row.method)?row.method:"Unknown",
+   httpStatus:Number.isInteger(row.httpStatus)&&row.httpStatus>=100&&row.httpStatus<=599?
+    row.httpStatus:null,
+   reason:ALLOW_REASONS.has(row.reason)?row.reason:"decision-not-recorded"}];
+ });
+}
 function permittedRows(data){
  const seen=new Map();
  for(const row of (data?.requestLog&&Array.isArray(data.allowedGroups)?data.allowedGroups:[]).slice(0,150)){
   const host=hostname(row?.host),type=String(row?.type||"");
   if(!host||!RESOURCE_TYPES.has(type)||type==="popup")continue;
-  seen.set(host+"|"+type,{host,type,count:number(row.count),last:Number.isFinite(row.last)?row.last:0,observed:true,block:false});
+  seen.set(host+"|"+type,{host,type,count:number(row.count),
+   first:Number.isSafeInteger(row.first)&&row.first>=0?row.first:0,
+   last:Number.isSafeInteger(row.last)&&row.last>=0?row.last:0,
+   reasons:Object.fromEntries(Object.entries(safeCounts(row.reasons)).filter(([key])=>ALLOW_REASONS.has(key))),
+   methods:Object.fromEntries(Object.entries(safeCounts(row.methods)).filter(([key])=>ALLOW_METHOD.test(key))),
+   httpStatuses:Object.fromEntries(Object.entries(safeCounts(row.httpStatuses)).filter(([key])=>
+    key==="Unknown"||/^[1-5][0-9]{2}$/.test(key))),
+   observed:true,block:false});
  }
  for(const row of (Array.isArray(data.selectiveBlocks)?data.selectiveBlocks:[]).slice(0,300)){
   const host=hostname(row?.host),type=String(row?.type||"");
@@ -89,7 +124,7 @@ function blockedControl(data,row){
   .some(x=>x?.host===host&&x?.type===type);
  return {eligible:!manualBlock,allowed,manualBlock};
 }
-const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances,permittedRows,blockedControl});
+const API=Object.freeze({status,hostname,number,requestRows,popupRows,customHosts,allowances,permittedRows,permittedEvents,blockedControl});
 root.DKSiteDashboardModel=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
