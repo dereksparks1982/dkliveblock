@@ -118,7 +118,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={threatDB:{hosts:new Set(),count:0,updated:0},threatUpdateJob:null,threatError:"",settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={threatDB:{hosts:new Set(),count:0,updated:0},threatWarnings:new Map(),threatWarningPending:new Set(),threatUpdateJob:null,threatError:"",settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -511,6 +511,14 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
   rememberOwnBlock(d.requestId);
   recordBlock(d.tabId,d.url,d.type,{p:"[Phishing Army phishing threat feed]"});
+  // Only an HTTP(S) GET top-level navigation may show the local warning page.
+  // The page carries a random nonce, never the original path/query/fragment.
+  if(d.type==="main_frame"&&Number.isSafeInteger(d.tabId)&&d.tabId>=0&&
+     (!d.method||String(d.method).toUpperCase()==="GET")){
+   const nonce=DKThreatWarning.issue(data.threatWarnings,d.tabId,threat.host,threat.updated);
+   const warning=DKThreatWarning.url(browser.runtime,nonce);
+   if(warning)return {redirectUrl:warning};
+  }
   return {cancel:true};
  }
  if(d.type==="main_frame"){
@@ -682,7 +690,7 @@ browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
- DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
+ DKThreatWarning.clear(data.threatWarnings,id);data.threatWarningPending.delete(id);DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate){
  updateLists().catch(console.warn);
  if(data.settings.threatProtection)updateThreatDatabase().catch(console.warn);
@@ -1028,6 +1036,62 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    customAllowances:DKManualRules.listSiteExceptions(data.settings.customRules,site).slice(0,150),
    requestAllowances:allowance
   };
+ }
+
+ // A web-accessible warning page is NOT, by itself, an authorization token:
+ // only its original browser tab plus an unguessable in-memory nonce may act.
+ if(["getThreatWarning","proceedThreatWarning","closeThreatWarning"].includes(msg.action)){
+  const tabId=sender?.tab?.id;
+  const expected=DKThreatWarning.url(browser.runtime,msg.nonce);
+  if(!ownExtensionPage||!Number.isSafeInteger(tabId)||tabId<0||
+     sender.url!==expected||(sender.frameId!==undefined&&sender.frameId!==0)||
+     (sender.id&&sender.id!==browser.runtime.id))
+   return {error:"This warning is not authorized for this tab."};
+  const warning=DKThreatWarning.read(data.threatWarnings,tabId,msg.nonce);
+  if(!warning)return {error:"This warning has expired. Close the tab."};
+  let live;
+  try{live=await browser.tabs.get(tabId);}catch(_){
+   DKThreatWarning.clear(data.threatWarnings,tabId);
+   return {error:"Warning tab no longer exists."};
+  }
+  if(live?.url!==expected){
+   DKThreatWarning.clear(data.threatWarnings,tabId);
+   return {error:"This warning no longer belongs to the active tab."};
+  }
+  if(msg.action==="getThreatWarning")
+   return {ok:true,host:warning.host,updated:warning.updated,source:DKThreatDB.SOURCE.name,
+    category:DKThreatDB.SOURCE.category,expires:warning.expires};
+  if(msg.confirm!==true)return {error:"A deliberate confirmation is required."};
+  if(data.threatWarningPending.has(tabId))
+   return {error:"This warning action is already in progress."};
+  data.threatWarningPending.add(tabId);
+  try{
+   if(msg.action==="closeThreatWarning"){
+    await browser.tabs.remove(tabId);
+    DKThreatWarning.clear(data.threatWarnings,tabId);
+    return {ok:true};
+   }
+   // Persist only a literal exact-host override. Never load the original URL
+   // with its potentially secret or forged parameters.
+   const prior=data.settings.threatOverrides.slice();
+   const next=DKThreatDB.overrides([...prior,warning.host]);
+   if(!next)return {error:"The exact-host exception list is full."};
+   data.settings.threatOverrides=next;
+   try{await persistSettings();}
+   catch(_){
+    data.settings.threatOverrides=prior;
+    return {error:"Could not save the hostname exception. Navigation remains blocked."};
+   }
+   try{await browser.tabs.update(tabId,{url:"https://"+warning.host+"/"});}
+   catch(_){
+    data.settings.threatOverrides=prior;
+    try{await persistSettings();}catch(_){}
+    return {error:"Could not open the site. The previous exception was restored where possible."};
+   }
+   DKThreatWarning.clear(data.threatWarnings,tabId);
+   return {ok:true,host:warning.host};
+  }catch(_){return {error:"Could not finish the warning action. The site remains blocked."};}
+  finally{data.threatWarningPending.delete(tabId);}
  }
  if(msg.action==="getSettings")return {settings:data.settings,listState:status(-1,"").listState,youtubeRules:status(-1,"").youtubeRules,threatDatabase:threatStatus()};
  if(msg.action==="getThreatStatus"){
