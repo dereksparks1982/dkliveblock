@@ -12,6 +12,7 @@
 - **Shows what happened:** provides a Site Dashboard, Network Monitor, request counts, and local TXT/JSON diagnostics. Reports distinguish historical events from current manual allowances or blocks.
 - **Warns before phishing-listed websites:** a local warning page shows the exact hostname and source, with an explicit, reversible exact-host proceed choice. Real Firefox acceptance is still pending.
 - **Handles unwanted tabs and popups:** includes popup safeguards and tracking-parameter cleanup, with protections intended to preserve legitimate sign-ins, payments, and ordinary links. Coverage is not universal.
+- **Compares YouTube diagnostics locally:** an optional A/B lab can contrast saved player-state and filtering counters without uploading browsing data or claiming unverified ad removal.
 - **Experiments with streaming-ad filtering:** includes bounded YouTube player-response and page-level protections, observation modes, and playback diagnostics. Results vary, and not every video or streaming provider is supported.
 - **Offers optional tools:** includes opt-in cookie rejection, video watch-later features, and Linux companion integrations under development.
 
