@@ -13,7 +13,7 @@ The owner has observed successful ad blocking in regular YouTube videos, YouTube
 | Gate | Status | What clears it |
 | --- | --- | --- |
 | One-branch governance and backed-up working YouTube source | PASS | `main` only; historical Build 203 commit preserved in the verified `youtube-working-build-203-2026-11-01` Git tag. |
-| Original-code licensing (free corporate use, no resale/monetization) | DOCUMENTED, legal review OPEN | Custom owner license in root `LICENSE`; packaged license now planned; preserve MIT-era rights and all MPL-2.0 / list licenses. |
+| Original-code licensing (free corporate use, no resale/monetization) | DOCUMENTED, legal review OPEN | Custom owner license in root `LICENSE`; packaged license now planned; preserve required third-party license notices and attributions. |
 | Source reproduction for compiled Ghostery library | **BLOCKED** | Generate and commit a real `package-lock.json` from official registry, validate package tree, independently rebuild `src/ghostery-vendor.js` and byte-compare with checked-in bundle, document exact source/link. No fabricated hashes. |
 | Complete current Linux regression suite | **NOT RUN** | Exact source checkout: `bash scripts/test-local.sh`, all seven phases with zero failures. Historical successes at old commits do not clear this. |
 | Full Firefox UI and streaming acceptance | PARTIAL | Clean Firefox profile, no competing blockers, ordinary YouTube and movie, Disney+ movie and television, 1337x and Pirate Bay, normal login/payment, whitelist/allowlisting, popup permissions, seek/subtitles/fullscreen, long session, RSS/CPU memory. Record exact candidate SHA and observed outcomes. |
