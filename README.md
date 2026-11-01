@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.148, Build 178.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.149, Build 179.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -35,6 +35,8 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 **Build 177 competitor-informed filtering:** Reviewed uBlock Origin's actual GPLv3 scriptlet and JSON-pruning architecture. DK's own YouTube main-world bridge now includes a **fixed-purpose, reversible, first-party `JSON.parse` player-metadata interceptor**, covering player data that bypasses fetch/XHR response wrappers. This does not execute untrusted filter-list scripts, copy GPL code or alter media bytes; existing site allowlisting and temporary observation mode still disable it. Real Firefox YouTube ad removal is not yet verified. See `docs/BUILD_177.md`.
 
 **Build 178 filter-engine compatibility:** Bundled Ghostery verdicts can now activate **only** two independently packaged, inert local redirect resources (`noop.js` for scripts and `empty.css` for stylesheets), even for domain-scoped list rules that DK's native parser does not understand. The adapter never follows Ghostery's data URLs or any remote script. Tested against the real embedded Ghostery parser with a native-unsupported entity-domain rule. This improves rule support, but **ordinary YouTube ad-free playback remains unverified**. See `docs/BUILD_178.md`.
+
+**Build 179 syntax coverage:** DK now understands the domain-scoped, hide-only subset of `:style(display:none!important)`, including per-site cosmetic exceptions. It translates only safe hiding cases to ordinary CSS while rejecting arbitrary styling, whole-document/video selectors, and executable rule content. The offline audit reports this subset separately from unsupported `:style()` syntax. **Real YouTube preroll/midroll blocking remains unverified and known incomplete.** See `docs/BUILD_179.md`.
 
 ## Development status
 

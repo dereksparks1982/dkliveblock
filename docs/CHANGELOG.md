@@ -803,3 +803,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Extended the existing DKRedirectResources adapter rather than creating a new redirect/network engine. Existing user/site exceptions, authentication and popup protections continue to apply.
 - Demonstrated a real bundled Ghostery entity-domain rule that DK's native parser drops now routes through the safe local adapter; added allow/block, exception, unsafe-resource and type regression cases.
 - No YouTube-specific rewrite change. Full Ubuntu runner, actual browser behavior and competitive parity remain unverified.
+
+### 0.3.149 / Build 179 (2026-10-31)
+- Added independently implemented **domain-scoped, hide-only** cosmetic `:style(display:none!important)` support with exact CSS bounds and ordinary site/global exception behavior. Arbitrary styles and dangerous document/video/player selectors remain unsupported.
+- `filter-coverage-audit.js` now reports the verified subset separately as `native_style_hide`; other `:style()` forms continue as unsupported extended cosmetics.
+- Added rule parser, site-selector exception, unsafe selector and audit-category regression tests. Isolated JavaScript module checks passed.
+- The shipped YouTube data-only filter contained 19 already-supported ordinary cosmetic rules. No real EasyList/EasyPrivacy coverage percentage or video-ad improvement is claimed; full Linux and Firefox acceptance remain outstanding.

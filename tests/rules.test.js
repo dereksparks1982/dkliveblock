@@ -565,3 +565,44 @@ test("Build 175 host-only filter sets skip token matching without skipping gener
  assert.equal(tokens.checkRequest("https://safe.example/sponsor_banner/a.png","image","news.example").block,true);
  assert.equal(tokens.checkRequest("https://safe.example/news/a.png","image","news.example").block,false);
 });
+
+test("Build 179 accepts only domain-scoped hide-only :style and preserves exceptions",()=>{
+ const raw="news.example##.sponsored:style(display: none !important)";
+ const c=R.cosmetic(raw);
+ assert.ok(c);
+ assert.equal(c.selector,".sponsored");
+ assert.equal(c.scope,"news.example");
+ const f=new FilterEngine([
+  raw,
+  "news.example##.second:style(display:none!important;)",
+  "news.example##.cancelled:style(display:none!important)",
+  "news.example#@#.cancelled",
+  "news.example##.exceptions:style(display:none!important)",
+  "news.example#@#.exceptions:style(display:none!important)",
+  "other.example##.other:style(display:none!important)"
+ ].join("\n"));
+ assert.deepEqual(f.getSelectors("news.example"),[".sponsored",".second"]);
+ assert.deepEqual(f.getSelectors("other.example"),[".other"]);
+ assert.deepEqual(f.getSelectors("safe.example"),[]);
+ assert.deepEqual(f.getSelectors("news.example",{elemhide:true}),[]);
+ assert.deepEqual(f.getSelectors("news.example",{generichide:true}),[".sponsored",".second"]);
+});
+test("Build 179 rejects unsafe or non-hide :style filters without converting them to CSS",()=>{
+ for(const value of [
+  "##.generic:style(display:none!important)",
+  "news.example##.ad:style(color:red)",
+  "news.example##.ad:style(background:url(https://evil.invalid/x))",
+  "news.example##.ad:style(display:none!important;color:red)",
+  "news.example##.ad:style(display:block!important)",
+  "news.example##.ad:style(display:none)",
+  "news.example##.ad:style(display:none!important)!something",
+  "~excluded.example##.ad:style(display:none!important)",
+  "evil..example##.ad:style(display:none!important)",
+  "news.example##.ad,:has(*):style(display:none!important)",
+  "news.example##.ad{bad}:style(display:none!important)",
+  "news.example##body:style(display:none!important)",
+  "news.example##video:style(display:none!important)",
+  "news.example###movie_player:style(display:none!important)",
+  "news.example##*:style(display:none!important)"
+ ])assert.equal(R.cosmetic(value),null,value);
+});

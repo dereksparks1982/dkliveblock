@@ -106,7 +106,22 @@ function network(raw){
 
 function cosmetic(line){
  const m=/^([^#]*)(#@#|##)(.+)$/.exec(line.trim());if(!m)return null;
- const scope=m[1].toLowerCase(),selector=m[3].trim();
+ const scope=m[1].toLowerCase();
+ let selector=m[3].trim();
+ // A narrow, safe subset of uBO :style(): hiding with CSS only.
+ // Translate into an ordinary cosmetic hide and reuse existing site policies,
+ // exceptions, authentication protection and video-player safeguards.
+ // Never interpret arbitrary style declarations from downloaded lists.
+ if(/:style\(/i.test(selector)){
+  const parts=/^(.+):style\(\s*display\s*:\s*none\s*!important\s*;?\s*\)$/i.exec(selector);
+  if(!parts||!scope||!validDomains(scope.replace(/,/g,"|"))||
+     !scope.split(",").some(x=>x&&!x.startsWith("~")))return null;
+  selector=parts[1].trim();
+  if(!selector||selector.length>320||
+     !/^[a-zA-Z0-9_.#>+~:\[\]="' *-]+$/.test(selector)||
+     /^(?:\*|html|body|head|main|video|audio|iframe|object|embed|form|input|button|textarea|select)(?:$|[.#:[ >+~])/i.test(selector)||
+     /^(?:#movie_player|\.html5-video-player)(?:$|[.#:[ >+~])/i.test(selector))return null;
+ }
  if(!selector||selector.length>600||/[{};\r\n]/.test(selector)||!/^[\w.~, -]*$/.test(scope)||/\+js\(|:-abp-|:has-text\(|:style\(|:remove\(|:matches-css\(|:matches-attr\(|:upward\(|:xpath\(|:contains\(|:watch-attr\(/i.test(selector))return null;
  return {scope,selector,exception:m[2]==="#@#"};
 }

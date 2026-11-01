@@ -681,3 +681,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 178: use the bundled Ghostery parsed redirect decision for only two vetted extension-owned inert resources; test native-unsupported entity-domain matching, wrong types, exceptions, and unsafe source rejection without copying uBlock GPL code.
 - [ ] Run complete seven-phase Linux test gate on exact Build 178 HEAD and compare Firefox video/site behavior with uBlock disabled. Existing YouTube preroll/midroll issue remains unresolved.
 - [ ] Build 179: categorize default-filter-list rules skipped by DK's native parser, compare them to actual Ghostery capability, and prioritize tested safe adapters over additional speculative YouTube rewrites.
+
+- [x] Build 179: add safe, domain-scoped hide-only `:style()` support, preserve `#@#` exceptions, `$elemhide` and streaming/identity protections; audit now counts `native_style_hide` separately. No arbitrary CSS or user code execution.
+- [ ] Build 179 acceptance: exact-commit full local Node/Python runner and real Firefox cosmetic/ad-video compatibility tests; download-free bundled YouTube filter contains no newly supported style rule, so no YouTube improvement has been demonstrated.
+- [ ] Build 180: measure actual hybrid subscription network compatibility (unsupported operator categories, exception and redirect-rule behavior) using real bundled Ghostery and safe synthetic fixtures; implement only a confirmed, scoped gap while protecting playback.

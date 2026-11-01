@@ -9,7 +9,8 @@ function category(raw){
  if(!line||line[0]==="!"||line[0]==="[")return "ignored";
  try{
   if(Rules.procedural(line))return "native_procedural";
-  if(Rules.cosmetic(line))return "native_cosmetic";
+  if(Rules.cosmetic(line))
+   return /:style\(/i.test(line)?"native_style_hide":"native_cosmetic";
   if(Rules.network(line))return "native_network";
  }catch(_){return "invalid";}
  if(/##\+js\(|#@#\+js\(|#%#/.test(line))return "unsupported_scriptlet";
@@ -47,7 +48,7 @@ function analyze(text){
   if(group==="ignored")ignored++;else counted++;
  }
  const supported=(categories.native_network||0)+(categories.native_cosmetic||0)+
-  (categories.native_procedural||0);
+  (categories.native_style_hide||0)+(categories.native_procedural||0);
  return {lines:lines.length,considered:counted,ignored,supported,
   unsupported:counted-supported,categories};
 }
