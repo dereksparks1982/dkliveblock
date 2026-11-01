@@ -46,7 +46,7 @@ function youtubePlaybackEvidence(snapshot){
    refused:r.refused,oversized:r.oversized,timedOut:r.timedOut,
    errors:r.errors,skippedBusy:r.skippedBusy,skippedHeaders:r.skippedHeaders,
    attachAttempts:r.attachAttempts,attached:r.attached,
-   errorStages:r.errorStages,byKind:r.byKind,bootstrap:r.bootstrap
+   errorStages:r.errorStages,pagePrunes:r.pagePrunes,byKind:r.byKind,bootstrap:r.bootstrap
   },
   note:"Coarse local observations only; no playback events is not proof of ad-free playback. "+
    "Bootstrap observations originate from untrusted page events."
@@ -134,6 +134,9 @@ function asText(report){
    for(const stage of ["attach","data","stop","stream"])
     lines.push("Response error stage "+stage+": "+
      y.responseFiltering.errorStages[stage]);
+   for(const kind of ["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"])
+    lines.push("Untrusted page bridge "+kind+" prune samples: "+
+     y.responseFiltering.pagePrunes[kind]);
    for(const event of y.responseFiltering.bootstrap){
     lines.push("Bootstrap "+event.phase+": "+event.state+
      " / ad fields "+event.adFields+" / refusal "+event.refused+

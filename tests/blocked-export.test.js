@@ -200,3 +200,14 @@ test("Build 207 combined blocked export includes coarse private YouTube stages",
  assert.match(txt,/Response filters attached: 4/);
  assert.doesNotMatch(txt+JSON.stringify(r),/PRIVATE_VIDEO/);
 });
+
+test("Build 211 standard network report includes only sanitized page-bridge counts",()=>{
+ const f=fixture();
+ f.youtubeResponse={pagePrunes:{"json-parse":2,bootstrap:1,
+  FOREIGN_SECRET:"PRIVATE_VIDEO"}};
+ const report=E.build(f);
+ assert.equal(report.youtubePlaybackEvidence.responseFiltering.pagePrunes["json-parse"],2);
+ const text=E.asText(report);
+ assert.match(text,/Untrusted page bridge json-parse prune samples: 2/);
+ assert.doesNotMatch(JSON.stringify(report)+text,/PRIVATE_VIDEO|FOREIGN_SECRET/);
+});

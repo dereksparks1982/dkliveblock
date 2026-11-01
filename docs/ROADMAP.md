@@ -785,3 +785,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 210: shared prefix tree for multiple site-scoped, user-authored scriptlets with the same late-created intermediate. Keep previous descriptor and site assignment semantics and add 6 regression cases. No YouTube player changes.
 - [ ] Test MAIN-world scriptlet prefix changes on dynamic real Firefox test pages, including multiple frames and rapid enable/disable refresh, and verify page-owned setter/accessor protection.
+
+- [x] Build 211: add 16-event bounded, private page-world YouTube prune observations for six existing interception paths, with top-frame validation and separate local export counters. No changes to blocking decisions.
+- [ ] Compare Build 211 reports against the saved Build 203 on regular videos, ads-supported films, Shorts and the right-side sponsored rail; note both page-bridge and background rewrite totals, avoiding causal overclaims.
+- [ ] Run complete Ubuntu suite and investigate historical nine Node failures from independent review; still no parity claim.

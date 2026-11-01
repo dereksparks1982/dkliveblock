@@ -651,3 +651,18 @@ test("Build 207 successful response attached count is informational only",()=>{
  assert.equal(Object.values(s.errorStages).reduce((a,b)=>a+b,0),0);
  R.clear(tab);
 });
+
+test("Build 211 untrusted page prune samples have bounded fixed kinds and detached stats",()=>{
+ const tab=21123;R.clear(tab);
+ for(let i=0;i<25;i++)
+  assert.equal(R.notePagePrune(tab,"json-parse"),i<16);
+ for(const bad of ["unknown","PRIVATE_VIDEO",null,{},0])
+  assert.equal(R.notePagePrune(tab,bad),false);
+ const stat=R.stats(tab);
+ assert.equal(stat.pagePrunes["json-parse"],16);
+ assert.equal(Object.values(stat.pagePrunes).reduce((a,b)=>a+b,0),16);
+ stat.pagePrunes["json-parse"]=0;
+ assert.equal(R.stats(tab).pagePrunes["json-parse"],16);
+ R.clear(tab);
+ assert.equal(R.stats(tab).pagePrunes["json-parse"],0);
+});

@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 210 / 0.3.180 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 211 / 0.3.181 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -169,3 +169,10 @@ Full Ubuntu and live Firefox tests still pending.
 - Identical settings refresh no longer tears down/reinstalls a constant property, preserving page assignments and avoiding brief resets. Getter-backed/inherited property paths remain off limits, and nonwritable intermediates are only traversed without property replacement.
 - Fixed literal selection, 24-rule/three-segment depth bounds, no arbitrary eval or remote scripts and no added WebExtension privileges. MAIN-world event delivery is still a page-forgeable control channel, **not an authenticated extension command**.
 - Targeted source checks: 16/16 runtime tests passed in an isolated V8 harness; complete Node/Firefox acceptance pending. Build 203 preserved.
+
+## Build 211: source-attributed YouTube page prune samples (unreleased)
+
+- Existing YouTube page bridge now reports bounded, fixed-kind page-prune observations: `bootstrap`, `json-parse`, `fetch-json`, `fetch-text`, `xhr-json`, `xhr-text`. No video URL, ID, media bytes, request body or arbitrary page text crosses this reporting path.
+- The isolated content controller accepts at most 16 page events; background checks host, top frame, request-log consent and active protection before saving capped tab counts. Outputs appear in YouTube and combined blocked-request exports with explicit untrusted-source caveats.
+- Data can be forged by the webpage and may miss prunes after the cap. It does not establish ad-free playback or become evidence for adaptive changes. Background response-filter stats remain separate.
+- Two direct page-bridge tests and two note/report tests passed in limited V8 smoke checks; full offline tests and live Firefox remain pending. The original Build 203 backup and tag are untouched.

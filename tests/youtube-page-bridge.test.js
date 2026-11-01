@@ -681,3 +681,29 @@ test("Build 180 read-only experiment leaves future bootstrap assignments untouch
  p.send("disable");
  assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
 });
+
+test("Build 211 reports actual page-level prune actions without source contents",async()=>{
+ const p=context();p.send("enable");
+ p.parseJSON('{"videoDetails":{},"adSlots":[{}],"secret":"PRIVATE_VIDEO"}');
+ const response=await p.window.fetch("https://www.youtube.com/youtubei/v1/player",{method:"POST"});
+ await response.json();
+ const signal=p.emitted.filter(e=>e.type==="dk-live-block:youtube-page-pruned");
+ assert.ok(signal.some(e=>e.detail.kind==="json-parse"));
+ assert.ok(signal.some(e=>e.detail.kind==="fetch-json"));
+ for(const event of signal){
+  assert.deepEqual(Object.keys(event.detail),["kind"]);
+  assert.doesNotMatch(JSON.stringify(event.detail),/PRIVATE_VIDEO|watch\?/);
+ }
+ p.send("disable");
+ const before=p.emitted.filter(e=>e.type==="dk-live-block:youtube-page-pruned").length;
+ p.parseJSON('{"videoDetails":{},"adSlots":[{}]}');
+ assert.equal(p.emitted.filter(e=>e.type==="dk-live-block:youtube-page-pruned").length,before);
+});
+test("Build 211 page prune events are bounded even after repeated eligible parses",()=>{
+ const p=context();p.send("enable");
+ for(let i=0;i<50;i++)
+  p.parseJSON('{"videoDetails":{},"adSlots":[{}]}');
+ const events=p.emitted.filter(e=>e.type==="dk-live-block:youtube-page-pruned");
+ assert.equal(events.length,16);
+ assert.ok(events.every(x=>x.detail.kind==="json-parse"));
+});

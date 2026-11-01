@@ -402,7 +402,7 @@
   }
  });
  if(isYouTube&&window===window.top&&document.addEventListener){
-  let diagnosticsSent=0;
+  let diagnosticsSent=0,pagePrunesSent=0;
   document.addEventListener("dk-live-block:youtube-bootstrap-observed",event=>{
    // Untrusted page-world signal: never use it for security or block decisions.
    if(!active||!youtubeDiagnosticsEnabled||diagnosticsSent>=8)return;
@@ -417,6 +417,16 @@
      refused:x.refused,initialData:x.initialData,
      ...(typeof x.playerMetadataCleaned==="boolean"?
       {playerMetadataCleaned:x.playerMetadataCleaned}:{})}}).catch(()=>{});
+  },false);
+  document.addEventListener("dk-live-block:youtube-page-pruned",event=>{
+   // This MAIN-world event is forgeable by the website. It never drives
+   // network blocking or adaptive policy and is purely informational.
+   if(!active||!youtubeDiagnosticsEnabled||pagePrunesSent>=16)return;
+   const kind=event?.detail?.kind;
+   if(!["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"].includes(kind))
+    return;
+   pagePrunesSent++;
+   browser.runtime.sendMessage({action:"reportYouTubePagePrune",kind}).catch(()=>{});
   },false);
   let bridgeReadySeen=false;
   document.addEventListener("dk-live-block:youtube-response-ready",()=>{

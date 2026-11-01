@@ -630,7 +630,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(typeof sender.url==="string"&&sender.url&&!ownExtensionPage&&!sender.tab)
   return {error:"This action is only available in the extension interface."};
  const fromContent=!!sender.tab&&!ownExtensionPage;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap"&&msg.action!=="reportYouTubePagePrune")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
@@ -981,6 +981,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(msg.action==="clearNetworkIssues"){
   if(sender?.tab)return {error:"Extension settings only."};
   data.networkIssues.delete(id);return {ok:true};
+ }
+ if(msg.action==="reportYouTubePagePrune"){
+  // Page-world event origin is untrusted. Validate local permissions and
+  // top-frame YouTube identity before retaining a coarse count.
+  if(!fromContent||!data.ready||!data.settings.enabled||
+     !data.settings.requestLog||!data.settings.youtubeResponseFilter||
+     sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
+  const pageHost=host(sender.url||"");
+  if(!DKYouTubeResponse.validPage(pageHost)||
+     pageHost!==host(sender.tab?.url||"")||
+     data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
+  try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
+  catch(_){return {ok:false};}
+  return {ok:DKYouTubeResponse.notePagePrune(id,msg.kind)};
  }
  if(msg.action==="reportYouTubeBootstrap"){
   // Website-origin signals are untrusted. Validate top frame, tab identity,

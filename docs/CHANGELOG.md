@@ -1,3 +1,10 @@
+## Build 211 (0.3.181): bounded YouTube page-bridge prune evidence
+
+- Instrumented only successful, existing page-level YouTube ad-metadata prunes: bootstrap, page JSON.parse, fetch JSON/text, and XHR JSON/text. No new removal rules or behavioral rewrites.
+- The MAIN-world bridge emits at most 16 fixed-label observations per page. The isolated content controller forwards them only while diagnostic export is enabled; background validates top-frame YouTube identity, permission settings and captures at most 16 samples per tab.
+- Both voluntary TXT/JSON reporting paths include the whitelisted six numerical counts, separate from background response-filter modifications. These are explicitly **untrusted page-world events**, not independently verified ads blocked.
+- Added five targeted regression tests covering emission/no-leak, rate caps, detached counts and export sanitation. Focused tests passed; complete Ubuntu suite and live Firefox playback still pending. No GitHub Actions or public release.
+
 ## Build 210 (0.3.180): shared late-property manual scriptlet observers
 
 - Rebuilt the locally packaged, fixed-purpose `set-constant` MAIN-world runtime around a bounded prefix tree. Multiple **user-authored** paths sharing the same missing `app` or `app.flags` intermediate no longer silently starve each other.

@@ -13,6 +13,8 @@ const makeKind=()=>({requests:0,seen:0,changed:0,refused:0});
 const kinds=()=>({player:makeKind(),prefetch:makeKind(),feed:makeKind(),
  next:makeKind(),playlist:makeKind(),shorts:makeKind()});
 const errorStages=()=>({attach:0,data:0,stop:0,stream:0});
+const pruneKinds=["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"];
+const pruneSamples=()=>Object.fromEntries(pruneKinds.map(kind=>[kind,0]));
 function category(url){
  if(resolveTarget(url))return "prefetch";
  const feed=Feed?.kind(url);
@@ -27,7 +29,7 @@ function category(url){
  }
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,attachAttempts:0,attached:0,errorStages:errorStages(),skippedBusy:0,skippedHeaders:0,byKind:kinds(),bootstrap:[]});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,attachAttempts:0,attached:0,errorStages:errorStages(),pagePrunes:pruneSamples(),skippedBusy:0,skippedHeaders:0,byKind:kinds(),bootstrap:[]});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -225,9 +227,21 @@ function noteBootstrap(tab,detail){
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
  return true;
 }
+function notePagePrune(tab,kind){
+ // A site page can fake its DOM events; these counts are observations
+ // only and never influence network, adaptive, or playback decisions.
+ if(!Number.isInteger(tab)||tab<0||!pruneKinds.includes(kind))return false;
+ const v=records.get(tab)||EMPTY();
+ if(pruneKinds.reduce((n,k)=>n+v.pagePrunes[k],0)>=16)return false;
+ v.pagePrunes[kind]++;
+ if(records.has(tab))records.delete(tab);
+ records.set(tab,v);
+ if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+ return true;
+}
 function stats(tab){
  const v=records.get(tab)||EMPTY();
- return {...v,errorStages:{...v.errorStages},byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
+ return {...v,errorStages:{...v.errorStages},pagePrunes:{...v.pagePrunes},byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
   feed:{...v.byKind.feed},next:{...v.byKind.next},playlist:{...v.byKind.playlist},
   shorts:{...v.byKind.shorts}},bootstrap:v.bootstrap.map(x=>({...x}))};
 }
@@ -357,7 +371,7 @@ function attach(details,webRequest,clock=root){
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,MAX_FILTERS,MAX_PER_TAB,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,noteBootstrap,stats,clear});
+const API=Object.freeze({MAX_BYTES,MAX_DELAY_MS,MAX_FILTERS,MAX_PER_TAB,AD_FIELDS,validPage,target,requestEligible,eligible,safeHeaders,rewrite,attach,observeRequest,noteBootstrap,notePagePrune,stats,clear});
 root.DKYouTubeResponse=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

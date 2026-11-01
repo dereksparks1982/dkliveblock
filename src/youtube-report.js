@@ -13,6 +13,9 @@ function build(s,now=Date.now()){
  const responses={enabled:s.youtubeResponse?.enabled===true,
   supported:s.youtubeResponse?.supported===true};
  for(const k of COUNTERS)responses[k]=number(s.youtubeResponse?.[k]);
+ responses.pagePrunes={};
+ for(const kind of ["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"])
+  responses.pagePrunes[kind]=number(s.youtubeResponse?.pagePrunes?.[kind]);
  responses.errorStages={};
  for(const stage of ["attach","data","stop","stream"])
   responses.errorStages[stage]=number(s.youtubeResponse?.errorStages?.[stage]);
@@ -73,6 +76,9 @@ function asText(report){
  for(const stage of ["attach","data","stop","stream"])
   lines.push("YouTube response error stage "+stage+": "+
    report.responseFiltering.errorStages[stage]);
+ lines.push("Page bridge prune observations (untrusted page-world events, max 16):");
+ for(const kind of ["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"])
+  lines.push("Page bridge "+kind+" prune samples: "+report.responseFiltering.pagePrunes[kind]);
  for(const kind of ["player","prefetch","feed","next","playlist","shorts"]){
   const row=report.responseFiltering.byKind[kind];
   lines.push(kind+" JSON: "+row.requests+" requested, "+row.seen+

@@ -108,3 +108,7 @@ The 15,003-global-filter synthetic test checks site-scoped priority when final C
 ## Build 210 (0.3.180): shared user-authored scriptlet property chains
 
 Six new synthetic cases plus all 10 prior runtime checks passed under an isolated JS environment. Validate restoration of multiple siblings on same late-created parent, reattachment after reassignment, idempotent config events, inherited/accessor and read-only paths. The MAIN-world DOM event remains forgeable by the page; don't expand its capabilities without a new trust design. Complete Ubuntu suite and live Firefox checks still pending.
+
+## Build 211 (0.3.181): YouTube bridge observation only
+
+Page-level pruning sample events are optional and strictly capped (16 per page/tab), with fixed string kinds only. Background verifies active YouTube top frame and local request-log setting. These remain page-forgeable, can undercount when caps are reached, and do not prove video advertisements were blocked. Compare reports to manually observed results, run complete Ubuntu offline test suite, and preserve the Build 203 rollback before any browser acceptance.

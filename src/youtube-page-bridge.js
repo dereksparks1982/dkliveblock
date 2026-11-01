@@ -15,6 +15,17 @@ let oldJSONParse=null,wrappedJSONParse=null,bootstrapHook=null;
 const originalJSONParse=JSON.parse;
 function parseInternal(text){return originalJSONParse(text);}
 const pending=new WeakMap(),cache=new WeakMap(),decorated=new WeakSet();
+// Site-controlled events are untrusted and never influence blocking decisions.
+const PRUNE_KINDS=new Set(["bootstrap","json-parse","fetch-json","fetch-text","xhr-json","xhr-text"]);
+let reportedPrunes=0;
+function reportPrune(kind){
+ if(!enabled||reportedPrunes>=16||!PRUNE_KINDS.has(kind)||
+    typeof CustomEvent!=="function"||typeof document.dispatchEvent!=="function")return;
+ try{
+  document.dispatchEvent(new CustomEvent("dk-live-block:youtube-page-pruned",{detail:{kind}}));
+  reportedPrunes++;
+ }catch(_){}
+}
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function ownData(x,key){
  if(!plain(x))return undefined;
@@ -146,12 +157,21 @@ function decorate(response,requestURL=""){
   const json=response.json,text=response.text,clone=response.clone;
   if(typeof json==="function")Object.defineProperty(response,"json",{
    configurable:true,value:function(...args){
-    return Promise.resolve(json.apply(this,args)).then(data=>{if(enabled)try{prune(data,requestURL);}catch(_){}return data;});
+    return Promise.resolve(json.apply(this,args)).then(data=>{
+      if(enabled)try{if(prune(data,requestURL))reportPrune("fetch-json");}catch(_){}
+      return data;
+     });
    }
   });
   if(typeof text==="function")Object.defineProperty(response,"text",{
    configurable:true,value:function(...args){
-    return Promise.resolve(text.apply(this,args)).then(body=>{try{return enabled?rewrite(body,requestURL):body;}catch(_){return body;}});
+    return Promise.resolve(text.apply(this,args)).then(body=>{
+      try{
+       const result=enabled?rewrite(body,requestURL):body;
+       if(result!==body)reportPrune("fetch-text");
+       return result;
+      }catch(_){return body;}
+     });
    }
   });
   if(typeof clone==="function")Object.defineProperty(response,"clone",{
@@ -184,7 +204,7 @@ function installBootstrapAssignmentHook(){
   hook.assigned=true;
   if(!enabled||!plain(next))return;
   try{
-   if(prune(next))reportBootstrap("assignment",true);
+   if(prune(next)){reportBootstrap("assignment",true);reportPrune("bootstrap");}
   }catch(_){/* Assignments must never fail due to the blocker. */}
  };
  try{
@@ -262,6 +282,7 @@ function pruneExistingBootstrap(observe=true){
   const own=bootstrapDescriptor();
   if(own&&Object.prototype.hasOwnProperty.call(own,"value")&&plain(own.value))
    playerMetadataCleaned=prune(own.value)===true;
+   if(playerMetadataCleaned)reportPrune("bootstrap");
   const initial=Object.getOwnPropertyDescriptor(g,"ytInitialData");
   if(initial&&Object.prototype.hasOwnProperty.call(initial,"value")&&plain(initial.value)&&
      typeof DKYouTubeFeed!=="undefined")
@@ -288,7 +309,7 @@ function enablePlayerJSONScriptlet(){
  wrappedJSONParse=function(...args){
   const data=Reflect.apply(oldJSONParse,this,args);
   if(enabled&&playerJSONCandidate(args[0])){
-   try{prune(data);}catch(_){/* Never break native JSON.parse behavior. */}
+   try{if(prune(data))reportPrune("json-parse");}catch(_){/* Never break native JSON.parse behavior. */}
   }
   return data;
  };
@@ -355,7 +376,11 @@ function enable(){
    get:function(){
     const original=oldText.get.call(this);
     if(!allowed(this)||typeof original!=="string")return original;
-    if(!cache.has(this))cache.set(this,rewrite(original,pending.get(this)));
+    if(!cache.has(this)){
+      const updated=rewrite(original,pending.get(this));
+      cache.set(this,updated);
+      if(updated!==original)reportPrune("xhr-text");
+     }
     return cache.get(this);
    }
   };
@@ -367,9 +392,16 @@ function enable(){
    get:function(){
     const value=oldResponse.get.call(this);
     if(!allowed(this))return value;
-    if(this.responseType==="json"){try{prune(value,pending.get(this));}catch(_){}return value;}
+    if(this.responseType==="json"){
+      try{if(prune(value,pending.get(this)))reportPrune("xhr-json");}catch(_){}
+      return value;
+     }
     if((this.responseType===""||this.responseType==="text")&&typeof value==="string"){
-     if(!cache.has(this))cache.set(this,rewrite(value,pending.get(this)));
+     if(!cache.has(this)){
+       const updated=rewrite(value,pending.get(this));
+       cache.set(this,updated);
+       if(updated!==value)reportPrune("xhr-text");
+      }
      return cache.get(this);
     }
     return value;

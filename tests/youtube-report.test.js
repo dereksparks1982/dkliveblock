@@ -187,3 +187,17 @@ test("Build 207 reports sanitized response error stages and attached counters",(
  assert.deepEqual(bad.responseFiltering.errorStages,
   {attach:0,data:0,stop:0,stream:1000000000});
 });
+
+test("Build 211 page bridge pruning sample counters are numeric and privacy-safe",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:211,
+  youtubeResponse:{pagePrunes:{"json-parse":3,"fetch-json":2,
+   "xhr-text":1,bogus:"PRIVATE_VIDEO",bootstrap:Infinity}}});
+ assert.deepEqual(report.responseFiltering.pagePrunes,{
+  bootstrap:0,"json-parse":3,"fetch-json":2,"fetch-text":0,
+  "xhr-json":0,"xhr-text":1
+ });
+ const dump=JSON.stringify(report)+Report.asText(report);
+ assert.match(dump,/Page bridge json-parse prune samples: 3/);
+ assert.match(dump,/untrusted page-world events/);
+ assert.doesNotMatch(dump,/PRIVATE_VIDEO|bogus/);
+});
