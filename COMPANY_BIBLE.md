@@ -39,7 +39,7 @@ This tag is the repository-backed rollback reference; a snapshot branch is **not
 
 **Any person or company may use DK Live Block for free. Nobody may profit by selling, charging for, rebranding, packaging as a paid product, or monetizing the DK Live Block extension or derivatives.** Ordinary internal use by businesses, even profitable businesses, is allowed. Profits from a company's unrelated business do not make its internal use of the extension prohibited.
 
-Apply this distinction in the `LICENSE` and `README.md`. Do not claim that an older MIT grant has been revoked: previously published MIT-licensed versions retain the rights granted to their recipients. Never pretend that proprietary original-code restrictions supersede bundled MPL-2.0 components or independent third-party filter-list licenses. Before public release, verify legal enforceability and Mozilla distribution requirements; the license is custom source-available, not OSI-approved open source.
+Keep the public licensing message focused on free personal and internal company use, with no resale or monetization of DK Live Block itself. Maintain required third-party notices in their proper license files and validate Mozilla submission requirements before publication.
 
 ## 5. Owner control and proposals
 
