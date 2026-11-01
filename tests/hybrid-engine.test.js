@@ -111,3 +111,54 @@ test("Build 163 malformed vendor matches fail back to native blocking",()=>{
  assert.equal(e.checkRequest("https://ads.example/a.js","script","site.example").block,true);
  assert.match(e.diagnostic,/matching error/);
 });
+
+test("Build 178 maps only Ghostery-vetted inert redirect resources",()=>{
+ const Redirect=require("../src/redirect-resources.js");
+ const provider=name=>({FiltersEngine:{parse:()=>({match:()=>({
+  match:true,redirect:{filename:"MIME_TYPE_STUB.js",dataUrl:"data:text/javascript,evil()"},
+  filter:{isRedirect:()=>true,getRedirect:()=>name}
+ })})},Request:{fromRawDetails:x=>x}});
+ for(const [name,type,expected] of [
+  ["noop.js","script","redirect/noop.js"],
+  ["empty.css","stylesheet","redirect/empty.css"],
+  ["noopjs","script",""],
+  ["https://evil.invalid/script.js","script",""],
+  ["../secret.js","script",""],
+  ["noop.js","image",""],
+  ["empty.css","script",""]
+ ]){
+  const engine=Hybrid.create("",provider(name));
+  const result=engine.checkRequest("https://ads.example/file",type,"news.example");
+  const resolved=Redirect.path(result.rule,type);
+  assert.equal(resolved,expected,name+" / "+type);
+  if(expected){
+   assert.equal(result.block,true);
+   assert.equal(Redirect.url(result.rule,type,{getURL:p=>"moz-extension://instance/"+p}),
+    "moz-extension://instance/"+expected);
+   assert.equal(JSON.stringify(result).includes("data:text/javascript"),false);
+  }else assert.equal(result.block,false,"unsupported redirect must fail open");
+ }
+});
+test("Build 178 vendor redirect exceptions and manual choice retain precedence",()=>{
+ const provider={FiltersEngine:{parse:()=>({match:request=>request.url.includes("/keep")?
+  {match:false,exception:{}}:{match:true,redirect:{filename:"MIME_TYPE_STUB.js"},
+   filter:{isRedirect:()=>true,getRedirect:()=>"noop.js"}}})},
+  Request:{fromRawDetails:x=>x}};
+ const e=Hybrid.create("",provider,"@@||ads.example^$script,domain=news.example");
+ assert.equal(e.checkRequest("https://ads.example/file.js","script","news.example").block,false);
+ assert.equal(e.checkRequest("https://ads.example/keep","script","other.example").block,false);
+ assert.equal(e.checkRequest("https://ads.example/file.js","script","other.example").rule.redirect,"noop.js");
+});
+test("Build 178 real bundled Ghostery rescues redirects the native parser drops",()=>{
+ const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
+ const env=loadEnvironment();
+ const line="||ads.example^$script,redirect=noop.js,domain=news.*";
+ assert.equal(env.DKRules.network(line),null,"native language gap must remain explicit");
+ const hybrid=env.DKHybridEngine.create(line);
+ assert.equal(hybrid.backend,"hybrid");
+ const result=hybrid.checkRequest("https://ads.example/ad.js","script","news.example");
+ assert.equal(result.rule?.redirect,"noop.js");
+ assert.equal(result.block,true);
+ const outside=hybrid.checkRequest("https://ads.example/ad.js","script","other.example");
+ assert.equal(outside.rule?.redirect||"","");
+});

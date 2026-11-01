@@ -39,8 +39,25 @@ function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
     // a plain native block that DK's partial parser cannot correctly exempt.
     if(verdict?.exception)
      return {block:false,rule:{p:"[Ghostery network exception]",exception:true}};
-    // Redirect and rewrite behavior is deliberately not enabled here:
-    // these outputs need a trusted, extension-owned execution adapter.
+    // Permit only two audited extension-owned inert replacements.
+    // Ghostery's returned dataUrl/body must NEVER become a redirect target,
+    // nor may an arbitrary subscribed URL or executable resource be loaded.
+    if(verdict?.match===true&&verdict.redirect){
+     const filter=verdict.filter;
+     const resource=typeof filter?.getRedirect==="function"&&
+      filter.isRedirect?.()===true?filter.getRedirect():"";
+     const allowed=(resource==="noop.js"&&type==="script")||
+      (resource==="empty.css"&&type==="stylesheet");
+     if(allowed&&!verdict.rewrite){
+      return {block:true,rule:{
+       p:"[Ghostery vetted local redirect]",redirect:resource,
+       special:"",exception:false,source:"ghostery-safe-redirect"
+      }};
+     }
+     // Unknown redirection must not be silently converted into a block,
+     // remote load, or executable script.
+     return own;
+    }
     if(verdict?.match===true&&!verdict.redirect&&!verdict.rewrite)
      return own.block?own:{block:true,rule:{p:"[Ghostery network filter]"}};
    }catch(_){

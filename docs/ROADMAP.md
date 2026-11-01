@@ -677,3 +677,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 177: inspect uBlock Origin actual GPLv3 scriptlet/JSON-prune implementation and independently add bounded first-party YouTube JSON.parse player-metadata interception without copying GPL sources or executing filter-list scripts.
 - [ ] Full local seven-phase Node/Python suite on exact Build 177 tree and real Firefox acceptance including ordinary videos, YouTube midrolls, ad-supported movies, observe/response-only/bridge-only modes and compatibility with other blockers disabled.
 - [ ] Build 178: investigate remaining YouTube anti-adblock / player API behavior from the new sanitized logs; fix only a demonstrated failure and keep the movie playback baseline.
+
+- [x] Build 178: use the bundled Ghostery parsed redirect decision for only two vetted extension-owned inert resources; test native-unsupported entity-domain matching, wrong types, exceptions, and unsafe source rejection without copying uBlock GPL code.
+- [ ] Run complete seven-phase Linux test gate on exact Build 178 HEAD and compare Firefox video/site behavior with uBlock disabled. Existing YouTube preroll/midroll issue remains unresolved.
+- [ ] Build 179: categorize default-filter-list rules skipped by DK's native parser, compare them to actual Ghostery capability, and prioritize tested safe adapters over additional speculative YouTube rewrites.

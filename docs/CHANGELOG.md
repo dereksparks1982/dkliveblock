@@ -797,3 +797,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - DK's own YouTube main-world bridge now intercepts eligible page JSON.parse player objects and removes known ad metadata that can bypass existing first-party response/bootstrap handlers.
 - The wrapper is enabled only in the active YouTube bridge, checks known player/ad fields with size bounds, preserves native JSON revivers, playback refusals, streaming URLs and unrelated page data, and restores the original parser when disabled or in observe mode.
 - Existing response.text()/response.json() paths use an internal saved parser to avoid re-entrancy. Added focused regressions and synthetic harness checks; actual normal-video ad removal and full Linux suite remain unverified.
+
+### 0.3.148 / Build 178 (2026-10-31)
+- Activated only the two vetted, extension-owned inert redirect resources from real Ghostery network verdicts: noop.js for script and empty.css for stylesheet. All other Ghostery redirect resources, data URLs, rewrites and remote scripts remain unsupported.
+- Extended the existing DKRedirectResources adapter rather than creating a new redirect/network engine. Existing user/site exceptions, authentication and popup protections continue to apply.
+- Demonstrated a real bundled Ghostery entity-domain rule that DK's native parser drops now routes through the safe local adapter; added allow/block, exception, unsafe-resource and type regression cases.
+- No YouTube-specific rewrite change. Full Ubuntu runner, actual browser behavior and competitive parity remain unverified.

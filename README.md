@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.147, Build 177.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.148, Build 178.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -33,6 +33,8 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 **Build 176 YouTube regular-video timing improvement:** the bundled first-party page bridge now rechecks newly arrived initial player metadata at 1 and 3 seconds and after YouTube's `yt-navigate-finish` single-page navigation event. It preserves content, watch metadata and refused responses, and does not modify observe-only test mode. The voluntary local YouTube report now indicates whether the late check actually removed known ad metadata. **This is not verified ad-free ordinary-video playback.**
 
 **Build 177 competitor-informed filtering:** Reviewed uBlock Origin's actual GPLv3 scriptlet and JSON-pruning architecture. DK's own YouTube main-world bridge now includes a **fixed-purpose, reversible, first-party `JSON.parse` player-metadata interceptor**, covering player data that bypasses fetch/XHR response wrappers. This does not execute untrusted filter-list scripts, copy GPL code or alter media bytes; existing site allowlisting and temporary observation mode still disable it. Real Firefox YouTube ad removal is not yet verified. See `docs/BUILD_177.md`.
+
+**Build 178 filter-engine compatibility:** Bundled Ghostery verdicts can now activate **only** two independently packaged, inert local redirect resources (`noop.js` for scripts and `empty.css` for stylesheets), even for domain-scoped list rules that DK's native parser does not understand. The adapter never follows Ghostery's data URLs or any remote script. Tested against the real embedded Ghostery parser with a native-unsupported entity-domain rule. This improves rule support, but **ordinary YouTube ad-free playback remains unverified**. See `docs/BUILD_178.md`.
 
 ## Development status
 
