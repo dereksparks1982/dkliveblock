@@ -2,13 +2,13 @@
 
 **Owner goal:** submit DK Live Block for a public Mozilla Firefox Add-ons listing by the end of this week. **Target submission: Friday, November 6.** Mozilla's review/approval timing is outside our control; publication by Saturday, November 7 cannot be guaranteed.
 
-**Current source:** Build 224 / 0.3.194, unreleased. Release-integrity checks are now mandatory, but a real npm lockfile and actual browser/local acceptance are still outstanding. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
+**Current source:** Build 225 / 0.3.195, unreleased. Release-integrity checks are now mandatory, but a real npm lockfile and actual browser/local acceptance are still outstanding. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
 
 ## Current demonstrated success: preserve and retest
 
-The owner has observed successful ad blocking in regular YouTube videos, YouTube "Free with Ads" movies, Disney+ movies, CSI: Las Vegas on Disney+, and suppression of unwanted popups/visible ads on 1337x and The Pirate Bay. See `README.md` and `docs/QA_LAB.md`. These are genuine positive tests, but not a universal or measured comparison to uBlock Origin and Adblock Plus. **Do not interpret historical YouTube failures as the current outcome.**
+The owner has observed successful ad blocking in regular YouTube videos, YouTube "Free with Ads" movies, Disney+ movies, CSI: Las Vegas on Disney+, and suppression of unwanted popups/visible ads on 1337x and The Pirate Bay. See `README.md` and `docs/QA_LAB.md`. The owner also compared Disney+ CSI: Las Vegas with DK OFF (ads appeared) and ON (ads disappeared). These are genuine positive tests, but not a universal or measured comparison to uBlock Origin and Adblock Plus. **Do not interpret historical YouTube failures as the current outcome.**
 
-## Release blockers as of Build 224
+## Release blockers as of Build 225
 
 | Gate | Status | What clears it |
 | --- | --- | --- |

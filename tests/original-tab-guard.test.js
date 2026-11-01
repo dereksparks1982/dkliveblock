@@ -51,3 +51,19 @@ test("Build 223 only records relevant source-site tab relationships",()=>{
  assert.equal(m.get(15).childId,19);
  assert.equal(m.size,1);
 });
+
+test("Build 225 deliberate navigation cannot be blocked based on initiating site alone",()=>{
+ const m=new Map();
+ for(const d of [
+  details(redirect,{originUrl:"https://www.xnxx.com/video-123"}),
+  details(redirect,{documentUrl:"https://xnxx.com/video-123"}),
+  details(redirect)
+ ])assert.equal(G.shouldBlock(m,d,"xnxx.com",true,NOW),false);
+ G.note(m,15,18,"xnxx.com","https://www.xnxx.com/video-123",NOW);
+ assert.equal(G.shouldBlock(m,details(redirect,{originUrl:"https://www.xnxx.com/video-123"}),
+  "xnxx.com",true,NOW+1000),true);
+ assert.equal(G.shouldBlock(m,details(redirect,{originUrl:"https://other.example/"}),
+  "xnxx.com",true,NOW+1000),false);
+ G.clear(m,18);
+ assert.equal(G.shouldBlock(m,details(redirect),"xnxx.com",true,NOW+1000),false);
+});

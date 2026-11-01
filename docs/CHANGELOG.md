@@ -1,3 +1,10 @@
+## Build 225 (0.3.195): prevent original-tab navigation false positives and register missing tests
+
+- An original-tab advertising takeover guard previously accepted a same-site origin alone as evidence, which could block an intentional same-tab visit. Now require a fresh source-linked second video tab and the preexisting scoped destination, without closing the video tab.
+- Added a deliberate-navigation/child-tab-clear regression and registered the formerly omitted Build 223 original-tab regression file in the full Linux runner. Added a script load-order/test-inventory assertion. Isolated pre-commit V8 tests on the corrected module passed 5 existing callbacks and 10 synthetic verdicts; full Linux suite and real Firefox test remain pending.
+- Recorded the owner's Disney+ CSI: Las Vegas OFF/ON observation: ads present with DK off, removed with DK on. No Disney+ code changes or universal ad-free guarantee. Kept detailed observations in QA docs rather than GitHub README.
+- No code download, candidate package, extra branch, Actions or Mozilla submission. The npm registry lookup failed with EAI_AGAIN, so the real package-lock, vendor provenance, full test gate and owner approval remain outstanding.
+
 ## Build 224 (0.3.194): official GitHub source link and Firefox release metadata, unreleased
 
 - Added a clearly labeled, safe HTTPS GitHub Repository link to the existing toolbar footer and Settings → Help area; unchanged popup width, existing controls and Patreon integration.

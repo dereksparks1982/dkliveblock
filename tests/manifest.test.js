@@ -170,3 +170,14 @@ test("Build 224 exposes the canonical GitHub repository from Firefox and in both
   assert.match(html,/GitHub Repository/);
  }
 });
+
+test("Build 225 protects original-tab guard load order and Linux test inventory",()=>{
+ const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
+ assert.ok(m.background.scripts.indexOf("original-tab-guard.js")>=0);
+ assert.ok(m.background.scripts.indexOf("original-tab-guard.js")<m.background.scripts.indexOf("background.js"));
+ const runner=fs.readFileSync(path.join(root,"scripts/test-local.sh"),"utf8");
+ assert.ok(runner.includes("tests/original-tab-guard.test.js"));
+ const guard=fs.readFileSync(path.join(root,"src/original-tab-guard.js"),"utf8");
+ assert.ok(guard.includes("row.childId!==details.tabId"));
+ assert.ok(!guard.includes("||site(hostname(origin))"));
+});

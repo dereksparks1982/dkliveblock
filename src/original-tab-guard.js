@@ -45,11 +45,13 @@ function shouldBlock(map,details,currentHost,active,now=Date.now()){
  // An explicit, different document origin must never inherit a cached tab host.
  const origin=details.originUrl||details.documentUrl||"";
  if(origin&&!site(hostname(origin)))return false;
- // The original tab is about to leave the observed site for the known ad
- // destination. A newly opened source-linked video tab strengthens the signal;
- // an explicit same-site origin can also catch event-order races in Firefox.
+ // Require a recent source-linked second tab before canceling the original
+ // tab's navigation. An originating site alone is NOT evidence of hijacking:
+ // the user might intentionally visit that destination in the current tab.
  const row=map?.get?.(details.tabId);
- return (recent(row,now)&&site(row.site))||site(hostname(origin));
+ return recent(row,now)&&site(row.site)&&
+  Number.isSafeInteger(row.childId)&&row.childId>=0&&
+  row.childId!==details.tabId;
 }
 function clear(map,tabId){
  map?.delete?.(tabId);

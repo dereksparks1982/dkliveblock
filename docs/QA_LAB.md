@@ -64,3 +64,10 @@ Owner screenshot: an actual skippable preroll video promotion was visible before
 Observed permitted groups relevant to triage: `hls-cdn77.xnxx-cdn.com` (4 XHR), `mp4-cdn77.xnxx-cdn.com` (1 media), `thumb-cdn77.xnxx-cdn.com` (16 images, 8 XHR), `s.ltnktuzzjq.com` (7 XHR), `n2j9y0x0.bxcdn.net` (1 media). An untrusted URL's request classification must not be inferred as confirmed advertising from these host/type observations alone; investigate the likely external ad-video CDN first. Build 222 adds one exact-host+resource-type+site filter only for the separately hosted media; it does not block the site's ordinary content CDNs or speculative XHR destinations.
 
 **Still to test on the actual updated Firefox add-on:** installed version `0.3.192` (rather than an older development copy), page and same video freshly reloaded, blocked count after the external media request, success/failure of preroll, normal content playback and seek controls, no extra network errors, and any remaining on-page/sidebar advertising. If the preroll persists, collect the updated detailed per-request report or Firefox Network Monitor, not a made-up match. Do not promote this site as an advertised README success.
+
+## November 1, 2026: Disney+ CSI: Las Vegas A/B advertising test, owner-observed PASS
+
+The owner tested the same show in Firefox with DK Live Block **disabled**, observed advertisements, then **reenabled** DK Live Block and reported those advertisements were removed. This is direct user-observed OFF/ON comparison evidence, not merely a count of blocked network requests. The owner also reported that mid-play advertising appeared to be blocked during Disney+ viewing. Preserve this known-working behavior.
+
+The exact extension version/commit, count of ad breaks, independent video/player diagnostics and network-to-visual causality were not provided. **Do not generalize to guaranteed ad removal on every Disney+ show or every midroll.** A new release acceptance pass should check normal playback, seeking, subtitles, fullscreen and continued ad suppression. Keep all site-level QA outcomes in docs, not the root README.
+

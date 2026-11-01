@@ -249,3 +249,10 @@ November 1 Firefox test on a video-sharing site showed an actual advertising pre
 ## Build 224 (0.3.194): discoverable source, release metadata and link safety
 
 The official GitHub repository is now linked in the existing toolbar footer and Settings Help area with an HTTPS destination and safe new-tab attributes. Firefox's add-on manager can show the same homepage through `homepage_url` in the manifest. An independent offline extension-structure test and AMO preflight negative checks reject missing, swapped or unsafe source links. This work does not alter network rules, YouTube/Disney+ handling, popup suppression, permissions, or control placement. Full Linux testing, browser acceptance, a genuine npm lockfile, an exact Ghostery rebuild, and explicit release approval remain outstanding.
+
+## Build 225 (0.3.195): corrected original-tab behavior and repaired regression inventory
+
+The Build 223 original-tab takeover guard could cancel a deliberate same-tab visit solely because the request's origin came from a video page. It now requires a recent, actually recorded source-linked second tab, while preserving existing site/destination matching and normal protection/allowlist decisions. This narrower rule avoids false-positive cancellation of deliberate browsing. The dedicated regression test file, previously omitted from the Linux runner, is now registered and backed by a structure/load-order assertion. Prior isolated production-module regression callbacks passed (5/5) after tightening; **full seven-phase Linux Node/Python and actual Firefox acceptance have not passed or been run for this revision.**
+
+The owner also directly compared Disney+ CSI: Las Vegas with DK OFF (ads appeared) then ON (ads disappeared); this is an observed success and a regression-protection baseline, not a guarantee of universal streaming ad suppression. No streaming or Disney+ filtering changes were made. The npm registry was not resolvable here (EAI_AGAIN), so a real generated package-lock and an exact Ghostery vendor rebuild remain unresolved release blockers.
+
