@@ -1048,7 +1048,17 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
      (sender.id&&sender.id!==browser.runtime.id))
    return {error:"This warning is not authorized for this tab."};
   const warning=DKThreatWarning.read(data.threatWarnings,tabId,msg.nonce);
-  if(!warning)return {error:"This warning has expired. Close the tab."};
+  if(!warning){
+   // An expired/old warning must not authorize a proceed, but its clearly
+   // visible Close button should still work in the same exact warning tab.
+   if(msg.action==="closeThreatWarning"&&msg.confirm===true){
+    try{
+     const current=await browser.tabs.get(tabId);
+     if(current?.url===expected){await browser.tabs.remove(tabId);return {ok:true};}
+    }catch(_){}
+   }
+   return {error:"This warning has expired. Close the tab."};
+  }
   let live;
   try{live=await browser.tabs.get(tabId);}catch(_){
    DKThreatWarning.clear(data.threatWarnings,tabId);
