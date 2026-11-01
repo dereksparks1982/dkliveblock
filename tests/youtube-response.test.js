@@ -456,3 +456,37 @@ test("Build 153 prefetch response respects refused and unknown child data",()=>{
   assert.equal(output.text,raw);
  }
 });
+
+test("Build 154 prunes only an exact serialized resolve_url player child",()=>{
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ const player={playabilityStatus:{status:"OK"},videoDetails:{title:"ordinary"},
+  streamingData:{formats:[{url:"signed"}]},adPlacements:[{}],adSlots:[{}],playerAds:[{}]};
+ const outer={endpoint:{watchEndpoint:{unserializedPrefetchData:{
+  playerResponse:JSON.stringify(player),responseContext:{visitorData:"private"}
+ }}},navigationTracking:{opaque:"signed"}};
+ const output=R.rewrite(JSON.stringify(outer),url);
+ assert.equal(output.changed,true);
+ assert.equal(output.fields,3);
+ const next=JSON.parse(output.text);
+ const prefetch=next.endpoint.watchEndpoint.unserializedPrefetchData;
+ const cleaned=JSON.parse(prefetch.playerResponse);
+ for(const key of R.AD_FIELDS)assert.equal(cleaned[key],undefined);
+ assert.deepEqual(cleaned.streamingData,player.streamingData);
+ assert.deepEqual(prefetch.responseContext,outer.endpoint.watchEndpoint.unserializedPrefetchData.responseContext);
+ assert.deepEqual(next.navigationTracking,outer.navigationTracking);
+ assert.equal(R.rewrite(JSON.stringify(outer),"https://www.youtube.com/youtubei/v1/player").changed,false);
+});
+test("Build 154 serialized resolve_url refuses malformed and playback-denied children",()=>{
+ const url="https://www.youtube.com/youtubei/v1/resolve_url";
+ const refused=JSON.stringify({videoDetails:{},adSlots:[{}],
+  playabilityStatus:{status:"LOGIN_REQUIRED"}});
+ const errored=JSON.stringify({videoDetails:{},adSlots:[{}],error:{code:403}});
+ for(const child of ["not json",refused,errored,"[]",
+  "x".repeat(Math.floor(R.MAX_BYTES/2)+1),JSON.stringify({adSlots:[{}]})]){
+  const raw=JSON.stringify({endpoint:{watchEndpoint:{unserializedPrefetchData:{
+   playerResponse:child}}},navigationTracking:{token:"preserve"}});
+  const out=R.rewrite(raw,url);
+  assert.equal(out.text,raw);
+  assert.equal(out.changed,false);
+ }
+});

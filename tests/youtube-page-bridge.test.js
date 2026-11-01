@@ -382,3 +382,42 @@ test("Build 153 MAIN-world resolve_url respects nested refusal and malformed pre
  assert.equal(body.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse.adSlots.length,1);
  p.send("disable");
 });
+
+test("Build 154 MAIN-world fetch handles stringified resolve_url prefetch player",async()=>{
+ const p=context(),url="https://www.youtube.com/youtubei/v1/resolve_url";
+ const make=()=>({endpoint:{watchEndpoint:{unserializedPrefetchData:{
+  playerResponse:JSON.stringify({videoDetails:{title:"normal"},
+   streamingData:{formats:["signed"]},adSlots:[{}],adPlacements:[{}]})
+ }}},navigationTracking:{token:"opaque"}});
+ p.window.fetch=async()=>({status:200,headers:{get:()=> "application/json"},
+  json:async()=>make(),text:async()=>JSON.stringify(make()),clone(){return this;}});
+ p.send("enable");
+ for(const mode of ["json","text"]){
+  const res=await p.window.fetch(url,{method:"POST"});
+  const outer=mode==="json"?await res.json():JSON.parse(await res.text());
+  assert.equal(outer.navigationTracking.token,"opaque");
+  const player=JSON.parse(outer.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse);
+  assert.equal(player.adSlots,undefined);
+  assert.equal(player.adPlacements,undefined);
+  assert.deepEqual(Array.from(player.streamingData.formats),["signed"]);
+ }
+ const get=await p.window.fetch(url,{method:"GET"});
+ assert.equal(JSON.parse((await get.json()).endpoint.watchEndpoint.unserializedPrefetchData.playerResponse).adSlots.length,1);
+ p.send("disable");
+});
+test("Build 154 MAIN-world refuses serialized denial and read-only prefetch field",()=>{
+ for(const mode of ["denied","readonly"]){
+  const p=context(),player=JSON.stringify({videoDetails:{title:"safe"},adSlots:[{}],
+   ...(mode==="denied"?{playabilityStatus:{status:"UNPLAYABLE"}}:{})});
+  const prefetch={playerResponse:player};
+  if(mode==="readonly")Object.defineProperty(prefetch,"playerResponse",{value:player,
+   configurable:true,writable:false});
+  p.window.fetch=async()=>({status:200,headers:{get:()=> "application/json"},
+   json:async()=>({endpoint:{watchEndpoint:{unserializedPrefetchData:prefetch}}})});
+  p.send("enable");
+  const response=await p.window.fetch("/youtubei/v1/resolve_url",{method:"POST"});
+  const result=await response.json();
+  assert.equal(result.endpoint.watchEndpoint.unserializedPrefetchData.playerResponse,player);
+  p.send("disable");
+ }
+});

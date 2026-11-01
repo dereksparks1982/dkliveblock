@@ -586,3 +586,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 153: add bounded first-party YouTube resolve_url prefetch player ad-metadata filtering in both Firefox stream and MAIN-world paths, restricted to one schema and original POST/hostname/content-type safety gates.
 - [ ] Real Firefox video-prefetch navigation, anti-adblock enforcement, all stream response integrity, ad-free replay and full Ubuntu suite remain open.
+
+- [x] Build 154: remove recognized ad-only metadata from bounded stringified resolve_url prefetch playerResponse, with fail-open refusal and page-world read-only checks; preserve ordinary media/navigation data.
+- [ ] Full Linux/Firefox acceptance and actual no-ads + working-video evidence outstanding.

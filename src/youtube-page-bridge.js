@@ -63,9 +63,25 @@ function prune(x,url=""){
   const endpoint=ownData(x,"endpoint");
   const watch=ownData(endpoint,"watchEndpoint");
   const prefetch=ownData(watch,"unserializedPrefetchData");
+  if(!plain(prefetch)||denied(prefetch))return false;
   const player=ownData(prefetch,"playerResponse");
-  if(!plain(player)||denied(player)||!safeToPrune(player))return false;
-  return pruneObject(player)>0;
+  if(plain(player)){
+   if(denied(player)||!safeToPrune(player))return false;
+   return pruneObject(player)>0;
+  }
+  // Serialized prefetch player JSON is legitimate, but only edit the known
+  // writable own data property. Never invoke getters or change an ambiguous
+  // child, and never touch the enclosing signed navigation metadata.
+  if(typeof player!=="string"||player.length>MAX/2)return false;
+  const desc=Object.getOwnPropertyDescriptor(prefetch,"playerResponse");
+  if(!desc||!Object.prototype.hasOwnProperty.call(desc,"value")||!desc.writable)
+   return false;
+  let parsed;try{parsed=JSON.parse(player);}catch(_){return false;}
+  if(!plain(parsed)||denied(parsed)||!safeToPrune(parsed))return false;
+  const count=pruneObject(parsed);
+  if(!count)return false;
+  prefetch.playerResponse=JSON.stringify(parsed);
+  return true;
  }
  const nested=ownData(x,"playerResponse");
  // Accessor-backed player data is not needed for ad filtering and is not

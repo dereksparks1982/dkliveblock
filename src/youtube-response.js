@@ -120,11 +120,28 @@ function rewrite(text,url=""){
  // Only the specific nested player object is eligible, never the parent
  // navigation metadata, signed links, login fields or unknown structures.
  if(resolveTarget(url)){
-  const prefetch=payload.endpoint?.watchEndpoint?.unserializedPrefetchData?.playerResponse;
-  if(!plain(prefetch)||refused(prefetch))return {text,changed:false,fields:0};
-  const count=pruneObject(prefetch);
-  return count?{text:prefix+JSON.stringify(payload),changed:true,fields:count}:
-   {text,changed:false,fields:0};
+  const envelope=payload.endpoint?.watchEndpoint?.unserializedPrefetchData;
+  if(!plain(envelope)||refused(envelope))
+   return {text,changed:false,fields:0};
+  const prefetch=envelope.playerResponse;
+  if(plain(prefetch)){
+   if(refused(prefetch))return {text,changed:false,fields:0};
+   const count=pruneObject(prefetch);
+   return count?{text:prefix+JSON.stringify(payload),changed:true,fields:count}:
+    {text,changed:false,fields:0};
+  }
+  // Some prefetch envelopes carry their player data as stringified JSON.
+  // Parse only this known field, with a size cap and no fallback to arbitrary
+  // nested JSON. Unknown, malformed or refused player data fails open.
+  if(typeof prefetch!=="string"||prefetch.length>MAX_BYTES/2)
+   return {text,changed:false,fields:0};
+  let parsed;try{parsed=JSON.parse(prefetch);}catch(_){return {text,changed:false,fields:0};}
+  if(!plain(parsed)||refused(parsed))
+   return {text,changed:false,fields:0};
+  const count=pruneObject(parsed);
+  if(!count)return {text,changed:false,fields:0};
+  envelope.playerResponse=JSON.stringify(parsed);
+  return {text:prefix+JSON.stringify(payload),changed:true,fields:count};
  }
  // Inspect nested player results BEFORE pruning the outer response. If YouTube
  // refused playback (or returned an unreadable child), preserve its evidence
