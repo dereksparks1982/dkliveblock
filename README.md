@@ -29,8 +29,6 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 
 **Current limitations:** Advanced rule compatibility, malicious-site navigation protection, broad popup coverage, long-session performance, and dependable YouTube/Disney+ behavior remain works in progress. Video ads may be inserted server-side; some protected streams cannot be modified by an extension. Optional proxy features are not an anonymity guarantee.
 
-No GitHub Actions, hosted build runners, automatic releases, or public downloads are authorized for this project.
-
 ## Documentation
 
 - [Development history and release notes](docs/CHANGELOG.md)
