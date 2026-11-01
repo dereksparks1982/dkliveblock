@@ -40,7 +40,7 @@ Once the repository contains a complete reviewed lockfile, the reviewer can use 
 
 ## Review environment, licensing and outstanding acceptance
 
-The original DK Live Block code is supplied under the [Free Use / No Monetization License](../LICENSE), a **custom source-available license** allowing free company use but not selling/repackaging DK's material. Previously distributed MIT-licensed copies retain their past permissions. Embedded MPL-2.0 materials retain the upstream terms. Mozilla's license selection and legal-review compatibility must be checked.
+DK Live Block is free for individuals and companies to use, including internal business use, but selling, charging for, or otherwise monetizing DK Live Block or modified versions is prohibited. See the [project license](../LICENSE). Bundled third-party code retains its required upstream terms. Mozilla licensing and review compatibility must be checked.
 
 The project uses Firefox Manifest V2 for Firefox, and the Gecko ID is `dk-live-block@elderred-softworks.local`. All packaged code is intended to be local and self-contained. No Google Chrome compatibility is claimed.
 
