@@ -1,3 +1,10 @@
+## Build 220 (0.3.190): explain every retained permitted request, unreleased
+
+- Fixed missing permit diagnostics: the background request decision path now captures whether each completed subresource was allowed due to site allowlisting, global off, tab pause, temporary streaming/media repair, authentication preservation, YouTube compatibility routing, explicit site/hostname/type user allowance, filter-list exception, or a normal no-block engine decision. Firefox completion supplies method, HTTP status and time; missing decisions remain clearly marked unknown.
+- Permitted-request logger now stores up to 400 **individual completed events** per tab and 150 hostname/type aggregates. Aggregates include first and last completion, counts by actual permit reason, HTTP method and status. The export maps individual event sequence numbers, reason explanations and methods/statuses into both TXT and JSON, rather than presenting a hostname-only guess.
+- Existing Site Dashboard Inspect panel shows permit reasons and method/status breakdowns without moving the UI controls. Provenance is whitelisted before rendering/export; raw URLs, paths, query strings, headers, cookies, tokens, payloads and Firefox request IDs remain excluded. In-flight details are erased when logging is disabled or the tab closes/navigates.
+- Added source-level unit regressions and isolated smoke checks. **Not a full local Node/Python run or real Firefox validation**. New evidence is collected only after updated extension runs; old reports cannot be retroactively enriched. No changes to the filter engine's blocking actions, YouTube/Disney+ player rewriting or popup decisions. `main` only, no GitHub Actions or release package.
+
 ## Build 219 (0.3.189): Firefox Add-ons source/readiness engineering, unreleased
 
 - Recorded a realistic **November 6, 2026 submission target**, subject to test and owner approval; Mozilla's store approval/visibility cannot be guaranteed by November 7. Added a daily sprint gate matrix and truthful draft AMO listing/reviewer notes.
