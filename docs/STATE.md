@@ -256,3 +256,7 @@ The Build 223 original-tab takeover guard could cancel a deliberate same-tab vis
 
 The owner also directly compared Disney+ CSI: Las Vegas with DK OFF (ads appeared) then ON (ads disappeared); this is an observed success and a regression-protection baseline, not a guarantee of universal streaming ad suppression. No streaming or Disney+ filtering changes were made. The npm registry was not resolvable here (EAI_AGAIN), so a real generated package-lock and an exact Ghostery vendor rebuild remain unresolved release blockers.
 
+
+## Build 226 (0.3.196): optional Patreon link enabled in both existing controls
+
+The owner-provided Patreon creator page `https://www.patreon.com/c/dkliveblock` is activated in the toolbar popup and Settings footer via existing `DKSupport.installButton`. The shared helper strictly validates exact HTTPS Patreon creator URLs and opens them only after a user click, without tracking query parameters, automatic navigation, log transmission or new permissions. The HTML remains initially disabled (fail closed) until initialization; the visible label is now correct. No feature paywalls, forced support messages, changes to filtering/streaming/permissions or interface layout. Full Linux/Firefox release acceptance is outstanding.

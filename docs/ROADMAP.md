@@ -831,3 +831,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 225 (0.3.195): repair omitted original-tab takeover tests in the Linux runner; strengthen the guard to require observed two-tab takeover evidence rather than the source origin alone; add structural safety regression and record the owner's Disney+ CSI: Las Vegas OFF/ON test in docs.
 - [ ] Build 225 acceptance: run the seven-phase Linux suite to completion, recheck legitimate same-tab navigation and actual popunder takeover in Firefox, verify exact-version Disney+ ad suppression and player usability. Generate genuine npm lockfile from official registry, reproduce bundled Ghostery bytes, finish third-party/license/privacy audit, and obtain explicit owner approval before a candidate/signing submission.
+
+- [x] Build 226 (0.3.196): activate owner-approved `https://www.patreon.com/c/dkliveblock` Patreon page through existing toolbar/Settings buttons, add tests for safe click-only opening and invalid/missing URLs, and link optional support from the GitHub README.
+- [ ] Build 226 acceptance: click Patreon in both Firefox toolbar and Settings, verify exactly one new official tab per deliberate click, no automatic external access or paid gates, and full extension behavior unchanged; full Linux suite and release dependency verification remain outstanding.

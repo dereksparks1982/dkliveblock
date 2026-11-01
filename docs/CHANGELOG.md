@@ -1,3 +1,9 @@
+## Build 226 (0.3.196): optional Patreon creator link activated
+
+- Enabled existing DK Live Block Patreon buttons in the toolbar and Settings using the owner-provided official HTTPS creator page: `https://www.patreon.com/c/dkliveblock`. Buttons open a new tab only on a user click; no background or automatic connections.
+- Preserved the existing strict HTTPS URL validator, safe initial disabled state, interface layout, and all-free features. Added missing/invalid/default-link tests and a short optional-support reference in the README. All dated release notes remain in docs.
+- Did not modify ad blocking, YouTube/Disney+ behavior, permissions, Git branches, GitHub Actions or packaging. Complete Linux/Firefox release tests remain outstanding.
+
 ## Build 225 (0.3.195): prevent original-tab navigation false positives and register missing tests
 
 - An original-tab advertising takeover guard previously accepted a same-site origin alone as evidence, which could block an intentional same-tab visit. Now require a fresh source-linked second video tab and the preexisting scoped destination, without closing the video tab.

@@ -1,8 +1,8 @@
-/* DK Live Block optional Patreon button.
-   Keep disabled until the official creator page has been created and verified.
-   No automatic requests, advertising, telemetry, or donation requirements. */
+/* DK Live Block optional owner-approved Patreon support button.
+   Open only on a deliberate user click. No automatic requests, advertising,
+   telemetry, paid features, or donation requirements. */
 (function(root){"use strict";
-const PATREON_URL=""; // Set only after the creator page exists, e.g. https://www.patreon.com/c/DKLiveBlock
+const PATREON_URL="https://www.patreon.com/c/dkliveblock"; // Owner-supplied official creator page
 const SUPPORT_EMAIL="elderredsoftworks@proton.me";
 const REPORT_KINDS=Object.freeze({
  bug:"Bug report",
