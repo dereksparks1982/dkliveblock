@@ -1,3 +1,13 @@
+## Build 233 (0.3.203): Facebook feed and right-rail detection repair
+
+- Fix missed Facebook feed ads whose action menus identify them as sponsored content, and decode limited nested CSS-ordered/scrambled labels. Reject unrelated ordinary text, navigation and dialogs.
+- Find narrow Sponsored ad modules in Facebook's newer right sidebar even without `role="complementary"`. Enforce right-side geometry and prevent hiding the whole rail, contacts, forms, other feed roots or unrelated content.
+- Add strict evidence-based fallback for sponsored cards without role=article/pagelet markup, while retaining manually saved site-specific exceptions, reversible hiding and bounded scanning.
+- Observe Facebook pagelet attribute changes and handle dynamic page replacements. Preserve normal network traffic: do not block first-party GraphQL, images, videos, or scripts indiscriminately.
+- Add synthetic regression tests for the screenshot-reported feed and sidebar cases, ordinary posts, nested labels and safe container boundaries.
+- No changes to YouTube, Disney+, CBS, XNXX, 1337x or Pirate Bay implementations, network rules, permissions, approved website UI design or GitHub Actions.
+- **Acceptance:** Not yet a Facebook PASS. Isolated tests and source checks do not substitute for owner Firefox retest, current complete Ubuntu suite, or a verified uBlock/ABP comparison.
+
 ## Build 230 (0.3.200): CBS News playback startup safeguard
 
 - Prevent CBS News autoplay handling from pausing videos or intercepting their play events during player initialization. Only a paused, not-yet-initialized element can have declarative autoplay disabled; a trusted player click disarms the safeguard for subsequent elements.

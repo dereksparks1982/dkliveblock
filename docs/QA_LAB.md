@@ -100,3 +100,9 @@ Build 229 follow-up acceptance: check the CBS News homepage video does **not** a
 - **YouTube, Disney+, 1337x, The Pirate Bay:** user-observed success remains recorded; do not regress these working paths. These observations are not comprehensive parity tests.
 
 **Evidence scope:** Reports and screenshots are owner browser observations, not a complete independently executed acceptance matrix or a current Linux regression run.
+
+## Build 233 Facebook acceptance gate (0.3.203, November 1, 2026)
+
+The owner previously documented sponsored advertisements in the Facebook feed and right-side Sponsored module with DK Live Block active. Build 233 adds Facebook-only detection fixes, but **no live browser PASS has been recorded** for the new source. With DK enabled, refresh Facebook, inspect normal feed scrolling and both sidebar ads, then inspect Reels and Marketplace separately. Confirm that genuine posts, contacts, groups, forms and navigation remain usable; disabled/enabled or site-exception changes must restore hidden content correctly. Record any surviving ad with a cropped screenshot and label/menu information but do not share private account content or login tokens. A blocked-request counter is not a measurement of cosmetic post hiding.
+
+The previously exported Facebook permitted-request report showed normal protection active with 490 completed requests, and many first-party Facebook background and fbcdn image/script requests were permitted. Hostname-level permitted events cannot establish which specific feed entries were advertisements. Do not turn the entire Facebook GraphQL, image or script hosts into block rules. No personal logs or account-specific URLs are stored in the repository.

@@ -446,3 +446,72 @@ test("Build 232 site-specific dynamic mutation rules remain site-scoped",()=>{
  assert.equal(A.relevantMutation({type:"attributes",attributeName:"aria-labelledby",target:node},"www.facebook.com"),true);
  assert.equal(A.relevantMutation({type:"attributes",attributeName:"aria-labelledby",target:node},"example.com"),false);
 });
+
+
+function facebookCard233(label){
+ const item={style:new Style(),isConnected:true,tagName:"DIV",
+  matches:()=>false,closest:()=>null,getClientRects:()=>[{}],
+  getBoundingClientRect:()=>({left:399,width:520,height:420}),
+  querySelector:()=>null,
+  querySelectorAll:q=>q.includes("span,a,[aria-label]")?label?[label]:[]:[],
+  contains:n=>n===label};
+ return item;
+}
+test("Build 233 recognizes Facebook sponsored-content menu without hiding organic posts",()=>{
+ const advertMenu={nodeType:1,children:[],childNodes:[],textContent:"",
+  getAttribute:k=>k==="aria-label"?"Open menu for Dawn of Jets sponsored content":null,
+  closest:()=>null};
+ const organicText={nodeType:1,children:[],childNodes:[],textContent:"Ad",
+  getAttribute:()=>null,closest:q=>q.includes("p,blockquote")?{}:null};
+ const adCard=facebookCard233(advertMenu),goodCard=facebookCard233(organicText);
+ const doc={body:{},documentElement:{},location:{hostname:"www.facebook.com"},
+  getElementById:()=>null,
+  querySelectorAll:q=>q.includes("h1,h2,h3")?[]:q.includes('[role="article"]')?[adCard,goodCard]:[]};
+ const scanner=FB.create(doc,{location:{hostname:"www.facebook.com"},innerWidth:1295});
+ assert.equal(scanner.scan(),1);
+ assert.equal(adCard.style.getPropertyValue("display"),"none");
+ assert.equal(goodCard.style.getPropertyValue("display"),"");
+ scanner.restore();
+ assert.equal(adCard.style.getPropertyValue("display"),"");
+ assert.equal(FB.sponsoredMenu(organicText),false);
+ assert.equal(FB.sponsoredMenu(advertMenu),true);
+});
+test("Build 233 finds right-rail Sponsored module without complementary landmark",()=>{
+ const heading={nodeType:1,textContent:"Sponsored",
+  getBoundingClientRect:()=>({left:1040,width:220,height:27}),
+  closest:q=>q.includes("h1,h2,h3")?heading:null};
+ const panel={nodeType:1,style:new Style(),isConnected:true,getClientRects:()=>[{}],
+  matches:()=>false,querySelector:q=>q==="img"?{}:null,
+  querySelectorAll:q=>q.includes("h1,h2,h3")?[heading]:[],
+  getBoundingClientRect:()=>({left:1015,width:285,height:390})};
+ const body={contains:x=>x===heading||x===panel};
+ heading.parentElement=panel;panel.parentElement=body;
+ const doc={body,documentElement:{},location:{hostname:"www.facebook.com"},
+  querySelectorAll:q=>q.includes("h1,h2,h3")?[heading]:[]};
+ const scanner=FB.create(doc,{location:{hostname:"www.facebook.com"},innerWidth:1295});
+ assert.equal(scanner.scan(),1);
+ assert.equal(panel.style.getPropertyValue("display"),"none");
+ scanner.restore();assert.equal(panel.style.getPropertyValue("display"),"");
+});
+test("Build 233 recognizes bounded nested scrambled Sponsored labels",()=>{
+ const chars=Array.from("Sponsored",(c,i)=>({nodeType:1,tagName:"SPAN",children:[],
+  childNodes:[{nodeType:3,textContent:c}],textContent:c,classList:{length:19},order:i}));
+ const middle={nodeType:1,tagName:"SPAN",children:chars,childNodes:chars};
+ const outer={nodeType:1,children:[middle],childNodes:[middle],getAttribute:()=>null};
+ const labels=FB.labelsOf(outer,{getComputedStyle:n=>({order:n.order})});
+ assert.ok(labels.some(FB.isAdLabel));
+ assert.equal(FB.isAdLabel("Sponsored articles"),false);
+});
+test("Build 233 protects feed layout and comment forms; detects dynamic Facebook pagelet mutation",()=>{
+ const fake=facebookCard233(null);
+ fake.querySelector=q=>q==="form"?{}:null;
+ assert.equal(FB.safeCard(fake,{body:{},documentElement:{}}),true,
+  "comment form inside a sponsored feed card must not prevent filtering");
+ fake.querySelector=q=>q.includes("main,")?{}:null;
+ assert.equal(FB.safeCard(fake,{body:{},documentElement:{}}),false,
+  "never hide a container holding another feed root");
+ const scanner=FB.create({location:{hostname:"www.facebook.com"}},{location:{hostname:"www.facebook.com"}});
+ assert.equal(scanner.observeMutation({type:"attributes",attributeName:"data-pagelet"}),true);
+ assert.equal(scanner.observeMutation({type:"attributes",attributeName:"title"}),false);
+ assert.equal(FB.create({location:{hostname:"example.com"}},{location:{hostname:"example.com"}}),null);
+});

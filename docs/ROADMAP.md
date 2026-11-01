@@ -1,3 +1,13 @@
+## Build 233: Facebook sponsored feed and sidebar follow-up (0.3.203)
+- [x] Recognize explicit Facebook sponsored-content action-menu accessibility labels without relying on a bare 'Ad' text label.
+- [x] Identify narrow Sponsored right-rail sections even without role=complementary; stop at Contacts, friends, navigation, or broad sidebar containers.
+- [x] Support bounded nested split-character labels and a safe feed-card fallback for structurally marked advertisements.
+- [x] Preserve ordinary posts, forms within posts, site exceptions and reversible hiding; cover dynamic React/pagelet mutations.
+- [x] Add focused regression fixtures based on the reported feed and rail misses.
+- [ ] **OWNER TEST REQUIRED:** retest Facebook feed and right sidebar with DK enabled after refreshing/updating the unpacked extension; ensure legitimate posts and controls still work.
+- [ ] Reels, Marketplace, scrolling, site performance, complete Linux suite and competitor-parity acceptance remain open.
+- [x] Preserve approved website buttons and previously accepted YouTube, Disney+, CBS, XNXX, 1337x and Pirate Bay code paths.
+
 ## Build 232: XNXX and Facebook site acceptance (owner results, November 1, 2026)
 - [x] Target the top XNXX.GOLD premium upsell with exact text, link hostname, geometry and player protections.
 - [x] Add MIT-attributed Facebook byline/ARIA/SVG/character-split ad labeling and bounded sidebar/feed removal.
