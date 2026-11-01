@@ -750,3 +750,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Run complete seven-phase Linux regression on exact Build 200 source, and repair any failures.
 - [ ] Check normal YouTube videos, prerolls, midrolls, ads-funded films and streaming in clean Firefox without other blockers; verify ads genuinely removed AND video works.
 - [ ] Independent competitor, security, privacy, performance and license audits before owner authorizes public release.
+
+- [x] Build 201: Major four-workstream build: (1) Network Monitor can now block previously allowed traffic using a confirmed, reversible site+hostname+type switch and a lightweight authenticated view of active selective rules, alongside its existing Allow controls; (2) filter-list auto-refresh rejects HTML/XML/JSON error pages and suspicious empty replacement lists; (3) strict popunder grants and claims enforce valid times and reject clock rollback; (4) network capture validates DNS labels/timestamps and whitelists safe explanation labels. Regression coverage includes a full background control interaction. No new permissions, new runtime dependencies or UI geometry changes.
+- [ ] Run entire seven-phase Ubuntu suite at Build 201 HEAD and verify Firefox Network Monitor controls, YouTube/Disney+ playback and popup sign-ins before acceptance.

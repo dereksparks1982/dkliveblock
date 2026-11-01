@@ -67,3 +67,28 @@ test("Build 35 monitor cannot be controlled by content scripts, and stops on nav
  assert.equal((await listeners.message({action:"getNetworkMonitor",tabId:1})).seen,0);
  assert.equal((await listeners.message({action:"getNetworkMonitor",tabId:1})).active,false);
 });
+
+test("Build 201 Network Monitor blocks allowed requests and reverses rule securely",async()=>{
+ const {listeners}=await setup();
+ listeners.updated(1,{url:"https://site.test/",status:"loading"},{url:"https://site.test/"});
+ assert.equal((await listeners.message({action:"saveSettings",settings:{requestLog:true}})).ok,true);
+ assert.equal((await listeners.message({action:"startNetworkMonitor",tabId:1})).ok,true);
+ const req={requestId:"allowed201",tabId:1,url:"https://site.test/logo.png?secret=PRIVATE",
+  documentUrl:"https://site.test/",type:"image",method:"GET"};
+ assert.equal(listeners.request(req).cancel,undefined);
+ listeners.completed({...req,statusCode:200});
+ const state=await listeners.message({action:"getMonitoredSelectiveBlocks",tabId:1});
+ assert.equal(state.ok,true);
+ const selected=await listeners.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"site.test",host:"site.test",type:"image",block:true,confirm:true});
+ assert.equal(selected.ok,true);
+ assert.equal(listeners.request({...req,requestId:"blocked201"}).cancel,true);
+ assert.equal((await listeners.message({action:"getMonitoredSelectiveBlocks",tabId:1})).blocks
+   .some(x=>x.host==="site.test"&&x.type==="image"),true);
+ assert.equal((await listeners.message({action:"setSelectiveBlock",tabId:1,
+  expectedSite:"site.test",host:"site.test",type:"image",block:false})).ok,true);
+ assert.equal(listeners.request({...req,requestId:"restored201"}).cancel,undefined);
+ const intruder=await listeners.message({action:"getMonitoredSelectiveBlocks",tabId:1},
+  {tab:{id:1,url:"https://site.test/"}});
+ assert.match(intruder.error,/extension interface/i);
+});

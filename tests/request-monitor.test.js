@@ -55,3 +55,16 @@ test("synthetic popup blocked events included without URL query strings",()=>{
  assert.equal(res.rows[0].reason,"Popup rule");
  assert.doesNotMatch(JSON.stringify(res),/secret/);
 });
+
+test("Build 201 captures only valid hosts, times and fixed private-safe reasons",()=>{
+ const store=new Map();
+ for(const h of ["a..example","-cdn.example","cdn-.example","cdn.example."])
+  assert.equal(M.start(store,1,h,1000),false);
+ assert.equal(M.start(store,1,"site.example",1000),true);
+ const req={requestId:"safe",url:"https://cdn.example/secret?password=PRIVATE",type:"image"};
+ assert.equal(M.record(store,1,"site.example",req,NaN),false);
+ assert.equal(M.record(store,1,"site.example",req,1100),true);
+ assert.equal(M.note(store,1,"safe","https://private.example/watch?token=SECRET"),false);
+ assert.equal(M.note(store,1,"safe","User-approved hostname/type exception"),true);
+ assert.doesNotMatch(JSON.stringify(M.snapshot(store,1)),/PRIVATE|SECRET|password|watch/);
+});

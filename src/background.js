@@ -655,7 +655,16 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    return {ok:true};
   }catch(_){return {error:"Website tab no longer available."};}
  }
- if(msg.action==="getNetworkMonitor"){
+ if(msg.action==="getMonitoredSelectiveBlocks"){
+   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+   let tab;
+   try{tab=await browser.tabs.get(id);}catch(_){return {error:"Selected tab disappeared."};}
+   const site=host(tab?.url||""),capture=data.networkMonitors.get(id);
+   if(!site||!/^https?:\/\//i.test(tab?.url||"")||data.hosts.get(id)!==site||capture?.siteHost!==site)
+    return {error:"The capture no longer matches this tab's website."};
+   return {ok:true,site,blocks:DKAllowedActivity.list(data.manualBlocks,site).slice(0,300)};
+  }
+  if(msg.action==="getNetworkMonitor"){
   if(fromContent)return {error:"Extension interface only."};
   return DKNetworkMonitor.snapshot(data.networkMonitors,id);
  }

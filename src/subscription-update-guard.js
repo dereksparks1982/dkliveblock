@@ -22,10 +22,19 @@ function count(text){
  }
  return n;
 }
+function documentError(value){
+ const start=value.slice(0,2048).replace(/^\uFEFF/,"").trimStart();
+ return /^(?:<!doctype\s+html\b|<html\b|<head\b|<body\b|<title\b|<\?xml\b|\{\s*"(?:error|message|status|detail|code)"\s*:)/i.test(start);
+}
 function check(previous,proposed){
  if(typeof proposed!=="string"||proposed.length>MAX_CHARS||proposed.includes("\u0000")||!withinLineLimit(proposed))
   return {accept:false,reason:"Invalid or oversized replacement filter list."};
+ if(documentError(proposed))
+  return {accept:false,reason:"Filter list source returned an error page, not rules."};
  const next=count(proposed),before=count(previous?.text);
+ if(before>=3&&next===0)
+  return {accept:false,previousCount:before,nextCount:0,
+   reason:"Updated filter list is empty; keeping last working copy."};
  // New subscriptions and legitimately small custom lists cannot be judged
  // against a previously working, substantial snapshot.
  if(before<PRIOR_MIN||next>=Math.ceil(before*KEEP_RATIO))
@@ -33,7 +42,7 @@ function check(previous,proposed){
  return {accept:false,previousCount:before,nextCount:next,
   reason:"Filter list shrank unexpectedly; keeping last working copy."};
 }
-const API=Object.freeze({count,check,PRIOR_MIN,KEEP_RATIO,MAX_LINES,MAX_CHARS});
+const API=Object.freeze({count,check,documentError,PRIOR_MIN,KEEP_RATIO,MAX_LINES,MAX_CHARS});
 root.DKSubscriptionUpdateGuard=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -21,20 +21,26 @@ function protectedHost(value){
 function shouldBlock(sourceHost,enabled,siteActive){
  return enabled===true&&siteActive===true&&protectedHost(sourceHost);
 }
+function validClock(t,duration=0){
+ return Number.isSafeInteger(t)&&t>=0&&t<=Number.MAX_SAFE_INTEGER-duration;
+}
 function grantOnce(permits,tabId,now=Date.now()){
- if(!Number.isInteger(tabId)||tabId<0)return false;
+ if(!Number.isInteger(tabId)||tabId<0||!validClock(now,GRACE_MS))return false;
  permits.set(tabId,now+GRACE_MS);return true;
 }
 function consumeOnce(permits,tabId,now=Date.now()){
  const expires=permits.get(tabId);
- if(!Number.isFinite(expires))return false;
+ if(!Number.isInteger(tabId)||tabId<0||!validClock(now)||!validClock(expires)){
+  permits.delete(tabId);return false;
+ }
  permits.delete(tabId);
- return now<=expires;
+ return now>=expires-GRACE_MS&&now<=expires;
 }
 function revoke(permits,tabId){permits.delete(tabId);}
 function claim(claims,newTabId,sourceTabId,now=Date.now()){
  if(!Number.isInteger(newTabId)||newTabId<0||
-    !Number.isInteger(sourceTabId)||sourceTabId<0||sourceTabId===newTabId)return false;
+    !Number.isInteger(sourceTabId)||sourceTabId<0||sourceTabId===newTabId||
+    !validClock(now,CLAIM_MS))return false;
  for(const [key,entry] of claims){
   if(!Number.isFinite(entry?.when)||now<entry.when||now-entry.when>CLAIM_MS)claims.delete(key);
  }

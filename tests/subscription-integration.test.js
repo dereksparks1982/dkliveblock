@@ -69,3 +69,16 @@ test("Build 197 list refresh refuses corrupt, oversized and excessive-line updat
  assert.equal(G.check(old,"x".repeat(G.MAX_CHARS+1)).accept,false);
  assert.equal(G.check(old,"\n".repeat(G.MAX_LINES+1)).accept,false);
 });
+
+test("Build 201 refuses HTML, XML and JSON errors without corrupting list cache",()=>{
+ const G=require("../src/subscription-update-guard.js");
+ const previous={text:"||ads.example^\n".repeat(150)};
+ for(const body of ["<!doctype html><html>503</html>","<html><body>bad</body></html>",
+  '{"error":"unavailable"}',"<?xml version='1.0'?><error/>"]){
+  assert.equal(G.check(previous,body).accept,false,body);
+  assert.match(G.check(previous,body).reason,/error page/);
+ }
+ assert.equal(G.check(previous,"! metadata only").accept,false);
+ assert.equal(G.check(previous,"||new.example^\n".repeat(150)).accept,true);
+ assert.equal(G.check(null,"<html>bad</html>").accept,false);
+});

@@ -7,11 +7,12 @@ function hostname(url){
  try{const u=new URL(url);return /^https?:$/.test(u.protocol)?u.hostname.toLowerCase():"";}
  catch(_){return "";}
 }
-function normalizeHost(host){return typeof host==="string"&&/^[a-z0-9.-]{1,253}$/.test(host)&&!host.includes("..")?host:"";}
+function normalizeHost(host){return typeof host==="string"&&host.length<=253&&
+ /^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/.test(host)?host:"";}
 function tabOK(tab){return Number.isInteger(tab)&&tab>=0;}
 function start(sessions,tab,siteHost,now=Date.now()){
  const host=normalizeHost(siteHost);
- if(!tabOK(tab)||!host)return false;
+ if(!tabOK(tab)||!host||!Number.isSafeInteger(now)||now<0)return false;
  const existing=sessions.get(tab);
  if(existing&&existing.siteHost===host){
   existing.active=true;return true;
@@ -29,7 +30,8 @@ function clear(sessions,tab){
 function remove(sessions,tab){sessions.delete(tab);}
 function record(sessions,tab,siteHost,details,now=Date.now()){
  const s=sessions.get(tab);
- if(!s?.active||s.siteHost!==siteHost||!details||!tabOK(tab))return false;
+ if(!s?.active||s.siteHost!==siteHost||!details||!tabOK(tab)||
+   !Number.isSafeInteger(now)||now<0)return false;
  const dest=normalizeHost(hostname(details.url)),id=String(details.requestId??"").slice(0,90);
  if(!dest||!id)return false;
  if(s.byId.has(id))return true;
@@ -65,11 +67,14 @@ function transition(sessions,tab,requestId,status,details={}){
 }
 function note(sessions,tab,requestId,text){
  const session=sessions.get(tab),row=session?.byId.get(String(requestId??"").slice(0,90));
- if(!row||typeof text!=="string"||text.length>90)return false;
+ const known=new Set(["YouTube player JSON request kept available during experiment",
+  "User-approved hostname/type exception"]);
+ if(!row||!known.has(text))return false;
  row.reason=text;session.revision++;return true;
 }
 function syntheticBlock(sessions,tab,siteHost,url,type,now=Date.now()){
- const s=sessions.get(tab);if(!s?.active||s.siteHost!==siteHost)return false;
+ const s=sessions.get(tab);if(!s?.active||s.siteHost!==siteHost||
+   !Number.isSafeInteger(now)||now<0)return false;
  const dest=normalizeHost(hostname(url));if(!dest)return false;
  const item={host:dest,type:String(type||"popup").replace(/[^a-z_]/gi,"").slice(0,30)||"popup",
   method:"",status:"blocked",httpStatus:null,when:now,error:"",reason:"Popup rule"};

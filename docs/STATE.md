@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 200 / 0.3.170 (2026-11-01), unreleased.**
+**Source snapshot: Build 201 / 0.3.171 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -110,3 +110,7 @@ Added side-by-side categorical comparison of two locally exported YouTube compat
 ## Build 200: add a local filtering and release-readiness source audit
 A read-only local candidate audit now runs the actual bundled native/Ghostery hybrid differential decisions, inventories packaged filter syntax and explicitly marks Firefox, ad-free video, full Linux regression, competitor parity and public release as unverified. Integrated into the existing seven-phase Linux runner with permanent regression tests.
 **Outstanding:** full current Ubuntu suite and live Firefox/YouTube verification.
+
+## Build 201: four-system upgrade
+Major four-workstream build: (1) Network Monitor can now block previously allowed traffic using a confirmed, reversible site+hostname+type switch and a lightweight authenticated view of active selective rules, alongside its existing Allow controls; (2) filter-list auto-refresh rejects HTML/XML/JSON error pages and suspicious empty replacement lists; (3) strict popunder grants and claims enforce valid times and reject clock rollback; (4) network capture validates DNS labels/timestamps and whitelists safe explanation labels. Regression coverage includes a full background control interaction. No new permissions, new runtime dependencies or UI geometry changes.
+Full Ubuntu suite and live Firefox video/controls acceptance remain unverified.

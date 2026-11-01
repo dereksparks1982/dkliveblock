@@ -40,3 +40,16 @@ test("Build 114 rollback or invalid claim timestamps are not treated as active",
  assert.equal(claims.has(21),false);
  assert.equal(claims.has(22),false);
 });
+
+test("Build 201 one-tab permits reject invalid timestamps and clock rollback",()=>{
+ const permits=new Map(),claims=new Map();
+ for(const time of [NaN,Infinity,-1,Number.MAX_SAFE_INTEGER]){
+  assert.equal(Trap.grantOnce(permits,1,time),false);
+  assert.equal(Trap.claim(claims,2,1,time),false);
+ }
+ assert.equal(Trap.grantOnce(permits,1,1000),true);
+ assert.equal(Trap.consumeOnce(permits,1,999),false);
+ assert.equal(Trap.grantOnce(permits,1,1000),true);
+ assert.equal(Trap.consumeOnce(permits,1,1001),true);
+ assert.equal(Trap.claim(claims,2,1,1000),true);
+});
