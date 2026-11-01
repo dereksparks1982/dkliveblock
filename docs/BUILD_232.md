@@ -13,3 +13,10 @@
 - Apply the banner lettering order to the four GitHub Pages hero buttons: **black, cyan, white, cyan** (source ZIP, Firefox XPI, GitHub, Patreon).
 - Preserve existing button padding, border width, radius, wrapping, positioning and all four destinations.
 - Keep root `index.html` and `docs/index.html` identical. This is website styling only; Firefox extension version stays `0.3.202` pending owner testing.
+
+## Website button artwork refinement (site only)
+- Preserve the owner's **black, cyan, white, cyan** color order and existing destinations, with all four targets rendered at equal 64px height and equal grid width.
+- Display ZIP and XPI symbols at 42px; label these buttons **Download source** and **Download XPI**.
+- Use the supplied full GitHub wordmark as the entire visible button content, with no duplicate label; crop empty margins from the supplied Patreon wordmark and remove redundant text.
+- Use high-contrast grayscale and blend modes to visually suppress the raster images' baked pale checkerboard backgrounds; the ZIP artwork renders white on black, and Patreon has no surrounding white square.
+- Center icon/image content, support narrow screens, preserve keyboard accessibility and all existing links. Only `index.html`, `docs/index.html` and this build note changed; Firefox extension code/version untouched.
