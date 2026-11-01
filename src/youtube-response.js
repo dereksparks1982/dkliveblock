@@ -9,10 +9,11 @@ const liveByTab=new Map(),versions=new Map();let liveCount=0;
 const Feed=root.DKYouTubeFeed||(typeof require==="function"?require("./youtube-feed.js"):null);
 const AD_FIELDS=["adPlacements","adSlots","playerAds"];
 const records=new Map();
-const makeKind=()=>({requests:0,seen:0,changed:0});
-const kinds=()=>({player:makeKind(),feed:makeKind(),next:makeKind(),
- playlist:makeKind(),shorts:makeKind()});
+const makeKind=()=>({requests:0,seen:0,changed:0,refused:0});
+const kinds=()=>({player:makeKind(),prefetch:makeKind(),feed:makeKind(),
+ next:makeKind(),playlist:makeKind(),shorts:makeKind()});
 function category(url){
+ if(resolveTarget(url))return "prefetch";
  const feed=Feed?.kind(url);
  if(feed==="shorts")return "shorts";
  if(feed==="feed"){
@@ -25,7 +26,7 @@ function category(url){
  }
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds()});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds()});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -114,18 +115,18 @@ function rewrite(text,url=""){
  if(typeof text!=="string"||text.length>MAX_BYTES||text.length<2)return {text,changed:false,fields:0};
  const prefix=text.startsWith(")]}'\n")?")]}'\n":"";
  let payload;try{payload=JSON.parse(prefix?text.slice(prefix.length):text);}catch(_){return {text,changed:false,fields:0};}
- if(!plain(payload)||refused(payload))
-  return {text,changed:false,fields:0};
+ if(!plain(payload))return {text,changed:false,fields:0};
+ if(refused(payload))return {text,changed:false,fields:0,refused:true};
  // Resolve-URL video prefetch is a distinct, narrowly identified envelope.
  // Only the specific nested player object is eligible, never the parent
  // navigation metadata, signed links, login fields or unknown structures.
  if(resolveTarget(url)){
   const envelope=payload.endpoint?.watchEndpoint?.unserializedPrefetchData;
-  if(!plain(envelope)||refused(envelope))
-   return {text,changed:false,fields:0};
+  if(!plain(envelope))return {text,changed:false,fields:0};
+  if(refused(envelope))return {text,changed:false,fields:0,refused:true};
   const prefetch=envelope.playerResponse;
   if(plain(prefetch)){
-   if(refused(prefetch))return {text,changed:false,fields:0};
+   if(refused(prefetch))return {text,changed:false,fields:0,refused:true};
    const count=pruneObject(prefetch);
    return count?{text:prefix+JSON.stringify(payload),changed:true,fields:count}:
     {text,changed:false,fields:0};
@@ -136,8 +137,8 @@ function rewrite(text,url=""){
   if(typeof prefetch!=="string"||prefetch.length>MAX_BYTES/2)
    return {text,changed:false,fields:0};
   let parsed;try{parsed=JSON.parse(prefetch);}catch(_){return {text,changed:false,fields:0};}
-  if(!plain(parsed)||refused(parsed))
-   return {text,changed:false,fields:0};
+  if(!plain(parsed))return {text,changed:false,fields:0};
+  if(refused(parsed))return {text,changed:false,fields:0,refused:true};
   const count=pruneObject(parsed);
   if(!count)return {text,changed:false,fields:0};
   envelope.playerResponse=JSON.stringify(parsed);
@@ -149,12 +150,12 @@ function rewrite(text,url=""){
  const nested=payload.playerResponse;
  let parsedChild=null;
  if(plain(nested)){
-  if(refused(nested))return {text,changed:false,fields:0};
+  if(refused(nested))return {text,changed:false,fields:0,refused:true};
  }else if(typeof nested==="string"){
   if(nested.length>MAX_BYTES/2)return {text,changed:false,fields:0};
   try{parsedChild=JSON.parse(nested);}catch(_){return {text,changed:false,fields:0};}
-  if(!plain(parsedChild)||refused(parsedChild))
-   return {text,changed:false,fields:0};
+  if(!plain(parsedChild))return {text,changed:false,fields:0};
+  if(refused(parsedChild))return {text,changed:false,fields:0,refused:true};
  }
  let fields=pruneObject(payload);
  if(plain(nested))fields+=pruneObject(nested);
@@ -169,8 +170,13 @@ function note(tab,outcome,fields=0,url=""){
  if(!Number.isInteger(tab)||tab<0)return;
  const v=records.get(tab)||EMPTY();
  const entry=v.byKind[category(url)];
- if(entry){entry.seen++;if(outcome==="modified")entry.changed++;}
+ if(entry){
+  entry.seen++;
+  if(outcome==="modified")entry.changed++;
+  if(outcome==="refused")entry.refused++;
+ }
  if(outcome==="modified")v.modified++;
+ else if(outcome==="refused"){v.unchanged++;v.refused++;}
  else if(outcome==="unchanged")v.unchanged++;
  else if(outcome==="oversized")v.oversized++;
  else if(outcome==="timedOut")v.timedOut++;
@@ -191,8 +197,8 @@ function observeRequest(tab,url=""){
 }
 function stats(tab){
  const v=records.get(tab)||EMPTY();
- return {...v,byKind:{player:{...v.byKind.player},feed:{...v.byKind.feed},
-  next:{...v.byKind.next},playlist:{...v.byKind.playlist},
+ return {...v,byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
+  feed:{...v.byKind.feed},next:{...v.byKind.next},playlist:{...v.byKind.playlist},
   shorts:{...v.byKind.shorts}}};
 }
 function clear(tab){
@@ -276,19 +282,25 @@ function attach(details,webRequest,clock=root){
  filter.onstop=()=>{
   if(ended)return;
   if(overflow){finish();return;}
+  // Never replay original bytes after attempting to write modified JSON.
+  // Firefox can throw after accepting a partial stream write.
+  let modifiedWriteAttempted=false,abort=false;
   try{
    const bytes=new Uint8Array(length);let offset=0;
    for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.byteLength;}
    const original=new TextDecoder("utf-8",{fatal:true}).decode(bytes);
    const result=rewrite(original,details.url);
    if(result.changed){
-    filter.write(new TextEncoder().encode(result.text));
+    const rewritten=new TextEncoder().encode(result.text);
+    modifiedWriteAttempted=true;
+    filter.write(rewritten);
     noteCurrent("modified",result.fields);
-   }else{writeOriginal();noteCurrent("unchanged");}
+   }else{writeOriginal();noteCurrent(result.refused?"refused":"unchanged");}
   }catch(_){
-   try{writeOriginal();}catch(__){}
+   if(modifiedWriteAttempted)abort=true;
+   else try{writeOriginal();}catch(__){}
    noteCurrent("error");
-  }finally{chunks=[];finish();}
+  }finally{chunks=[];finish(abort);}
  };
  filter.onerror=()=>{
   if(ended)return;

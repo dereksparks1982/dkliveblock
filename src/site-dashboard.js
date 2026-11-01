@@ -446,6 +446,7 @@ function display(d){
   (responses.supported?" · Firefox API available":" · Firefox API unavailable")+
   " · "+Model.number(responses.playerRequests)+" YouTube JSON requests passed to filtering"+
   " · "+Model.number(responses.byKind?.player?.requests)+" player"+
+  " / "+Model.number(responses.byKind?.prefetch?.requests)+" prefetch"+
   " / "+Model.number(responses.byKind?.feed?.requests)+" feed/search"+
   " / "+Model.number(responses.byKind?.next?.requests)+" Up Next"+
   " / "+Model.number(responses.byKind?.playlist?.requests)+" playlist"+
@@ -453,7 +454,8 @@ function display(d){
   " · "+Model.number(responses.observed)+" eligible responses handled"+
   " · "+Model.number(responses.modified)+" rewritten"+
   " · "+Model.number(responses.fields)+" recognized ad structures removed"+
-  " · "+Model.number(responses.unchanged)+" unchanged"+
+  " · "+Model.number(responses.unchanged)+" unchanged (includes refused)"+
+  " · "+Model.number(responses.refused)+" server refused/errored JSON responses"+
   " · "+Model.number(responses.oversized)+" too large"+
   " · "+Model.number(responses.timedOut)+" stream deadlines reached"+
   " · "+Model.number(responses.skippedBusy)+" skipped at memory limit"+

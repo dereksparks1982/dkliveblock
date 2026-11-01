@@ -51,3 +51,20 @@ test("Build 126 compatibility reports provide separate watch-next and playlist m
  assert.match(lines,/next JSON: 4 requested, 3 processed, 2 modified/);
  assert.match(lines,/playlist JSON: 2 requested, 1 processed, 1 modified/);
 });
+
+test("Build 155 exports refusal and prefetch counters without exporting playback secrets",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:155,
+  youtubeResponse:{enabled:true,supported:true,observed:4,unchanged:3,
+   refused:2,byKind:{player:{requests:2,seen:2,changed:0,refused:1},
+    prefetch:{requests:2,seen:2,changed:1,refused:1}}},
+  playbackDiagnostics:[{kind:"enforcement",rawUrl:"https://www.youtube.com/watch?v=PRIVATE_ID"}],
+  videoId:"PRIVATE_ID",title:"PRIVATE_TITLE",reason:"PRIVATE_REASON"});
+ assert.equal(report.responseFiltering.refused,2);
+ assert.equal(report.responseFiltering.byKind.prefetch.requests,2);
+ assert.equal(report.responseFiltering.byKind.prefetch.refused,1);
+ const txt=Report.asText(report),serialized=JSON.stringify(report);
+ assert.match(txt,/YouTube JSON refused: 2/);
+ assert.ok(txt.includes("prefetch JSON: 2 requested, 2 processed, 1 modified, 1 refused/error"));
+ for(const privateString of ["PRIVATE_ID","PRIVATE_TITLE","PRIVATE_REASON"])
+  assert.equal((txt+serialized).includes(privateString),false);
+});

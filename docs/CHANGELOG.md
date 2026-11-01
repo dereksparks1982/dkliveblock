@@ -675,3 +675,7 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 
 ### 0.3.124 / Build 154 (2026-10-31)
 - Added constrained support for stringified JSON playerResponse inside exact YouTube resolve_url video-prefetch envelopes, across Firefox background JSON rewriting and MAIN-world fetch/XHR interception. Only recognized playable ad metadata is removed, retaining signed media and navigation fields; malformed, oversized, denied, non-object and immutable page-world children are left untouched. Added positive/negative response and page-bridge tests. Live Firefox/YouTube ad-free playback and full Ubuntu suite remain unverified.
+
+### 0.3.125 / Build 155 (2026-10-31)
+- Distinguished explicitly refused/errored YouTube player JSON from ordinary unchanged responses with no video IDs, reasons or raw payloads logged. Added a prefetch request category separate from player in tab statistics, dashboard and TXT/JSON report. Preserved older counters and treated refused as a subset of unchanged. Protected streaming onstop from writing original bytes behind an attempted modified output when the Firefox filter throws. Added focused privacy, failure-injection and regression cases. Browser playback and full local suite still require real testing.
+- Corrected two existing JavaScript test-file syntax blockers (Build 153 missing object brace; Build 154 async test declaration). The complete test files now parse, allowing the Linux suite to reach their assertions.

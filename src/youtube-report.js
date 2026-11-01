@@ -3,7 +3,7 @@
 (function(root){"use strict";
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
-const COUNTERS=["playerRequests","observed","modified","fields","unchanged","oversized","timedOut","errors","skippedBusy","skippedHeaders"];
+const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
 function build(s,now=Date.now()){
@@ -13,10 +13,10 @@ function build(s,now=Date.now()){
   supported:s.youtubeResponse?.supported===true};
  for(const k of COUNTERS)responses[k]=number(s.youtubeResponse?.[k]);
  responses.byKind={};
- for(const kind of ["player","feed","next","playlist","shorts"]){
+ for(const kind of ["player","prefetch","feed","next","playlist","shorts"]){
   const row=s.youtubeResponse?.byKind?.[kind];
   responses.byKind[kind]={requests:number(row?.requests),seen:number(row?.seen),
-   changed:number(row?.changed)};
+   changed:number(row?.changed),refused:number(row?.refused)};
  }
  const blocked=Model.requestRows(s).slice(0,250).map(r=>({
   hostname:r.host,resourceType:r.type,
@@ -49,10 +49,10 @@ function asText(report){
   "Player-response filtering enabled: "+report.responseFiltering.enabled,
   "Firefox response filter available: "+report.responseFiltering.supported];
  for(const key of COUNTERS)lines.push("YouTube JSON "+key+": "+report.responseFiltering[key]);
- for(const kind of ["player","feed","next","playlist","shorts"]){
+ for(const kind of ["player","prefetch","feed","next","playlist","shorts"]){
   const row=report.responseFiltering.byKind[kind];
   lines.push(kind+" JSON: "+row.requests+" requested, "+row.seen+
-   " processed, "+row.changed+" modified");
+   " processed, "+row.changed+" modified, "+row.refused+" refused/error");
  }
  lines.push("","PLAYBACK HEALTH");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));

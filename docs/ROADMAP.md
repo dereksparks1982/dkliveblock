@@ -589,3 +589,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 154: remove recognized ad-only metadata from bounded stringified resolve_url prefetch playerResponse, with fail-open refusal and page-world read-only checks; preserve ordinary media/navigation data.
 - [ ] Full Linux/Firefox acceptance and actual no-ads + working-video evidence outstanding.
+
+- [x] Build 155: surface privacy-preserving player/prefetch refusal counts and distinguish prefetch requests, without mislabeling an unchanged refusal as blocked advertising.
+- [x] Build 155: avoid duplicate original bytes after a failed attempted modified Firefox stream write, while preserving pre-write fail-open behavior.
+- [ ] Full Ubuntu JavaScript/Python suite, Firefox stream fault injection, YouTube anti-adblock/live video/Shorts/movie ad-free playback, Disney+ and owner acceptance remain unverified.

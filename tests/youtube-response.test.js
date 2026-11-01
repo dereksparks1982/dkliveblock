@@ -435,7 +435,7 @@ test("Build 153 handles only nested YouTube resolve_url video-prefetch ad fields
  const body={endpoint:{watchEndpoint:{unserializedPrefetchData:{playerResponse:{
   playabilityStatus:{status:"OK"},videoDetails:{title:"ordinary"},
   streamingData:{formats:[{url:"signed-media"}]},adPlacements:[{}],adSlots:[{}]
- }}}},visitorData:"private",navigationTracking:{opaque:"signed"};
+ }}}},visitorData:"private",navigationTracking:{opaque:"signed"}};
  const filtered=R.rewrite(JSON.stringify(body),url);
  assert.equal(filtered.changed,true);assert.equal(filtered.fields,2);
  const parsed=JSON.parse(filtered.text);
@@ -489,4 +489,75 @@ test("Build 154 serialized resolve_url refuses malformed and playback-denied chi
   assert.equal(out.text,raw);
   assert.equal(out.changed,false);
  }
+});
+
+test("Build 155 separates refused YouTube player JSON from ordinary unchanged",()=>{
+ const tab=15505,url="https://www.youtube.com/youtubei/v1/player";
+ for(const denied of [
+  {videoDetails:{title:"private"},adSlots:[{}],playabilityStatus:{status:"LOGIN_REQUIRED"}},
+  {videoDetails:{title:"private"},adSlots:[{}],playerResponse:JSON.stringify({
+   playabilityStatus:{status:"UNPLAYABLE"},videoDetails:{},adSlots:[{}]})}
+ ]){
+  const body=JSON.stringify(denied),rewrite=R.rewrite(body,url);
+  assert.equal(rewrite.changed,false);
+  assert.equal(rewrite.refused,true);
+  assert.equal(rewrite.text,body);
+ }
+ const normal=R.rewrite(JSON.stringify({videoDetails:{title:"normal"}}),url);
+ assert.equal(normal.changed,false);
+ assert.notEqual(normal.refused,true);
+ const prefetch="https://www.youtube.com/youtubei/v1/resolve_url";
+ const body=JSON.stringify({endpoint:{watchEndpoint:{unserializedPrefetchData:{
+  playerResponse:JSON.stringify({videoDetails:{},playabilityStatus:{status:"ERROR"},adSlots:[{}]})
+ }}}});
+ assert.equal(R.rewrite(body,prefetch).refused,true);
+ R.observeRequest(tab,prefetch);
+ assert.equal(R.stats(tab).byKind.prefetch.requests,1);
+ const snapshot=R.stats(tab);
+ snapshot.byKind.prefetch.requests=999;
+ assert.equal(R.stats(tab).byKind.prefetch.requests,1);
+ R.clear(tab);
+});
+test("Build 155 counts response-side refusal without storing video IDs",()=>{
+ const tabId=15506,body=JSON.stringify({videoDetails:{title:"PRIVATE_TITLE"},
+  playabilityStatus:{status:"UNPLAYABLE",reason:"PRIVATE_REASON"},adSlots:[{}]});
+ const chunks=[],filters=[];
+ const web={filterResponseData(){
+  const filter={write(data){chunks.push(Buffer.from(data));},
+   close(){},disconnect(){}};
+  filters.push(filter);return filter;
+ }};
+ const clock={setTimeout(){return 3;},clearTimeout(){}};
+ const d={...req(),tabId,requestId:"refusal-155"};
+ assert.equal(R.attach(d,web,clock),true);
+ filters[0].ondata({data:Buffer.from(body)});
+ filters[0].onstop();
+ assert.equal(Buffer.concat(chunks).toString("utf8"),body);
+ const state=R.stats(tabId);
+ assert.equal(state.refused,1);
+ assert.equal(state.unchanged,1,"denied JSON is unchanged on the wire");
+ assert.equal(state.byKind.player.refused,1);
+ assert.equal(state.byKind.player.seen,1);
+ assert.equal(JSON.stringify(state).includes("PRIVATE_"),false);
+ R.clear(tabId);
+});
+test("Build 155 never appends original player JSON after modified write failure",()=>{
+ let filter,writeAttempts=0,disconnects=0,closed=0;
+ const emitted=[];
+ const web={filterResponseData(){filter={
+  write(chunk){writeAttempts++;emitted.push(Buffer.from(chunk));
+   throw Error("simulated write accepted, then threw");},
+  disconnect(){disconnects++;},close(){closed++}
+ };return filter;}};
+ const clock={setTimeout(){return 3;},clearTimeout(){}};
+ const tabId=15507,body=JSON.stringify({videoDetails:{title:"private"},adSlots:[{}]});
+ assert.equal(R.attach({...req(),tabId,requestId:"write-failure"},web,clock),true);
+ filter.ondata({data:Buffer.from(body)});
+ filter.onstop();
+ assert.equal(writeAttempts,1,"must never replay original after attempted modified write");
+ assert.equal(disconnects,1);
+ assert.equal(closed,0);
+ assert.equal(R.stats(tabId).errors,1);
+ assert.equal(JSON.parse(emitted[0].toString()).adSlots,undefined);
+ R.clear(tabId);
 });

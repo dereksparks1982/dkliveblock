@@ -405,7 +405,7 @@ test("Build 154 MAIN-world fetch handles stringified resolve_url prefetch player
  assert.equal(JSON.parse((await get.json()).endpoint.watchEndpoint.unserializedPrefetchData.playerResponse).adSlots.length,1);
  p.send("disable");
 });
-test("Build 154 MAIN-world refuses serialized denial and read-only prefetch field",()=>{
+test("Build 154 MAIN-world refuses serialized denial and read-only prefetch field",async()=>{
  for(const mode of ["denied","readonly"]){
   const p=context(),player=JSON.stringify({videoDetails:{title:"safe"},adSlots:[{}],
    ...(mode==="denied"?{playabilityStatus:{status:"UNPLAYABLE"}}:{})});
