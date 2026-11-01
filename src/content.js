@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let temporarySelectors=[],active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,pickerSelectors=[],picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let temporarySelectors=[],active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
@@ -41,7 +41,7 @@
  }
  function applyPickerCSS(){
   if(!document.documentElement)return;
-  const safe=active?[...new Set([...pickerSelectors,...temporarySelectors])].filter(s=>typeof s==="string"&&s.length>0&&s.length<=600):[];
+  const safe=active?temporarySelectors.filter(s=>typeof s==="string"&&s.length>0&&s.length<=600):[];
   if(!safe.length){pickerStyle?.remove();pickerStyle=null;return;}
   if(!pickerStyle||!pickerStyle.isConnected){
    pickerStyle=document.createElement("style");pickerStyle.id="dk-live-block-picker-style";
@@ -69,7 +69,7 @@
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
-   active=nextActive;css=s.css||"";pickerSelectors=active&&Array.isArray(s.pickerSelectors)?s.pickerSelectors.slice(0,120):[];youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
+   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{

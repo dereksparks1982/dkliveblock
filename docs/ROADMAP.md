@@ -840,3 +840,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 228 (0.3.198): make new right-click picker hides temporary per document; refresh restores them. Keep popup Undo for page-only picks and older saved rules. CBS news article protection releases all media interference after an actual player/control interaction to avoid spinner, while leaving network filters untouched. Focused test coverage added.
 - [ ] Firefox acceptance for Build 228: first undo any CBS legacy saved picker hides (popup Undo hide), reload page, confirm video stays paused, click Play and see whether footage loads normally. Verify CBS ads remain absent; hide a harmless element, refresh and confirm it returns. Confirm YouTube and Disney+ unchanged.
+
+- [x] Build 229 / 0.3.199: clear CBS's legacy permanently saved picker CSS, remove picker persistence actions, preserve CBS video config endpoint only for top-level CBS News and only script/XHR, protect known video containers from automatic cosmetic hiding, publish informational GitHub Pages in root/docs.
+- [ ] Owner Firefox verification: CBS News homepage right-side video should be visible and manually playable; CBS article video should wait for Play and start without infinite spinner. Confirm CBS ads remain blocked. Test Block Element hide and refresh to restore; retest YouTube and Disney+.
+- [ ] Verify GitHub Pages live address and configured Pages publishing source, add actual public Google Drive file link after a tested release is available.

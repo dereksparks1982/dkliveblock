@@ -85,3 +85,7 @@ CBS News article video autoplay was successfully prevented by Build 227. However
 
 The owner also compared CBS News with DK Live Block disabled vs enabled: disabling revealed extensive advertising and an endlessly scrolling ad feed; re-enabling produced a much more usable article. Treat this as *owner-observed successful CBS advertising suppression*. Do not weaken network filters in an autoplay fix.
 
+
+## Owner CBS homepage report (November 1, 2026)
+
+Owner screenshot shows CBS News main homepage player on the right is black and cannot play with DK Live Block active. CBS article player previously stopped autoplay but became stuck after pressing Play. Owner requires manual Block Element hiding to reset on refresh and never save automatically; Build 227 stored CBS-specific CSS picker rules permanently. Build 229 removes those old CBS rules, removes new picker persistence paths, preserves the one CBS video configuration host identified in the blocked request report, and protects CBS player containers from cosmetic list rules. The owner previously observed CBS with many advertisements when the extension was off and usable with those advertisements suppressed when on. **Build 229 was not yet owner-tested in Firefox**; no claim of fixed video playback or store readiness.

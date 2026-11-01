@@ -43,16 +43,21 @@ const AD_CONTEXT=".ad-showing, #movie_player.ad-showing, .ytp-ad-module, .ytp-ad
 const NON_AD_SKIP=/^\s*(?:skip\s+(?:intro|recap|opening|credits|preview|tutorial|to\s+next)|next\s+(?:video|episode)|play\s+next)\b/i;
 const PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video|audio|ytd-player|#movie_player|\.html5-video-player|\.html5-video-container|\.video-stream|\.ytp-chrome-bottom|\.ytp-progress-bar|\.ytp-play-progress|\.ytp-volume-panel|\.ytp-time-display|\.ytp-ad-skip-button(?:-modern|-slot|-container)?|\.ytp-skip-ad-button)(?=$|[,\s>+~[:.)])/i;
 const streamingDomains=["youtube.com","youtube-nocookie.com","youtu.be","disneyplus.com"];
+// These are identifiable CBS player containers, not the generic "ad" boxes.
+const CBS_PLAYER_GUARD=/(?:^|[,\s>+~(])(?:video\b|\.jwplayer\b|\.video-js\b|\.video-player\b|\.video-container\b|\.video-embed\b|\.cbs-video\b|#video-player\b|#video-container\b)/i;
 function hostnameMatches(host,base){return host===base||host.endsWith("."+base);}
 function isStreamingHost(host){return typeof host==="string"&&streamingDomains.some(base=>hostnameMatches(host.toLowerCase(),base));}
 function protectSelector(selector){return typeof selector==="string"&&PLAYER_GUARD.test(selector);}
+function isCBSHost(h){return typeof h==="string"&&(h==="cbsnews.com"||h.endsWith(".cbsnews.com"));}
+function protectCBSSelector(selector,h){return isCBSHost(h)&&typeof selector==="string"&&CBS_PLAYER_GUARD.test(selector);}
 function mediaRecoveryAllowed(pageHost,resourceType,siteAllowances){
  return resourceType==="media"&&isStreamingHost(pageHost)&&
   Array.isArray(siteAllowances)&&siteAllowances.includes(pageHost);
 }
 function safeCosmetics(selectors,host){
  if(!Array.isArray(selectors))return [];
- return isStreamingHost(host)?selectors.filter(x=>!protectSelector(x)):selectors;
+ return isStreamingHost(host)?selectors.filter(x=>!protectSelector(x)):
+  isCBSHost(host)?selectors.filter(x=>!protectSelector(x)&&!protectCBSSelector(x,host)):selectors;
 }
 function playerElement(element){
  if(!element)return false;
@@ -132,7 +137,7 @@ function createController(cooldownMs=5000){
  }
  return {scan,reset(){pressed=new WeakMap();}};
 }
-const api={isStreamingHost,mediaRecoveryAllowed,protectSelector,safeCosmetics,playerElement,isAdSkip,createController,normalizeLabel};
+const api={isStreamingHost,isCBSHost,protectCBSSelector,mediaRecoveryAllowed,protectSelector,safeCosmetics,playerElement,isAdSkip,createController,normalizeLabel};
 root.DKVideoAssist=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

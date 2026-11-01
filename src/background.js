@@ -591,6 +591,15 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
    data.settings.paused.some(h=>DKRules.sub(top,h))?"site-allowlisted":"protection-not-ready");
   return {};
  }
+ // CBS player configuration is a narrowly verified video dependency.
+ // Do not allow unrelated CBS advertising domains or disable ordinary filters.
+ // Threat, global/site pause and explicit user manual blocks were checked above.
+ if(DKCBSCompat.playerConfig(d,top)){
+  DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
+   "CBS News playback configuration retained");
+  notePermittedDecision(d,top,"cbs-player-config");
+  return {};
+ }
  // Opt-in rescue: only media requests on the specifically selected streaming site.
  // No script, XHR, tracking, or navigation requests are exempted.
  if(DKVideoAssist.mediaRecoveryAllowed(top,d.type,data.settings.mediaRecovery)){
@@ -782,7 +791,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(typeof sender.url==="string"&&sender.url&&!ownExtensionPage&&!sender.tab)
   return {error:"This action is only available in the extension interface."};
  const fromContent=!!sender.tab&&!ownExtensionPage;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="addElementRule"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap"&&msg.action!=="reportYouTubePagePrune")
+ if(fromContent&&msg.action!=="getStyle"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap"&&msg.action!=="reportYouTubePagePrune")
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
@@ -1519,16 +1528,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    // Do not affect CBS's video/live pages or any standalone YouTube/Disney+ tab.
    cbsAutoplay:active&&/^https:\/\/(?:www\.)?cbsnews\.com\/news\//i.test(sender.tab?.url||"")&&
     sender.tab?.url?.length<2048,
-   // Explicit site-picked rules must not vanish behind the ordinary 15k CSS
-   // budget. These remain reversible when an Undo/disable rebuild occurs.
-   pickerSelectors:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(
-    data.settings.customRules.split("\n").filter(x=>x.startsWith(h+"##")).slice(-120)
-     .map(x=>DKRules.cosmetic(x)).filter(x=>x&&!x.exception&&x.scope===h&&x.selector.length<=600)
-     .map(x=>x.selector),h)):[],css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
+   // Block Element uses page-only CSS; never return saved picker selectors.
+   css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
       streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
-      protectSelector:selector=>DKVideoAssist.protectSelector(selector)||adExceptions.includes(selector)
+      protectSelector:selector=>DKVideoAssist.protectSelector(selector)||DKVideoAssist.protectCBSSelector(selector,h)||adExceptions.includes(selector)
     }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}
  if(msg.action==="setGlobal"){
   const previous=data.settings.enabled;
@@ -1660,24 +1665,6 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   data.settings.customRules=changed.text;await persistSettings();rebuild();
   return {ok:true,removed:changed.removed};
  }
- if(msg.action==="undoElementRule"){
-  const lines=data.settings.customRules.split("\n"),prefix=h+"##";
-  const index=lines.findLastIndex(line=>line.startsWith(prefix));
-  if(index<0)return {error:"No element rule to undo on this site"};
-  lines.splice(index,1);data.settings.customRules=lines.join("\n");await persist();rebuild();return {ok:true};
- }
- if(msg.action==="addElementRule"){
-  const selector=typeof msg.selector==="string"?msg.selector:"";
-  if(!fromContent||!activeTab(id,h))return {error:"Element selection is only available on an active website."};
-  if(!h||!selector||selector.length>600||!DKRules.cosmetic(h+"##"+selector))
-   return {error:"Invalid element selector"};
-  const rule=h+"##"+selector;
-  if(data.settings.customRules.split("\n").includes(rule))return {ok:true,unchanged:true};
-  if(data.settings.customRules.length+rule.length+1>1000000)
-   return {error:"Custom filter rule limit reached"};
-  data.settings.customRules+=(data.settings.customRules?"\n":"")+rule;
-  await persistSettings();rebuild();return {ok:true};
- }
  if(msg.action==="saveSettings"){
   const s=msg.settings||{};
   if(!s||typeof s!=="object"||Array.isArray(s))
@@ -1769,6 +1756,14 @@ async function boot(){
    if(previous){videoJob=previous;if(previous.state==="interrupted")rememberVideoJob();}
   }
   data.settings=DKSettings.restoreSettings(stored.settings,DEFAULT,Object.keys(SOURCES));
+  // Build 227 accidentally persisted CBS element-picker selections as
+  // CSS rules. Repair this on load, including when the user just reloaded.
+  // Keep all other sites' custom rules and all network filters.
+  const legacyCBS=DKCBSCompat.clearLegacyCBS(data.settings.customRules);
+  if(legacyCBS.removed){
+   data.settings.customRules=legacyCBS.text;
+   await persistSettings();
+  }
   data.threatDB=DKThreatDB.restore(stored.threatCache);
   data.notificationControl=await DKNotificationProtection.sync(browser,
    data.settings.enabled&&data.settings.blockNotificationPrompts);

@@ -1,3 +1,11 @@
+## Build 229 (0.3.199): CBS playback repair and DK Live Block project homepage
+
+- Clear older CBS News custom cosmetic rules saved by the Build 227 element picker at extension startup, so previously hidden CBS video elements can return after a page refresh. Other sites' custom filters, network filters, and cosmetic exceptions remain unchanged.
+- Remove the element-picker background save/undo actions and saved-picker CSS path entirely. New manual selections are hidden only in document memory; reloading restores them. The popup's Undo hide operates only on the current document.
+- Preserve one CBS video configuration endpoint, `https://doppler-config.cbsivideo.com`, for script/XHR requests on CBS News tabs, after threat, pause and explicit user-block checks. Other advertising and tracking hosts stay blocked. Protect recognizable CBS video player containers from automatic cosmetic filtering.
+- Keep Build 228 article autoplay protection unchanged; owner must verify that CBS News homepage and article players load and play manually without reopening ads.
+- Add responsive GitHub Pages home and install information with banner, GitHub source ZIP, Patreon, contact and clear note that Google Drive install package is pending verification and a real link. Duplicate the static page at root and docs to support either Pages publishing source. No GitHub Actions.
+
 ## Build 228 (0.3.198): CBS manual playback and temporary element hiding
 
 - On CBS News articles, the autoplay guard now disengages its video play-event and DOM listeners on a trusted click inside the player or known play controls. This handles player overlays and videos created after a click, intended to prevent the infinite buffering spinner introduced in Build 227. Other article clicks do not enable automatic playback; the guard re-arms on full navigation.

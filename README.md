@@ -4,12 +4,14 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
+**Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) for features, temporary Firefox installation and GitHub download. Google Drive installer link is pending a verified package and public upload.
+
 > **Availability:** DK Live Block is available to download and use from this GitHub repository. The official Firefox Add-ons listing has not yet been approved by Mozilla. Full compatibility, streaming playback, security review, and feature parity with established blockers still require testing.
 
 ## What it does
 
 - **Blocks ads and trackers:** combines a native network-filtering engine with bundled Ghostery technology and configurable filter-list subscriptions, including EasyList and EasyPrivacy. Not every advanced filter syntax is supported.
-- **Hides page clutter:** offers cosmetic filtering, an element picker, per-site exceptions, and conservative controls for clearly identified ad slots, cookie prompts, and other distractions.
+- **Hides page clutter:** offers cosmetic filtering, a page-only element picker (hides reset on refresh), per-site exceptions, and conservative controls for clearly identified ad slots, cookie prompts, and other distractions.
 - **Gives you control:** lets you allowlist sites, add custom filters, inspect blocked and allowed requests, review matched rule information, and apply reversible site-scoped request controls.
 - **Shows what happened:** provides a Site Dashboard, Network Monitor and local TXT/JSON diagnostics. **Detailed permitted-request reports** now retain up to 400 individual completed requests per tab with their actual DK allow-decision category, HTTP method, HTTP status and completion time, plus per-host/type count breakdowns. Reports distinguish current manual controls from past events. Full URL paths, query tokens, cookies, headers and request bodies are intentionally excluded to protect private accounts.
 - **Warns before phishing-listed websites:** a local warning page shows the exact hostname and source, with an explicit, reversible exact-host proceed choice. Real Firefox acceptance is still pending.

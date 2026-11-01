@@ -276,3 +276,9 @@ Owner-verified: Block Element hides chosen items, but saving them across reloads
 
 Owner observed extensive CBS advertising with extension disabled and an ad-free usable page with extension enabled. Manual Firefox validation of Build 228 playback remains pending.
 
+
+## Build 229, 0.3.199 (November 1, 2026)
+
+Owner also observed a black unplayable CBS News homepage video box, beyond the previously reported CBS article spinner. The CBS request report showed `doppler-config.cbsivideo.com` blocked; a public compatibility issue specifically named the host as a possible video dependency. Build 229 permits only HTTPS script/XHR to that exact host when the top-level page is CBS News, preserving other CBS advertising filters. It also removes old CBS News permanent cosmetic rules written by the former picker, protects recognized CBS player containers from cosmetic lists, and removes the background element-picker save route. New manual picks stay in document memory until page refresh. Explicitly entered settings custom rules remain intentionally persistent. Browser playback and ad suppression must be retested; no guaranteed fix claimed.
+
+GitHub Pages root and docs HTML updated. The setting designating its source cannot be read through this connection, so both are provided. A Google Drive package link is not created without a tested package and actual public Drive URL.
