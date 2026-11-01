@@ -11,7 +11,7 @@ test("Build 228 picker is page-only; a document reload resets its picks",()=>{
  assert.match(source,/let temporarySelectors=\[\]/);
  assert.match(source,/function applyPickerCSS\(/);
  assert.match(source,/\.\.\.temporarySelectors/);
- assert.doesNotMatch(picker,/persistSettings|customRules/);
+ assert.doesNotMatch(picker,/browser\.runtime\.sendMessage|await persistSettings\(/);
 });
 test("Build 228 undo restores temporary picks first while keeping legacy saved-rule Undo",()=>{
  assert.match(source,/action==="undoTemporaryHide"/);
