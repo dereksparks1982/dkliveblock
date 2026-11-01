@@ -108,3 +108,16 @@ test("Build 168 compatibility exports identify the selected experimental mode",(
  assert.equal(Report.build({...base,youtubeTestMode:"unknown"}).experimentMode,"combined");
  assert.equal(Report.build({...base,youtubeTestMode:"https://private.test/secret"}).experimentMode,"combined");
 });
+
+test("Build 173 YouTube JSON reports current exact host/type Allow switches",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:173,
+  requestLog:true,recentBlocks:[
+   {host:"www.youtube.com",type:"xmlhttprequest",when:1000},
+   {host:"ads.example",type:"image",when:2000}],
+  requestAllowances:[{host:"www.youtube.com",type:"xmlhttprequest",scope:"remember"}],
+  selectiveBlocks:[{host:"ads.example",type:"image"}]});
+ assert.equal(report.blocked[0].currentlyAllowed,true);
+ assert.equal(report.blocked[1].manualBlock,true);
+ assert.match(Report.asText(report),/currently allowed true/);
+ assert.ok(!JSON.stringify(report).includes("https://www.youtube.com/watch?v="));
+});

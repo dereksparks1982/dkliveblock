@@ -767,3 +767,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Preserves site-specific #@# and #@?# exceptions, existing scan budgets, protected media/identity UI and reversible hiding.
 - Added parser/engine/DOM regressions for quoted literals, exact exceptions, hostile getters and unsupported pattern/action rejection.
 - Standalone source smoke passed; the complete Linux suite and real Firefox acceptance remain unverified. No release.
+
+### 0.3.143 / Build 173 (2026-10-31)
+- Blocked and YouTube compatibility TXT/JSON exports now distinguish historic blocked events from the current site/hostname/type Allow decision or explicit manually selected Block.
+- Prevents confusing old blocked counts with current allowances after toggle changes. Reuses already sanitized dashboard snapshots and never introduces URL/path/token collection.
+- Added exporter regressions and tested the actual report builders with synthetic history and present-day controls.
+- No filtering or playback changes. Complete Linux/Firefox testing remains outstanding.

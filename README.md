@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.142, Build 172.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.143, Build 173.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -23,6 +23,8 @@ No paid tiers, Acceptable Ads, sponsored placements, promotional messages or tel
 End users will not need Node.js, npm or a separate Ghostery installation: the filtering engine is bundled into the source. Filter-list updates still contact their published providers.
 
 **Advanced cosmetic filters (Build 172):** DK now supports a conservative, literal-only `:matches-attr(name=value)` procedural filter on explicitly scoped websites, including exact exceptions. Regex-based attribute filters, scriptlets and arbitrary procedural actions are deliberately unsupported. Site protections and current YouTube interception are unchanged.
+
+**Current toggle state in exports (Build 173):** blocked-request and YouTube TXT/JSON reports now distinguish an event blocked in the past from a current remembered Allow or explicit manual Block on the same host/resource type. These remain privacy-sanitized site-level summaries, not per-URL rules.
 
 ## Development status
 

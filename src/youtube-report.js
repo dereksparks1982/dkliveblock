@@ -27,10 +27,12 @@ function build(s,now=Date.now()){
    Number.isInteger(x.adFields)&&x.adFields>=0&&x.adFields<=3)
   .map(x=>({phase:x.phase,state:x.state,adFields:x.adFields,
    refused:x.refused===true,initialData:x.initialData===true}));
- const blocked=Model.requestRows(s).slice(0,250).map(r=>({
-  hostname:r.host,resourceType:r.type,
-  filterSource:cleanSource(r.ruleEvidence?.subscription)
- }));
+ const blocked=Model.requestRows(s).slice(0,250).map(r=>{
+  const c=Model.blockedControl(s,r);
+  return {hostname:r.host,resourceType:r.type,
+   filterSource:cleanSource(r.ruleEvidence?.subscription),
+   currentlyAllowed:c.allowed,manualBlock:c.manualBlock};
+ });
  const permitted=Model.permittedRows(s).slice(0,200).map(r=>({
   hostname:r.host,resourceType:r.type,count:number(r.count),
   manuallyBlocked:r.block===true
@@ -76,7 +78,9 @@ function asText(report){
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
  if(!report.playback.length)lines.push("No player health observations.");
  lines.push("","BLOCKED HOST/TYPE OBSERVATIONS");
- for(const row of report.blocked)lines.push(row.hostname+" · "+row.resourceType+" · "+row.filterSource);
+ for(const row of report.blocked)lines.push(row.hostname+" · "+row.resourceType+
+  " · "+row.filterSource+" · currently allowed "+row.currentlyAllowed+
+  " · manual block "+row.manualBlock);
  lines.push("","PERMITTED HOST/TYPE OBSERVATIONS");
  for(const row of report.permitted)lines.push(row.hostname+" · "+row.resourceType+" · "+row.count+" · manual block "+row.manuallyBlocked);
  lines.push("",report.limitations);

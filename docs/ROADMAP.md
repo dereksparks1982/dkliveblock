@@ -657,3 +657,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 172: safe, literal-only procedural :matches-attr attribute matching, scoped to explicit website hosts, with exception/duplicate handling and negative/malformed fixtures. No HTML response filtering or arbitrary scriptlets.
 - [ ] Build 172 gate: full seven-phase Ubuntu suite and Firefox ad-slot false-positive/regression checks; no verified parity or release claim.
 - [ ] Build 173: safer request-control visibility and root-cause diagnostics, preserving video playback while expanding observable filtering capability.
+
+- [x] Build 173: export current Allow/Block host/type switch state beside historical blocked event evidence; retain per-site scopes and privacy.
+- [ ] Build 173 verification: full local test suite and real Firefox toggles on/off with reloaded video tab; historical events must remain historical.
+- [ ] Build 174: security/privacy review of extension-origin authorization, retained settings and failure recovery.

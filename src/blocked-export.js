@@ -77,6 +77,13 @@ function build(snapshot,only=null,registrations=new Map(),now=Date.now()){
    matchedFilter:row.ruleEvidence?.pattern||"Not recorded",
    serviceOperator:info.operator,operatorEvidence:info.operatorEvidence,
    likelyPurpose:info.purpose,importance:info.importance,scopeOfEvidence:info.access,
+   // This is a present-day setting, not proof the historical block was wrong.
+   currentControl:(()=>{
+    const c=Model.blockedControl(snapshot,row);
+    return {eligible:c.eligible,allowanceActive:c.allowed,
+     manuallyBlocked:c.manualBlock,
+     scope:"current website + destination hostname + resource type"};
+   })(),
    registration:safeRegistration(lookup),
    researchLinks:links
   };
@@ -148,6 +155,12 @@ function asText(report){
    ["operatorEvidence","Operator evidence"],["likelyPurpose","Likely service purpose"],
    ["importance","Importance / possible impact"],["scopeOfEvidence","Evidence limitations"]])
    lines.push(label+": "+item[field]);
+  const control=item.currentControl;
+  lines.push("Request history note: This entry was blocked when recorded; its current setting may differ.",
+   "Currently manually allowed: "+(control?.allowanceActive===true),
+   "Current explicit manual block: "+(control?.manuallyBlocked===true),
+   "Current toggle eligible: "+(control?.eligible===true),
+   "Control scope: "+(control?.scope||"unavailable"));
   const r=item.registration;
   lines.push("Registration lookup: "+r.status);
   if(r.domain){

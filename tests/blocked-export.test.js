@@ -146,3 +146,19 @@ test("Build 170 non-YouTube blocked exports do not include player diagnostics",(
  assert.equal(out.youtubePlaybackEvidence,null);
  assert.equal(E.asText(out).includes("YOUTUBE PLAYER-DATA OBSERVATIONS"),false);
 });
+
+test("Build 173 historical blocked export reflects only current exact host/type control",()=>{
+ const f=fixture();
+ f.requestAllowances=[{host:"www.youtube.com",type:"image",scope:"remember"}];
+ f.selectiveBlocks=[{host:"googleads.g.doubleclick.net",type:"xmlhttprequest"}];
+ const report=E.build(f);
+ assert.equal(report.requests[0].currentControl.allowanceActive,true);
+ assert.equal(report.requests[0].currentControl.manuallyBlocked,false);
+ assert.equal(report.requests[1].currentControl.allowanceActive,false);
+ assert.equal(report.requests[1].currentControl.manuallyBlocked,true);
+ const text=E.asText(report);
+ assert.match(text,/Request history note: This entry was blocked when recorded/);
+ assert.match(text,/Currently manually allowed: true/);
+ assert.match(text,/Current explicit manual block: true/);
+ assert.doesNotMatch(JSON.stringify(report),/watch\?v=|PRIVATE_TOKEN/);
+});
