@@ -649,3 +649,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 170: unify YouTube player/filter observation counters with regular blocked-request TXT/JSON exports; safe allowlist-only data, no content IDs or raw player data, explicit no-incidents caveat. Preserves previously observed Shutter Island playback behavior.
 - [ ] Next acceptance gate: run complete Linux suite at exact Build 170 commit, verify blocked-request Allow switch on/off in Firefox and compare a regular YouTube video vs Shutter Island under the same filter/experiment modes.
 - [ ] Only after observed regular-video evidence: fix the precise interception/enforcement branch without changing the working movie baseline. No parity or public release claim.
+
+- [x] Build 171: comprehensive source asset closure (background/content/HTML/CSS, icons, redirect resources) with no network calls, missing/remote/traversal fixture tests, and official test inventory registration. Audited 87 references across 10 pages against GitHub HEAD, all present.
+- [ ] Verify the full 7-phase Node/Python Linux runner against Build 171 exact commit; full source checkout currently unavailable in the isolated tool runtime.
+- [ ] Build 172: safe, bounded new native ABP-compatible filtering options with deliberate parser/runtime regression coverage; preserve working YouTube movie path.

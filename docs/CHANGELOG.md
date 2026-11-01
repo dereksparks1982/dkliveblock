@@ -755,3 +755,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Avoids exporting video IDs, titles, URLs, credentials or raw player JSON; non-YouTube exports are unaffected, and zero health events are explicitly not evidence of ad removal.
 - Added synthetic privacy and non-YouTube regression tests, and checked the real existing sanitizer/build functions in a local V8 smoke harness.
 - No changes to YouTube interception, ad rules, permissions, layout or release status. Full Linux and real Firefox tests still pending.
+
+### 0.3.141 / Build 171 (2026-10-31)
+- Added a read-only manifest/extension-HTML asset-closure audit with traversal and remote-executable-reference rejection.
+- Registered regression tests that detect missing packaged scripts/styles/redirects and unsafe references.
+- Verified the new audit logic on the current GitHub source tree and all ten extension HTML pages: 87 references, 0 missing; test runner inventory has 117 unique Node test files.
+- This source-level audit is **not** a complete Linux regression run. No live Firefox or streaming verification and no release.
