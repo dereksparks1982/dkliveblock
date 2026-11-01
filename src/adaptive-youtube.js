@@ -4,6 +4,9 @@
 (function(root){"use strict";
 const MAX_TABS=40,WINDOW_MS=2*60*1000,MIN_GAP_MS=20000,FALLBACK_MS=10*60*1000;
 const BAD=new Set(["buffering","media-error"]);
+const CONTEXT=new Set(["enforcement","ad-skip"]);
+const Model=typeof root.DKAdaptiveModel!=="undefined"?root.DKAdaptiveModel:
+ typeof require==="function"?require("./adaptive-model.js"):null;
 function validSite(site){return typeof site==="string"&&
  (site==="youtube.com"||site.endsWith(".youtube.com")||
   site==="youtube-nocookie.com"||site.endsWith(".youtube-nocookie.com"));}
@@ -32,21 +35,43 @@ function status(store,id,site,now=Date.now()){
 }
 function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  const unchanged={changed:false,mode:mode(store,id,site,now)};
- if(!valid(id,site,now)||!BAD.has(kind)||typeof blockedMediaNearby!=="boolean")
-  return unchanged;
+ if(!valid(id,site,now)||(!BAD.has(kind)&&!CONTEXT.has(kind))||
+    typeof blockedMediaNearby!=="boolean")return unchanged;
  let x=entry(store,id,site,now);
  if(x?.until)return unchanged;
  if(!x||now-x.first>WINDOW_MS){
-  x={site,first:now,last:now,count:0,nearby:false,until:0};
+  x={site,first:now,last:now,count:0,nearby:false,until:0,
+   sawMediaError:false,sawBuffering:false,sawEnforcement:false,sawAdSkip:false};
+ }
+ // Contextual observations suppress inappropriate fallback suggestions.
+ // They NEVER count as failures or cause additional blocking.
+ if(CONTEXT.has(kind)){
+  if(kind==="enforcement")x.sawEnforcement=true;
+  if(kind==="ad-skip")x.sawAdSkip=true;
+  x.last=now;store.delete(id);store.set(id,x);
+  if(store.size>MAX_TABS)store.delete(store.keys().next().value);
+  return unchanged;
  }
  // No repeated fast page signals may generate two independent failures.
  if(x.count&&now-x.last<MIN_GAP_MS)return unchanged;
  x.last=now;x.count++;x.nearby=x.nearby||blockedMediaNearby;
- if(x.count>=2&&x.nearby){
-  x.until=now+FALLBACK_MS;
-  store.delete(id);store.set(id,x);
-  if(store.size>MAX_TABS)store.delete(store.keys().next().value);
-  return {changed:true,mode:"response-only",expires:x.until};
+ x.sawMediaError=x.sawMediaError||kind==="media-error";
+ x.sawBuffering=x.sawBuffering||kind==="buffering";
+ if(x.count>=2&&x.nearby&&!x.sawEnforcement&&!x.sawAdSkip){
+  const prediction=Model?.predict?.({
+   faultCount:Math.min(x.count,3),blockedMediaEvidence:x.nearby,
+   sawMediaError:x.sawMediaError,sawBuffering:x.sawBuffering,
+   sawEnforcement:x.sawEnforcement,sawAdSkip:x.sawAdSkip
+  });
+  // Safety gate is always authoritative; model can only veto a fallback,
+  // never grant permission to bypass network filtering or download scripts.
+  if(prediction?.recommendation==="response-only"&&
+     Number.isFinite(prediction.score)&&prediction.score>=Model.THRESHOLD){
+   x.until=now+FALLBACK_MS;
+   store.delete(id);store.set(id,x);
+   if(store.size>MAX_TABS)store.delete(store.keys().next().value);
+   return {changed:true,mode:"response-only",expires:x.until};
+  }
  }
  store.delete(id);store.set(id,x);
  if(store.size>MAX_TABS)store.delete(store.keys().next().value);

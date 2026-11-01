@@ -708,4 +708,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 185: create locally bounded adaptive YouTube defense selector from existing response-only/combined strategies with tab isolation, playback-failure evidence, manual-mode override and ten-minute rollback.
 - [ ] Build 185 acceptance: full local Node/Python suite and real Firefox A/B tests; verify response-only actually improves a confirmed failed playback case.
-- [ ] Build 186 AI integration: evaluate tiny MIT local model-training project, generate fixed model offline and bundle inspectable JavaScript inference under deterministic safety gates. No cloud AI, runtime Python, external model download or GitHub Actions.
+- [x] Build 186 AI integration: evaluate tiny MIT local model-training project, generate fixed model offline and bundle inspectable JavaScript inference under deterministic safety gates. No cloud AI, runtime Python, external model download or GitHub Actions.
+
+- [x] Build 186: pin and vendor micrograd MIT training sources, ship a static six-feature local model, enforce deterministic tab/safety gates and correct Firefox manifest load ordering; 128 synthetic training states classify as expected.
+- [ ] Build 186 acceptance: complete Linux regression suite, real Firefox playback/ads, held-out real-world labeled evidence, model calibration and safety regression before claiming AI benefit.
+- [ ] Build 187: build privacy-safe, locally labeled feedback and a replayable offline holdout corpus to measure adaptation against unchanged deterministic mode. No automatic downloads of executable code or model weights.

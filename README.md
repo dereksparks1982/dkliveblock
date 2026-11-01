@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.155, Build 185.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.156, Build 186.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -48,7 +48,9 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 
 **Build 184 automatic-defense reliability:** DK now guards daily built-in and custom filter subscription refreshes against unexpectedly incomplete replacement lists, preserving the last working copy and retrying later. This adds a conservative foundation for adaptive defense while retaining normal list updates and the versioned YouTube cosmetic pack. **Live YouTube ad-free playback remains unverified.** See `docs/BUILD_184.md`.
 
-**Build 185 adaptive defenses:** DK now has a bounded local fallback controller for ordinary YouTube playback failures, selecting only between existing reviewed filtering paths. Repeated failures correlated with blocked media temporarily select response-only filtering and automatically expire after ten minutes. Manual test modes take precedence. **No AI model is bundled yet, and real Firefox improvements are unverified.** See `docs/BUILD_185.md`.
+**Build 185 adaptive defenses:** DK now has a bounded local fallback controller for ordinary YouTube playback failures, selecting only between existing reviewed filtering paths. Repeated failures correlated with blocked media temporarily select response-only filtering and automatically expire after ten minutes. Manual test modes take precedence. **Real Firefox improvements were not yet verified at Build 185.** See `docs/BUILD_185.md`.
+
+**Build 186 AI-assisted adaptation:** DK now bundles a tiny, offline-trained model using MIT-licensed micrograd as a training tool. The model scores coarse, local YouTube playback conditions and can recommend only the already-approved temporary response-only fallback. A strict deterministic safety gate remains in charge. No cloud AI, runtime Python, user data upload or model download. The Firefox loader now includes the adaptive controller correctly. **128/128 synthetic training cases passed; actual ad-free YouTube playback remains unverified.** See `docs/BUILD_186.md`.
 
 ## Development status
 

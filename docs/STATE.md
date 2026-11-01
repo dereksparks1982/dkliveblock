@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 185 / 0.3.155 (2026-10-31), unreleased.**
+**Source snapshot: Build 186 / 0.3.156 (2026-10-31), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -9,13 +9,13 @@ This document describes verified repository state and missing acceptance evidenc
 - Build 161 corrected three identified test fixtures. Build 162 adds bounded synthetic native/Ghostery/hybrid verdict comparison, and registers the previously omitted runner self-test. No production blocking rule changes.
 
 ## Outstanding evidence / known risks
-- **Offline suite**: complete current Build 185 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
+- **Offline suite**: complete current Build 186 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
 - **Engine correctness**: Build 163 now consults Ghostery exceptions before enforcing ordinary native subscription blocks. Other precedence, unsupported syntax, important rules and real-browser compatibility remain unverified.
 - **YouTube**: Build 167 records coarse first-load bootstrap observations. Build 168 adds a temporary YouTube test switchboard that separates response filtering, page-bridge filtering and observe-only diagnostics, without changing the default combined behavior. Existing first-party JSON transformations, page bridge and Skip Ad assistant have not passed real Firefox anti-adblock, preroll, midroll, ad-supported film and ordinary-video playback acceptance. No evidence of reliable ad-free playback is claimed.
 - **Security and distribution**: complete permissions/privacy and Linux native-companion audit, long-session performance measurements, Mozilla signing and owner-approved release remain open.
 
 ## Next milestones and gates
-1. Run **all seven offline phases** at exact Build 185 HEAD, resolve any remaining failures, record evidence.
+1. Run **all seven offline phases** at exact Build 186 HEAD, resolve any remaining failures, record evidence.
 2. Build 162 differential observatory implemented; full Ubuntu execution remains pending.
 3. Build 163: exception-rescue and manual precedence changes landed; additional differential/browser verification needed.
 4. Instrument and test YouTube with a clean, controlled Firefox matrix, then implement fixes supported by observed results.
@@ -73,3 +73,6 @@ Built-in/custom filter subscription updates now retain a substantial cached list
 
 ## Build 185 first dormant adaptive YouTube strategy
 Bounded in-memory classifier-free safety controller selects existing response-only strategy after two spaced playback failures correlated to nearby blocked media, returns to combined after ten minutes, and defers to manual test modes. No AI model or cloud inference bundled yet. Live playback acceptance and full Ubuntu suite are outstanding.
+
+## Build 186 micrograd-trained local decision layer
+Added training-time vendored karpathy/micrograd (MIT), seeded synthetic training, and a static JavaScript classifier that can only veto or recommend the controller's existing response-only fallback under strict safety gates. Included enforcement/ad-skip negative evidence. Fixed Build 185's missing adaptive-youtube.js background loader entry. Synthetic training 128/128 classification passed, NOT real-world ad detection or performance. No cloud/telemetry/runtime Python; full Linux and Firefox tests remain pending.
