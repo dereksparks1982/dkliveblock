@@ -1,9 +1,10 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.3.190",
+  "version": "0.3.191",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
+    "verify:ghostery": "node scripts/build-ghostery.mjs --verify",
     "test:local": "bash scripts/test-local.sh"
   },
   "dependencies": {
