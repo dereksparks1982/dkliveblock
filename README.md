@@ -4,7 +4,7 @@
 
 > **Development status:** DK Live Block is unreleased source code. Firefox compatibility, streaming playback, security review, and feature parity with established blockers still require testing. It is not a finished or Mozilla-signed public release.
 
-## What it does
+> **Target:** An owner-approved Firefox Add-ons submission by **Friday, November 6, 2026**, subject to passing local and Firefox acceptance. **Mozilla review/public listing by November 7 is not guaranteed.** See [the release-week plan](docs/RELEASE_WEEK_2026-11-01.md) and [the store listing draft](docs/AMO_LISTING_DRAFT.md).\n\n## What it does
 
 - **Blocks ads and trackers:** combines a native network-filtering engine with bundled Ghostery technology and configurable filter-list subscriptions, including EasyList and EasyPrivacy. Not every advanced filter syntax is supported.
 - **Hides page clutter:** offers cosmetic filtering, an element picker, per-site exceptions, and conservative controls for clearly identified ad slots, cookie prompts, and other distractions.
@@ -51,7 +51,7 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 - [Roadmap and acceptance requirements](docs/ROADMAP.md)
 - [Feature comparison with Adblock Plus](docs/ABP_PARITY_CHECKLIST.md)
 - [Manual browser QA lab](docs/QA_LAB.md)
-- [Firefox publishing requirements](docs/FIREFOX_MARKETPLACE.md)
+- [Firefox publishing requirements](docs/FIREFOX_MARKETPLACE.md)\n- [AMO source/reviewer notes](docs/AMO_REVIEWER_NOTES.md)\n- [Release-week plan and acceptance gates](docs/RELEASE_WEEK_2026-11-01.md)
 - [Support and bug reporting](SUPPORT.md)
 
 ## Support
