@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 218 / 0.3.188 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 219 / 0.3.189 (2026-11-01), unreleased. Build 203 remains the tagged user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -222,3 +222,13 @@ Full Ubuntu and live Firefox tests still pending.
 - Two selected reports are size-limited and strictly parsed against the real v1 YouTube report format; internal comparison retains only allowed numeric counters and settings/mode enum flags. Hostnames, tab IDs, videos and raw network data are discarded. A user may explicitly export a sanitized comparison and manually label which video type, ads and playback were actually observed.
 - Cross-mode comparisons call out meaningful mismatches, incomplete playback evidence, anti-adblock refusal, page-world event limitations and distinct response-filter counter changes. No claim that source-level changes are effective in Firefox or that ad-free playback occurred.
 - New dedicated parser/compare/UI source tests are registered in the Ubuntu local suite. Their source was syntax-checked in an isolated runtime; the complete Linux Node/Python suite and real YouTube/Disney+ Firefox tests remain **unexecuted** and mandatory. Build 203 rollback and all blocking logic remain unchanged.
+
+
+## Build 219: AMO submission engineering (0.3.189, November 1)
+
+- Owner aims to submit DK Live Block to Mozilla Firefox Add-ons by **Friday, November 6**, but review and actual publication by November 7 are outside project control. Draft listing, reviewer notes, and exact candidate/release gates are in `docs/AMO_LISTING_DRAFT.md`, `docs/AMO_REVIEWER_NOTES.md`, and `docs/RELEASE_WEEK_2026-11-01.md`.
+- New offline Python `scripts/amo-preflight.py` checks application licensing, vendor notices, manifest/package consistency, pinned dependency versions, and reviewer assets. `--report` is nonblocking for ordinary development while listing missing prerequisites; **`--strict` blocks candidate packaging** if anything is missing. Failure-injection checks run in the existing local release phase.
+- `scripts/package-firefox.py --candidate` now checks strict source readiness before the complete seven-phase suite, includes the original-code `LICENSE` at extension ZIP root with existing upstream MPL notices, rejects symlinks/hidden/temp artifacts and duplicate license names, and verifies archive contents. It still creates no package without the explicit flag. No public release was made.
+- **Hard blocker:** a real `package-lock.json` and byte-for-byte reproducibility of the pinned Ghostery bundle are missing/unverified. No fabricated lockfile or vendor hash was committed. Source builds require official npm dependencies and a successful exact-commit test run on the owner's Linux system.
+- **Untouched:** all production ad/streaming filtering paths, the owner-approved UI geometry, Build 203 backup tag, one-branch `main` policy. Source documentation and packaging paths only, manifest user-facing description and version increment. No Actions.
+- **Still open:** exact Build 219 complete local Node/Python results; clean Firefox/YouTube/Disney+/1337x/Pirate Bay stability and privacy acceptance; third-party source attribution/license review; final candidate source package, owner approval and Mozilla upload/review. No claim of AMO-ready status.
