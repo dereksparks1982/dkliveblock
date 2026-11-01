@@ -22,6 +22,12 @@ class FilterEngine {
    if(r.special){this.special.push(r);continue;}
    if(r.removeparam){this.paramRules.push(r);continue;}
    this.networkCount++;
+   // The native regex parser escapes punctuation for unanchored plain
+   // strings. Keep that exact compiled regex for Unicode or unusual URLs.
+   // ASCII literal requests can use indexOf without running a RegExp.
+   if(!r.p.startsWith("/")&&!r.p.startsWith("|")&&
+      /^[\x21-\x7e]+$/.test(r.p)&&!/[\*\^|]/.test(r.p))
+    r.fastLiteral=r.compiled.ignoreCase?r.p.toLowerCase():r.p;
    if(!r.anchor){
     const text=r.p.startsWith("/")&&r.p.endsWith("/")?[]:r.p.split(/[\*\^\|]/).filter(x=>x.length>=4);
     const token=text.sort((a,b)=>b.length-a.length)[0]?.toLowerCase().slice(0,4);
@@ -46,27 +52,44 @@ class FilterEngine {
   }
   return result;
  }
- candidates(url,requestHost){
-  // checkRequest already resolved this hostname for third-party rules.
-  // Avoid a second URL parse on every request while keeping external
-  // candidates(url) callers backward-compatible.
+
+ // Traverse buckets in their previous order without allocating a new
+ // candidate array for each network request. Only tokens that actually
+ // resolve to an indexed bucket occupy the deduplication set.
+ visitCandidates(url,requestHost,visit,lowerURL){
   const host=requestHost===undefined?R.host(url):requestHost;
-  const result=this.generic.slice(),parts=host.split(".");
-  for(let i=0;i<parts.length;i++){
-   const rules=this.hostIndex.get(parts.slice(i).join("."));
-   if(rules)result.push(...rules);
+  for(const rule of this.generic)visit(rule);
+  let suffix=host;
+  for(;;){
+   const bucket=this.hostIndex.get(suffix);
+   if(bucket)for(const rule of bucket)visit(rule);
+   const next=suffix.indexOf(".");
+   if(next<0)break;
+   suffix=suffix.slice(next+1);
   }
-  // Host-anchored lists need no expensive URL-length token scan.
-  if(!this.tokenIndex.size)return result;
-  const lower=url.toLowerCase(),seen=new Set();
+  if(!this.tokenIndex.size)return;
+  const lower=lowerURL===undefined?url.toLowerCase():lowerURL,seen=new Set();
   for(let i=0;i<lower.length-3;i++){
-   const token=lower.slice(i,i+4);
-   if(seen.has(token))continue;
+   const token=lower.slice(i,i+4),bucket=this.tokenIndex.get(token);
+   if(!bucket||seen.has(token))continue;
    seen.add(token);
-   const rules=this.tokenIndex.get(token);
-   if(rules)result.push(...rules);
+   for(const rule of bucket)visit(rule);
   }
+ }
+ // Public/debug API remains array-returning, with unchanged rule order.
+ candidates(url,requestHost){
+  const result=[];
+  this.visitCandidates(url,requestHost,rule=>result.push(rule));
   return result;
+ }
+ // Prechecked ASCII substring matching is equivalent to our escaped
+ // literal regex. Always fall back to the original regex for Unicode.
+ matchesRule(rule,url,lower,ascii){
+  if(rule.fastLiteral&&ascii){
+   return rule.compiled.ignoreCase?
+    lower.includes(rule.fastLiteral):url.includes(rule.fastLiteral);
+  }
+  return rule.compiled.test(url);
  }
  cleanNavigation(raw){
   if(typeof raw!=="string"||raw.length>16000||!/^https?:\/\//i.test(raw)||!raw.includes("?"))return null;
@@ -121,22 +144,23 @@ class FilterEngine {
  checkRequest(url,type,docHost,policy={},method=""){
   if(typeof url!=="string"||url.length>16384||!/^https?:/i.test(url)||policy.document)return {block:false,rule:null};
   const target=R.host(url),kind=R.TYPE[type]||type||"other";
+  const lower=url.toLowerCase(),ascii=!/[^\x00-\x7f]/.test(url);
   let block=null,allow=null,important=null;
-  for(const r of this.candidates(url,target)){
-   if(kind==="popup"&&!r.include.has("popup"))continue;
+  this.visitCandidates(url,target,r=>{
+   if(kind==="popup"&&!r.include.has("popup"))return;
    if(r.methods){
     const m=typeof method==="string"?method.toUpperCase():"";
     if(!m||r.methods.no.has(m)||
-       r.methods.yes.size&&!r.methods.yes.has(m))continue;
+       r.methods.yes.size&&!r.methods.yes.has(m))return;
    }
-   if(policy.genericblock&&!r.scope&&!r.exception)continue;
-   if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.networkScopeMatches(docHost,r.scope))continue;
-   if(r.targetScope&&!R.domains(target,r.targetScope))continue;
-   if(r.denyallow&&R.domains(target,r.denyallow))continue;
-   if(r.third!==null&&r.third!==(!!(target&&docHost&&R.site(target)!==R.site(docHost))))continue;
-   if(r.anchor&&!R.sub(target,r.anchor)||!r.compiled.test(url))continue;
+   if(policy.genericblock&&!r.scope&&!r.exception)return;
+   if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.networkScopeMatches(docHost,r.scope))return;
+   if(r.targetScope&&!R.domains(target,r.targetScope))return;
+   if(r.denyallow&&R.domains(target,r.denyallow))return;
+   if(r.third!==null&&r.third!==(!!(target&&docHost&&R.site(target)!==R.site(docHost))))return;
+   if(r.anchor&&!R.sub(target,r.anchor)||!this.matchesRule(r,url,lower,ascii))return;
    if(r.exception)allow=r;else if(r.important)important=r;else block=r;
-  }
+  },lower);
   return important?{block:true,rule:important}:allow?{block:false,rule:allow}:{block:!!block,rule:block};
  }
  shouldBlock(url,type,docHost,policy,method){return this.checkRequest(url,type,docHost,policy,method).block;}

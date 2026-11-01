@@ -1,3 +1,11 @@
+## Build 206 (0.3.176): parity-gated native matcher optimization
+
+- Avoided per-request generic/host/token candidate array copying during live network checks, while preserving the public `candidates()` API and original rule order.
+- Limited token deduplication to actual matching index keys, avoided splitting/joining destination hostnames for suffix traversal, and reused one normalized URL.
+- Added regex-equivalent ASCII substring fast path for unanchored literal network rules; retained regex fallback for Unicode and complex patterns.
+- Added a legacy-matcher differential regression across 2,280 request/policy cases and integrated the test into Linux offline suite. Focused V8 run passed; not a measured Firefox speedup or full local suite pass.
+- No new permissions, telemetry, dependencies, UI changes, YouTube player modifications, GitHub Actions, acceptance or release.
+
 ## Build 205 (0.3.175): independent-audit network correctness
 
 - Fixed option-only rules that were previously interpreted as literal URL strings, including `$removeparam=fbclid` and domain-scoped `$script`/`$popup`.

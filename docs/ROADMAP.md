@@ -767,3 +767,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [ ] Complete diagnostic-only YouTube bridge attribution counters and response-error categorization. Preserve baseline fail-open behavior; do not change player interception or infer which mechanism blocked ads until evidence exists.
 - [ ] Reproduce/triage Claude's 9/837 Node failures on Ubuntu; Build 205 addressed only selected source cases, and has not been independently retested with the full suite.
 - [ ] Build 206: isolate/benchmark matching performance and compare native/Ghostery/Build 203 verdicts before any index rewrite; plan main-frame and popup protections with safe allow/proceed UX.
+
+- [x] Build 206 (0.3.176): replace hot-path candidate-list copies with ordered streaming rule visits, sparse token deduplication, reusable lowercase URL and safe ASCII literal fast matching. Reference-match regressions are integrated into the local test runner. Observed-working YouTube Build 203 remains frozen.
+- [ ] Run complete Ubuntu test runner and record matcher load, p50/p95 request duration and memory with actually enabled EasyList/EasyPrivacy subscriptions; do not infer an improvement from synthetic tests alone.
+- [ ] Reconcile Claude's reported nine baseline Node failures and add privacy-safe mechanism attribution for YouTube without touching the working behavior.

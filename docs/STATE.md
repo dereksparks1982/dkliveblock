@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 205 / 0.3.175 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 206 / 0.3.176 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -135,3 +135,11 @@ Full Ubuntu and live Firefox tests still pending.
 - Native `cleanNavigation` now protects `X-Amz-Algorithm` alongside other AWS signed-query fields; this addresses the test discrepancy noted under CF-11. Script/filter coverage reporting distinguishes additional unsupported `#@^#`, `#@%#`, `#$?#` forms.
 - No changes to YouTube bridge, response handling, streaming playback, bundled Ghostery, permissions, new-tab logic or UI geometry. Full Ubuntu seven-phase and real Firefox acceptance are not yet verified; the preserved Build 203 tag remains the fallback.
 - Independent audit recommended instrumenting the YouTube bridge and investigating all nine reported Node test failures; **this work remains pending**, not claimed complete by Build 205.
+
+## Build 206: parity-gated native matcher optimization (unreleased)
+
+- Retains the externally available `candidates()` sequence but stops allocating combined candidate arrays during `checkRequest()`: ordered `visitCandidates()` traverses generic, host suffix, and indexed token buckets, preserving last-matched-block, exception, and important priority.
+- Only matched 4-character URL tokens enter the duplicate-token set, reducing allocations on URLs without matching token buckets. Host suffixes are traversed without building and joining a domain-parts array. The pre-lowercased URL is reused for token selection and safe literal-string checks.
+- ASCII-only unanchored literal rules use substring matching rather than regex; Unicode URLs and regex/wildcard/anchored rules retain original regex behavior.
+- Permanent regression test compares old array-based candidate scan and blocking verdicts on 2,280 synthetic request-policy combinations, plus Unicode and rule-reload behavior. Included in Linux offline test suite, but full seven-phase suite and live browser acceptance remain pending.
+- No YouTube filtering/bridge/response modifications, other extension permissions or UI geometry changes. Build 203 tag remains frozen.

@@ -88,3 +88,7 @@ Focused V8 smoke validations check new filter-subscription outage guard and manu
 ## Build 205 (0.3.175): independent parser remediation, not yet accepted
 
 Run `bash scripts/test-local.sh` on Ubuntu against the exact version and collect TAP failures. Particularly check the 9 baseline tests reported by Claude, the signed-link privacy fixture, and the unsupported HTML/snippet classification. Differential-test newly active option-only and wildcard rules in the user's real enabled subscriptions against the frozen Build 203 tag. Check YouTube watch, prerolls/midrolls, movies, Shorts and sponsored sidebar comparisons in the same browser profile; no actual Firefox verification has yet been performed for this source.
+
+## Build 206 (0.3.176): native matcher performance changes are unaccepted
+
+New reference-match tests enforce old candidate visit order and last-matched-rule priority over 2,280 synthetic request/policy combinations and explicit Unicode fallback cases. Source checks are not an adequate substitute for all seven Ubuntu offline phases, actual subscription list verdict diffs, real Firefox p50/p95 timing, and controlled YouTube (video/movie/Shorts) playback comparisons to the verified Build 203 tag.
