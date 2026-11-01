@@ -44,6 +44,6 @@ test("Build 229: CBS homepage and article must wait for Play",()=>{
 test("Build 229: existing CBS article autoplay guard remains scoped",()=>{
  assert.ok(bg.includes("cbsAutoplay:active&&"));
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
- assert.equal(manifest.version,"0.3.199");
+ assert.equal(manifest.version,JSON.parse(fs.readFileSync(path.join(__dirname,"../package.json"),"utf8")).version);
  assert.ok(manifest.background.scripts.indexOf("cbs-compat.js")<manifest.background.scripts.indexOf("background.js"));
 });

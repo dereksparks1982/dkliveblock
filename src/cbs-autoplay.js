@@ -1,5 +1,5 @@
-/* DK Live Block Build 228: CBS News click-to-play without player deadlock.
- * The background enables this only for CBS News article tabs. No network changes. */
+/* DK Live Block Build 230: CBS News non-disruptive autoplay protection.
+ * Respect player startup: never pause videos or intercept their play events. */
 (function(root){"use strict";
 function create(doc){
  let enabled=false,observer=null,playerActivated=false;
@@ -12,20 +12,17 @@ function create(doc){
    for(const video of node.querySelectorAll("video")){if(++i>120)break;callback(video);}
   }
  }
- function pauseUnrequested(video){
+ function suppressInitialAutoplay(video){
   if(!enabled||playerActivated||!video)return;
   try{
-   video.autoplay=false;
+   // Never interfere with a video once it has started or loaded metadata.
+   // Disrupting CBS initialization was leaving the player black.
+   if(video.paused!==true||Number(video.readyState||0)>=2)return;
    if(video.hasAttribute?.("autoplay"))video.removeAttribute("autoplay");
-   if(!video.paused)video.pause?.();
-  }catch(_){/* Unknown or detached media element. */}
+   if(video.autoplay===true)video.autoplay=false;
+  }catch(_){/* Preserve playback for detached or unknown media. */}
  }
- function scan(node=doc){if(enabled&&!playerActivated)eachVideo(node,pauseUnrequested);}
- function play(event){
-  if(!enabled||playerActivated)return;
-  const video=event?.target;
-  if(String(video?.localName||"").toLowerCase()==="video")pauseUnrequested(video);
- }
+ function scan(node=doc){if(enabled&&!playerActivated)eachVideo(node,suppressInitialAutoplay);}
  function insideVideo(event){
   if(!Number.isFinite(event?.clientX)||!Number.isFinite(event?.clientY))return false;
   let found=false;
@@ -54,12 +51,11 @@ function create(doc){
   // In particular do NOT cancel delayed play events: that caused the spinner.
   playerActivated=true;
   observer?.disconnect();observer=null;
-  doc.removeEventListener("play",play,true);
  }
  function changes(records){
   if(!enabled||playerActivated)return;
   for(const record of records){
-   if(record.type==="attributes"){pauseUnrequested(record.target);continue;}
+   if(record.type==="attributes"){suppressInitialAutoplay(record.target);continue;}
    for(const node of record.addedNodes||[])scan(node);
   }
  }
@@ -69,7 +65,6 @@ function create(doc){
   enabled=next;
   if(enabled){
    playerActivated=false;
-   doc.addEventListener("play",play,true);
    doc.addEventListener("pointerdown",gesture,true);
    doc.addEventListener("click",gesture,true);
    doc.addEventListener("keydown",gesture,true);
@@ -82,7 +77,6 @@ function create(doc){
    }catch(_){observer?.disconnect();observer=null;}
   }else{
    observer?.disconnect();observer=null;
-   doc.removeEventListener("play",play,true);
    doc.removeEventListener("pointerdown",gesture,true);
    doc.removeEventListener("click",gesture,true);
    doc.removeEventListener("keydown",gesture,true);

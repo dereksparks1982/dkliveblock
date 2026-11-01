@@ -80,7 +80,8 @@
      detail:["enable","observe"].includes(s.youtubePageAssistMode)?
       s.youtubePageAssistMode:s.youtubePageAssistEnabled?"enable":"disable"
     }));
-   applyCSS();applyPickerCSS();cbsAutoplay?.setEnabled(active&&s.cbsAutoplay===true);queueOverlayScan();inspectAdSlots();syncVideoWatcher();
+   applyCSS();applyPickerCSS();cbsAutoplay?.setEnabled(active&&s.cbsAutoplay===true&&window===window.top&&
+    (host==="cbsnews.com"||host==="www.cbsnews.com"));queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     try{document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{detail:"[]"}));}

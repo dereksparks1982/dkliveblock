@@ -1,3 +1,10 @@
+## Build 230 (0.3.200): CBS News playback startup safeguard
+
+- Prevent CBS News autoplay handling from pausing videos or intercepting their play events during player initialization. Only a paused, not-yet-initialized element can have declarative autoplay disabled; a trusted player click disarms the safeguard for subsequent elements.
+- Limit CBS autoplay handling to the top-level CBS page, not embedded video or advertising frames. Preserve existing network advertising rules, player-safe cosmetic filters, YouTube and Disney+ code.
+- Add tests for idle, starting and metadata-ready video, player gestures, unrelated and synthetic clicks, and CBS top-frame restrictions. Focused local CBS checks pass; full regression suite and a CBS Firefox owner retest remain outstanding. The black-video issue is not yet marked browser-verified.
+- No GitHub Actions, extra branches, installer change, website button changes, Mozilla submission, or signed release.
+
 ## Build 229 (0.3.199): CBS playback repair and DK Live Block project homepage
 
 - Clear older CBS News custom cosmetic rules saved by the Build 227 element picker at extension startup, so previously hidden CBS video elements can return after a page refresh. Other sites' custom filters, network filters, and cosmetic exceptions remain unchanged.

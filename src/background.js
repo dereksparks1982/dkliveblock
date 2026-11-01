@@ -1526,7 +1526,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    paywallPopups:data.settings.paywallPopups&&popupAllowed,
    // CBS News homepage and article embeds wait for a real Play gesture.
    // Keep live/video pages and unrelated streaming hosts untouched.
-   cbsAutoplay:active&&DKCBSCompat.autoplayProtection(sender.tab?.url||""),
+   cbsAutoplay:active&&DKCBSCompat.autoplayProtection(sender.tab?.url||"")&&sender.frameId===0,
    // Block Element uses page-only CSS; never return saved picker selectors.
    css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{

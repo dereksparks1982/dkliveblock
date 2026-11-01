@@ -3,62 +3,55 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const A=require("../src/cbs-autoplay.js");
 function mock(){
- const handlers=new Map(),videos=[];
- const video={localName:"video",autoplay:true,paused:false,
-   hasAttribute:x=>x==="autoplay",removeAttribute(){this.removed=true},
-   pause(){this.pauses=(this.pauses||0)+1;this.paused=true},
+ const handlers=new Map(),videos=[],pauses=[];
+ function video({paused=true,readyState=0,autoplay=true}={}){
+  const v={localName:"video",paused,readyState,autoplay,
+   hasAttribute(n){return n==="autoplay"&&this.autoplay;},
+   removeAttribute(n){if(n==="autoplay")this.autoplay=false;},
+   pause(){pauses.push(this);this.paused=true;},
    getBoundingClientRect:()=>({left:0,top:0,right:200,bottom:100,width:200,height:100})};
- videos.push(video);
- const doc={addEventListener:(name,fn)=>handlers.set(name,fn),
-  removeEventListener:name=>handlers.delete(name),
-  querySelectorAll:()=>videos};
- const control=A.create(doc);control.setEnabled(true);
- return {doc,control,handlers,videos,video};
+  videos.push(v);return v;
+ }
+ const doc={addEventListener:(n,fn)=>handlers.set(n,fn),
+  removeEventListener:n=>handlers.delete(n),querySelectorAll:()=>videos};
+ return {ctl:A.create(doc),handlers,videos,pauses,video};
 }
-test("Build 228 CBS still blocks autoplay without a user gesture",()=>{
- const {handlers,video,control}=mock();
- assert.equal(video.paused,true);assert.equal(video.autoplay,false);
- video.paused=false;handlers.get("play")({target:video});
- assert.equal(video.paused,true);
- control.setEnabled(false);
+test("Build 230: guard only disables autoplay of idle, uninitialized media",()=>{
+ const {ctl,video,pauses,handlers}=mock(),v=video();
+ ctl.setEnabled(true);
+ assert.equal(v.autoplay,false);assert.equal(pauses.length,0);
+ assert.equal(handlers.has("play"),false);ctl.setEnabled(false);
 });
-test("Build 228 clicking an overlay inside the video unblocks delayed/replaced players",()=>{
- const {handlers,video,videos,control}=mock();
- const play=handlers.get("play");
- const overlay={localName:"div",closest:()=>null};
- handlers.get("pointerdown")({target:overlay,isTrusted:true,clientX:70,clientY:50});
- assert.equal(handlers.has("play"),false,"stops intercepting play after a click");
- video.paused=false;play({target:video});assert.equal(video.paused,false);
- const replacement={...video,paused:false,autoplay:true,pauses:0};
- videos.push(replacement);control.scan();
- assert.equal(replacement.pauses,0,"replacement video is not forced to pause");
- control.setEnabled(false);
+test("Build 230: preserve active and metadata-ready CBS player media",()=>{
+ const {ctl,video,pauses}=mock(),playing=video({paused:false,readyState:3}),
+   ready=video({paused:true,readyState:4});
+ ctl.setEnabled(true);ctl.scan();
+ assert.equal(playing.autoplay,true);assert.equal(ready.autoplay,true);
+ assert.equal(pauses.length,0);ctl.setEnabled(false);
 });
-test("Build 228 clicking a known video-player control lets the page drive playback",()=>{
- const {handlers,video,control}=mock();
- handlers.get("click")({target:{closest:()=>({localName:"div"})},isTrusted:true});
- video.paused=false;control.scan();
- assert.equal(video.paused,false);
- control.setEnabled(false);
+test("Build 230: a genuine player gesture releases replacement media",()=>{
+ const {ctl,video,handlers,pauses}=mock();video();ctl.setEnabled(true);
+ handlers.get("pointerdown")({target:{closest:()=>null},isTrusted:true,clientX:70,clientY:50});
+ const v=video();ctl.scan();assert.equal(v.autoplay,true);
+ assert.equal(pauses.length,0);ctl.setEnabled(false);
 });
-test("Build 228 unrelated clicks and synthetic clicks do not unlock playback",()=>{
- const {handlers,video,control}=mock();
- const play=handlers.get("play");
- handlers.get("click")({target:{closest:()=>null},isTrusted:true,clientX:450,clientY:250});
- video.paused=false;play({target:video});assert.equal(video.paused,true);
+test("Build 230: synthetic and unrelated clicks do not disable idle guard",()=>{
+ const {ctl,video,handlers}=mock();video();ctl.setEnabled(true);
  handlers.get("click")({target:{closest:()=>({})},isTrusted:false});
- video.paused=false;play({target:video});assert.equal(video.paused,true);
- control.setEnabled(false);
+ handlers.get("click")({target:{closest:()=>null},isTrusted:true,clientX:400,clientY:300});
+ const v=video();ctl.scan();assert.equal(v.autoplay,false);ctl.setEnabled(false);
 });
-test("Build 229 CBS guard covers homepage and articles, not live or unrelated tabs",()=>{
+test("Build 230: autoplay guard applies only to primary CBS News documents",()=>{
  const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ const cs=fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8");
  const C=require("../src/cbs-compat.js");
  const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
- const js=manifest.content_scripts[0].js;
- assert.ok(js.indexOf("cbs-autoplay.js")<js.indexOf("content.js"));
- assert.match(bg,/cbsAutoplay:active&&DKCBSCompat\.autoplayProtection/);
+ const scripts=manifest.content_scripts[0].js;
+ assert.ok(scripts.indexOf("cbs-autoplay.js")<scripts.indexOf("content.js"));
+ assert.match(bg,/cbsAutoplay:active&&DKCBSCompat\.autoplayProtection\(sender\.tab\?\.url\|\|""\)&&sender\.frameId===0/);
+ assert.match(cs,/cbsAutoplay\?\.setEnabled\(active&&s\.cbsAutoplay===true&&window===window\.top/);
  assert.equal(C.autoplayProtection("https://www.cbsnews.com/"),true);
- assert.equal(C.autoplayProtection("https://www.cbsnews.com/news/any-story"),true);
+ assert.equal(C.autoplayProtection("https://www.cbsnews.com/news/story"),true);
  assert.equal(C.autoplayProtection("https://www.cbsnews.com/live/"),false);
- assert.equal(C.autoplayProtection("https://www.youtube.com/news/any-story"),false);
+ assert.equal(C.autoplayProtection("https://www.youtube.com/news/story"),false);
 });
