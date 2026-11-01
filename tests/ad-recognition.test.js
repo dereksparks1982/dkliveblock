@@ -338,3 +338,71 @@ test("Build 202 giant DOM insertions cannot invoke untrusted NodeList iterator",
  assert.equal(A.relevantMutation({type:"childList",
   addedNodes:[ad({cls:"",tag:"ytd-ad-slot-renderer"})]}),true);
 });
+
+test("Build 223 site-owned cam promotions hide only the narrow sidebar and restore cleanly",()=>{
+ const heading={textContent:"CHAT WITH LIVE GIRLS"};
+ const panel=ad({tag:"aside",cls:"live-cam-panel"});
+ panel.textContent="CHAT WITH LIVE GIRLS Live Live Live Live CLICK TO SEE MORE CAM GIRLS";
+ panel.getBoundingClientRect=()=>({left:945,width:320,height:530});
+ panel.querySelectorAll=selector=>selector==="img,video"?Array.from({length:6},()=>({})): [];
+ panel.parentElement=null;heading.parentElement=panel;
+ const contentVideo=ad({tag:"video",cls:"player"});contentVideo.style.setProperty("display","block");
+ const doc={body:{},documentElement:{},location:{hostname:"www.xnxx.com"},
+  querySelectorAll:selector=>selector.includes("h2,h3")?[heading,panel]:[]};
+ const scanner=A.create(doc,{location:{hostname:"www.xnxx.com"},innerWidth:1300},12);
+ assert.equal(A.hasStrongSignal(panel),false,"site promo does not rely on standard ad selectors");
+ assert.equal(scanner.scan(),1);
+ assert.equal(panel.style.getPropertyValue("display"),"none");
+ assert.equal(contentVideo.style.getPropertyValue("display"),"block","normal video untouched");
+ assert.equal(scanner.scan(),0,"idempotent");
+ scanner.restore();
+ assert.equal(panel.style.getPropertyValue("display"),"");
+ assert.equal(scanner.hiddenCount,0);
+});
+test("Build 223 same-looking content outside the observed site is never hidden",()=>{
+ const heading={textContent:"CHAT WITH LIVE GIRLS"};
+ const panel=ad({tag:"aside",cls:"cams"});
+ panel.textContent="CHAT WITH LIVE GIRLS CLICK TO SEE MORE CAM GIRLS";
+ panel.getBoundingClientRect=()=>({left:955,width:335,height:550});
+ panel.querySelectorAll=selector=>selector==="img,video"?[{},{}]:[];
+ heading.parentElement=panel;
+ const doc={body:{},documentElement:{},querySelectorAll:q=>q.includes("h2,h3")?[heading,panel]:[]};
+ for(const hostname of ["example.org","xnxx.com.evil.example"]){
+  const scanner=A.create(doc,{location:{hostname},innerWidth:1300});
+  assert.equal(scanner.scan(),0);assert.equal(panel.style.getPropertyValue("display"),"");
+ }
+});
+test("Build 223 refuses broad, left-side, player-containing or undecorated panels",()=>{
+ const heading={textContent:"CHAT WITH LIVE GIRLS"};
+ const panel=ad({tag:"aside",cls:"cams"});heading.parentElement=panel;
+ panel.textContent="CHAT WITH LIVE GIRLS CLICK TO SEE MORE CAM GIRLS";
+ panel.querySelectorAll=selector=>selector==="img,video"?[{},{}]:[];
+ const doc={body:{},documentElement:{},querySelectorAll:q=>q.includes("h2,h3")?[heading,panel]:[]};
+ const win={location:{hostname:"xnxx.com"},innerWidth:1300};
+ panel.getBoundingClientRect=()=>({left:250,width:320,height:530});
+ assert.equal(A.create(doc,win).scan(),0);
+ panel.getBoundingClientRect=()=>({left:940,width:910,height:530});
+ assert.equal(A.create(doc,win).scan(),0);
+ panel.getBoundingClientRect=()=>({left:940,width:320,height:530});
+ panel.querySelector=selector=>selector.includes("video[controls]")?{}:null;
+ assert.equal(A.create(doc,win).scan(),0);
+ panel.querySelector=()=>null;
+ panel.querySelectorAll=()=>[];
+ assert.equal(A.create(doc,win).scan(),0);
+});
+test("Build 223 site promo exception preserves panel and allows reversible hiding",()=>{
+ const heading={textContent:"CHAT WITH LIVE GIRLS"};
+ const panel=ad({tag:"aside",cls:"cams"});heading.parentElement=panel;
+ panel.textContent="CHAT WITH LIVE GIRLS CLICK TO SEE MORE CAM GIRLS";
+ panel.getBoundingClientRect=()=>({left:940,width:320,height:530});
+ panel.querySelectorAll=selector=>selector==="img,video"?[{},{}]:[];
+ panel.matches=selector=>selector===".cams";
+ const doc={body:{},documentElement:{},querySelectorAll:q=>q.includes("h2,h3")?[heading,panel]:[]};
+ const scanner=A.create(doc,{location:{hostname:"xnxx.com"},innerWidth:1300});
+ scanner.setExceptions([".cams"]);
+ assert.equal(scanner.scan(),0);
+ scanner.setExceptions([]);
+ assert.equal(scanner.scan(),1);
+ scanner.setExceptions([".cams"]);
+ assert.equal(panel.style.getPropertyValue("display"),"");
+});
