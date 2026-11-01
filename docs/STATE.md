@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 193 / 0.3.163 (2026-11-01), unreleased.**
+**Source snapshot: Build 194 / 0.3.164 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -92,5 +92,5 @@ The voluntary TXT/JSON YouTube report now includes explicit evidence category, b
 ## Build 192: correct cross-site streaming issue counts
 The toolbar's streaming issue count now includes only records for the currently selected streaming hostname, instead of mixing history belonging to a different site previously visited in the same tab. The full Linux regression suite and live Firefox acceptance are unverified.
 
-## Build 193: reject invalid temporary request-allowance clocks
-Temporary request exceptions now require a finite nonnegative clock that cannot overflow their expiration; query and list paths reject invalid times without silently treating malformed input as a valid permission. Full Ubuntu suite and real Firefox playback remain unverified.
+## Build 194: prevent malformed clock values in streaming repair permissions
+Explicit ten-minute streaming recovery exceptions now reject invalid/overflowing clocks, fail closed when expiration cannot be evaluated, and preserve exact tab, source-host, request-host and request-type scope. Full Ubuntu suite and real Firefox playback remain unverified.

@@ -6,7 +6,7 @@ const STREAMING=["youtube.com","youtube-nocookie.com","disneyplus.com"];
 function isStreamingHost(host){return typeof host==="string"&&STREAMING.some(s=>host===s||host.endsWith("."+s));}
 function validHost(host){return typeof host==="string"&&/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?(?:\.[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)*$/.test(host)&&host.length<=253;}
 function list(table,tabId,now=Date.now()){
- if(!Number.isInteger(tabId)||tabId<0)return [];
+ if(!Number.isInteger(tabId)||tabId<0||!Number.isFinite(now)||now<0)return [];
  const existing=table.get(tabId)||[];
  const current=existing.filter(row=>row&&row.expires>now&&row.expires<=now+TTL_MS);
  if(current.length) table.set(tabId,current);
@@ -15,7 +15,7 @@ function list(table,tabId,now=Date.now()){
 }
 function allow(table,tabId,pageHost,requestHost,type,now=Date.now()){
  if(!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||!validHost(requestHost)||
-   !TYPES.has(type)||!Number.isFinite(now))return false;
+   !TYPES.has(type)||!Number.isFinite(now)||now<0||now>Number.MAX_SAFE_INTEGER-TTL_MS)return false;
  const existing=list(table,tabId,now).filter(row=>row.pageHost===pageHost);
  const current=existing.find(row=>row.host===requestHost&&row.type===type);
  if(current)current.expires=now+TTL_MS;
@@ -27,7 +27,7 @@ function allow(table,tabId,pageHost,requestHost,type,now=Date.now()){
  return true;
 }
 function revoke(table,tabId,pageHost,requestHost,type,now=Date.now()){
- if(!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||
+ !Number.isFinite(now)||now<0||!Number.isInteger(tabId)||tabId<0||!isStreamingHost(pageHost)||
     !validHost(requestHost)||!TYPES.has(type))return false;
  const previous=list(table,tabId,now);
  const remaining=previous.filter(row=>!(row.pageHost===pageHost&&
@@ -38,7 +38,7 @@ function revoke(table,tabId,pageHost,requestHost,type,now=Date.now()){
  return true;
 }
 function matches(table,tabId,pageHost,requestHost,type,now=Date.now()){
- if(!isStreamingHost(pageHost)||!TYPES.has(type))return false;
+ if(!Number.isFinite(now)||now<0||!isStreamingHost(pageHost)||!validHost(requestHost)||!TYPES.has(type))return false;
  return list(table,tabId,now).some(row=>row.pageHost===pageHost&&
    row.host===requestHost&&row.type===type);
 }

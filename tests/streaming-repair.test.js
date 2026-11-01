@@ -57,3 +57,14 @@ test("Build 57 refuses malformed hosts in manually approved streaming repairs",(
  assert.equal(Repair.allow(table,1,"youtube.com","cdn-1.media.example","media",1000),true);
  assert.equal(Repair.matches(table,1,"youtube.com","cdn-1.media.example","media",1200),true);
 });
+
+test("Build 194 streaming recovery permissions fail closed for invalid clocks",()=>{
+ const table=new Map();
+ for(const now of [NaN,Infinity,-1,Number.MAX_SAFE_INTEGER])
+  assert.equal(R.allow(table,194,"www.youtube.com","video.example.com","media",now),false);
+ assert.equal(R.allow(table,194,"www.youtube.com","video.example.com","media",1000),true);
+ assert.equal(R.matches(table,194,"www.youtube.com","video.example.com","media",NaN),false);
+ assert.equal(R.matches(table,194,"www.youtube.com","video.example.com","media",1001),true);
+ assert.equal(R.matches(table,194,"www.disneyplus.com","video.example.com","media",1001),false);
+ assert.deepEqual(R.list(table,194,NaN),[]);
+});
