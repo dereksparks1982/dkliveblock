@@ -4,7 +4,7 @@
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
 const Outcome=root.DKYouTubeOutcome||typeof require==="function"&&require("./youtube-outcome.js");
-const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders"];
+const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders","attachAttempts","attached"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
 function build(s,now=Date.now()){
@@ -13,6 +13,9 @@ function build(s,now=Date.now()){
  const responses={enabled:s.youtubeResponse?.enabled===true,
   supported:s.youtubeResponse?.supported===true};
  for(const k of COUNTERS)responses[k]=number(s.youtubeResponse?.[k]);
+ responses.errorStages={};
+ for(const stage of ["attach","data","stop","stream"])
+  responses.errorStages[stage]=number(s.youtubeResponse?.errorStages?.[stage]);
  responses.byKind={};
  for(const kind of ["player","prefetch","feed","next","playlist","shorts"]){
   const row=s.youtubeResponse?.byKind?.[kind];
@@ -67,6 +70,9 @@ function asText(report){
   "Player-response filtering enabled: "+report.responseFiltering.enabled,
   "Firefox response filter available: "+report.responseFiltering.supported];
  for(const key of COUNTERS)lines.push("YouTube JSON "+key+": "+report.responseFiltering[key]);
+ for(const stage of ["attach","data","stop","stream"])
+  lines.push("YouTube response error stage "+stage+": "+
+   report.responseFiltering.errorStages[stage]);
  for(const kind of ["player","prefetch","feed","next","playlist","shorts"]){
   const row=report.responseFiltering.byKind[kind];
   lines.push(kind+" JSON: "+row.requests+" requested, "+row.seen+

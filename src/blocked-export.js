@@ -45,7 +45,8 @@ function youtubePlaybackEvidence(snapshot){
    modified:r.modified,fields:r.fields,unchanged:r.unchanged,
    refused:r.refused,oversized:r.oversized,timedOut:r.timedOut,
    errors:r.errors,skippedBusy:r.skippedBusy,skippedHeaders:r.skippedHeaders,
-   byKind:r.byKind,bootstrap:r.bootstrap
+   attachAttempts:r.attachAttempts,attached:r.attached,
+   errorStages:r.errorStages,byKind:r.byKind,bootstrap:r.bootstrap
   },
   note:"Coarse local observations only; no playback events is not proof of ad-free playback. "+
    "Bootstrap observations originate from untrusted page events."
@@ -127,7 +128,12 @@ function asText(report){
     "Response bodies observed: "+y.responseFiltering.observed,
     "Response bodies modified: "+y.responseFiltering.modified,
     "YouTube JSON refusals: "+y.responseFiltering.refused,
-    "Response filtering errors: "+y.responseFiltering.errors);
+    "Response filtering errors: "+y.responseFiltering.errors,
+    "Response filter attachment attempts: "+y.responseFiltering.attachAttempts,
+    "Response filters attached: "+y.responseFiltering.attached);
+   for(const stage of ["attach","data","stop","stream"])
+    lines.push("Response error stage "+stage+": "+
+     y.responseFiltering.errorStages[stage]);
    for(const event of y.responseFiltering.bootstrap){
     lines.push("Bootstrap "+event.phase+": "+event.state+
      " / ad fields "+event.adFields+" / refusal "+event.refused+

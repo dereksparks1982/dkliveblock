@@ -12,6 +12,7 @@ const records=new Map();
 const makeKind=()=>({requests:0,seen:0,changed:0,refused:0});
 const kinds=()=>({player:makeKind(),prefetch:makeKind(),feed:makeKind(),
  next:makeKind(),playlist:makeKind(),shorts:makeKind()});
+const errorStages=()=>({attach:0,data:0,stop:0,stream:0});
 function category(url){
  if(resolveTarget(url))return "prefetch";
  const feed=Feed?.kind(url);
@@ -26,7 +27,7 @@ function category(url){
  }
  return target(url)?"player":"";
 }
-const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,skippedBusy:0,skippedHeaders:0,byKind:kinds(),bootstrap:[]});
+const EMPTY=()=>({playerRequests:0,observed:0,modified:0,fields:0,unchanged:0,refused:0,oversized:0,timedOut:0,errors:0,attachAttempts:0,attached:0,errorStages:errorStages(),skippedBusy:0,skippedHeaders:0,byKind:kinds(),bootstrap:[]});
 function sub(host,domain){return host===domain||host.endsWith("."+domain);}
 function validPage(host){return typeof host==="string"&&
  (sub(host,"youtube.com")||sub(host,"youtube-nocookie.com"));}
@@ -166,7 +167,7 @@ function rewrite(text,url=""){
  if(!fields)return {text,changed:false,fields:0};
  return {text:prefix+JSON.stringify(payload),changed:true,fields};
 }
-function note(tab,outcome,fields=0,url=""){
+function note(tab,outcome,fields=0,url="",stage=""){
  if(!Number.isInteger(tab)||tab<0)return;
  const v=records.get(tab)||EMPTY();
  const entry=v.byKind[category(url)];
@@ -180,7 +181,11 @@ function note(tab,outcome,fields=0,url=""){
  else if(outcome==="unchanged")v.unchanged++;
  else if(outcome==="oversized")v.oversized++;
  else if(outcome==="timedOut")v.timedOut++;
- else v.errors++;
+ else{
+  v.errors++;
+  if(Object.prototype.hasOwnProperty.call(v.errorStages,stage))
+   v.errorStages[stage]=Math.min(1000000000,v.errorStages[stage]+1);
+ }
  v.observed++;if(outcome==="modified")v.fields+=fields;
  if(records.has(tab))records.delete(tab);records.set(tab,v);
  if(records.size>MAX_TABS)records.delete(records.keys().next().value);
@@ -222,7 +227,7 @@ function noteBootstrap(tab,detail){
 }
 function stats(tab){
  const v=records.get(tab)||EMPTY();
- return {...v,byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
+ return {...v,errorStages:{...v.errorStages},byKind:{player:{...v.byKind.player},prefetch:{...v.byKind.prefetch},
   feed:{...v.byKind.feed},next:{...v.byKind.next},playlist:{...v.byKind.playlist},
   shorts:{...v.byKind.shorts}},bootstrap:v.bootstrap.map(x=>({...x}))};
 }
@@ -250,9 +255,9 @@ function attach(details,webRequest,clock=root){
  const tab=details.tabId;
  if(!Number.isInteger(tab)||tab<0)return false;
  const generation=versions.get(tab)||0;
- function noteCurrent(outcome,fields=0){
+ function noteCurrent(outcome,fields=0,stage=""){
   if((versions.get(tab)||0)===generation)
-   note(tab,outcome,fields,details.url);
+   note(tab,outcome,fields,details.url,stage);
  }
  if(liveCount>=MAX_FILTERS||(liveByTab.get(tab)||0)>=MAX_PER_TAB){
   const v=records.get(tab)||EMPTY();
@@ -262,7 +267,14 @@ function attach(details,webRequest,clock=root){
   if(records.size>MAX_TABS)records.delete(records.keys().next().value);
   return false;
  }
- let filter;try{filter=webRequest.filterResponseData(details.requestId);}catch(_){noteCurrent("error");return false;}
+ const counter=records.get(tab)||EMPTY();
+ counter.attachAttempts=Math.min(1000000000,counter.attachAttempts+1);
+ if(records.has(tab))records.delete(tab);
+ records.set(tab,counter);
+ if(records.size>MAX_TABS)records.delete(records.keys().next().value);
+ let filter;try{filter=webRequest.filterResponseData(details.requestId);}
+ catch(_){noteCurrent("error",0,"attach");return false;}
+ counter.attached=Math.min(1000000000,counter.attached+1);
  liveCount++;
  liveByTab.set(tab,(liveByTab.get(tab)||0)+1);
  let chunks=[],length=0,overflow=false,ended=false,deadline=null,flushCursor=0;
@@ -301,7 +313,7 @@ function attach(details,webRequest,clock=root){
    chunks.push(chunk);length+=chunk.byteLength;
   }catch(_){
    try{writeOriginal();}catch(__){}
-   noteCurrent("error");finish(true);
+   noteCurrent("error",0,"data");finish(true);
   }
  };
  filter.onstop=()=>{
@@ -324,13 +336,13 @@ function attach(details,webRequest,clock=root){
   }catch(_){
    if(modifiedWriteAttempted)abort=true;
    else try{writeOriginal();}catch(__){}
-   noteCurrent("error");
+   noteCurrent("error",0,"stop");
   }finally{chunks=[];finish(abort);}
  };
  filter.onerror=()=>{
   if(ended)return;
   try{writeOriginal();}catch(_){}
-  noteCurrent("error");finish(true);
+  noteCurrent("error",0,"stream");finish(true);
  };
  // Firefox keeps the response suspended until the extension finishes it.
  if(typeof clock?.setTimeout==="function"){

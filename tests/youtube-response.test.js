@@ -604,3 +604,50 @@ test("Build 176 captures only optional boolean late player cleanup results",()=>
  assert.equal("playerMetadataCleaned" in R.stats(tab).bootstrap[1],false);
  R.clear(tab);
 });
+
+test("Build 207 response errors show coarse stages and successful attachments",()=>{
+ const causes=["attach","data","stop","stream"];
+ const clock={setTimeout(){return 8;},clearTimeout(){}};
+ for(let i=0;i<causes.length;i++){
+  const tab=20701+i;R.clear(tab);
+  let filter;
+  const web={filterResponseData(){
+   if(i===0)throw Error("PRIVATE_VIDEO_ID");
+   filter={write(){},close(){},disconnect(){}};return filter;
+  }};
+  const actual=R.attach({...req(),tabId:tab,requestId:"r-"+i},web,clock);
+  assert.equal(actual,i!==0);
+  if(actual){
+   if(i===1)filter.ondata({get data(){throw Error("PRIVATE_CHUNK")}});
+   else if(i===2){filter.ondata({data:Buffer.from([255,254,253])});filter.onstop();}
+   else filter.onerror();
+  }
+  const s=R.stats(tab);
+  assert.equal(s.attachAttempts,1);
+  assert.equal(s.attached,i===0?0:1);
+  assert.equal(s.errors,1);
+  assert.equal(s.errorStages[causes[i]],1);
+  assert.equal(causes.reduce((n,k)=>n+s.errorStages[k],0),1);
+  assert.doesNotMatch(JSON.stringify(s),/PRIVATE_/);
+  s.errorStages[causes[i]]=100;
+  assert.equal(R.stats(tab).errorStages[causes[i]],1);
+  R.clear(tab);
+ }
+});
+test("Build 207 successful response attached count is informational only",()=>{
+ const tab=20709;R.clear(tab);
+ let filter;
+ const web={filterResponseData(){filter={write(){},close(){},disconnect(){}};return filter;}};
+ const attached=R.attach({...req(),tabId:tab,requestId:"success"},web,
+  {setTimeout(){return 7;},clearTimeout(){}});
+ assert.equal(attached,true);
+ filter.ondata({data:Buffer.from(JSON.stringify({videoDetails:{title:"private"}}))});
+ filter.onstop();
+ const s=R.stats(tab);
+ assert.equal(s.attachAttempts,1);
+ assert.equal(s.attached,1);
+ assert.equal(s.errors,0);
+ assert.equal(s.unchanged,1);
+ assert.equal(Object.values(s.errorStages).reduce((a,b)=>a+b,0),0);
+ R.clear(tab);
+});

@@ -771,3 +771,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 206 (0.3.176): replace hot-path candidate-list copies with ordered streaming rule visits, sparse token deduplication, reusable lowercase URL and safe ASCII literal fast matching. Reference-match regressions are integrated into the local test runner. Observed-working YouTube Build 203 remains frozen.
 - [ ] Run complete Ubuntu test runner and record matcher load, p50/p95 request duration and memory with actually enabled EasyList/EasyPrivacy subscriptions; do not infer an improvement from synthetic tests alone.
 - [ ] Reconcile Claude's reported nine baseline Node failures and add privacy-safe mechanism attribution for YouTube without touching the working behavior.
+
+- [x] Build 207: record attachment attempts/results and four coarse failure categories from Firefox YouTube response filters, export privacy-safe stats in both local reports, add targeted regression tests, without rewriting responses differently.
+- [ ] Instrument page-world JSON.parse/fetch/XHR/bootstrap prune counts separately, with explicit untrusted event semantics and privacy caps, to identify which protection mechanism matters most.
+- [ ] Check one reported stream-filter error's stage against user-collected Build 207 report; do not suppress or blindly modify the fail-open response hooks.

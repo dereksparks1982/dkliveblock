@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 206 / 0.3.176 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
+**Source snapshot: Build 207 / 0.3.177 (2026-11-01), unreleased. Build 203 remains the user-observed-working YouTube baseline.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -143,3 +143,9 @@ Full Ubuntu and live Firefox tests still pending.
 - ASCII-only unanchored literal rules use substring matching rather than regex; Unicode URLs and regex/wildcard/anchored rules retain original regex behavior.
 - Permanent regression test compares old array-based candidate scan and blocking verdicts on 2,280 synthetic request-policy combinations, plus Unicode and rule-reload behavior. Included in Linux offline test suite, but full seven-phase suite and live browser acceptance remain pending.
 - No YouTube filtering/bridge/response modifications, other extension permissions or UI geometry changes. Build 203 tag remains frozen.
+
+## Build 207: YouTube diagnostic counters (unreleased)
+
+- Fixed, privacy-sanitized per-tab `attachAttempts`, `attached`, and `errorStages.{attach,data,stop,stream}` counters; exposed in both local TXT/JSON report paths.
+- Native and page-world playback protection remains unchanged; observational stage counts cannot identify every ad blocking mechanism (MAIN-world JSON.parse is still not instrumented).
+- Isolated V8 stage tests and a YouTube report privacy test passed. Ubuntu Node suite and browser playback remain pending; Build 203 tagged source still the tested reference.

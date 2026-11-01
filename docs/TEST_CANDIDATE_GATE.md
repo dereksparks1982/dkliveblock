@@ -92,3 +92,7 @@ Run `bash scripts/test-local.sh` on Ubuntu against the exact version and collect
 ## Build 206 (0.3.176): native matcher performance changes are unaccepted
 
 New reference-match tests enforce old candidate visit order and last-matched-rule priority over 2,280 synthetic request/policy combinations and explicit Unicode fallback cases. Source checks are not an adequate substitute for all seven Ubuntu offline phases, actual subscription list verdict diffs, real Firefox p50/p95 timing, and controlled YouTube (video/movie/Shorts) playback comparisons to the verified Build 203 tag.
+
+## Build 207 (0.3.177): YouTube response-filter diagnostics only
+
+Focused injection tests simulate attachment failure, invalid incoming data, invalid UTF-8 at completion, and asynchronous stream failure. Attachment counters and errors are privacy-sanitized before local TXT/JSON export. Keep response byte rewriting unchanged; test Build 207 against the frozen Build 203 tag in real Firefox before acceptance. Full Ubuntu test runner remains pending.

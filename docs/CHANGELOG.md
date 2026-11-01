@@ -1,3 +1,11 @@
+## Build 207 (0.3.177): YouTube response-filter attachment and error-stage observability
+
+- Per-tab counters record response-filter attachment attempts and successful attachments.
+- Previous coarse response error counter is now supplemented by fixed categories: attachment, data receipt, completion/rewrite and asynchronous browser stream errors.
+- The existing YouTube compatibility report and combined blocked-request report export these numeric counters, without error messages, video IDs or URLs.
+- Response rewriting, fallback/timeout handling, media bytes, player bridge, YouTube rules, and request blocking logic are unchanged. Counts are observations, not proof that ads were removed.
+- Synthetic tests exercised each error path and sanitation; full Ubuntu Firefox testing is still pending. Build 203 backup and annotated tag remain unchanged.
+
 ## Build 206 (0.3.176): parity-gated native matcher optimization
 
 - Avoided per-request generic/host/token candidate array copying during live network checks, while preserving the public `candidates()` API and original rule order.

@@ -169,3 +169,21 @@ test("Build 198 refuses untrusted filter backend labels in voluntary export",()=
  assert.doesNotMatch(JSON.stringify(report)+Report.asText(report),/SECRET|private.example/);
  assert.equal(Report.build({ok:true,site:"youtube.com",tabId:198,filterBackend:"hybrid"}).filterBackend,"hybrid");
 });
+
+test("Build 207 reports sanitized response error stages and attached counters",()=>{
+ const r=Report.build({ok:true,site:"www.youtube.com",tabId:207,
+  youtubeResponse:{attachAttempts:4,attached:3,errors:2,
+   errorStages:{attach:1,data:0,stop:0,stream:1,
+    secret:"https://www.youtube.com/watch?v=PRIVATE_ID"}}});
+ assert.equal(r.responseFiltering.attachAttempts,4);
+ assert.equal(r.responseFiltering.attached,3);
+ assert.deepEqual(r.responseFiltering.errorStages,
+  {attach:1,data:0,stop:0,stream:1});
+ const dumped=JSON.stringify(r)+"\n"+Report.asText(r);
+ assert.match(dumped,/YouTube response error stage stream: 1/);
+ assert.doesNotMatch(dumped,/PRIVATE_ID|secret/);
+ const bad=Report.build({ok:true,site:"youtube.com",tabId:208,
+  youtubeResponse:{errorStages:{attach:-1,data:Infinity,stop:1.2,stream:10000000001}}});
+ assert.deepEqual(bad.responseFiltering.errorStages,
+  {attach:0,data:0,stop:0,stream:1000000000});
+});

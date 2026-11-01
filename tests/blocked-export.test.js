@@ -186,3 +186,17 @@ test("Build 187 blocked export distinguishes observed ad state from blocked requ
  assert.match(dump,/not proof of an ad played or blocked/);
  assert.doesNotMatch(dump,/PRIVATE_ID|PRIVATE_TITLE/);
 });
+
+test("Build 207 combined blocked export includes coarse private YouTube stages",()=>{
+ const f=fixture();
+ f.youtubeResponse={attachAttempts:5,attached:4,errors:1,
+  errorStages:{attach:0,data:0,stop:0,stream:1,
+   extra:"PRIVATE_VIDEO"}};
+ const r=E.build(f);
+ assert.equal(r.youtubePlaybackEvidence.responseFiltering.errorStages.stream,1);
+ assert.equal(r.youtubePlaybackEvidence.responseFiltering.attached,4);
+ const txt=E.asText(r);
+ assert.match(txt,/Response error stage stream: 1/);
+ assert.match(txt,/Response filters attached: 4/);
+ assert.doesNotMatch(txt+JSON.stringify(r),/PRIVATE_VIDEO/);
+});
