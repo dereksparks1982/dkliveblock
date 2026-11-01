@@ -40,3 +40,13 @@ test("Build 191 does not leak URL-bearing source labels from YouTube XHR blocks"
  assert.deepEqual(r.firstPartySources,["EasyList"]);
  assert.doesNotMatch(JSON.stringify(r),/private.example|PRIVATE|secret=1/);
 });
+
+test("Build 196 media requests on ad infrastructure stay visible as media failures",()=>{
+ const r=Y.summarize({ok:true,site:"www.youtube.com",requestLog:true,recentBlocks:[
+  {host:"ads.doubleclick.net",type:"media"},
+  {host:"ads.doubleclick.net",type:"script"},
+  {host:"cdn.googlevideo.com",type:"media"}]});
+ assert.equal(r.mediaBlocked,2);
+ assert.equal(r.advertisingInfrastructure,1);
+ assert.equal(r.recorded,3);
+});

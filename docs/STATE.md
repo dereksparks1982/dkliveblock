@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 195 / 0.3.165 (2026-11-01), unreleased.**
+**Source snapshot: Build 196 / 0.3.166 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -97,3 +97,6 @@ Explicit ten-minute streaming recovery exceptions now reject invalid/overflowing
 
 ## Build 195: repair streaming permission syntax and track YouTube player replacement
 Corrected a Build 194 revoke() syntax error and test alias, and made YouTube's ad-state probe reset its observed-player identity when SPA navigation replaces the video element, retaining the eight-second deduplication cooldown. Full Linux regression suite and real Firefox acceptance remain outstanding.
+
+## Build 196: prioritize blocked media evidence in YouTube diagnostics
+The YouTube blocked-request triage now classifies any blocked media by resource type before advertising-infrastructure hostname categories, so an actual media interruption is not hidden inside an ad-server count. Full seven-phase Linux runner and real Firefox playback remain unverified.

@@ -736,3 +736,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 195: repair streaming permission syntax and track YouTube player replacement.
 - [ ] Full suite and live Firefox validations remain unverified.
+
+- [x] Build 196: prioritize blocked media evidence in YouTube diagnostics.
+- [ ] Build 196 full-suite, independent Firefox and competitor parity acceptance remains open.

@@ -13,8 +13,8 @@ function summarize(snapshot){
  let firstPartyXHR=0,firstPartyImage=0,mediaBlocked=0,advertisingInfrastructure=0,other=0;
  const sources=new Set();
  for(const row of events){
-  if(AD_HOSTS.some(x=>sub(row.host,x))){advertisingInfrastructure++;continue;}
   if(row.type==="media"){mediaBlocked++;continue;}
+  if(AD_HOSTS.some(x=>sub(row.host,x))){advertisingInfrastructure++;continue;}
   if(sub(row.host,"youtube.com")||sub(row.host,"youtube-nocookie.com")){
    if(row.type==="xmlhttprequest"){firstPartyXHR++;sources.add(row.ruleEvidence?.subscription||"Unattributed active filter");}
    else if(row.type==="image"||row.type==="imageset")firstPartyImage++;
