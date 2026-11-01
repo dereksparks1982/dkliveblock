@@ -24,3 +24,12 @@ The owner's policy is **free use by individuals and companies, but no monetizati
 ## Bundled PSL attribution
 
 The bundled Public Suffix List snapshot and generated JavaScript dataset are distributed under Mozilla Public License 2.0, not the application-code MIT license. Include `src/LICENSE-PSL.txt` in the extension package and keep `vendor/public_suffix_list.dat` in the source repository. Regenerate via `python3 scripts/update-psl.py --refresh`, which retrieves only from the canonical publicsuffix.org URL, then run all offline regression gates. Verify Mozilla source-submission requirements when applying.
+
+
+## Build 219 submission sprint and source-readiness gate
+
+See `docs/RELEASE_WEEK_2026-11-01.md`, `docs/AMO_REVIEWER_NOTES.md` and `docs/AMO_LISTING_DRAFT.md`. This is a **November 6 submission target**, not a promise Mozilla will approve/list before Saturday, November 7.
+
+`scripts/amo-preflight.py --report` lists missing inputs without publishing or failing ordinary test development. `scripts/amo-preflight.py --strict` is mandatory for any authorized unsigned candidate package and currently rejects the missing authentic `package-lock.json`. Run exact `bash scripts/test-local.sh` on the owner's Linux checkout; resolve failures and compare the regenerated bundled Ghostery file against the accepted source before any submission. Packaging now adds the root custom owner `LICENSE` alongside packaged upstream MPL notices.
+
+AMO requires accessible reviewer source for generated/bundled code, an exact original library source/version reference, reproducible steps, a clean store listing, and truthful privacy/permission disclosures. Obtain explicit owner acceptance, prepare a clean, non-private source upload, and complete the AMO developer account upload manually. Do not submit without a tested source+package pair. Site-level successful ad blocking should be preserved, not generalized to a universal competitor-parity certificate.
