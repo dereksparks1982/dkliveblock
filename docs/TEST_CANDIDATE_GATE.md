@@ -76,3 +76,7 @@ The icon, click-through individual blocked-item Details and user-triggered RDAP 
 ## Build 161 (0.3.131): test-gate repair, not a passing test certificate
 
 The independent review of Build 158 reported three failed Node tests (690/693 passed): one outdated signed-query expectation, one test setup missing the DKRules module, and one selector typo in a cosmetic exception. Build 161 repairs these test sources and updates `scripts/test-local.sh` to continue through all seven phases on a failure while returning a nonzero final status. Its synthetic runner integration fixture exercises both a successful and failing suite, including a mock forbidden workflow and Python companion failure. This is **not** evidence that the full current checkout has passed on Ubuntu. A fresh complete run against the exact Build 161 commit is required before Build 162 arbitration experiments can be promoted.
+
+## Build 200 checkpoint (2026-11-01)
+
+0.3.170 is an **unreleased development source checkpoint**. Its full seven-phase Ubuntu suite has NOT been rerun and its actual Firefox YouTube/Disney+ playback, signed-in paths and ad removal are unverified. The new source audit is deliberately not an acceptance certificate. No public release or signing is authorized.

@@ -745,3 +745,8 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 199: compare YouTube report outcomes offline without false success claims.
 - [ ] Validate report comparability in matched real Firefox sessions, run full Linux suite.
+
+- [x] Build 200: add a local filtering and release-readiness source audit. Development build target reached.
+- [ ] Run complete seven-phase Linux regression on exact Build 200 source, and repair any failures.
+- [ ] Check normal YouTube videos, prerolls, midrolls, ads-funded films and streaming in clean Firefox without other blockers; verify ads genuinely removed AND video works.
+- [ ] Independent competitor, security, privacy, performance and license audits before owner authorizes public release.

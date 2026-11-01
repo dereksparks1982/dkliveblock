@@ -1,6 +1,6 @@
 # DK Live Block: current engineering state
 
-**Source snapshot: Build 199 / 0.3.169 (2026-11-01), unreleased.**
+**Source snapshot: Build 200 / 0.3.170 (2026-11-01), unreleased.**
 This document describes verified repository state and missing acceptance evidence; it is not a parity claim.
 
 ## Implemented source
@@ -9,7 +9,7 @@ This document describes verified repository state and missing acceptance evidenc
 - Build 161 corrected three identified test fixtures. Build 162 adds bounded synthetic native/Ghostery/hybrid verdict comparison, and registers the previously omitted runner self-test. No production blocking rule changes.
 
 ## Outstanding evidence / known risks
-- **Offline suite**: complete current Build 188 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
+- **Offline suite**: complete current Build 200 Node/Python suite has not been executed and accepted. The historical complete pass belonged to Build 63. The independent Build 158 review found 690/693 Node cases passed and three fixtures failed.
 - **Engine correctness**: Build 163 now consults Ghostery exceptions before enforcing ordinary native subscription blocks. Other precedence, unsupported syntax, important rules and real-browser compatibility remain unverified.
 - **YouTube**: Build 167 records coarse first-load bootstrap observations. Build 168 adds a temporary YouTube test switchboard that separates response filtering, page-bridge filtering and observe-only diagnostics, without changing the default combined behavior. Existing first-party JSON transformations, page bridge and Skip Ad assistant have not passed real Firefox anti-adblock, preroll, midroll, ad-supported film and ordinary-video playback acceptance. No evidence of reliable ad-free playback is claimed.
 - **Security and distribution**: complete permissions/privacy and Linux native-companion audit, long-session performance measurements, Mozilla signing and owner-approved release remain open.
@@ -106,3 +106,7 @@ The list-refresh guard now rejects actual NUL bytes, not the escaped text sequen
 
 ## Build 199: compare YouTube report outcomes offline without false success claims
 Added side-by-side categorical comparison of two locally exported YouTube compatibility reports. Comparison displays only experiment modes and deltas for player ad-state observations, playback faults and modified JSON responses. It neither uploads evidence nor declares either mode ad-free. A bounded optional offline developer CLI is included. Full Ubuntu suite and real Firefox acceptance unverified.
+
+## Build 200: add a local filtering and release-readiness source audit
+A read-only local candidate audit now runs the actual bundled native/Ghostery hybrid differential decisions, inventories packaged filter syntax and explicitly marks Firefox, ad-free video, full Linux regression, competitor parity and public release as unverified. Integrated into the existing seven-phase Linux runner with permanent regression tests.
+**Outstanding:** full current Ubuntu suite and live Firefox/YouTube verification.
