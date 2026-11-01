@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,pickerSelectors=[],picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
@@ -9,6 +9,7 @@
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
  const videoController=DKVideoAssist.createController();
  const cosmeticDebugger=DKCosmeticDebug.create(document);
+ const cbsAutoplay=typeof DKCBSAutoplay!=="undefined"?DKCBSAutoplay.create(document,window):null;
  const healthProbe=isHealthSite?DKPlaybackHealth.createProbe():null;
  const adProbe=isYouTube&&isHealthSite?DKPlaybackHealth.createAdProbe():null;
  function samplePlaybackHealth(){
@@ -38,6 +39,17 @@
   if(!style||!style.isConnected){style=document.createElement("style");style.id="dk-live-block-style";document.documentElement.appendChild(style);}
   if(style.textContent!==css)style.textContent=css;
  }
+ function applyPickerCSS(){
+  if(!document.documentElement)return;
+  const safe=active?pickerSelectors.filter(s=>typeof s==="string"&&s.length>0&&s.length<=600):[];
+  if(!safe.length){pickerStyle?.remove();pickerStyle=null;return;}
+  if(!pickerStyle||!pickerStyle.isConnected){
+   pickerStyle=document.createElement("style");pickerStyle.id="dk-live-block-picker-style";
+   document.documentElement.appendChild(pickerStyle);
+  }
+  const next=safe.map(s=>s+" {display:none!important;}").join("\n");
+  if(pickerStyle.textContent!==next)pickerStyle.textContent=next;
+ }
  async function refresh(){
   const sequence=++refreshSequence;
   try{
@@ -56,7 +68,7 @@
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
-   active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
+   active=nextActive;css=s.css||"";pickerSelectors=active&&Array.isArray(s.pickerSelectors)?s.pickerSelectors.slice(0,120):[];youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{
@@ -67,7 +79,7 @@
      detail:["enable","observe"].includes(s.youtubePageAssistMode)?
       s.youtubePageAssistMode:s.youtubePageAssistEnabled?"enable":"disable"
     }));
-   applyCSS();queueOverlayScan();inspectAdSlots();syncVideoWatcher();
+   applyCSS();applyPickerCSS();cbsAutoplay?.setEnabled(active&&s.cbsAutoplay===true);queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     try{document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{detail:"[]"}));}
@@ -350,9 +362,27 @@
   if(!picking||event.target===banner||banner?.contains(event.target))return;
   if(DKVideoAssist.isStreamingHost(host)&&DKVideoAssist.playerElement(event.target))return;
   if(DKAuthProtection.isIdentityUI(event.target,String(event.target?.textContent||"").slice(0,180)))return;
+  if(!(event.target instanceof Element)||event.target===document.body||
+     event.target===document.documentElement)return;
   event.preventDefault();event.stopImmediatePropagation();
-  const selector=cleanSelector(event.target);endPicker();
-  if(selector&&selector.length<=600){try{await browser.runtime.sendMessage({action:"addElementRule",selector});}catch(_){}}
+  const selector=cleanSelector(event.target);
+  if(!selector||selector.length>600){if(banner)banner.textContent="Unable to select this element. Esc cancels.";return;}
+  endPicker();
+  try{
+   const result=await browser.runtime.sendMessage({action:"addElementRule",selector});
+   if(!result?.ok){
+    if(startPicker()&&banner)
+     banner.textContent="Could not save: "+String(result?.error||"Try a different element.").slice(0,90)+". Esc cancels.";
+    return;
+   }
+   // Use a stylesheet instead of permanent inline styles: Undo and site pauses
+   // can remove the rule immediately. A successful save should hide at once.
+   if(!pickerSelectors.includes(selector))pickerSelectors.push(selector);
+   applyPickerCSS();
+   refresh(); // Reconcile with the authoritative saved rules and undo state.
+  }catch(_){
+   if(startPicker()&&banner)banner.textContent="Could not save the rule. Esc cancels.";
+  }
  }
  function keys(e){if(e.key==="Escape"){e.preventDefault();endPicker();}}
  async function maybeRememberVideo(){

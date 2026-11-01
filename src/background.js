@@ -1514,7 +1514,17 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
      youtubePolicy(sender.tab?.id??-1,h).bridge?"enable":"disable"):"disable",
    youtubeDiagnosticsEnabled:active&&data.settings.requestLog&&data.settings.youtubeResponseFilter===true&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    antiAdblock:data.settings.antiAdblock&&popupAllowed,
-   paywallPopups:data.settings.paywallPopups&&popupAllowed,css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
+   paywallPopups:data.settings.paywallPopups&&popupAllowed,
+   // CBS News article embeds must wait for a deliberate player interaction.
+   // Do not affect CBS's video/live pages or any standalone YouTube/Disney+ tab.
+   cbsAutoplay:active&&/^https:\/\/(?:www\.)?cbsnews\.com\/news\//i.test(sender.tab?.url||"")&&
+    sender.tab?.url?.length<2048,
+   // Explicit site-picked rules must not vanish behind the ordinary 15k CSS
+   // budget. These remain reversible when an Undo/disable rebuild occurs.
+   pickerSelectors:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(
+    data.settings.customRules.split("\n").filter(x=>x.startsWith(h+"##")).slice(-120)
+     .map(x=>DKRules.cosmetic(x)).filter(x=>x&&!x.exception&&x.scope===h&&x.selector.length<=600)
+     .map(x=>x.selector),h)):[],css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
       streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
@@ -1657,8 +1667,16 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   lines.splice(index,1);data.settings.customRules=lines.join("\n");await persist();rebuild();return {ok:true};
  }
  if(msg.action==="addElementRule"){
-  const selector=String(msg.selector||"");if(!h||!DKRules.cosmetic(h+"##"+selector))return {error:"Invalid selector"};
-  data.settings.customRules+="\n"+h+"##"+selector;await persist();rebuild();return {ok:true};
+  const selector=typeof msg.selector==="string"?msg.selector:"";
+  if(!fromContent||!activeTab(id,h))return {error:"Element selection is only available on an active website."};
+  if(!h||!selector||selector.length>600||!DKRules.cosmetic(h+"##"+selector))
+   return {error:"Invalid element selector"};
+  const rule=h+"##"+selector;
+  if(data.settings.customRules.split("\n").includes(rule))return {ok:true,unchanged:true};
+  if(data.settings.customRules.length+rule.length+1>1000000)
+   return {error:"Custom filter rule limit reached"};
+  data.settings.customRules+=(data.settings.customRules?"\n":"")+rule;
+  await persistSettings();rebuild();return {ok:true};
  }
  if(msg.action==="saveSettings"){
   const s=msg.settings||{};

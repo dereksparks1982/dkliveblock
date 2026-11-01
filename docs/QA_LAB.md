@@ -71,3 +71,8 @@ The owner tested the same show in Firefox with DK Live Block **disabled**, obser
 
 The exact extension version/commit, count of ad breaks, independent video/player diagnostics and network-to-visual causality were not provided. **Do not generalize to guaranteed ad removal on every Disney+ show or every midroll.** A new release acceptance pass should check normal playback, seeking, subtitles, fullscreen and continued ad suppression. Keep all site-level QA outcomes in docs, not the root README.
 
+
+## November 1, 2026: CBS News article playback and ad observation
+
+The owner reported no visible advertising on CBS News in the tested session, but observed a sidebar video on a `www.cbsnews.com/news/...` article start playing without a deliberate click. The owner also reported the Firefox right-click **Block element with DK Live Block** command selects an object but does not hide it when chosen. Preserve the current apparently successful CBS network blocking and Patreon link. New acceptance checks: reload a normal CBS article and confirm the sidebar video remains paused until clicked; explicitly click Play and confirm playback works; open an unrelated site and YouTube/Disney+ to confirm no autoplay control leaks. Block a harmless article sidebar element, confirm immediate disappearance and persistence after reload; Undo the rule and confirm visibility returns. No Firefox test was run at code-commit time.
+

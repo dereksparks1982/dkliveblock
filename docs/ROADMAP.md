@@ -834,3 +834,6 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] Build 226 (0.3.196): activate owner-approved `https://www.patreon.com/c/dkliveblock` Patreon page through existing toolbar/Settings buttons, add tests for safe click-only opening and invalid/missing URLs, and link optional support from the GitHub README.
 - [ ] Build 226 acceptance: click Patreon in both Firefox toolbar and Settings, verify exactly one new official tab per deliberate click, no automatic external access or paid gates, and full extension behavior unchanged; full Linux suite and release dependency verification remain outstanding.
+
+- [x] Build 227 (0.3.197): fix right-click element picker persisting silently without hiding the element, add reversible dedicated cosmetic stylesheet (independent of large-list CSS budget), validate saved selectors and provide failed-save feedback. Add site-scoped CBS News article autoplay suppression requiring actual player input. Record the owner's CBS observations only in docs.
+- [ ] Build 227 acceptance: owner Firefox tests selected-element hide/reload/Undo/paused website and CBS news sidebar no-autoplay, manual Play, scrolling/clicking elsewhere, video frames; ensure YouTube/Disney+ ad-suppression and Patreon are unchanged. Full Linux seven-phase regression and release provenance gates still required.

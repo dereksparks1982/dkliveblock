@@ -1,3 +1,9 @@
+## Build 227 (0.3.197): working Block Element picker and CBS News autoplay controls
+
+- Element picker now confirms the saved cosmetic rule before hiding the selected target; a failed save shows a retry message rather than silently doing nothing. Exact-site selected CSS is independently applied after successful selection, remains effective despite an oversized filter-list CSS budget, and is removed after Undo/disable on the next refresh. Background rejects invalid, duplicated or over-limit selectors.
+- New limited autoplay control for CBS News article pages: locally pauses unsolicited video playback and removes autoplay attributes, while permitting deliberate video-player interaction. The rule is applied to frames of CBS News article tabs, not worldwide; direct YouTube/Disney+ and unrelated sites remain unchanged. Does not block video network resources.
+- Added focused regression checks, seven-phase Linux runner registrations and owner-observed CBS no-visible-ads/video-autoplay QA notes. No new permissions, telemetry, Patreon changes, branches, GitHub Actions, README release notes or Mozilla publication. Full Linux/Firefox acceptance remains pending.
+
 ## Build 226 (0.3.196): optional Patreon creator link activated
 
 - Enabled existing DK Live Block Patreon buttons in the toolbar and Settings using the owner-provided official HTTPS creator page: `https://www.patreon.com/c/dkliveblock`. Buttons open a new tab only on a user click; no background or automatic connections.

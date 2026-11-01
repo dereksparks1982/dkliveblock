@@ -1,0 +1,40 @@
+"use strict";
+const {test}=require("node:test"),assert=require("node:assert/strict");
+const fs=require("node:fs"),path=require("node:path");
+const A=require("../src/cbs-autoplay.js");
+test("Build 227 CBS autoplay blocks spontaneous playback but allows a clicked player",()=>{
+ const handlers=new Map(),videos=[];
+ const video={localName:"video",paused:false,autoplay:true,hasAttribute:x=>x==="autoplay",removeAttribute(){this.removed=true},pause(){this.paused=true;this.pauses=(this.pauses||0)+1}};
+ videos.push(video);
+ const doc={addEventListener:(type,fn)=>handlers.set(type,fn),removeEventListener:(type)=>handlers.delete(type),querySelectorAll:()=>videos};
+ const control=A.create(doc,{});control.setEnabled(true);
+ assert.equal(video.paused,true);assert.equal(video.autoplay,false);
+ assert.ok(handlers.has("play")&&handlers.has("pointerdown"));
+ video.paused=false;handlers.get("play")({target:video});assert.equal(video.paused,true);
+ const box={localName:"div",querySelectorAll:()=>[video]};
+ const element={closest:()=>box};
+ handlers.get("pointerdown")({isTrusted:true,target:element});
+ video.paused=false;handlers.get("play")({target:video});
+ assert.equal(video.paused,false,"explicit player interaction permits playback");
+ control.setEnabled(false);assert.equal(handlers.has("play"),false);
+});
+test("Build 227 other article clicks and synthetic clicks cannot start autoplay",()=>{
+ const handlers=new Map();
+ const video={localName:"video",paused:true,hasAttribute:()=>false,pause(){this.paused=true}};
+ const doc={addEventListener:(k,v)=>handlers.set(k,v),removeEventListener:k=>handlers.delete(k),querySelectorAll:()=>[video]};
+ A.create(doc,{}).setEnabled(true);
+ handlers.get("click")({isTrusted:true,target:{closest:()=>null}});
+ video.paused=false;handlers.get("play")({target:video});assert.equal(video.paused,true);
+ handlers.get("click")({isTrusted:false,target:{closest:()=>({querySelectorAll:()=>[video]})}});
+ video.paused=false;handlers.get("play")({target:video});assert.equal(video.paused,true);
+});
+test("Build 227 CBS autoplay is article-scoped by the extension background, not global",()=>{
+ const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ const manifest=JSON.parse(fs.readFileSync(path.join(__dirname,"../src/manifest.json"),"utf8"));
+ const js=manifest.content_scripts[0].js;
+ assert.ok(js.indexOf("cbs-autoplay.js")<js.indexOf("content.js"));
+ assert.match(bg,/cbsAutoplay:active&&/);
+ assert.match(bg,/cbsnews/);
+ assert.match(bg,/sender\.tab\?\.url/);
+ assert.match(bg,/news/);
+});
