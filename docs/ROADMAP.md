@@ -104,7 +104,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 18 settings repair: independent YouTube update toggle saves correctly, status reflects it, and update errors survive restart. No hosted CI or mandatory build gates.
 
 - [x] Optional Patreon support buttons in popup and settings, disabled until the official creator page is created; URL validation, no tracking/paid tiers and offline tests.
-- [ ] Review future license terms: anyone, including businesses, can use DK Live Block free; the project's desired restriction is resale/monetization of DK Live Block itself, not business use. Existing MIT permissions remain effective for versions already distributed.
+- [x] Document the owner's rule: individuals and companies may use DK Live Block for free, but may not sell or monetize DK Live Block itself or paid derivatives.
 
 - [x] Build 19 optional Ghostery MPL-2.0 engine bridge and local-only bundle compiler, with native fallback, rule arbitration and offline tests. Download/build of third-party dependency and real browser validation remain pending.
 
@@ -322,7 +322,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 
 - [x] 2026-10-31 open-source blocker research: study uBlock Origin/uAssets, Ghostery, AdGuard, ABP, and Brave, with scriptlets, first-party response handling and Firefox API constraints. Details: [Engine research](ADBLOCK_ENGINE_RESEARCH_2026-10-31.md).
 - [ ] Diagnose source of repeated first-party YouTube XHR blocks, then stage trusted local scriptlet support and carefully bounded first-party ad-metadata handling. No broad YouTube exceptions or silent pause.
-- [ ] Review MIT commercial-use permissions against stated distribution preference and third-party GPL/MPL obligations before importing code or lists.
+- [ ] Check required third-party licenses and attribution before importing external code or filter lists.
 
 - [x] Comprehensive competitor-parity work breakdown in [Master parity plan](COMPETITOR_PARITY_MASTER_PLAN_2026-10-31.md): twenty-five distinct technical, security, QA, UX and licensing milestones. Planned Build 66-70 slices; no release/parity claims.
 
