@@ -55,29 +55,18 @@ Examples include the bundled Ghostery-related and Mozilla Public Suffix List
 materials under MPL-2.0 and independently licensed filter-list assets.
 Keep the required upstream notices and comply with those licenses.
 
-6. EXISTING MIT-LICENSED COPIES
-
-Earlier versions of DK Live Block original code were published under the MIT
-License. Rights already granted for those earlier copies, including commercial
-rights under MIT, are NOT revoked or retroactively restricted by this document.
-The history and previously published Git tags remain available as evidence
-of those earlier grants. This license expresses the copyright owner's terms
-for new distributions of its original material accompanied by this license,
-to the extent the copyright owner has the power to license it.
-
-7. NO TRADEMARK LICENSE
+6. NO TRADEMARK LICENSE
 
 No license is granted to use the names DK Live Block, DK LAB, or Elderred
 Softworks as trademarks or to imply official sponsorship or endorsement.
 
-8. TERMINATION
+7. TERMINATION
 
 Permissions under this license terminate if you violate its conditions.
 They may be reinstated by express written permission of the copyright owner.
-This does not remove independently acquired rights under earlier licenses
-or the rights granted by third-party copyright owners.
+Third-party materials remain governed by their own license terms.
 
-9. NO WARRANTY; LIMITATION OF LIABILITY
+8. NO WARRANTY; LIMITATION OF LIABILITY
 
 THE COVERED MATERIAL IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
 EXPRESS OR IMPLIED, INCLUDING MERCHANTABILITY, FITNESS FOR A PARTICULAR
