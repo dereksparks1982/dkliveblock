@@ -4,8 +4,6 @@
 
 > **Development status:** DK Live Block is unreleased source code. Firefox compatibility, streaming playback, security review, and feature parity with established blockers still require testing. It is not a finished or Mozilla-signed public release.
 
-> **Target:** An owner-approved Firefox Add-ons submission by **Friday, November 6, 2026**, subject to passing local and Firefox acceptance. **Mozilla review/public listing by November 7 is not guaranteed.** See [the release-week plan](docs/RELEASE_WEEK_2026-11-01.md) and [the store listing draft](docs/AMO_LISTING_DRAFT.md).
-
 ## What it does
 
 - **Blocks ads and trackers:** combines a native network-filtering engine with bundled Ghostery technology and configurable filter-list subscriptions, including EasyList and EasyPrivacy. Not every advanced filter syntax is supported.
@@ -18,17 +16,17 @@
 - **Experiments with streaming-ad filtering:** includes bounded YouTube player-response and page-level protections, observation modes, and playback diagnostics. Results vary, and not every video or streaming provider is supported.
 - **Offers optional tools:** includes opt-in cookie rejection, video watch-later features, and Linux companion integrations under development.
 
-## Successful real-world Firefox tests (November 1, 2026)
+## How the controls work
 
-**DK Live Block has successfully blocked advertising in the project owner's live Firefox testing:**
+**Automatic filtering.** DK Live Block loads its bundled filtering engine and selected filter subscriptions to identify many advertising and tracking requests. Cosmetic filters and the element picker can clean up leftover ad placements on the page. List coverage changes with the websites and subscriptions; some advanced rule formats are not yet implemented.
 
-- **YouTube regular videos:** the owner observed regular video advertisements being blocked during playback.
-- **YouTube "Free with Ads" movies:** the owner observed movie advertisements being blocked during playback.
-- **Disney+ movies:** the owner reported that advertisements appeared to be blocked while watching a movie. The movie-session export recorded **20 blocked requests**, including an EasyList block against `us-east-2.ads.digital.disneyadvertising.com`.
-- **Disney+, CSI: Las Vegas:** the owner observed successful ad blocking while watching the program. A separate playback-session export recorded **22 blocked requests**, including the same Disney advertising hostname.
-- **BBC News (`www.bbc.com`):** the owner reported that blocking appeared to be working. A Firefox export recorded **54 blocked requests**, including Google DoubleClick advertising traffic and third-party analytics/measurement services filtered by EasyList and EasyPrivacy. The report also includes BBC-hosted requests; the owner has not yet confirmed every BBC feature works unaffected.
+**Inspect and adjust.** The Site Dashboard and Network Monitor explain blocked and permitted activity, including available rule evidence. You can pause protection for a website, create site-specific exceptions, selectively allow or block eligible destinations, or write custom filters. Changes are meant to remain reversible rather than silently disabling protection everywhere.
 
-The Disney+ logged-in landing-page check separately recorded **49 blocked requests**; it is not being presented as a movie test. **These are positive user-observed browser outcomes**, supported where available by sanitized network-filter reports. A blocked request alone does not prove that a video ad was suppressed, and results do not guarantee coverage for every title, session, browser or site. Full regression testing, competitor parity assessment and public-release approval are still pending. See [the detailed real-world QA record](docs/QA_LAB.md).
+**Private local diagnostics.** Optional TXT and JSON exports help troubleshoot site problems and playback. Reports deliberately omit full request URLs, query strings, cookies, headers and message bodies. A blocked request is not proof that an advertisement was removed or that a destination is malicious.
+
+**Video and streaming.** YouTube and other streaming sites are active compatibility targets, with bounded page/player helpers and playback checks. Ad delivery varies by service, content and account. A working video does not automatically prove every ad was blocked, and filtering must not break the stream.
+
+**More technical detail** is maintained in [engineering state](docs/STATE.md), [the feature and parity checklist](docs/ABP_PARITY_CHECKLIST.md), and [real-browser test records](docs/QA_LAB.md).
 
 ## Project principles
 
