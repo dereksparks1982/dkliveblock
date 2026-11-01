@@ -1,8 +1,8 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.188",
-  "description": "Unreleased, independent Firefox ad and tracker blocker",
+  "version": "0.3.189",
+  "description": "Free Firefox ad, tracker and unwanted-popup blocker with privacy controls",
   "browser_specific_settings": {
     "gecko": {
       "id": "dk-live-block@elderred-softworks.local",
