@@ -162,3 +162,14 @@ test("Build 173 historical blocked export reflects only current exact host/type 
  assert.match(text,/Current explicit manual block: true/);
  assert.doesNotMatch(JSON.stringify(report),/watch\?v=|PRIVATE_TOKEN/);
 });
+
+test("Build 176 standard export shows sanitized late YouTube cleanup outcome",()=>{
+ const f=fixture();
+ f.youtubeResponse={bootstrap:[{phase:"late-1s",state:"data",adFields:0,
+  refused:false,initialData:true,playerMetadataCleaned:true,
+  title:"SECRET_MOVIE_TITLE",url:"https://secret.example/"}]};
+ const out=E.build(f);
+ assert.equal(out.youtubePlaybackEvidence.responseFiltering.bootstrap[0].playerMetadataCleaned,true);
+ assert.match(E.asText(out),/cleaned late player metadata true/);
+ assert.doesNotMatch(JSON.stringify(out),/SECRET_MOVIE_TITLE|secret\.example/);
+});

@@ -121,3 +121,17 @@ test("Build 173 YouTube JSON reports current exact host/type Allow switches",()=
  assert.match(Report.asText(report),/currently allowed true/);
  assert.ok(!JSON.stringify(report).includes("https://www.youtube.com/watch?v="));
 });
+
+test("Build 176 export distinguishes late player cleanup from empty ad slots",()=>{
+ const report=Report.build({ok:true,site:"www.youtube.com",tabId:176,requestLog:true,
+  youtubeResponse:{bootstrap:[
+   {phase:"late-1s",state:"data",adFields:0,refused:false,initialData:true,
+    playerMetadataCleaned:true,videoId:"SECRET_VIDEO_ID"},
+   {phase:"late-3s",state:"data",adFields:0,refused:false,initialData:true,
+    playerMetadataCleaned:false,rawURL:"https://private.example/watch?v=123"}
+  ]}});
+ assert.equal(report.responseFiltering.bootstrap[0].playerMetadataCleaned,true);
+ assert.equal(report.responseFiltering.bootstrap[1].playerMetadataCleaned,false);
+ assert.equal(JSON.stringify(report).includes("SECRET_VIDEO_ID"),false);
+ assert.equal(JSON.stringify(report).includes("https://private.example"),false);
+});

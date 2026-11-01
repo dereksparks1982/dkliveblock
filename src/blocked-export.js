@@ -130,7 +130,9 @@ function asText(report){
     "Response filtering errors: "+y.responseFiltering.errors);
    for(const event of y.responseFiltering.bootstrap){
     lines.push("Bootstrap "+event.phase+": "+event.state+
-     " / ad fields "+event.adFields+" / refusal "+event.refused);
+     " / ad fields "+event.adFields+" / refusal "+event.refused+
+     (typeof event.playerMetadataCleaned==="boolean"?
+      " / cleaned late player metadata "+event.playerMetadataCleaned:""));
    }
    if(!y.responseFiltering.bootstrap.length)
     lines.push("No first-load bootstrap observations were recorded.");

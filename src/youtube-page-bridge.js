@@ -156,7 +156,7 @@ function decorate(response,requestURL=""){
  return response;
 }
 // Passive, coarse diagnostics only. Never read accessors or export payload data.
-function reportBootstrap(phase){
+function reportBootstrap(phase,playerMetadataCleaned){
  if(typeof CustomEvent!=="function"||typeof document.dispatchEvent!=="function")return;
  try{
   const d=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
@@ -172,7 +172,8 @@ function reportBootstrap(phase){
   const id=Object.getOwnPropertyDescriptor(g,"ytInitialData");
   const initialData=!!id&&Object.prototype.hasOwnProperty.call(id,"value")&&plain(id.value);
   document.dispatchEvent(new CustomEvent("dk-live-block:youtube-bootstrap-observed",{
-   detail:{phase,state,adFields,refused:state==="data"&&denied(value),initialData}
+   detail:{phase,state,adFields,refused:state==="data"&&denied(value),initialData,
+    ...(typeof playerMetadataCleaned==="boolean"?{playerMetadataCleaned}:{})}
   }));
  }catch(_){/* Never interfere with the page on diagnosis failure. */}
 }
@@ -182,26 +183,33 @@ function scheduleBootstrapSamples(){
  const generation=++sampleGeneration;
  for(const [phase,delay] of [["late-1s",1000],["late-3s",3000]]){
   setTimeout(()=>{
-   if(sampleGeneration===generation&&(enabled||observationOnly))
-    reportBootstrap(phase);
+   if(sampleGeneration!==generation||!(enabled||observationOnly))return;
+   // YouTube may publish initial player JSON AFTER activation, especially
+   // during SPA video navigation. The original enable-time pass misses it.
+   // Revisit only the same strictly bounded bootstrap fields in active mode.
+   // Observe mode must remain read-only for the A/B test.
+   const cleaned=enabled?pruneExistingBootstrap(false):false;
+   reportBootstrap(phase,cleaned);
   },delay);
  }
 }
 function pruneExistingBootstrap(observe=true){
  if(observe)reportBootstrap("pre-enable");
+ let playerMetadataCleaned=false;
  // A data property already loaded by YouTube may still be consumed during
  // navigation. Do not replace an accessor, intercept an assignment, or touch
  // unrelated initial page data.
  try{
   const own=Object.getOwnPropertyDescriptor(g,"ytInitialPlayerResponse");
   if(own&&Object.prototype.hasOwnProperty.call(own,"value")&&plain(own.value))
-   prune(own.value);
+   playerMetadataCleaned=prune(own.value)===true;
   const initial=Object.getOwnPropertyDescriptor(g,"ytInitialData");
   if(initial&&Object.prototype.hasOwnProperty.call(initial,"value")&&plain(initial.value)&&
      typeof DKYouTubeFeed!=="undefined")
    DKYouTubeFeed.prune(initial.value,"https://www.youtube.com/youtubei/v1/browse");
  }catch(_){}
  if(observe)reportBootstrap("post-enable");
+ return playerMetadataCleaned;
 }
 function enable(){
  if(observationOnly){observationOnly=false;sampleGeneration++;}
@@ -307,6 +315,17 @@ function observe(){
  reportBootstrap("pre-enable");reportBootstrap("post-enable");
  scheduleBootstrapSamples();
 }
+// YouTube navigates between regular videos without reloading the extension.
+// Retry its current bootstrap immediately and for the next three seconds,
+// but never set page properties, install setters or rewrite video streams.
+document.addEventListener("yt-navigate-finish",()=>{
+ if(enabled){
+  pruneExistingBootstrap(false);
+  scheduleBootstrapSamples();
+ }else if(observationOnly){
+  scheduleBootstrapSamples();
+ }
+},false);
 document.addEventListener(EVENT,event=>{
  if(event.detail==="enable")enable();
  else if(event.detail==="observe")observe();

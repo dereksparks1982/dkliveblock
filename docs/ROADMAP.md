@@ -669,3 +669,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 175: reuse parsed request hostname during native candidate selection and bypass token scanning only when no token-indexed rules exist. Keep external candidate API and verdict precedence, add regression cases and synthetic parse-call counter.
 - [ ] Build 175 acceptance: full local Node/Python suite and real measured before/after Firefox CPU, memory and browsing responsiveness. No numerical speedup claim without timing data.
 - [ ] Build 176: expand offline matching differential/parity corpus with manual exceptions, important rules, domain boundaries and HTTP method cases. Fix only demonstrated mismatches.
+
+- [x] Build 176: bounded late initial-player bootstrap cleanup for 1s/3s plus yt-navigate-finish SPA navigation; preserve observe-only, disable, refusal, stream and UI behavior; export sanitized boolean indicating actual late metadata cleanup.
+- [ ] Build 176 acceptance: run all seven Ubuntu test phases and test an ordinary YouTube video through actual preroll/midroll vs Shutter Island in clean Firefox, including observe/bridge/response comparison; record voluntary sanitized exports.
+- [ ] Build 177: act on specific Firefox evidence to fix remaining regular-video ad playback or anti-adblock refusal, avoiding speculative blockers that could corrupt legitimate video streams.

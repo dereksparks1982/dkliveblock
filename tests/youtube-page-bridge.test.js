@@ -30,7 +30,8 @@ function context(){
  vm.runInContext(feed,context,{filename:"youtube-feed.js"});
  vm.runInContext(source,context,{filename:"youtube-page-bridge.js"});
  return {window,document,requests,originalFetch,emitted,timers,
-  send:flag=>listeners[EVENT]({detail:flag})};
+  send:flag=>listeners[EVENT]({detail:flag}),
+  navigate:()=>listeners["yt-navigate-finish"]?.()};
 }
 test("Build 74 MAIN-world script waits for explicit activation and restores fetch",async()=>{
  const p=context();
@@ -481,4 +482,70 @@ test("Build 168 observe-only mode does not wrap fetch or mutate bootstrap",()=>{
  const count=p.emitted.length;
  for(const task of p.timers)task.fn();
  assert.equal(p.emitted.length,count,"pending timer must not report after disable");
+});
+
+test("Build 176 late first-load player data is cleaned without touching video or login fields",()=>{
+ const p=context();
+ p.send("enable");
+ assert.equal(p.window.ytInitialPlayerResponse,undefined);
+ p.window.ytInitialPlayerResponse={
+  streamingData:{formats:[{url:"SIGNED_STREAM_URL"}]},videoDetails:{title:"PRIVATE_TITLE"},
+  playabilityStatus:{status:"OK"},adPlacements:[{id:"ad"}],adSlots:[{id:"ad"}]
+ };
+ const late=p.timers.find(x=>x.ms===1000);
+ assert.ok(late);
+ late.fn();
+ assert.equal(p.window.ytInitialPlayerResponse.adPlacements,undefined);
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
+ assert.equal(p.window.ytInitialPlayerResponse.streamingData.formats[0].url,"SIGNED_STREAM_URL");
+ assert.equal(p.window.ytInitialPlayerResponse.videoDetails.title,"PRIVATE_TITLE");
+ const latest=p.emitted.filter(x=>x.type==="dk-live-block:youtube-bootstrap-observed").at(-1).detail;
+ assert.equal(latest.phase,"late-1s");
+ assert.equal(latest.adFields,0);
+ assert.equal(JSON.stringify(latest).includes("PRIVATE_TITLE"),false);
+});
+test("Build 176 SPA navigation gets a fresh bounded bootstrap cleanup window",()=>{
+ const p=context();
+ p.send("enable");
+ p.window.ytInitialPlayerResponse={
+  streamingData:{formats:[1]},playabilityStatus:{status:"OK"},adSlots:[{}]
+ };
+ p.navigate();
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots,undefined);
+ // Later SPA player bootstrap arrives after yt-navigate-finish.
+ p.window.ytInitialPlayerResponse={
+  streamingData:{formats:[2]},adPlacements:[{}],playabilityStatus:{status:"OK"}
+ };
+ const later=p.timers.filter(x=>x.ms===1000).at(-1);
+ assert.ok(later);
+ later.fn();
+ assert.equal(p.window.ytInitialPlayerResponse.adPlacements,undefined);
+ assert.deepEqual(Array.from(p.window.ytInitialPlayerResponse.streamingData.formats),[2]);
+});
+test("Build 176 observe mode and disabled bridge never alter late player data",()=>{
+ const p=context();
+ p.send("observe");
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
+ p.navigate();
+ for(const task of p.timers)task.fn();
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ p.send("enable");
+ p.window.ytInitialPlayerResponse={streamingData:{formats:[1]},adSlots:[{}]};
+ p.send("disable");
+ for(const task of p.timers)task.fn();
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+});
+test("Build 176 refuses to edit late player refusal or accessor properties",()=>{
+ const p=context();
+ p.send("enable");
+ p.window.ytInitialPlayerResponse={playabilityStatus:{status:"LOGIN_REQUIRED"},
+  streamingData:{formats:[1]},adSlots:[{reason:"no-access"}]};
+ p.timers.find(x=>x.ms===1000).fn();
+ assert.equal(p.window.ytInitialPlayerResponse.adSlots.length,1);
+ let accesses=0;
+ Object.defineProperty(p.window,"ytInitialPlayerResponse",{configurable:true,
+  get(){accesses++;throw Error("Should not read getters");}});
+ p.navigate();
+ for(const task of p.timers)task.fn();
+ assert.equal(accesses,0);
 });

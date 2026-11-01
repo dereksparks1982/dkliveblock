@@ -26,7 +26,9 @@ function build(s,now=Date.now()){
   .slice(0,4).filter(x=>x&&phases.has(x.phase)&&states.has(x.state)&&
    Number.isInteger(x.adFields)&&x.adFields>=0&&x.adFields<=3)
   .map(x=>({phase:x.phase,state:x.state,adFields:x.adFields,
-   refused:x.refused===true,initialData:x.initialData===true}));
+   refused:x.refused===true,initialData:x.initialData===true,
+   ...(typeof x.playerMetadataCleaned==="boolean"?
+    {playerMetadataCleaned:x.playerMetadataCleaned}:{})}));
  const blocked=Model.requestRows(s).slice(0,250).map(r=>{
   const c=Model.blockedControl(s,r);
   return {hostname:r.host,resourceType:r.type,

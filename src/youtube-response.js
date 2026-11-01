@@ -207,6 +207,9 @@ function noteBootstrap(tab,detail){
   return false;
  const item={phase:detail.phase,state:detail.state,adFields:detail.adFields,
   refused:detail.refused,initialData:detail.initialData};
+ // Optional, untrusted page-world diagnostic. Never drives a blocking rule.
+ if(typeof detail.playerMetadataCleaned==="boolean")
+  item.playerMetadataCleaned=detail.playerMetadataCleaned;
  const v=records.get(tab)||EMPTY();
  // Only one observation per phase, bounded to four per tab and ephemeral.
  const i=v.bootstrap.findIndex(x=>x.phase===item.phase);

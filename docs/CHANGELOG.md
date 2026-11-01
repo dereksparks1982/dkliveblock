@@ -785,3 +785,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Avoided URL-length token scanning for filter corpora with no unanchored token-indexed rules, without changing generic or host-indexed rule evaluation.
 - Added deterministic parse-call instrumentation to the standalone synthetic engine benchmark and regression tests for request verdict preservation, request-type and exception behavior.
 - Targeted synthetic module checks passed. Actual full Ubuntu regression, measured speedups, streaming/Firefox acceptance and public release remain pending.
+
+### 0.3.146 / Build 176 (2026-10-31)
+- Revisit initial YouTube player ad metadata after 1 and 3 seconds, and on SPA yt-navigate-finish, for regular videos whose player response appears after initial activation.
+- Keep temporary observe mode read-only, disable any outstanding late cleanup when disabled, and refuse to edit login/refusal, signed stream data or accessor-only properties.
+- Add sanitized optional late player-metadata-cleanup boolean to YouTube and blocked-request exports; this distinguishes observed late cleanup from merely having zero fields.
+- Added targeted bridge/response/report regression fixtures. Synthetic module checks passed; full Ubuntu suite and real Firefox preroll/midroll/anti-adblock tests remain outstanding. No verified ad-free claim.

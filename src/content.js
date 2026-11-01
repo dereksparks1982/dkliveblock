@@ -402,7 +402,9 @@
    diagnosticsSent++;
    browser.runtime.sendMessage({action:"reportYouTubeBootstrap",
     observation:{phase:x.phase,state:x.state,adFields:x.adFields,
-     refused:x.refused,initialData:x.initialData}}).catch(()=>{});
+     refused:x.refused,initialData:x.initialData,
+     ...(typeof x.playerMetadataCleaned==="boolean"?
+      {playerMetadataCleaned:x.playerMetadataCleaned}:{})}}).catch(()=>{});
   },false);
   let bridgeReadySeen=false;
   document.addEventListener("dk-live-block:youtube-response-ready",()=>{

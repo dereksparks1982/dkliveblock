@@ -590,3 +590,17 @@ test("Build 167 records only bounded coarse YouTube bootstrap observations",()=>
  R.clear(tab);
  assert.equal(R.stats(tab).bootstrap.length,0);
 });
+
+test("Build 176 captures only optional boolean late player cleanup results",()=>{
+ const tab=176;
+ R.clear(tab);
+ assert.equal(R.noteBootstrap(tab,{phase:"late-1s",state:"data",
+  adFields:0,refused:false,initialData:true,playerMetadataCleaned:true,
+  videoId:"SECRET_ID",title:"PRIVATE_TITLE"}),true);
+ assert.deepEqual(R.stats(tab).bootstrap[0],{phase:"late-1s",state:"data",
+  adFields:0,refused:false,initialData:true,playerMetadataCleaned:true});
+ assert.equal(R.noteBootstrap(tab,{phase:"late-3s",state:"data",
+  adFields:0,refused:false,initialData:true,playerMetadataCleaned:"yes"}),true);
+ assert.equal("playerMetadataCleaned" in R.stats(tab).bootstrap[1],false);
+ R.clear(tab);
+});
