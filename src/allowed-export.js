@@ -76,7 +76,7 @@ function build(snapshot,only=null,now=Date.now()){
   savedManualBlockingChoices:rows.filter(row=>row.block).length,
   retainedIndividualRequests:allEvents.length,
   exportedIndividualRequests:individualRequests.length,
-  individualEvidenceCoversTotal:allEvents.length===total,
+  individualEvidenceCoversTotal:!only&&allEvents.length===total,
   reasonEvidence:"Captured by DK Live Block at request start and matched when Firefox reported completion.",
   privacyNotice:NOTICE,requests,individualRequests};
 }
