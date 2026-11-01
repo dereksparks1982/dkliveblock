@@ -40,3 +40,5 @@ Build 218 introduces an accessible, offline comparison workflow for two voluntar
 **Next:** Use repeatable evidence to isolate one concrete filtering or player fault. Keep working Build 203 rollback safe, do not execute subscription-provided scripts, and do not automatically disable protective filters to force playback.
 
 No GitHub Actions, no added permissions, no downloadable extension or native dependency, no release authorization.
+
+If comparing an ordinary video against an ad-funded film, both video types must be labeled independently. The UI warns that different content types are not a controlled A/B comparison.
