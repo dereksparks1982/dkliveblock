@@ -13,7 +13,7 @@
 
 ## Licensing review before release
 
-The owner's policy is **free use by individuals and companies, but no monetization of DK Live Block or modified copies**. New distributions of original application code carry the custom Free Use / No Monetization License; older MIT grants are not retroactively revoked. Confirm that the custom license can be applied to the author's original material while preserving bundled MPL-2.0 and independent third-party list permissions and all necessary notices. Confirm Mozilla's current add-on licensing/review requirements before submission. Do not describe the code as OSI-approved open source or promise that past MIT-licensed forks cannot be commercialized.
+**DK Live Block is free for individuals and companies to use, including internal business use. Selling, charging for, or otherwise monetizing DK Live Block itself or modified versions is prohibited.** Review the [project license](../LICENSE), retain all required third-party notices, and confirm Mozilla's current submission requirements.
 
 ## Important limits
 - No automatic proxy is bundled. Firefox selective proxy routing does not guarantee anonymity or block fallback to direct requests.
@@ -23,7 +23,7 @@ The owner's policy is **free use by individuals and companies, but no monetizati
 
 ## Bundled PSL attribution
 
-The bundled Public Suffix List snapshot and generated JavaScript dataset are distributed under Mozilla Public License 2.0, not the application-code MIT license. Include `src/LICENSE-PSL.txt` in the extension package and keep `vendor/public_suffix_list.dat` in the source repository. Regenerate via `python3 scripts/update-psl.py --refresh`, which retrieves only from the canonical publicsuffix.org URL, then run all offline regression gates. Verify Mozilla source-submission requirements when applying.
+The bundled Public Suffix List snapshot and generated JavaScript dataset are distributed under Mozilla Public License 2.0. Include `src/LICENSE-PSL.txt` in the extension package and keep `vendor/public_suffix_list.dat` in the source repository. Regenerate via `python3 scripts/update-psl.py --refresh`, which retrieves only from the canonical publicsuffix.org URL, then run all offline regression gates. Verify Mozilla source-submission requirements when applying.
 
 
 ## Build 219 submission sprint and source-readiness gate
