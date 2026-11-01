@@ -2,7 +2,7 @@
 
 **Owner goal:** submit DK Live Block for a public Mozilla Firefox Add-ons listing by the end of this week. **Target submission: Friday, November 6.** Mozilla's review/approval timing is outside our control; publication by Saturday, November 7 cannot be guaranteed.
 
-**Current source:** Build 220 / 0.3.190, unreleased. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
+**Current source:** Build 221 / 0.3.191, unreleased. Release-integrity checks are now mandatory, but a real npm lockfile and actual browser/local acceptance are still outstanding. Owner-requested detailed permitted-request logging has been added to the source but the full Firefox acceptance gate remains open. **One branch only: `main`.** No GitHub Actions, browser auto-launches, surprise packages, or feature rewrites that risk proven ad-blocking success.
 
 ## Current demonstrated success: preserve and retest
 
@@ -14,7 +14,7 @@ The owner has observed successful ad blocking in regular YouTube videos, YouTube
 | --- | --- | --- |
 | One-branch governance and backed-up working YouTube source | PASS | `main` only; historical Build 203 commit preserved in the verified `youtube-working-build-203-2026-11-01` Git tag. |
 | Original-code licensing (free corporate use, no resale/monetization) | DOCUMENTED, legal review OPEN | Custom owner license in root `LICENSE`; packaged license now planned; preserve required third-party license notices and attributions. |
-| Source reproduction for compiled Ghostery library | **BLOCKED** | Generate and commit a real `package-lock.json` from official registry, validate package tree, independently rebuild `src/ghostery-vendor.js` and byte-compare with checked-in bundle, document exact source/link. No fabricated hashes. |
+| Source reproduction for compiled Ghostery library | **BLOCKED** | Generate and commit a real `package-lock.json` from official registry. Build 221 checks registry SHA512 package integrity and requires a read-only `npm run verify:ghostery` exact-byte comparison with the checked-in bundle before any candidate ZIP. Actual reproduction is still untested. No fabricated hashes. |
 | Complete current Linux regression suite | **NOT RUN** | Exact source checkout: `bash scripts/test-local.sh`, all seven phases with zero failures. Historical successes at old commits do not clear this. |
 | Full Firefox UI and streaming acceptance | PARTIAL | Clean Firefox profile, no competing blockers, ordinary YouTube and movie, Disney+ movie and television, 1337x and Pirate Bay, normal login/payment, whitelist/allowlisting, popup permissions, seek/subtitles/fullscreen, long session, RSS/CPU memory. Record exact candidate SHA and observed outcomes. |
 | Bundled asset / license / privacy / permissions audit | PARTIAL | `scripts/amo-preflight.py --strict` clean, `scripts/release-audit.py` clean; source audit and Mozilla permissions/metadata review. |
@@ -26,7 +26,7 @@ The owner has observed successful ad blocking in regular YouTube videos, YouTube
 
 **Sunday, November 1:** record working tests and branch rule; source license; Build 219 AMO preflight, packaging license, reviewer notes, manifest metadata and dated plan (source-only).
 
-**Monday, November 2:** resolve the **real npm lockfile / reproducible vendor build**. Confirm third-party version/provenance and license notices. Fix only verified static/packaging issues.
+**Monday, November 2:** resolve the **real npm lockfile / reproducible vendor build**, using the Build 221 read-only verification gate. Confirm third-party version/provenance and license notices. Fix only verified static/packaging issues.
 
 **Tuesday, November 3:** run exact `main` seven-phase Linux checks and fix reported failures, preserving working source behavior. Record test output and exact commit. No CI.
 
