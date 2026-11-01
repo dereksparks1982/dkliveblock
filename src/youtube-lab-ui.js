@@ -9,7 +9,8 @@ function choice(id,allowed){
  return allowed.includes(s)?s:allowed[0];
 }
 function observations(){
- return {videoType:choice("videoType",["ordinary","ad-funded-film","shorts","other"]),
+ return {baselineVideoType:choice("baselineVideoType",["ordinary","ad-funded-film","shorts","other"]),
+  candidateVideoType:choice("candidateVideoType",["ordinary","ad-funded-film","shorts","other"]),
   baselinePlayback:choice("baselinePlayback",["unknown","works","refused","stalled"]),
   candidatePlayback:choice("candidatePlayback",["unknown","works","refused","stalled"]),
   baselineAds:choice("baselineAds",["unknown","seen","none-seen"]),
@@ -46,11 +47,13 @@ function render(result){
   $("comparisonRows").appendChild(tr);
  }
  const observed=observations();
+ if(observed.baselineVideoType!==observed.candidateVideoType)
+  addWarning("The video types differ. This can explain changed ads or playback and is not a controlled A/B test.");
  const playback={unknown:"not recorded",works:"played normally",refused:"refused / black screen",stalled:"stalled / buffered"};
  const ads={unknown:"not recorded",seen:"an ad visibly played","none-seen":"no ad observed during test"};
- $("manualSummary").textContent="Manual observation ("+observed.videoType+"): baseline "+
+ $("manualSummary").textContent="Manual observation: baseline "+observed.baselineVideoType+" "+
   playback[observed.baselinePlayback]+", "+ads[observed.baselineAds]+
-  "; candidate "+playback[observed.candidatePlayback]+", "+ads[observed.candidateAds]+
+  "; candidate "+observed.candidateVideoType+" "+playback[observed.candidatePlayback]+", "+ads[observed.candidateAds]+
   ". These are user-entered observations, not verified measurements.";
  $("comparisonCaveat").textContent=result.caveat+
   " Treat 'no ad observed' as inconclusive when the video did not successfully play.";
@@ -80,7 +83,8 @@ function exportComparison(){
  const safe={format:"DK Live Block offline YouTube A/B comparison",schemaVersion:1,
   comparedAt:new Date().toISOString(),
   baselineMode:comparison.baselineMode,candidateMode:comparison.candidateMode,
-  observations:observations(),comparison:{
+  observations:observations(),contentTypesMatched:
+   observations().baselineVideoType===observations().candidateVideoType,comparison:{
    rows:comparison.rows,warnings:comparison.warnings,
    interpretation:comparison.interpretation,caveat:comparison.caveat,
    verifiedAdFree:false},
