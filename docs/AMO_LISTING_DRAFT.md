@@ -6,23 +6,17 @@
 DK Live Block
 
 ## Suggested short summary
-Block ads, trackers and unwanted popups in Firefox. No paid tiers or Acceptable Ads.
+Block ads, trackers and popups in Firefox. Free, with no Acceptable Ads.
 
 ## Suggested description
 
-**DK Live Block** is a free-to-use Firefox-first ad and tracker blocker from Elderred Softworks / DK LAB.
+**DK Live Block** helps you browse Firefox with fewer ads, trackers and unwanted popups.
 
-It combines a bundled filtering engine with established filter subscriptions, including EasyList and EasyPrivacy. Ads and common tracking requests can be blocked before they load; cautious page filters can remove distracting ad placements. The extension also includes strict protections against unwanted advertising tabs from selected popup-heavy sites.
+Block ad and tracking requests, hide distracting page elements, and help prevent unwanted advertising tabs. See what's blocked or allowed, pause protection on a website, and set your own rules and exceptions.
 
-**Control what is blocked:** inspect allowed and blocked request groups locally, pause a website, make site-specific exceptions, manage custom rules, and review changes.
+**No paid tiers. No Acceptable Ads. No sponsored placements or forced telemetry.**
 
-**Privacy-oriented by design:** the developer does not collect personal browsing history, insert advertisements, sell user data, or send telemetry. Filter-list updates connect to external publishers; optional user-invoked diagnostics and network routing have their own documented privacy implications.
-
-**Free, including for businesses:** everyone may use DK Live Block at no charge. Selling, paid repackaging or monetizing DK Live Block itself or modified versions is prohibited. Companies may use it for their own ordinary business operations.
-
-**Streaming:** the developer has observed successful blocking on YouTube and Disney+ in specific real Firefox sessions; results can change as websites update. Playback compatibility and coverage are not guaranteed for every video or service.
-
-**No Acceptable Ads. No paid features. No sponsored messages.** The core extension requires no separately installed filtering engine.
+The filtering engine is included. Streaming-ad blocking is experimental and results vary by site.
 
 ## Required choices before submitting
 
