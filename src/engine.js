@@ -76,7 +76,7 @@ class FilterEngine {
   const reserved=new Set(["token","auth","signature","sig","state","code","key","expires"]);
   for(const rule of this.paramRules){
    if(rule.include.size&&!rule.include.has("document")||rule.exclude.has("document"))continue;
-   if(!R.domains(host,rule.scope)||rule.third===true||rule.anchor&&!R.sub(host,rule.anchor)||!rule.compiled.test(raw))continue;
+   if(!R.networkScopeMatches(host,rule.scope)||rule.third===true||rule.anchor&&!R.sub(host,rule.anchor)||!rule.compiled.test(raw))continue;
    if(rule.exception)except.add(rule.removeparam);else remove.add(rule.removeparam);
   }
   const protectedCampaignKeys=new Set(["utm_token","utm_auth","utm_signature",
@@ -115,7 +115,7 @@ class FilterEngine {
   return changed?url.toString():null;
  }
  getPagePolicy(url){const policy={document:false,elemhide:false,generichide:false,genericblock:false},h=R.host(url);
-  for(const r of this.special)if(R.domains(h,r.scope)&&(!r.anchor||R.sub(h,r.anchor))&&r.compiled.test(url))policy[r.special]=true;
+  for(const r of this.special)if(R.networkScopeMatches(h,r.scope)&&(!r.anchor||R.sub(h,r.anchor))&&r.compiled.test(url))policy[r.special]=true;
   return policy;
  }
  checkRequest(url,type,docHost,policy={},method=""){
@@ -130,7 +130,7 @@ class FilterEngine {
        r.methods.yes.size&&!r.methods.yes.has(m))continue;
    }
    if(policy.genericblock&&!r.scope&&!r.exception)continue;
-   if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.domains(docHost,r.scope))continue;
+   if(r.include.size&&!r.include.has(kind)||r.exclude.has(kind)||!R.networkScopeMatches(docHost,r.scope))continue;
    if(r.targetScope&&!R.domains(target,r.targetScope))continue;
    if(r.denyallow&&R.domains(target,r.denyallow))continue;
    if(r.third!==null&&r.third!==(!!(target&&docHost&&R.site(target)!==R.site(docHost))))continue;

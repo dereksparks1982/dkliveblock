@@ -149,11 +149,12 @@ test("Build 178 vendor redirect exceptions and manual choice retain precedence",
  assert.equal(e.checkRequest("https://ads.example/keep","script","other.example").block,false);
  assert.equal(e.checkRequest("https://ads.example/file.js","script","other.example").rule.redirect,"noop.js");
 });
-test("Build 178 real bundled Ghostery rescues redirects the native parser drops",()=>{
+test("Build 183 native entity scopes and vetted Ghostery redirects agree",()=>{
  const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
  const env=loadEnvironment();
  const line="||ads.example^$script,redirect=noop.js,domain=news.*";
- assert.equal(env.DKRules.network(line),null,"native language gap must remain explicit");
+ assert.ok(env.DKRules.network(line),"native entity scope must now be parsed");
+ assert.equal(env.DKRules.network(line).scope,"news.*");
  const hybrid=env.DKHybridEngine.create(line);
  assert.equal(hybrid.backend,"hybrid");
  const result=hybrid.checkRequest("https://ads.example/ad.js","script","news.example");
@@ -163,7 +164,7 @@ test("Build 178 real bundled Ghostery rescues redirects the native parser drops"
  assert.equal(outside.rule?.redirect||"","");
 });
 
-test("Build 181 real Ghostery important entity-domain block wins ordinary native exception",()=>{
+test("Build 183 native and Ghostery agree on entity-domain important precedence",()=>{
  const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
  const ctx=loadEnvironment();
  const text=[
@@ -172,14 +173,15 @@ test("Build 181 real Ghostery important entity-domain block wins ordinary native
  ].join("\n");
  const native=new ctx.DKFilter.FilterEngine(text);
  const x=native.checkRequest("https://ads.example/ad.js","script","news.example");
- assert.equal(x.block,false,"native parser drops entity-domain important block");
- assert.equal(x.rule?.exception,true);
+ assert.equal(x.block,true,"native parser now understands entity-domain important");
+ assert.equal(x.rule?.important,true);
  const engine=ctx.DKHybridEngine.create(text);
  assert.equal(engine.backend,"hybrid");
  const decision=engine.checkRequest("https://ads.example/ad.js","script","news.example");
  assert.equal(decision.block,true);
  assert.equal(decision.rule.important,true);
- assert.equal(decision.rule.source,"ghostery-important");
+ assert.equal(decision.rule.important,true);
+ assert.equal(decision.block,x.block);
  assert.equal(engine.checkRequest("https://ads.example/ad.js","script","other.example").block,
   false,"domain-scoped important rule must not apply outside allowed site");
 });
@@ -199,4 +201,48 @@ test("Build 181 ordinary Ghostery block never cancels an existing native excepti
   filter:{isImportant:()=>false}})})},Request:{fromRawDetails:x=>x}};
  const e=Hybrid.create("@@||ads.example^$script",vendor);
  assert.equal(e.checkRequest("https://ads.example/ad.js","script","news.example").block,false);
+});
+
+test("Build 183 entity-scoped manual exceptions work without vendor matching",()=>{
+ const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
+ const ctx=loadEnvironment();
+ const engine=ctx.DKHybridEngine.create("||ads.example^$script",undefined,
+  "@@||ads.example^$script,domain=news.*");
+ for(const host of ["news.com","www.news.com","news.co.uk","sub.news.co.uk"])
+  assert.equal(engine.checkRequest("https://ads.example/ad.js","script",host).block,
+   false,host);
+ for(const host of ["other.com","news.evil.com","notnews.com"])
+  assert.equal(engine.checkRequest("https://ads.example/ad.js","script",host).block,
+   true,host);
+});
+
+test("Build 183 real bundled Ghostery and native entity scopes agree on 72 cases",()=>{
+ const {loadEnvironment}=require("../scripts/engine-verdict-audit.js");
+ const env=loadEnvironment();
+ const scopes=[
+  "news.*","~news.*","news.*|trusted.example",
+  "news.*|~safe.example","news.example|~news.*","~news.*|trusted.example"
+ ];
+ const origins=[
+  "news.com","www.news.com","news.co.uk","sub.news.co.uk",
+  "news.evil.com","notnews.com","trusted.example","safe.news.com",
+  "safe.example","news.example","news.example.co.uk","else.example"
+ ];
+ let checked=0;
+ for(const scope of scopes){
+  const list="||ads.example^$script,domain="+scope;
+  const e=env.DKHybridEngine.create(list);
+  assert.equal(e.native.networkCount,1);
+  for(const origin of origins){
+   const req=env.DKGhosteryVendor.Request.fromRawDetails({
+    url:"https://ads.example/a.js",type:"script",sourceUrl:"https://"+origin+"/"
+   });
+   const vendor=e.vendor.match(req);
+   const native=e.native.checkRequest(req.url,"script",origin);
+   assert.equal(native.block,!!vendor.match,scope+" / "+origin);
+   assert.equal(e.checkRequest(req.url,"script",origin).block,!!vendor.match);
+   checked++;
+  }
+ }
+ assert.equal(checked,72);
 });

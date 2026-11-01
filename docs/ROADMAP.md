@@ -697,3 +697,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 182: bounded, independently implemented `:matches-css()` computed-style literal predicate with per-site scopes, exact exceptions and reversible hiding; verified in focused V8 tests.
 - [ ] Build 182 acceptance: full seven-phase local Node/Python suite, Firefox style/identity/player behavior and meaningful default-list syntax coverage measurement.
 - [ ] Build 183: extend evidence-based network/cosmetic parity with tests against real filter-list patterns; do not enable arbitrary remote scriptlets or CSS and do not claim YouTube success without actual playback proof.
+
+- [x] Build 183: implement bounded network source-scope entities `domain=label.*` (positive/negated/mixed), retaining strict validation of request origins and all non-network policies; sampled differential native/Ghostery corpus 72/72 agreement.
+- [ ] Build 183 acceptance: complete seven-phase Ubuntu regression suite at exact commit, expanded real-list corpus, site-scoped manual allow/block checks, and ordinary YouTube preroll/midroll tests with uBlock disabled.
+- [ ] Build 184: identify the next measurable network/cosmetic filtering shortfall, retain independent source and no arbitrary list-provided executable scripts; improve YouTube only using observed playback data.

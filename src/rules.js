@@ -25,6 +25,35 @@ function validDomains(str){
    hostname.split(".").every(label=>/^[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?$/.test(label));
  });
 }
+// Only the source-domain option of *network* filters accepts a single-label
+// entity shorthand (e.g. publisher.*). Keep validDomains strict for URLs,
+// origins, manual destination controls, and target/denyallow restrictions.
+function validNetworkScope(scope){
+ if(typeof scope!=="string"||!scope||scope.length>1500)return false;
+ const parts=scope.split("|");
+ return parts.length<=64&&parts.every(raw=>{
+  const label=raw.startsWith("~")?raw.slice(1):raw;
+  return /^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?)\.\*$/.test(label)||
+    validDomains(label);
+ });
+}
+function networkScopeMatches(hostname,scope){
+ if(!scope)return true;
+ if(typeof hostname!=="string"||!hostname)return false;
+ const pieces=scope.split("|"),positives=pieces.filter(x=>x&&!x.startsWith("~"));
+ const match=raw=>{
+  if(raw.endsWith(".*")){
+   const entity=raw.slice(0,-2);
+   const registered=site(hostname);
+   // Compare only the registrable site's entity label. A forged host like
+   // publisher.evil.com must not match publisher.*.
+   return registered.includes(".")&&registered.split(".")[0]===entity;
+  }
+  return sub(hostname,raw);
+ };
+ return !pieces.some(x=>x.startsWith("~")&&match(x.slice(1)))&&
+  (!positives.length||positives.some(match));
+}
 function regex(pattern,matchCase=false){
  if(pattern[0]==="/"&&pattern.endsWith("/")&&pattern.length>2){const expr=pattern.slice(1,-1);if(expr.length>512||/\\[1-9]|\(\?<|\([^)]*[+*][^)]*\)[+*{]/.test(expr))return null;
   // Reject obvious polynomial/exponential backtracking patterns from untrusted lists.
@@ -49,7 +78,7 @@ function network(raw){
   if((o.startsWith("domain=")||o.startsWith("from="))&&!neg){
    if(scope)return null;
    scope=o.slice(o.indexOf("=")+1).toLowerCase();
-   if(!validDomains(scope))return null;
+   if(!validNetworkScope(scope))return null;
    continue;
   }
   if(o.startsWith("to=")&&!neg){if(targetScope)return null;targetScope=o.slice(3).toLowerCase();if(!validDomains(targetScope))return null;continue;}
@@ -85,6 +114,9 @@ function network(raw){
   const resource=ALIASES[o]||o;
   if(RES.has(resource)){(neg?exclude:include).add(resource);continue;}return null;
  }
+ // Entity scopes only affect network request matching. Do not broaden
+ // document/page policies or query rewriting through a syntax extension.
+ if(scope.includes(".*")&&(special||removeparam))return null;
  if(denyallow&&!scope)return null;
  // Page policies and query cleanup have no resource request method.
  if(methods&&(special||removeparam))return null;
@@ -191,6 +223,7 @@ function procedural(line){
   return {scope,selector:has[1].trim(),mode:"has",target:has[2].trim(),exception:match[2]==="#@?#"};
  return null;
 }
-g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic,procedural,validDomains};
+g.DKRules={TYPE,RES,SUFFIX,host,sub,site,domains,regex,network,cosmetic,procedural,
+ validDomains,validNetworkScope,networkScopeMatches};
 if(typeof module!=="undefined")module.exports=g.DKRules;
 })(typeof globalThis!=="undefined"?globalThis:this);

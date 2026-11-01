@@ -626,3 +626,41 @@ test("Build 182 native CSS predicates respect host scope, exceptions and scannin
   {selector:".other",mode:"css",property:"display",value:"flex"}
  ]);
 });
+
+test("Build 183 native entity domains match registrable sites, never impostor hosts",()=>{
+ const f=new FilterEngine("||ads.example^$script,domain=news.*|trusted.example");
+ for(const host of ["news.com","www.news.com","news.co.uk","sub.news.co.uk",
+  "trusted.example","sub.trusted.example"])
+  assert.equal(f.shouldBlock("https://ads.example/ad.js","script",host),true,host);
+ for(const host of ["news.evil.com","notnews.com","news.example.co.uk","else.example"])
+  assert.equal(f.shouldBlock("https://ads.example/ad.js","script",host),false,host);
+ assert.equal(f.shouldBlock("https://ads.example/ad.png","image","news.com"),false);
+});
+test("Build 183 negative and mixed entity scopes honor exceptions precisely",()=>{
+ const f=new FilterEngine([
+  "||ads.example^$image,from=~news.*",
+  "||track.example^$script,domain=news.*|~safe.example",
+  "||vendor.example^$script,domain=~news.*|trusted.example"
+ ].join("\n"));
+ assert.equal(f.shouldBlock("https://ads.example/a.png","image","news.com"),false);
+ assert.equal(f.shouldBlock("https://ads.example/a.png","image","else.com"),true);
+ assert.equal(f.shouldBlock("https://track.example/a.js","script","news.co.uk"),true);
+ assert.equal(f.shouldBlock("https://track.example/a.js","script","safe.example"),false);
+ assert.equal(f.shouldBlock("https://vendor.example/a.js","script","trusted.example"),true);
+ assert.equal(f.shouldBlock("https://vendor.example/a.js","script","news.com"),false);
+});
+test("Build 183 entity grammar never weakens origin and non-network validation",()=>{
+ assert.equal(R.validDomains("news.*"),false,
+  "origin/host validation must stay stricter than filter syntax");
+ assert.equal(R.validNetworkScope("news.*"),true);
+ assert.equal(R.validNetworkScope("~news.*|trusted.example"),true);
+ for(const x of ["*.com","news.*.example","news..*","news.*|", "news.*||evil",
+  "news.*|~","bad/path.*","news.*|~news..com"])
+  assert.equal(R.validNetworkScope(x),false,x);
+ for(const line of [
+  "||ads.example^$script,to=news.*",
+  "||ads.example^$script,denyallow=news.*,domain=news.example",
+  "@@||news.example^$document,domain=news.*",
+  "||ads.example^$removeparam=clickid,domain=news.*"
+ ])assert.equal(R.network(line),null,line);
+});

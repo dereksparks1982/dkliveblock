@@ -10,12 +10,12 @@ test("Build 165 native filter syntax is counted without revealing rule text",()=
  ].join("\n"));
  assert.equal(result.lines,7);
  assert.equal(result.ignored,1);
- assert.equal(result.supported,2);
- assert.equal(result.unsupported,4);
+ assert.equal(result.supported,3);
+ assert.equal(result.unsupported,3);
  assert.equal(result.categories.unsupported_scriptlet,1);
  assert.equal(result.categories.unsupported_csp,1);
  assert.equal(result.categories.unsupported_redirect_rule,1);
- assert.equal(result.categories.unsupported_entity_domain,1);
+ assert.equal(result.categories.native_entity_domain,1);
  assert.ok(!("rules" in result)&&!("sources" in result));
 });
 test("Build 165 classification handles unsupported cosmetic syntax and valid native rules",()=>{
@@ -63,4 +63,21 @@ test("Build 182 audit distinguishes supported literal computed CSS from regex fo
  assert.equal(out.categories.unsupported_extended_cosmetic,1);
  assert.equal(out.supported,2);
  assert.equal(out.unsupported,1);
+});
+
+test("Build 183 native entity-domain coverage is quantified without overclaiming syntax",()=>{
+ const result=Audit.analyze([
+  "||ads.example^$script,domain=news.*",
+  "@@||ads.example^$script,from=~news.*",
+  "||ads.example^$script,domain=news.*|trusted.example",
+  "||ads.example^$script,domain=news.*.example",
+  "||ads.example^$script,to=evil.*",
+  "||ads.example^$script"
+ ].join("\n"));
+ assert.equal(result.categories.native_entity_domain,3);
+ assert.equal(result.categories.unsupported_entity_domain,2);
+ assert.equal(result.categories.native_network,1);
+ assert.equal(result.supported,4);
+ assert.equal(result.unsupported,2);
+ assert.equal(JSON.stringify(result).includes("ads.example"),false);
 });

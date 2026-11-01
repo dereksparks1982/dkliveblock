@@ -824,3 +824,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Add narrow uBlock-style `:matches-css()` literal computed-style conditions to DK's host-scoped procedural parser, using bounded position/display/visibility/opacity/z-index properties and exact whitelisted values.
 - Extend procedural matcher, deduplication and exception keys; reuse reversible DOM hide with existing identity/player safeguards and scanning limits. No arbitrary CSS, regex, downloaded code or node removal.
 - Added dedicated parsing, computed-style, hostile-page, exception and audit regression tests. Focused V8 synthetic checks passed; live Firefox performance and full Linux suite remain pending. No YouTube ad parity claim.
+
+### 0.3.153 / Build 183 (2026-11-01)
+- Native network and independently evaluated manual rules now accept vetted single-label entity source scopes (`domain=news.*`, `from=~news.*`), including host/domain exclusions. Do not widen validation of browser origins, destination controls, page policies, or parameter rewriting.
+- Compared modified native, hybrid and actual bundled Ghostery verdicts over 72 synthetic hostname/scope cases; all sampled decisions agreed. This is not a real filter-list coverage or YouTube video-ad benchmark.
+- Update filter syntax audit to count `native_entity_domain` separately; add native, manual, exception, exact-domain, lookalike and unsupported-wildcard regression fixtures. Revise obsolete earlier test expectations.
+- Full Linux test suite and live Firefox/YouTube acceptance remain pending; no feature parity or ad-removal claim.

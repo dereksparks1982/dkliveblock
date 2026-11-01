@@ -2,7 +2,7 @@
 
 **Firefox-first ad and tracker blocker by DK LAB / Elderred Softworks.**
 
-**Unreleased development source: 0.3.152, Build 182.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
+**Unreleased development source: 0.3.153, Build 183.** Firefox testing, YouTube/Disney+ playback and full Adblock Plus equivalence have not yet passed the required acceptance checks.
 
 ## What it does
 
@@ -43,6 +43,8 @@ End users will not need Node.js, npm or a separate Ghostery installation: the fi
 **Build 181 filtering correctness:** the hybrid engine now respects a bundled Ghostery `$important` subscription match even when DK's native parser recognized only a weaker exception. Manual user choices still outrank subscriptions. Test fixtures demonstrated the mismatch with real embedded Ghostery and verified the corrected priority. **Live YouTube ad blocking is still unverified.** See `docs/BUILD_181.md`.
 
 **Build 182 advanced cosmetics:** DK now supports a bounded, site-scoped, literal `:matches-css()` procedural subset. It recognizes selected computed CSS properties and hides matched elements reversibly using existing player and identity safeguards. It does not allow downloaded regexes, arbitrary style mutations or executable scriptlets. **YouTube video ad-free playback remains unverified.** See `docs/BUILD_182.md`.
+
+**Build 183 network-filter compatibility:** DK's native and manual rule engines now understand conservative source-domain entity patterns such as `domain=publisher.*`, including exact exceptions and exclusions. Strict hostname validation remains unchanged elsewhere. A 72-case synthetic comparison with our real bundled Ghostery engine found zero sampled decision differences. **This is not proof that YouTube ads are fixed.** See `docs/BUILD_183.md`.
 
 ## Development status
 
