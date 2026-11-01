@@ -11,6 +11,10 @@
 7. The user creates/signs in to their Mozilla developer account and chooses an **on-site public listing** in the Firefox Add-ons Developer Hub. Submit the unsigned package. Mozilla reviews and signs acceptable extensions. Respond to review feedback before authorizing public access.
 8. For later releases, increment the extension version, rerun all gates and submit an updated ZIP for signing and automatic user updates.
 
+## Licensing review before release
+
+The owner's policy is **free use by individuals and companies, but no monetization of DK Live Block or modified copies**. New distributions of original application code carry the custom Free Use / No Monetization License; older MIT grants are not retroactively revoked. Confirm that the custom license can be applied to the author's original material while preserving bundled MPL-2.0 and independent third-party list permissions and all necessary notices. Confirm Mozilla's current add-on licensing/review requirements before submission. Do not describe the code as OSI-approved open source or promise that past MIT-licensed forks cannot be commercialized.
+
 ## Important limits
 - No automatic proxy is bundled. Firefox selective proxy routing does not guarantee anonymity or block fallback to direct requests.
 - No guaranteed bypass of a server-side paywall, protected streams, or network censorship.
