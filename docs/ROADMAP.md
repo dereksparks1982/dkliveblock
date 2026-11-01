@@ -625,3 +625,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 164: exact-site #@# cosmetic exceptions now protect matching elements against automatic DOM recognition, restore previously hidden elements on update, and prevent supplementary Ghostery CSS from re-hiding exact selectors.
 - [ ] Build 164 acceptance: full Linux regression including background and DOM mocks, real Firefox site allow/remove changes and normal ad recognition.
 - [ ] Build 165: quantify filtering-language compatibility and unsupported rule categories using bounded offline local list analysis.
+
+- [x] Build 165: offline bounded native filter-language inventory, no URLs logged, with 20 MB / 260k-line limits, synthetic classification tests, and test runner registration.
+- [ ] Compare unsupported categories against consented real default-list snapshots; audit does not yet measure installed EasyList/EasyPrivacy or bundled Ghostery's full parser.
+- [ ] Build 166: baseline CPU/startup/memory and request-match timing in offline harness, no live browser assertions.

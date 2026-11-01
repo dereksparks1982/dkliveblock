@@ -719,3 +719,9 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Implemented bounded recognition exception matching, immediate restoration of previously hidden elements, and re-scanning after allow rules are removed.
 - Ensured supplementary Ghostery CSS cannot re-hide an explicitly allowed exact selector; retained authentication/player selector protections.
 - Added DOM, background integration and vendor CSS regressions. Complete Ubuntu suite and real Firefox behavior still require verification.
+
+### 0.3.135 / Build 165 (2026-10-31)
+- Added a bounded, offline native filter-language coverage report over bundled local text lists with per-category unsupported counts and zero browsing data.
+- Added source regression fixtures for scriptlet, CSP, redirects, entity-domain and extended cosmetic classification, oversized input handling, and local list inventory.
+- Registered the new regression test in the official seven-phase runner; no production filtering changes, downloads, GitHub Actions or release.
+- Current full Linux tests, default-list real-world gaps and Firefox video acceptance remain unverified.
