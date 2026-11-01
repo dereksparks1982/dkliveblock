@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<title>DK Live Block | YouTube Comparison Lab</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="youtube-lab.css">
+</head>
+<body class="options youtube-lab">
+<header><strong>DK LIVE BLOCK</strong><small>Offline YouTube comparison lab · Development</small></header>
+<main>
+<h1>Compare two YouTube diagnostic reports</h1>
+<p>Why does an ordinary YouTube video sometimes refuse playback when an ad-funded film works? This tool compares the evidence without changing your filters or contacting a server.</p>
+<p class="warning"><strong>Source-only investigation:</strong> counter differences do not establish that advertising was blocked, that video played successfully, or which method caused a result. Test in the same Firefox profile with other blockers disabled.</p>
+<section aria-labelledby="inputsTitle"><h2 id="inputsTitle">Choose two saved reports</h2>
+<p>In the Site Dashboard, select a YouTube tab and use <strong>Export YouTube diagnostics (.json)</strong>. Collect one report in each test mode, ideally after equal-length playback attempts. Each file may contain private hostname data, but this lab <strong>discards hostnames, URLs, tab IDs and raw entries</strong> when making the comparison. Files stay in this browser and are never uploaded.</p>
+<div class="lab-grid">
+<label>Baseline report (.json)<input type="file" id="baselineFile" accept=".json,application/json"></label>
+<label>Candidate report (.json)<input type="file" id="candidateFile" accept=".json,application/json"></label>
+</div>
+<p>Each file must be a DK Live Block YouTube report of 750 KB or less. Mixed report formats and unknown schemas are rejected.</p>
+</section>
+<section aria-labelledby="observationsTitle"><h2 id="observationsTitle">Record what you actually saw (optional)</h2>
+<p>These observations are yours, not automatic ad-blocking claims. They stay on this page unless you explicitly export a sanitized comparison summary.</p>
+<div class="lab-grid">
+<label>Video type
+<select id="videoType"><option value="ordinary">Ordinary YouTube video</option>
+<option value="ad-funded-film">Ad-supported movie</option>
+<option value="shorts">YouTube Shorts</option>
+<option value="other">Other YouTube playback</option></select></label>
+<label>Baseline playback
+<select id="baselinePlayback"><option value="unknown">Not recorded</option><option value="works">Played normally</option><option value="refused">Refused / black screen</option><option value="stalled">Stalled / buffering</option></select></label>
+<label>Candidate playback
+<select id="candidatePlayback"><option value="unknown">Not recorded</option><option value="works">Played normally</option><option value="refused">Refused / black screen</option><option value="stalled">Stalled / buffering</option></select></label>
+<label>Baseline ads
+<select id="baselineAds"><option value="unknown">Not recorded</option><option value="seen">An ad visibly played</option><option value="none-seen">No ad observed during test</option></select></label>
+<label>Candidate ads
+<select id="candidateAds"><option value="unknown">Not recorded</option><option value="seen">An ad visibly played</option><option value="none-seen">No ad observed during test</option></select></label>
+</div>
+</section>
+<div class="lab-actions">
+<button type="button" id="compareReports">Compare reports</button>
+<button type="button" id="exportComparison" disabled>Export sanitized comparison (.json)</button>
+<button type="button" id="clearComparison">Clear reports</button>
+</div>
+<p id="labStatus" role="status" aria-live="polite">No reports loaded.</p>
+<section id="comparisonResult" hidden aria-labelledby="comparisonTitle">
+<h2 id="comparisonTitle">Comparison results</h2>
+<p id="comparisonSummary"></p>
+<div id="comparisonWarnings" aria-label="Evidence limits"></div>
+<div class="lab-scroll"><table><caption>Numerical differences are observations, not proof of improved blocking.</caption>
+<thead><tr><th scope="col">Metric</th><th scope="col">Baseline</th><th scope="col">Candidate</th><th scope="col">Difference</th></tr></thead>
+<tbody id="comparisonRows"></tbody>
+</table></div>
+<p id="manualSummary"></p>
+<p id="comparisonCaveat"></p>
+</section>
+<p><a href="site-dashboard.html">Return to Site Dashboard</a></p>
+<footer>Runs entirely in Firefox · No telemetry · No remote analysis · No automatic filtering changes</footer>
+</main>
+<script src="youtube-lab.js"></script>
+<script src="youtube-lab-ui.js"></script>
+</body></html>
