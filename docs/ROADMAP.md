@@ -705,3 +705,7 @@ Never advertise a package for download before it meets the user's ABP-or-better 
 - [x] Build 184: add bounded, privacy-preserving subscription refresh guard to avoid replacing a large working list with a catastrophically smaller candidate; no execution of remote code, rollback only local cached data.
 - [ ] Build 184 acceptance: exact-commit full Ubuntu test gate and actual Firefox subscription refresh/304/recovery plus YouTube playback testing.
 - [ ] Build 185 adaptive-strategy groundwork: define a finite, reviewed library of dormant site defenses and a deterministic, reversible selector based on coarse local evidence. Never invent scripts or silently bypass failed playback/ad detection.
+
+- [x] Build 185: create locally bounded adaptive YouTube defense selector from existing response-only/combined strategies with tab isolation, playback-failure evidence, manual-mode override and ten-minute rollback.
+- [ ] Build 185 acceptance: full local Node/Python suite and real Firefox A/B tests; verify response-only actually improves a confirmed failed playback case.
+- [ ] Build 186 AI integration: evaluate tiny MIT local model-training project, generate fixed model offline and bundle inspectable JavaScript inference under deterministic safety gates. No cloud AI, runtime Python, external model download or GitHub Actions.

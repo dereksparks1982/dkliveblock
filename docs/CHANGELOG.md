@@ -835,3 +835,8 @@ Build 20C repairs offline Node VM test fixtures so the real bundled Ghostery, Yo
 - Guard automatic built-in/custom subscription refreshes against severe loss of actionable filter rules relative to a substantial, previously cached list (below 25% when the previous list has at least 120 actionable rules).
 - Retain last working list on suspicious replacement and report locally for retry; preserve new/small subscriptions, ordinary revisions, conditional caching, and YouTube pack version/rollback checks.
 - Added privacy-preserving bounded counting module and three regression fixtures. Eleven isolated V8 assertions passed; full Ubuntu Node/Python suite and actual Firefox scheduled-update/live playback checks remain outstanding.
+
+### 0.3.155 / Build 185 (2026-11-01)
+- Added first, deterministic local adaptive-defense controller for YouTube. Two spaced playback errors within two minutes, correlated with locally recorded blocked media, temporarily favor existing response-only mode over the more invasive page bridge for ten minutes.
+- No general ad allowlist, outside script download, telemetry or automatic new filtering code. Explicit user test modes and existing site rules retain priority.
+- Included coarse, sanitized adaptive state in tab diagnostics and automatic expiry handling; six new tests and 15 isolated behavioral checks. Full Ubuntu suite and actual Firefox preroll/midroll/anti-adblock results remain unverified.

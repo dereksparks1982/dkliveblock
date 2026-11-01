@@ -118,11 +118,15 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
-function youtubeMode(id,site){return DKYouTubeExperiment.get(data.youtubeExperiment,id,site);}
+function youtubeMode(id,site){
+ const userSelected=DKYouTubeExperiment.get(data.youtubeExperiment,id,site);
+ return userSelected!=="combined"?userSelected:
+  DKAdaptiveYouTube.mode(data.youtubeAdaptive,id,site);
+}
 function youtubePolicy(id,site){return DKYouTubeExperiment.policy(youtubeMode(id,site),
  data.settings.youtubeResponseFilter===true);}
 function sourceSections(){
@@ -589,6 +593,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
    DKRequestControls.dropTab(data.requestControls,id);
    data.youtubeExperiment.delete(id);
+   DKAdaptiveYouTube.clear(data.youtubeAdaptive,id);
    DKPopupHistory.clear(data.popupHistory,id);
    DKPopupTrap.revoke(data.popupTrapPermits,id);
    data.popupTrapCounts.delete(id);
@@ -603,6 +608,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
 });
 browser.tabs.onRemoved.addListener(id=>{
  data.youtubeExperiment.delete(id);
+ DKAdaptiveYouTube.clear(data.youtubeAdaptive,id);
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
@@ -811,6 +817,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    return {error:"YouTube tab changed; refresh the dashboard first."};
   if(!DKYouTubeExperiment.set(data.youtubeExperiment,id,liveSite,msg.mode))
    return {error:"Invalid experiment mode."};
+  DKAdaptiveYouTube.clear(data.youtubeAdaptive,id);
   DKYouTubeResponse.clear(id);
   DKPlaybackHealth.clear(data.playbackHealth,id);
   try{await browser.tabs.sendMessage(id,{action:"refresh"});}catch(_){}
@@ -923,6 +930,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    requestLog,allowedRequests:permitted.total,allowedGroups:permitted.groups,
    selectiveBlocks:DKAllowedActivity.list(data.manualBlocks,site),
    youtubeTestMode:DKYouTubeExperiment.validSite(site)?youtubeMode(id,site):null,
+   youtubeAdaptive:DKYouTubeExperiment.validSite(site)&&sameTab?
+    DKAdaptiveYouTube.status(data.youtubeAdaptive,id,site):null,
    youtubeResponse:DKYouTubeResponse.validPage(site)?{enabled:youtubePolicy(id,site).response,supported:typeof browser.webRequest.filterResponseData==="function",...DKYouTubeResponse.stats(id)}:null,
    filterBackend:String(data.engine.backend||"Local").slice(0,64),
    networkRules:data.engine.networkCount||0,cosmeticRules:data.engine.cosmetic.length,
@@ -994,7 +1003,27 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
     .some(row=>row.pageHost===pageHost&&row.type==="media"&&
       now-row.when>=0&&now-row.when<=120000);
-  return {ok:DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now)};
+  const recorded=DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now);
+  // Repeated, independently timed playback faults correlated with recent
+  // blocked media trigger a SHORT, REVERSIBLE switch among existing defenses.
+  // Never allow media hosts or disable the network/ad filter engine.
+  if(recorded&&data.settings.youtubeResponseFilter&&
+     DKYouTubeExperiment.get(data.youtubeExperiment,id,pageHost)==="combined"){
+   const adapted=DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,
+    msg.kind,nearby,now);
+   if(adapted.changed){
+    try{await browser.tabs.sendMessage(id,{action:"refresh"});}catch(_){}
+    // Recheck when this temporary fallback expires. A site switch, manual
+    // mode selection or closed tab cannot turn a stale fallback back on.
+    setTimeout(()=>{
+     if(DKAdaptiveYouTube.mode(data.youtubeAdaptive,id,pageHost)==="combined"&&
+        DKYouTubeExperiment.get(data.youtubeExperiment,id,pageHost)==="combined"&&
+        data.hosts.get(id)===pageHost&&activeTab(id,pageHost))
+      browser.tabs.sendMessage(id,{action:"refresh"}).catch(()=>{});
+    },DKAdaptiveYouTube.FALLBACK_MS+250);
+   }
+  }
+  return {ok:recorded};
  }
  if(msg.action==="getPlaybackHealth"||msg.action==="clearPlaybackHealth"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension settings only."};
