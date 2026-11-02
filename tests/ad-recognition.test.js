@@ -600,3 +600,19 @@ test("Build 235 uses captured removed portal label and detects text replacement"
  assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Ad"}}),true);
  assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Adventure"}}),false);
 });
+
+test("Build 235 SVG nested text labels survive external reference and removal",()=>{
+ const symbol={nodeType:1,id:"fb_svg_sponsored",tagName:"symbol",
+  children:[{tagName:"text",children:[],textContent:"Sponsored"}],
+  textContent:"Sponsored",childNodes:[],getAttribute:()=>null,querySelectorAll:()=>[]};
+ const use={tagName:"use",getAttribute:k=>k==="href"?"#fb_svg_sponsored":null};
+ const lookup={getElementById:id=>id==="fb_svg_sponsored"?symbol:null};
+ assert.ok(FB.referenceLabels(use,lookup,new Map(),{}).some(FB.isAdLabel));
+ assert.ok(FB.referenceTargetLabels(symbol,{}).some(FB.isAdLabel));
+ const organic={nodeType:1,id:"fb_svg_time",tagName:"symbol",
+  children:[{tagName:"text",children:[],textContent:"2h"}],
+  textContent:"2h",childNodes:[],getAttribute:()=>null,querySelectorAll:()=>[]};
+ assert.equal(FB.referenceTargetLabels(organic,{}).some(FB.isAdLabel),false);
+ const scanner=FB.create({location:{hostname:"www.facebook.com"}},{location:{hostname:"www.facebook.com"}});
+ assert.equal(scanner.observeMutation({type:"childList",removedNodes:[symbol],addedNodes:[]}),true);
+});

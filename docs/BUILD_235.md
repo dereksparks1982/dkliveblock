@@ -12,3 +12,6 @@
 
 ## After this Facebook work: AI assistance
 Record the concept in `docs/ROADMAP.md`: the local owner-initiated **Why wasn't this blocked?** feature, explanation of evidence and permissions, safe preview of site-scoped draft rules, manual approval, undo, no user-data uploading or hidden training. Current AI only assists YouTube playback. No AI code is changed in this build.
+
+## Final SVG coverage correction
+- Resolve bounded nested SVG <symbol>/<text> references as well as spans; reject ordinary SVG timestamps. Added a targeted test and verified 11 current/previous focused Facebook cases.

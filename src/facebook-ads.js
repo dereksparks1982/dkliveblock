@@ -76,6 +76,19 @@ function inByline(label,card){
 // ephemeral portal span. Decode it at the reference target, including bounded
 // scrambled character spans, and retain only explicit ad words in the cache.
 // Reference interpretation adapted from Inky's MIT Facebook blocker.
+function referenceTargetLabels(target,win){
+ if(!target)return [];
+ const variants=labelsOf(target,win);
+ // SVG <symbol><text>Sponsored</text></symbol> renders the label inside
+ // nested SVG nodes, not a flat span. Only read bounded known label targets.
+ const tag=String(target.localName||target.tagName||"").toLowerCase();
+ if(["symbol","text","title","span","svg"].includes(tag)&&
+    (target.children?.length||0)<=24){
+  const raw=String(target.textContent||"");
+  if(raw.length<=64&&isAdLabel(raw))variants.push(raw);
+ }
+ return variants;
+}
 function referenceLabels(el,doc,cache,win){
  const out=[],ids=String(el?.getAttribute?.("aria-labelledby")||"").split(/\s+/).filter(Boolean).slice(0,10);
  const tag=String(el?.localName||el?.tagName||"").toLowerCase();
@@ -85,7 +98,7 @@ function referenceLabels(el,doc,cache,win){
  for(const id of ids){
   if(!/^[\w:-]{1,90}$/.test(id))continue;
   const target=doc?.getElementById?.(id);
-  const variants=target?labelsOf(target,win):[];
+  const variants=referenceTargetLabels(target,win);
   const saved=cache?.get?.(id);
   out.push(...variants);
   if(saved)out.push(saved);
@@ -222,7 +235,7 @@ function create(doc,win,max=100){
   const record=n=>{
    const id=String(n.id||"");
    if(!/^[\w:-]{1,90}$/.test(id))return false;
-   const text=labelsOf(n,win).find(isAdLabel);
+   const text=referenceTargetLabels(n,win).find(isAdLabel);
    if(!text)return false;
    if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
    cache.set(id,normalize(text));return true;
@@ -310,7 +323,7 @@ function create(doc,win,max=100){
 
  return {scan,restore,setExceptions,observeMutation,get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
