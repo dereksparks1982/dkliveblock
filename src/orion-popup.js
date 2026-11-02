@@ -13,7 +13,15 @@ async function call(obj,name,args){
    const r=obj[name](...args,v=>{const e=api.runtime?.lastError;end(v,e?Error(String(e.message||"Request failed")):null);});
    if(r&&typeof r.then==="function")r.then(v=>end(v),e=>end(null,e));
    else if(r!==undefined)end(r);
-  }catch(e){end(null,e);}
+  }catch(e){
+   // Firefox-style browser.* APIs may be Promise-only and reject callbacks.
+   // Retry with the documented Promise signature, without weakening scope.
+   try{
+    const result=obj[name](...args);
+    if(result&&typeof result.then==="function")result.then(v=>end(v),err=>end(null,err));
+    else end(null,e);
+   }catch(err){end(null,err);}
+  }
  });
 }
 async function send(action,value){

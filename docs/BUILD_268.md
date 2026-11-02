@@ -1,2 +1,5 @@
 # Build 268 / v0.3.238: Orion exact-site pause
 A source-only experimental Orion package adds two local scripts, a Pause/Resume popup, and a safe per-host (100 maximum) local preference model. It waits for storage initialization before scanning, restores hidden elements when the owner pauses, and does not bypass an unreadable saved pause. Without storage it is only page-scoped. No network blocking, telemetry, remote dependency, website geometry change or GitHub Actions. Six regression tests are registered; real device tests and full Ubuntu suite not yet run.
+
+## QA follow-up
+The experimental Orion popup now retries Promise-only extension APIs when they reject a callback argument. A focused mocked test covers Promise-only active-tab lookup, status and Pause messaging. This is not actual iPhone browser acceptance.

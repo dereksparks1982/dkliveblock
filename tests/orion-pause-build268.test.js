@@ -36,3 +36,24 @@ test("Build 268: popup is Orion-only and accessible",()=>{
  assert.equal(firefox.version,require("../package.json").version);
  assert.ok(!firefox.content_scripts[0].js.includes("orion-pause.js"));
 });
+
+test("Build 268 QA: Orion popup retries browser APIs that reject callback arguments",async()=>{
+ const vm=require("node:vm"),source=fs.readFileSync(path.join(root,"src/orion-popup.js"),"utf8");
+ const text={textContent:""},actions={},button={disabled:true,textContent:"",addEventListener:(type,fn)=>actions[type]=fn};
+ const document={getElementById:id=>id==="site-pause"?button:id==="site-status"?text:null};
+ const sends=[];
+ const browser={tabs:{
+  query(...args){if(args.length!==1)throw Error("Promise-only query");return Promise.resolve([{id:17}]);},
+  sendMessage(...args){if(args.length!==2)throw Error("Promise-only sendMessage");sends.push(args[1]);
+   return Promise.resolve(args[1].action==="dk-orion-status"?
+    {ok:true,ready:true,site:"www.facebook.com",paused:false,persistent:true}:
+    {ok:true,ready:true,site:"www.facebook.com",paused:true,persistent:true});}
+ },runtime:{}};
+ vm.runInNewContext(source,{browser,document},{timeout:1000});
+ for(let i=0;i<8;i++)await Promise.resolve();
+ assert.equal(button.disabled,false);
+ assert.ok(text.textContent.includes("www.facebook.com"));
+ await actions.click();
+ assert.equal(button.textContent,"Resume on this website");
+ assert.equal(sends.at(-1).paused,true);
+});
