@@ -896,7 +896,8 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
- if(info.url)DKOriginalTabGuard.confirmVideo(data.originalTabGuard,id,info.url);
+ // A confirmed video child keeps its recent source evidence across about:blank.
+ const acceptedVideo=!!info.url&&DKOriginalTabGuard.confirmVideo(data.originalTabGuard,id,info.url);
  if(info.url&&DKPopupTrap.nestyRead(data.nestyPopupLinks,id))
   interceptPopupGuard(id,info.url).catch(()=>{});
  if(info.url||info.status==="loading"){
