@@ -295,7 +295,7 @@ function sponsoredFeedCard(menu,doc,win){
   if(!box||box.height<140||box.width<350)continue;
   if(best){
    const previous=best.getBoundingClientRect?.();
-   if(previous&&box.width>previous.width*1.25&&box.width>previous.width+55)break;
+   if(previous&&box.width>previous.width*1.7&&box.width>previous.width+200)break;
   }
   const author=parent.querySelector?.('h2,h3,h4,[role="heading"],a[role="link"],a[href*="/profile.php"]');
   if(!author||author.contains?.(menu))continue;
