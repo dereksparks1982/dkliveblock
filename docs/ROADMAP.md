@@ -1,3 +1,13 @@
+## Build 244 / 0.3.214: provider evidence and live Meta module
+- [x] Add bounded in-memory provider intelligence records and an explicit clear operation, no telemetry or inferred ownership.
+- [x] Add evidence-driven adaptive dispatcher whose outputs are review-only, not self-issued network rules.
+- [x] Create Meta adapter, routing existing Facebook ad detection through company module without touching YouTube engine.
+- [x] Add tests for adapter isolation and manifest order; local and real browser execution remains pending.
+- [ ] Wire privacy-preserving local request monitor summaries to provider intelligence without retaining full URLs or personal content.
+- [ ] Build independently validated Instagram, Threads and relevant WhatsApp ad-surface detectors.
+- [ ] Measure false positives, user corrections and candidate efficacy before enabling auto-changing rules.
+- [ ] Run Linux Node suite and owner Firefox tests; Facebook Sponsored posts/right rail still not verified as solved.
+
 ## Architecture directive: Company modules + advertising-provider intelligence (November 1, 2026)
 See [Company Advertising Intelligence](COMPANY_ADVERTISING_INTELLIGENCE.md) for the full owner-approved direction, planned architecture, evidence schema, operational boundaries and verified-vs-planned status.
 - [x] Document per-company modules, Meta scope (Facebook, Instagram, Threads, WhatsApp), existing YouTube protection, shared advertising-provider intelligence and reversible countermeasures.
