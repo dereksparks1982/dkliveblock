@@ -1,6 +1,6 @@
 # DK Live Block: Privacy disclosure (draft for public review)
 
-DK Live Block is an independent Firefox extension developed by DK LAB / Elderred Softworks. It requires **no account**, has **no premium tier** and sends **no analytics or telemetry to DK LAB**. It does not sell user data.
+DK Live Block is an independent Firefox extension developed by DK LAB / Elderred Softworks. It requires **no account**, has **no premium tier** and sends **no analytics or telemetry to DK LAB**. It does not sell user data. Russian-speaking readers can also consult the [Russian user notice](NOTICE_RU.md), which summarizes privacy and optional network routing.
 
 ## Information stored locally
 Blocking preferences, custom filters, locally cached third-party filter lists and aggregate blocked-request counts are saved in Firefox extension storage. If enabled, bounded, temporary per-tab request logs store **destination hostnames, resource types and safe rule identifiers, not complete URLs**. For *completed permitted requests*, the local report can also retain up to **400 recent individual events per tab**, with a request sequence number, completion timestamp, HTTP method, response status and a fixed, locally determined allowance reason such as site allowlisting, manual request exception, authentication preservation, or an active filter-engine permit. Hostname/type summaries retain at most 150 groups and method/status/reason counts. Those event details are held in Firefox extension memory, not sent to DK LAB. Failed-request diagnostics store hostnames, request types, error categories and timestamps in memory. These logs disappear when the extension process ends and can be cleared manually. Disabling logging stops new records and clears in-flight allowance evidence. **No raw URL paths, query strings, authentication tokens, cookies, headers, payloads or private request IDs are saved or exported in these reports.**
@@ -10,7 +10,7 @@ Default filter-list updates contact the EasyList and EasyPrivacy hosts. Optional
 
 When the user explicitly runs a DNS diagnostic, Firefox's configured DNS resolver receives the query. The extension does not install or silently configure a DNS-over-HTTPS provider.
 
-**Proxy and Open Access routing are off by default.** If the user opts in and configures an external proxy, selected network requests may pass through that proxy. The proxy operator can observe connection metadata and may observe unencrypted HTTP content. HTTPS ordinarily protects content in transit, subject to the browser's trust and certificate settings. DK LAB does not provide, operate, or collect data from a proxy server.
+**Optional proxy routing is off by default.** If the user opts in and configures an external proxy, selected network requests may pass through that proxy. The proxy operator can observe connection metadata and may observe unencrypted HTTP content. HTTPS ordinarily protects content in transit, subject to the browser's trust and certificate settings. DK LAB does not provide, operate, or collect data from a proxy server.
 
 Firefox's proxy API is **not a kill switch** and may still allow a direct connection after a proxy failure. This extension is not a VPN, an anonymity service, or a guarantee against censorship or monitoring.
 
