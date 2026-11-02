@@ -39,7 +39,7 @@ test("Build 254: delivery catalog is inspection-only and requires corroborated s
  assert.ok(matches.some(x=>x.id==="graphql-sponsored"&&x.action==="review"));
  assert.equal(Catalog.inspect(["normal_post","author_name"]).length,0);
  for(const row of Catalog.entries)assert.ok(["review","observe"].includes(row.mode));
- assert.equal(manifest.version,"0.3.224");
+ assert.equal(manifest.version,require("../package.json").version);
  assert.ok(manifest.content_scripts[0].js.indexOf("meta-delivery-catalog.js")<
   manifest.content_scripts[0].js.indexOf("meta-module.js"));
 });
