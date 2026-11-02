@@ -16,7 +16,7 @@
 - [x] Address stale version/policy/fixture assertions without weakening live protections.
 - [x] Fix Nesty confirmed-video child tab transition and preserve protection of source tab.
 - [x] Harden resource allowance UI, YouTube filter-source diagnostics and synthetic audit origin validation.
-- [ ] Re-run the full Linux suite after corrections and record actual results.
+- [x] Re-run the full Linux suite after corrections: 1,235/1,235 Node tests and 6/6 companion checks passed; release audit blocked by missing genuine npm lockfile.
 - [ ] Provide a genuine npm package lock for independently reproducible AMO review; do not claim Mozilla readiness.
 - [ ] Owner Firefox YouTube, Disney+, Facebook fast scroll/rail and Nesty popup acceptance; no browser PASS inferred from CI.
 - [ ] Experimental Orion actual device review and Chromium/Yandex MV3 port remain unimplemented/unverified.
