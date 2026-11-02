@@ -73,3 +73,15 @@ A comparison of `main` against all five non-`main` branches found **zero commits
 - In unsupported browsers, a feature must be unavailable or observation-only, never pretend to block by silently skipping critical network enforcement. Do not apply Firefox-only APIs to Chromium, or assume Orion has desktop API parity.
 - Porting the source is **not** verification. Browser-specific capabilities, sign-in safety, disabled state, privacy and ad-removal results need actual device testing. Preserve the owner-approved Firefox blocking paths until a separate adapter proves equivalent.
 - Company profiles and advertising-delivery hypotheses may inform Nesty investigation, but confidence scores, domain relationships or synthetic model rankings never authorize deleting ordinary content or broadening blocking.
+
+
+## 10. Russia-facing legal readiness without locale-based censorship (owner direction, November 2, 2026)
+
+The owner wants DK Live Block designed for lawful use by Russian users and Russian-language customers from the beginning. **Regulatory diligence is required; unsupported claims of full Russian legal compliance or state approval are prohibited.** The maintained [Russia-facing compliance review](docs/REGIONAL_COMPLIANCE_RUSSIA.md) is a mandatory release reference and must be refreshed against official Russian regulations and applicable U.S. sanctions/export controls before specifically distributing, promoting or marketing the extension in Russia.
+
+- Preserve the ordinary ad-blocking and privacy product; Russian-language choice does **not** prove residence/citizenship and must not silently reduce protections, change filters, make legal assumptions or trigger geolocation/telemetry.
+- Do not advertise DK Live Block as a VPN, proxy service, censorship bypass or way to reach restricted resources. Its existing **optional user-configured proxy routing** is OFF by default but poses an unresolved Russia-specific legal classification question. Preserve current functionality unless the owner approves a tested change; obtain legal review before Russia-directed distribution.
+- Avoid paid/promotional placement on platforms where Russian law prohibits advertising. Treat marketing restrictions as distinct from blocking advertisements locally in a browser.
+- Keep user-facing Russian license, support, privacy and connection disclosures accurate and accessible. An English-only fallback or partial localization is not proof that all required Russian consumer information has been supplied.
+- Do not begin collecting Russian users' personal data, add developer-operated cloud telemetry or enable automatic report uploads without legal/data-flow review. Existing opt-in user-sent support emails and external filter-list connections also need privacy assessment.
+- Require owner sign-off and appropriate qualified legal review for market-specific compliance claims. No mandatory special access, hidden monitoring or government data transmission is implemented by this instruction.
