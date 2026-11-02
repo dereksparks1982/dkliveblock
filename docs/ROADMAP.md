@@ -1,3 +1,12 @@
+## Architecture directive: Company modules + advertising-provider intelligence (November 1, 2026)
+See [Company Advertising Intelligence](COMPANY_ADVERTISING_INTELLIGENCE.md) for the full owner-approved direction, planned architecture, evidence schema, operational boundaries and verified-vs-planned status.
+- [x] Document per-company modules, Meta scope (Facebook, Instagram, Threads, WhatsApp), existing YouTube protection, shared advertising-provider intelligence and reversible countermeasures.
+- [x] Document multi-layer dormant/adaptive detectors and AI-assisted investigation, including the limitations of scores, shared CDNs and weak signatures.
+- [ ] Implement a real provider-profile registry backed by evidence, local request-metadata classification and owner review controls.
+- [ ] Isolate Meta platform adapters and retain independent YouTube functionality.
+- [ ] Implement and test a bounded adaptive detector dispatcher and AI candidate evaluation; do not activate speculative blocking automatically.
+- [ ] Prove live Facebook ad removal, no false-positive damage, and unchanged streaming/login before advancing to other Meta platforms.
+
 ## Build 243 / 0.3.213: company-scoped modules
 - [x] Establish an immutable Meta and YouTube company/platform registry with strictly bounded hostname routing.
 - [x] Wire Facebook DOM detection to Meta's Facebook platform only; preserve YouTube engine untouched.
