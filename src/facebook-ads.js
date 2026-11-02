@@ -231,6 +231,7 @@ function marketplaceTileFrom(label,doc){
     return node;
    }
   }
+  node=parent;
  }
  return null;
 }
@@ -262,6 +263,7 @@ function mobilePostFrom(label,doc,win,onFeed){
    if(independentPostCount(node)>1)return null;
    return node;
   }
+  node=parent;
  }
  return null;
 }
