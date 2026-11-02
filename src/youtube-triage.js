@@ -16,7 +16,11 @@ function summarize(snapshot){
   if(row.type==="media"){mediaBlocked++;continue;}
   if(AD_HOSTS.some(x=>sub(row.host,x))){advertisingInfrastructure++;continue;}
   if(sub(row.host,"youtube.com")||sub(row.host,"youtube-nocookie.com")){
-   if(row.type==="xmlhttprequest"){firstPartyXHR++;sources.add(row.ruleEvidence?.subscription||"Unattributed active filter");}
+   if(row.type==="xmlhttprequest"){
+    firstPartyXHR++;
+    const name=row.ruleEvidence?.subscription;
+    if(name&&name!=="Unattributed active filter")sources.add(name);
+   }
    else if(row.type==="image"||row.type==="imageset")firstPartyImage++;
    else other++;
   }else other++;
