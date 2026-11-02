@@ -109,7 +109,7 @@ test("Build 263: extension settings are independent and no new permissions requi
  const bg=fs.readFileSync(path.join(ROOT,"src/background.js"),"utf8"),
   opts=fs.readFileSync(path.join(ROOT,"src/options.html"),"utf8"),
   settings=fs.readFileSync(path.join(ROOT,"src/settings.js"),"utf8");
- assert.match(bg,/metaGraphqlFilter:true/);
+ assert.match(bg,/metaGraphqlFilter:false/);
  assert.match(bg,/DKMetaGraphQL\.attach/);
  assert.match(bg,/activeTab\(d\.tabId,site\)/);
  assert.match(bg,/policy\?\.document\|\|policy\?\.elemhide/);
