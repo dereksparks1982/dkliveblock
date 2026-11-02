@@ -1,4 +1,5 @@
 "use strict";
+function DKMetaDashboardHost(host){return typeof host==="string"&&["facebook.com","instagram.com","threads.net","threads.com","whatsapp.com"].some(d=>host===d||host.endsWith("."+d));}
 const $=id=>document.getElementById(id),Model=DKSiteDashboardModel,Details=DKBlockDetails;
 let current=null,requestToken=0,loading=false,busy=false;
 let focusBlockedRequests=location.hash==="#blocked-requests";
@@ -611,6 +612,7 @@ function display(d){
     row.kind==="ad-skip"?"DK clicked a visible Skip Ad button (not proof of ad removal)":
     row.kind==="ad-showing"?"YouTube marked the player as showing an ad (not proof it played)":"Video media error")+
     (row.blockedMediaNearby?" · blocked media request nearby":"")));
+ $("dashboardMetaIntel").hidden=!DKMetaDashboardHost(d.site);
  $("dashboardFilterDetails").textContent=d.filterBackend+" · "+
   Model.number(d.networkRules).toLocaleString()+" network filters · "+
   Model.number(d.cosmeticRules).toLocaleString()+" element-hiding filters · "+
@@ -655,6 +657,7 @@ $("dashboardMonitor").addEventListener("click",()=>{
 });
 $("dashboardReport").addEventListener("click",()=>openLocal("report.html"));
 $("dashboardOptions").addEventListener("click",()=>browser.runtime.openOptionsPage());
+$("dashboardMetaIntel").addEventListener("click",event=>{event.preventDefault();const id=selected();if(id!==null)openLocal("meta-intelligence.html?tab="+id);});
 const tabParameter=new URLSearchParams(location.search).get("tab");
 const preferred=tabParameter!==null&&/^\d+$/.test(tabParameter)?Number(tabParameter):null;
 selectTabs(Number.isSafeInteger(preferred)&&preferred>=0?preferred:null)
