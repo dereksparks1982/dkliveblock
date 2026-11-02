@@ -6,6 +6,8 @@
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
 
+**Website sound & controls (extension version unchanged):** Bundled “Button Press” sound by DRAGON-STUDIO (Pixabay) now accompanies deliberate website button/card clicks, with [asset attribution](docs/ATTRIBUTIONS.md). All twelve modal headers use a cyan **×** close control with a 44px touch target; short panels have no redundant “Back to top.” Website mirrors stay synchronized. [Website details](docs/WEBSITE_EDUCATION_HUB.md).
+
 **Website learning hub update (same extension version):** The public page now has two sets of six fully clickable cards. The first set teaches ad blocking, popups, request evidence, user controls, ad delivery and cookies; the second opens the original status, installation, downloads, license, support and project-link information. All details and all three approved project links are preserved in accessible dialogs. [Website design notes](docs/WEBSITE_EDUCATION_HUB.md).
 
 **Build 263 (v0.3.233):** Added a separate, off-by-default Facebook GraphQL response filter for confirmed Sponsored records, local counters, and a Settings switch. The three website project links are now matching bottom-aligned buttons. Full Firefox and Ubuntu test acceptance remain pending. [Build details](docs/BUILD_263.md).
@@ -72,6 +74,8 @@ Run the local regression suite with `bash scripts/test-local.sh`. An optional ma
 - [AMO source/reviewer notes](docs/AMO_REVIEWER_NOTES.md)
 - [Release-week plan and acceptance gates](docs/RELEASE_WEEK_2026-11-01.md)
 - [Support and bug reporting](SUPPORT.md)
+- [Third-party asset and source attributions](docs/ATTRIBUTIONS.md)
+- [Current continuation handoff](docs/CONTINUATION_HANDOFF.md)
 
 ## Support
 

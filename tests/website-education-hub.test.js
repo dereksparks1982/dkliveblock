@@ -87,3 +87,25 @@ test("Close exits the modal but every Back to top scrolls inside its existing mo
 });
 
 test("Back to top appears only if panel overflows",()=>{const html=site("index.html");assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button" hidden>Back to top/g)||[]).length,12);assert.match(html,/button\.hidden=dialog\.scrollHeight<=dialog\.clientHeight\+4/);assert.match(html,/\.lesson-close-bottom\[hidden\]\{display:none\}/);assert.match(html,/window\.addEventListener\("resize",updateOpenBackToTop/);});
+
+test("All modal headers show a large cyan X with accessible Close label",()=>{
+ const html=site("index.html");
+ assert.equal((html.match(/<button class="lesson-close" type="button" aria-label="Close [^"]+"><span aria-hidden="true">&times;<\/span><\/button>/g)||[]).length,12);
+ assert.doesNotMatch(html,/Close &times;/);
+ assert.match(html,/\.lesson-close:not\(\.lesson-close-bottom\)\{display:inline-grid;place-items:center;width:44px;height:44px/);
+ assert.match(html,/background:transparent;color:var\(--a\)/);
+ assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button" hidden>Back to top/g)||[]).length,12);
+});
+test("All website card and button clicks use the bundled Pixabay sound without breaking dialog controls",()=>{
+ const html=site("index.html");
+ assert.equal((html.match(/id="dkButtonSound"/g)||[]).length,1);
+ assert.match(html,/src="\/dkliveblock\/assets\/sound\/dragon-studio-button-press-382713\.mp3"/);
+ assert.match(html,/buttonSound\.volume=0\.38/);
+ assert.match(html,/document\.addEventListener\("click",event=>/);
+ assert.match(html,/button,\.feature-card-link,\.project-link-button,nav\.links \.button/);
+ assert.match(html,/buttonSound\.pause\(\)/);
+ assert.match(html,/buttonSound\.currentTime=0/);
+ assert.match(html,/buttonSound\.play\(\)/);
+ assert.match(html,/playResult\.catch\(\(\)=>\{\}\)/);
+ assert.doesNotMatch(html,/src="https?:\/\/pixabay\./);
+});

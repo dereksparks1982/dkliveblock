@@ -1,3 +1,12 @@
+# Latest source snapshot / post-Build 263 website changes
+
+- **Source extension version:** 0.3.233 in `src/manifest.json` and `package.json`. GraphQL filtering is opt-in/off by default and unverified in live Firefox.
+- **Website:** two sets of six matching, dark, clickable information/learning cards. Twelve dialogs. Top Close has been simplified to a cyan × (44px touch target). A bottom Back to top button appears only on panels that need scrolling.
+- **Audio:** `assets/sound/dragon-studio-button-press-382713.mp3` by DRAGON-STUDIO, locally played on website button/card clicks. Credited under Pixabay Content License in `docs/ATTRIBUTIONS.md`.
+- **Website source:** root `index.html` and `docs/index.html`, kept byte-for-byte identical.
+- **Deployment:** GitHub-managed Pages deployment has previously passed. This change still needs its own Pages publishing and a real browser test.
+- **Outstanding risks:** Claude's reported historical security-contract/full test failures, incomplete live Meta ad acceptance, graph response schema verification, YouTube baseline A/B and engine performance. See `docs/CONTINUATION_HANDOFF.md`. The dated material below is historical, not a current release declaration.
+
 # DK Live Block: current engineering state
 
 **Latest repository source: Build 240 / 0.3.210 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**

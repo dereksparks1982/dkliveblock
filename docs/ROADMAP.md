@@ -1,3 +1,14 @@
+## Website polish / asset credit and session handoff (extension version remains 0.3.233)
+- [x] Confirm the owner's DRAGON-STUDIO Pixabay MP3 is present under `assets/sound/` in the live repo.
+- [x] Play the local sound on user-activated website cards and buttons; never autoplay, call Pixabay on click or block navigation when audio fails.
+- [x] Replace all twelve wordy dialog Close buttons with accessible, cyan × controls and 44px touch targets for mobile.
+- [x] Preserve conditional Back to top behavior so short dialogs show only the top Close ×.
+- [x] Record source and Pixabay Content License in `docs/ATTRIBUTIONS.md`; link from README and on-site licensing panel.
+- [x] Add website regression checks for audio, attribution link, and controls; keep both Pages entrypoints identical.
+- [ ] Verify live audio on Firefox desktop/mobile, including user gesture, volume, mute, keyboard navigation and GitHub Pages asset delivery.
+- [ ] Full offline Linux extension suite and live Facebook GraphQL response acceptance remain pending; do not declare blocker parity.
+- [x] Add `docs/CONTINUATION_HANDOFF.md` for any thread rollover.
+
 ## Website educational hub update (post-Build 263, extension stays v0.3.233)
 - [x] Make the entire six feature-card surfaces clickable, each opening a detailed ad-literacy lesson.
 - [x] Add six more full-card, clickable information boxes for development status, installation, downloads, free-use/license, support and the three other project websites.

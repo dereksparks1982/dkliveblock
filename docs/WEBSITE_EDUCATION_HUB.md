@@ -36,6 +36,14 @@ The original detailed website sections are retained verbatim inside these six di
 - Bottom **Back to top** is hidden on short panels and appears only for scrollable content; it scrolls inside the dialog without closing it.
 - All twelve dialog pairs keep their accessible labels and standard Escape-to-close behavior.
 
+## Sound, ownership and mobile close control
+- The user-supplied local sound `assets/sound/dragon-studio-button-press-382713.mp3` plays on deliberate clicks of the twelve full-card lesson/info links, visible dialog buttons, project links and top-page download/support buttons.
+- A single <audio> element is reused at reduced volume (0.38); playback failures are ignored without affecting navigation. No remote sound host is contacted.
+- “Button Press” by DRAGON-STUDIO is credited through [ATTRIBUTIONS.md](ATTRIBUTIONS.md), under the Pixabay Content License.
+- The twelve dialog headers show only a cyan **×**, not the word Close, keeping a 44×44px tap target and readable screen-reader Close labels.
+- Only genuinely scrollable dialogs expose the bottom Back to top; short dialogs retain the top cyan × alone.
+- Both GitHub Pages entrypoints use the same project-root-relative audio URL, regardless of which HTML file was used as source.
+
 ## Interaction and accessibility
 - Entire card can be clicked, not only a small text link.
 - Native `<dialog>` used with `showModal()`, yielding keyboard Escape support and focus containment in compatible modern browsers.

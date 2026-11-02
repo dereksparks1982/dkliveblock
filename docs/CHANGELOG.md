@@ -1,3 +1,10 @@
+## Website polish after Build 263 (extension remains 0.3.233)
+- Added on-click sound for interactive website cards/buttons using the existing owner-provided DRAGON-STUDIO “Button Press” MP3. No external audio service, telemetry or new extension permissions.
+- Replaced top modal “Close ×” text with a single cyan ×, maintaining accessible labels and 44px tap sizing; bottom Back to top stays hidden for short panels.
+- Added `docs/ATTRIBUTIONS.md` crediting Pixabay creator/license and linked it from README and website licensing information.
+- Synchronized root and docs Pages HTML; documented test and continuation state. The extension runtime and underlying ad-filtering decisions were not modified.
+- Browser audio/asset delivery acceptance remains outstanding.
+
 ## Build 240 (0.3.210): compact request switches in Site Dashboard
 - Corrected dashboard CSS inheritance that made new Allow/Block sliding switch tracks grow with row text (`.dashboard-line span { flex:1 }`).
 - Fixed only nested Site Dashboard switch wrapper/track/caption sizing; 48px track stays compact and host descriptions wrap naturally.
