@@ -431,7 +431,7 @@ function create(doc,win,max=100){
   for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
  }
  function cacheAdId(id,text){
-  if(!/^[\\w:-]{1,90}$/.test(String(id||""))||!isAdLabel(text))return false;
+  if(!/^[A-Za-z0-9_:-]{1,90}$/.test(String(id||""))||!isAdLabel(text))return false;
   if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
   cache.set(id,normalize(text));return true;
  }
