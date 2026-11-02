@@ -4,6 +4,8 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
+**DK LAB · ДК (Дом культуры)**: “House of Culture” is the studio's chosen Russian cultural reference for **DK**. The product and company names remain unchanged. [Company identity](docs/COMPANY_IDENTITY.md).
+
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
 
 **Build 275 / v0.3.245 (unreleased):** Agent Nesty now has **descriptive specialist names**: Nesty Cookie Watch, Nesty Popup Guard and Nesty Meta Ad Scout. Existing numbered detectors are compatibility methods, not separate publicly named agents. The Popup Guard uses a single original-tab takeover decision path while preserving the existing strict popup, video, login and one-time exception checks. Cookie Watch's interface now shows meaningful methods rather than numeric IDs. Added team catalog, compatibility regressions and a Company Bible rule. Streaming and approved UI geometry untouched. Full Linux and real-browser acceptance pending. [Build 275](docs/BUILD_275.md) · [Team catalog](docs/AGENT_NESTY_TEAM.md).
