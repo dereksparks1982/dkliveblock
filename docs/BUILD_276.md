@@ -22,7 +22,7 @@ Local source and translation coverage should be checked before acceptance. No as
 ## Website reliability and documentation corrections
 
 - Removed a write to the frozen localization API that aborted all twelve card-dialog click handlers. Retained the language-change event listener and card-height recalc.
-- Dark feature cards are visible at rest; hover remains distinguishable. No changes to card geometry or dialog behaviors.
+- User-approved final card colors: the *former hover fill* is now the resting fill in both English (`#14404b`) and Russian (`#60262a`), while hover and focus still highlight the border. No changes to card geometry or dialog behaviors.
 - Russian hero buttons use black, gold, white/steel, red in their existing order, with allowed text wrapping and original target URLs.
 - Replaced README with a short feature/usage summary and added separate `README.ru.md`; build notes remain in `docs/` only.
 - Eliminated the obsolete `docs/index.html` mirror and its duplicated page-only assets. The root `index.html` is the sole maintained website source, with a regression test to prevent mirror drift. GitHub Pages settings still need independent verification for deployment acceptance.

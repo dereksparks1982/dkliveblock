@@ -72,9 +72,9 @@ test("Both card groups use the original dark theme and still share one height",(
  const html=site("index.html");
  assert.match(html,/\.information-grid \.info-card\{border-color:#456b70\}/);
  assert.doesNotMatch(html,/\.information-grid \.info-card\{background:#fff/);
- assert.match(html,/\.feature-grid \.feature-card\{background:#0b2731\}/);
+ assert.match(html,/\.feature-grid \.feature-card\{background:#14404b\}/);
  assert.match(html,/\.feature-card:hover,\.feature-card:focus-within\{border-color:var\(--a\);background:#14404b\}/);
- assert.match(html,/html\[data-site-language="ru"\] \.feature-grid \.feature-card\{background:#481d21/);
+ assert.match(html,/html\[data-site-language="ru"\] \.feature-grid \.feature-card\{background:#60262a/);
  assert.equal((html.match(/class="feature-card info-card"/g)||[]).length,6);
  assert.equal((html.match(/class="feature-card"/g)||[]).length,6);
 });

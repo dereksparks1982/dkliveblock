@@ -34,10 +34,10 @@ test("Approved Russian banner and four button color order stay in the site",()=>
  assert.match(site,/\.links \.button\{white-space:normal;min-width:0;overflow-wrap:break-word/);
  assert.equal((site.match(/class="button (?:ink|cyan|white)/g)||[]).length,4);
 });
-test("Resting feature cards are dark and the hovered state remains distinct",()=>{
- assert.match(site,/\.feature-grid \.feature-card\{background:#0b2731\}/);
+test("Feature cards show the original hover brightness at rest; hover highlights their borders",()=>{
+ assert.match(site,/\.feature-grid \.feature-card\{background:#14404b\}/);
  assert.match(site,/\.feature-card:hover,\.feature-card:focus-within\{border-color:var\(--a\);background:#14404b\}/);
- assert.match(site,/html\[data-site-language="ru"\] \.feature-grid \.feature-card\{background:#481d21/);
+ assert.match(site,/html\[data-site-language="ru"\] \.feature-grid \.feature-card\{background:#60262a/);
  assert.match(site,/html\[data-site-language="ru"\] \.feature-card:hover,html\[data-site-language="ru"\] \.feature-card:focus-within\{background:#60262a/);
 });
 test("Both feature-only READMEs have no build log or identity story",()=>{
