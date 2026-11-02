@@ -1,0 +1,31 @@
+# Deliberately narrow: one initial run when this workflow is added/changed,
+# then only explicit manual dispatch. No routine push CI or artifacts.
+name: DK Live Block offline Linux verification
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/offline-verification.yml"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: dk-live-block-offline-verification
+  cancel-in-progress: false
+
+jobs:
+  offline-seven-phase:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - name: Read-only checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - name: Runtime versions
+        run: |
+          node --version
+          python3 --version
+      - name: Run existing seven-phase offline Linux suite
+        run: bash scripts/test-local.sh
