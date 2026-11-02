@@ -1,3 +1,11 @@
+## Build 243 / 0.3.213: company-scoped modules
+- [x] Establish an immutable Meta and YouTube company/platform registry with strictly bounded hostname routing.
+- [x] Wire Facebook DOM detection to Meta's Facebook platform only; preserve YouTube engine untouched.
+- [x] Add source tests for exact-domain ownership, cross-platform isolation and suffix confusion.
+- [ ] Build independently tested Instagram and Threads advertising adapters before enabling automatic hides there.
+- [ ] Inspect company-specific advertising request *metadata* locally with user-controlled logs; avoid private conversations, credentials or invasive data collection.
+- [ ] Validate live Facebook auto-hiding and run Linux test suite before declaring Meta/Facebook victory.
+
 ## Build 242 / 0.3.212: Facebook competitor-code review and independent card detection
 - [x] Examine the maintained MIT Facebook-specific blocker, Mowd's feed filter, uBlock-compatible feed-category scriptlet, and older Facebook blocker approaches.
 - [x] Make sponsored-menu card identification work independently of the optional investigator, using bounded landmarks and single-post safety checks.
