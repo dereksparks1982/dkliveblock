@@ -1,3 +1,9 @@
+## Build 270 (v0.3.240): atomic nested Meta GraphQL safeguards
+- Integrate Agent Nesty Meta 05 to prevent editing any part of a known Meta RequireJS/JSONL transport when a nested or sibling GraphQL error appears.
+- Fail open if transport traversal exceeds bounded depth, width or node counts.
+- Add 15 offline adversarial cases, including ordinary messages, errors and safe paid-feed examples; no real Facebook acceptance yet.
+- No change to website geometry or current default-off Meta GraphQL setting.
+
 ## Build 269 (v0.3.239): Agent Nesty Meta 04 and Orion site-safety gates
 - Cache of removed Sponsored label IDs now expires after 15 seconds; the scanner will prefer current benign live label evidence over old cached IDs. Expired entries are pruned each bounded scan.
 - Orion popup binds Pause/Resume to exact hostname obtained from the active tab, and content rejects stale commands after navigation.

@@ -1,3 +1,11 @@
+## Build 270 / v0.3.240: Meta GraphQL nested response safety
+- [x] Agent Nesty Meta 05 prevents partial GraphQL/JSONL mutations if any *recognized RequireJS / __bbox / result* envelope reports an error.
+- [x] Abort if the bounded traversal exceeds 1000 nodes, 20 layers or 100 items in a transport collection; fail open to original response.
+- [x] Preserve ordinary messages and reactions; only the existing explicit ad-bearing feed paths remain eligible for rewriting.
+- [x] Register 15 adversarial transport and false-positive tests; run them in isolated V8 simulation.
+- [ ] Full Ubuntu seven-phase suite and live signed-in Facebook GraphQL/Orion checks remain outstanding. Do NOT enable the GraphQL filter by default.
+- [ ] Continue to build platform-aware packaging and counters without misrepresenting unverified support.
+
 ## Build 269 / v0.3.239: stale Sponsored ID defense and Orion navigation safety
 - [x] Add Agent Nesty Meta 04: time-limited (15 seconds) removed ad-label evidence, bounded cache expiry, and live-target precedence for reused Facebook element IDs.
 - [x] Harden Orion popup requests with exact active tab hostname matching, so a navigated tab cannot inherit a previous site's pause command.

@@ -6,6 +6,8 @@
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
 
+**Build 270 / v0.3.240 (unreleased):** Agent Nesty Meta 05 extends Facebook GraphQL protection with fail-open nested RequireJS/JSONL error handling and bounded traversal; 15 adversarial synthetic cases passed. This is still experimental and OFF by default until real Firefox acceptance. [Build 270 details](docs/BUILD_270.md).
+
 **Build 269 / v0.3.239 (unreleased):** Agent Nesty Meta 04 prevents indefinitely cached Facebook Sponsored labels from misclassifying React-recycled ordinary posts. Orion's separate Pause/Resume now checks the active site's hostname and treats malformed saved preferences safely. Website geometry and Firefox permissions unchanged. [Build 269 notes](docs/BUILD_269.md).
 
 **Build 268 / v0.3.238 (unreleased):** Orion iPhone/Mac test candidate now has a dedicated exact-site Pause/Resume control, with bounded local host-only saves where supported. Still DOM-only and not yet device-verified. [Build 268 details](docs/BUILD_268.md).

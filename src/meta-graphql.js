@@ -145,10 +145,48 @@ function pruneRequireEnvelope(doc){
  }
  return removed;
 }
+// Nesty Meta 05: fail-open safety before mutating known RequireJS transport.
+ // Inspect the same explicit require / __bbox / result routes as the rewriter.
+ // Any nested GraphQL error, unusual depth or collection cap cancels all edits.
+function errorBearing(node){
+ return object(node)&&(node.error!==undefined&&node.error!==null||
+  Array.isArray(node.errors)&&node.errors.length>0);
+}
+function safeRequireEnvelope(doc){
+ if(!object(doc)||errorBearing(doc)||errorBearing(doc.__bbox))return false;
+ if(!Object.prototype.hasOwnProperty.call(doc,"require"))return true;
+ if(!Array.isArray(doc.require)||doc.require.length>100)return false;
+ const stack=[{node:doc.require,depth:0}],seen=new Set();
+ let visited=0;
+ while(stack.length){
+  if(++visited>1000)return false;
+  const {node,depth}=stack.pop();
+  if(depth>20)return false;
+  if(!node||typeof node!=="object"||seen.has(node))continue;
+  seen.add(node);
+  if(Array.isArray(node)){
+   if(node.length>100)return false;
+   for(let i=node.length-1;i>=0;i--)
+    if(node[i]&&typeof node[i]==="object")stack.push({node:node[i],depth:depth+1});
+   continue;
+  }
+  if(!object(node))continue;
+  if(errorBearing(node))return false;
+  if(object(node.__bbox)){
+   if(errorBearing(node.__bbox))return false;
+   if(object(node.__bbox.result))stack.push({node:node.__bbox.result,depth:depth+1});
+   if(Array.isArray(node.__bbox.require))stack.push({node:node.__bbox.require,depth:depth+1});
+  }
+  if(Array.isArray(node.require))stack.push({node:node.require,depth:depth+1});
+  if(object(node.result))stack.push({node:node.result,depth:depth+1});
+ }
+ return true;
+}
+
 function prunePayload(doc){
  // Do not alter a response containing GraphQL errors, even if a nested
  // __bbox object happens to resemble an ad feed.
- if(!object(doc)||doc.error||Array.isArray(doc.errors)&&doc.errors.length)return 0;
+ if(!safeRequireEnvelope(doc))return 0;
  let count=pruneRecord(doc);
  // The envelope is used only when explicitly present, and a response's
  // unrelated non-ad fields are never traversed by the ad matcher.
@@ -193,7 +231,7 @@ function rewrite(text){
   let obj;
   try{obj=JSON.parse(m[2]);}
   catch(_){return {text,changed:false,removed:0};}
-  if(!object(obj)||obj.error||Array.isArray(obj.errors)&&obj.errors.length)
+  if(!safeRequireEnvelope(obj))
    return {text,changed:false,removed:0};
   const n=prunePayload(obj);
   if(n){edits.push([i,m[1]+JSON.stringify(obj)+m[3]]);removed+=n;}
@@ -303,7 +341,7 @@ function attach(d,webRequest,clock=root){
  return true;
 }
 const API=Object.freeze({MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
- validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,rewrite,attach,stats,clear});
+ validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

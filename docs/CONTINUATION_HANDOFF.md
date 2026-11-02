@@ -1,3 +1,6 @@
+# Build 270 / v0.3.240 (Nov 2, 2026)
+Meta Nesty 05 guards nested RequireJS / __bbox errors, including sibling records and mixed JSONL batches. src/meta-graphql.js now validates known transport envelopes BEFORE modifying ad records. 15 synthetic test cases in tests/meta-graphql-build270.test.js passed in isolated V8. GraphQL remains default OFF; real Facebook tests and full Ubuntu suite needed. Previous Build 269 added ID cache TTL and Orion cross-site pause safety. Website unchanged.
+
 # Build 269 / v0.3.239 (Nov 2, 2026)
 Agent Nesty Meta-04: src/facebook-ads.js now stores short-lifetime ID labels as {value,at} and guards current live targets, expiring evidence after 15 sec to avoid false positives when React recycles IDs. src/orion-pause.js rejects commands for a different hostname and corrupt saved settings; src/orion-popup.js requires active tab URL and sends site with every message. 13 synthetic regression cases added to tests/meta-orion-guards-build269.test.js and registered in runner. Full local Linux suite and actual browser/device tests still needed. Core Protections site unchanged. Default Meta GraphQL OFF.
 

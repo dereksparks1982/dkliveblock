@@ -1,4 +1,8 @@
-# Current build: 269 / v0.3.239 (November 2, 2026)
+# Current build: 270 / v0.3.240 (November 2, 2026)
+- Agent Nesty Meta 05: known RequireJS / __bbox nested errors and traversal cap violations prevent partial GraphQL ad rewriting.
+- 15 focused transport scenarios passed in a V8 evaluation. Complete Ubuntu suite and actual Firefox/Orion Facebook tests remain outstanding.
+- GraphQL filter remains OFF by default. Desktop Firefox settings and website Core Protections layout unchanged.
+
 - Agent Nesty Meta 04 limits remembered disappearing Facebook Sponsored labels to 15 seconds and checks current live labels before relying on old IDs.
 - Orion-only controls reject stale popup commands after navigation and fail closed on corrupt stored site-pause data.
 - Added 13 focused regression cases, initial isolated Meta guard checks passed. The full Ubuntu Node/Python suite and real Orion/Firefox tests remain unverified.
