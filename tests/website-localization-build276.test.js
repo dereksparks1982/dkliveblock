@@ -30,10 +30,10 @@ test("Approved Russian banner and four button color order stay in the site",()=>
  assert.equal(l.ICON_EN,"assets/images/DK%20Live%20Block%20Neon%20Banner.png");
  const imagePath=path.join(__dirname,"../",decodeURIComponent(l.ICON_RU));
  const image=fs.readFileSync(imagePath);
- const blob=Buffer.concat([Buffer.from("blob "+image.length+"\\0"),image]);
+ const blob=Buffer.concat([Buffer.from("blob "+image.length),Buffer.from([0]),image]);
  const hash=require("node:crypto").createHash("sha1").update(blob).digest("hex");
  assert.equal(hash,"1ee6d3265a5f29c5d9656f74a0b427120887ffd3","Russian banner must match owner-approved uploaded artwork");
- assert.equal(fs.existsSync(path.join(__dirname,"../","assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png")),false);
+ assert.equal(fs.existsSync(path.join(__dirname,"../",decodeURIComponent("assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png"))),false);
  const russianReadme=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
  assert.ok(russianReadme.includes("assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png"));
  assert.equal(russianReadme.includes("assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png"),false);
