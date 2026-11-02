@@ -6,7 +6,7 @@
 
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
-**[Official website and downloads](https://dereksparks1982.github.io/dkliveblock/)**. Choose English or Русский using the language selector at the top. The extension has its own language setting.
+**[Official website and downloads](https://dereksparks1982.github.io/dkliveblock/?lang=en)**. Choose English or Русский using the language selector at the top. The extension has its own language setting.
 
 ## What it does
 
