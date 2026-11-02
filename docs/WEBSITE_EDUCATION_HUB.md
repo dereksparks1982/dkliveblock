@@ -33,7 +33,7 @@ The original detailed website sections are retained verbatim inside these six di
 ## Dialog button behavior and colors
 - Both groups of six cards use their original dark backgrounds and matching card geometry.
 - Top **Close** exits the open lesson or information dialog.
-- Bottom **Back to top** smoothly scrolls to the beginning of the currently open dialog without closing it.
+- Bottom **Back to top** is hidden on short panels and appears only for scrollable content; it scrolls inside the dialog without closing it.
 - All twelve dialog pairs keep their accessible labels and standard Escape-to-close behavior.
 
 ## Interaction and accessibility

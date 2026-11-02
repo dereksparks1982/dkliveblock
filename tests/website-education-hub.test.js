@@ -78,10 +78,12 @@ test("Both card groups use the original dark theme and still share one height",(
 });
 test("Close exits the modal but every Back to top scrolls inside its existing modal",()=>{
  const html=site("index.html");
- assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button">Back to top/g)||[]).length,12);
+ assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button" hidden>Back to top/g)||[]).length,12);
  assert.doesNotMatch(html,/Back to the six lessons|Back to the information cards/);
  assert.match(html,/querySelector\("\.lesson-close:not\(\.lesson-close-bottom\)"\)/);
  assert.match(html,/querySelector\("\.lesson-close-bottom"\)/);
  assert.match(html,/dialog\.scrollTo\(\{top:0,behavior:"smooth"\}\)/);
  assert.ok(html.includes('button class="lesson-close" type="button" aria-label="Close'));
 });
+
+test("Back to top appears only if panel overflows",()=>{const html=site("index.html");assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button" hidden>Back to top/g)||[]).length,12);assert.match(html,/button\.hidden=dialog\.scrollHeight<=dialog\.clientHeight\+4/);assert.match(html,/\.lesson-close-bottom\[hidden\]\{display:none\}/);assert.match(html,/window\.addEventListener\("resize",updateOpenBackToTop/);});
