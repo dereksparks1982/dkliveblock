@@ -1099,6 +1099,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   }
   return {ok:true,allowed:msg.allow,changed:true,scope:"site+hostname+type"};
  }
+ if(msg.action==="getMetaProviderIntel"||msg.action==="clearMetaProviderIntel"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let liveURL="",site="";
+  try{liveURL=(await browser.tabs.get(id))?.url||"";site=host(liveURL);}
+  catch(_){return {error:"Website tab is unavailable."};}
+  if(!/^https?:\/\//i.test(liveURL)||data.hosts.get(id)!==site||
+     DKCompanyModules.companyFor(site)!=="meta")
+   return {error:"Open a Meta website to inspect Meta provider intelligence."};
+  if(msg.action==="clearMetaProviderIntel"){
+   metaProviderEvidence.clear();return {ok:true,cleared:true};
+  }
+  return {ok:true,site,logged:data.settings.requestLog===true,
+   observations:data.settings.requestLog?metaProviderEvidence.list().slice(0,100):[]};
+ }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
