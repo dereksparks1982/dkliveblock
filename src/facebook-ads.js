@@ -400,7 +400,8 @@ function create(doc,win,max=100){
  // message contents or other personal information in detector diagnostics.
  const stats={scans:0,lastScanAt:0,lastHidden:0,lastFeedCards:0,
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
-  lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0};
+  lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
+  recycledRestored:0,rechecks:0};
  let menuCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
@@ -433,12 +434,39 @@ function create(doc,win,max=100){
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
-  hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display"),trigger});
+  hidden.set(el,{value:el.style.getPropertyValue("display"),
+   priority:el.style.getPropertyPriority("display"),trigger,
+   hiddenAt:Date.now(),dirty:false,misses:0,lastMiss:0});
   el.style.setProperty("display","none","important");return true;
  }
  function restoreOne(el,old){
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
   if(old.value)el.style.setProperty("display",old.value,old.priority);else el.style.removeProperty("display");
+ }
+ function stillSponsored(el,old){
+  // Explicit label/attribution evidence, never mere card shape or Meta domain.
+  const trigger=old.trigger;
+  if(trigger&&trigger.isConnected!==false&&el.contains?.(trigger)){
+   if(sponsoredMenu(trigger)||railAdLink(trigger)||
+      labelsOf(trigger,win).some(isAdLabel)||
+      referenceLabels(trigger,doc,cache,win).some(isAdLabel))return true;
+  }
+  if(el.querySelector?.('a[href*="/ads/about/"],a[href*="/ads/about?"],a[target="rhcad2"],a[attributionsrc*="/privacy_sandbox/comet/register/"]'))return true;
+  if(el.matches?.(ARTICLE)||el.querySelector?.('[role="article"],[data-pagelet^="FeedUnit"]')){
+   if(hasAdEvidence(el,doc,win,cache))return true;
+  }
+  const headings=el.querySelectorAll?.(HEADING)||[];
+  for(let i=0;i<Math.min(12,headings.length);i++)
+   if(isAdLabel(headings[i]?.textContent))return true;
+  return false;
+ }
+ function flagChangedContainer(target){
+  // Walk ancestors, never compare every mutation against every hidden card.
+  let node=target?.nodeType===3?target.parentElement:target;
+  for(let depth=0;node&&depth<32;depth++,node=node.parentElement){
+   const old=hidden.get(node);
+   if(old){old.dirty=true;return;}
+  }
  }
  function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
@@ -464,6 +492,7 @@ function create(doc,win,max=100){
  }
  function observeMutation(r){
   if(!r)return false;
+  if(hidden.size)flagChangedContainer(r.target);
   if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet";
   if(r.type==="characterData"){
    // An ephemeral ad-label portal can be OUTSIDE the feed. If its short text
@@ -507,6 +536,14 @@ function create(doc,win,max=100){
    // Sponsored trigger. Never re-hide a user-excepted card.
    if(allowed(el)||old.trigger&&allowed(old.trigger)){
     restoreOne(el,old);hidden.delete(el);continue;
+   }
+   if((old.dirty||old.misses>0)&&Date.now()-old.hiddenAt>=1800){
+    old.dirty=false;
+    stats.rechecks++;
+    if(stillSponsored(el,old)){old.misses=0;old.lastMiss=0;}
+    else if(old.misses>=1&&Date.now()-old.lastMiss>=700){
+     restoreOne(el,old);hidden.delete(el);stats.recycledRestored++;continue;
+    }else{old.misses++;old.lastMiss=Date.now();}
    }
    if(el.style?.getPropertyValue("display")!=="none"){
     old.value=el.style.getPropertyValue("display");
