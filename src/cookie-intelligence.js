@@ -23,19 +23,21 @@ function validName(value){
 function key(site,domain,name){return JSON.stringify([site,domain,name]);}
 function cookieMetadata(input){
  if(!input||typeof input!=="object")return null;
- const domain=cleanHost(input.domain),name=input.name;
+ const domain=cleanHost(input.domain),name=input.name,site=cleanHost(input.site)||domain;
  if(!domain||!validName(name))return null;
  const source=SOURCES.has(input.source)?input.source:"unknown";
  const sameSite=["no_restriction","lax","strict","unspecified"].includes(input.sameSite)?
   input.sameSite:"unknown";
  return Object.freeze({
-  domain,name,path:typeof input.path==="string"&&input.path.startsWith("/")?
+  site,domain,name,path:typeof input.path==="string"&&input.path.startsWith("/")?
     input.path.slice(0,256):"/",
   secure:input.secure===true,httpOnly:input.httpOnly===true,
   sameSite,session:input.session===true,
   expiration:Number.isFinite(input.expirationDate)?Math.max(0,Math.trunc(input.expirationDate)):null,
   partitioned:input.partitioned===true,
-  source,purpose:"unknown",owner:"unverified",
+  source,outcome:input.outcome==="attempted"?"attempted":
+   input.outcome==="changed"?"changed":"observed",
+  purpose:"unknown",owner:"unverified",
   // Explicitly omit value, header text, cookie IDs, full URLs and user profile.
  });
 }
@@ -43,10 +45,13 @@ function create(){
  const observations=new Map(),decisions=new Map();
  function observe(entry){
   const row=cookieMetadata(entry);if(!row)return null;
-  const eventKey=key(row.domain,row.path,row.name);
-  if(observations.has(eventKey))observations.delete(eventKey);
+  const eventKey=JSON.stringify([row.site,row.domain,row.path,row.name,row.source]);
+  const previous=observations.get(eventKey);
+  const counted=Object.freeze({...row,attempts:Math.min(1000000,(previous?.attempts||0)+1),
+   observedAt:Date.now()});
+  if(previous)observations.delete(eventKey);
   if(observations.size>=MAX_OBSERVATIONS)observations.delete(observations.keys().next().value);
-  observations.set(eventKey,row);return row;
+  observations.set(eventKey,counted);return counted;
  }
  function decide(entry){
   const site=cleanHost(entry?.site),domain=cleanHost(entry?.domain),name=entry?.name;
