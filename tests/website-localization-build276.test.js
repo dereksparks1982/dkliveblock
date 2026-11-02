@@ -26,16 +26,20 @@ test("Language selection prefers Russian browser locale, retains user override a
  assert.match(site,/id="dkSiteBanner"/);
 });
 test("Approved Russian banner and four button color order stay in the site",()=>{
- assert.equal(l.ICON_RU,"assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png");
+ assert.equal(l.ICON_RU,"https://raw.githubusercontent.com/dereksparks1982/dkliveblock/2552853711159fdea179aad26efd1391f42c7f92/assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png");
+ assert.equal(l.ICON_RU_LOCAL,"assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png");
+ assert.ok(l.ICON_RU.startsWith("https://raw.githubusercontent.com/dereksparks1982/dkliveblock/"));
+ assert.notEqual(l.ICON_RU,l.ICON_RU_LOCAL);
  assert.equal(l.ICON_EN,"assets/images/DK%20Live%20Block%20Neon%20Banner.png");
- const imagePath=path.join(__dirname,"../",decodeURIComponent(l.ICON_RU));
+ const imagePath=path.join(__dirname,"../",decodeURIComponent(l.ICON_RU_LOCAL));
  const image=fs.readFileSync(imagePath);
  const blob=Buffer.concat([Buffer.from("blob "+image.length),Buffer.from([0]),image]);
  const hash=require("node:crypto").createHash("sha1").update(blob).digest("hex");
  assert.equal(hash,"1ee6d3265a5f29c5d9656f74a0b427120887ffd3","Russian banner must match owner-approved uploaded artwork");
  assert.equal(fs.existsSync(path.join(__dirname,"../",decodeURIComponent("assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png"))),false);
  const russianReadme=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
- assert.ok(russianReadme.includes("assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png"));
+ assert.ok(russianReadme.includes(l.ICON_RU_LOCAL));
+ assert.match(fs.readFileSync(path.join(__dirname,"../assets/site-localization.js"),"utf8"),/banner\.onerror=\(\)=>/);
  assert.equal(russianReadme.includes("assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png"),false);
  assert.match(site,/html\[data-site-language="ru"\] \.links \.button:nth-child\(1\)\{background:#101116/);
  assert.match(site,/html\[data-site-language="ru"\] \.links \.button:nth-child\(2\)\{background:#d1a143/);

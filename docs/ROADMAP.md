@@ -1,3 +1,9 @@
+## Build 279 / v0.3.249: Live Russian banner URL recovery
+- [x] Investigate report that newly approved Russian banner appears in README but not on GitHub Pages (broken image/alt-text shown).
+- [x] Switch Russian banner source to an immutable raw GitHub URL, with local Pages fallback and a single-attempt error handler.
+- [x] Preserve approved banner bytes, English styling, language toggle, cards and download buttons.
+- [ ] Confirm actual GitHub Pages render in Firefox after publication (not verified by repository-only checks).
+
 ## Build 278 / v0.3.248: Approved simple Russian banner replacement
 - [x] Verify the owner-uploaded `Metallic Cyrillic Emblem and Gold Live Block Title.png` matches the accepted image byte-for-byte (Git blob SHA `1ee6d3265a5f29c5d9656f74a0b427120887ffd3`).
 - [x] Point Russian website banner selection and `README.ru.md` at the new approved red/gold/black asset.
