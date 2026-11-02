@@ -172,8 +172,18 @@ function safeRequireEnvelope(doc){
   }
   if(!object(node))continue;
   if(errorBearing(node))return false;
+  if(Object.prototype.hasOwnProperty.call(node,"__bbox")&&
+     !object(node.__bbox))return false;
+  if(Object.prototype.hasOwnProperty.call(node,"require")&&
+     !Array.isArray(node.require))return false;
+  if(Object.prototype.hasOwnProperty.call(node,"result")&&
+     !object(node.result))return false;
   if(object(node.__bbox)){
    if(errorBearing(node.__bbox))return false;
+   if(Object.prototype.hasOwnProperty.call(node.__bbox,"result")&&
+      !object(node.__bbox.result))return false;
+   if(Object.prototype.hasOwnProperty.call(node.__bbox,"require")&&
+      !Array.isArray(node.__bbox.require))return false;
    if(object(node.__bbox.result))stack.push({node:node.__bbox.result,depth:depth+1});
    if(Array.isArray(node.__bbox.require))stack.push({node:node.__bbox.require,depth:depth+1});
   }
