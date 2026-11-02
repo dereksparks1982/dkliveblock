@@ -283,23 +283,31 @@ function sponsoredFeedCard(menu,doc,win){
   menu.closest?.('[aria-posinset]');
  if(landmark&&safeCard(landmark,doc)&&landmark.contains?.(menu))return landmark;
  // Facebook also renders cards without article/pagelet attributes.
- // Anchor on the local author heading, then take the first complete card.
- let node=menu;
- for(let depth=0;depth<11&&node?.parentElement;depth++,node=node.parentElement){
+ // MIT-inspired whole-post resolution: an author may be a link, not an h2,
+ // and the first plausible ancestor can be just a header or ad subsection.
+ // Retain the *largest* safe single-post card; never climb into the feed.
+ let node=menu,best=null;
+ for(let depth=0;depth<12&&node?.parentElement;depth++,node=node.parentElement){
   const parent=node.parentElement;
   if(parent.matches?.(ROOTS)||parent===doc.body||parent===doc.documentElement)break;
   if(!safeCard(parent,doc))continue;
   const box=parent.getBoundingClientRect?.();
   if(!box||box.height<140||box.width<350)continue;
-  if(!parent.querySelector?.('h2,h3,h4,[role="heading"]'))continue;
-  // A wrapper with multiple post action menus is not a single card.
+  if(best){
+   const previous=best.getBoundingClientRect?.();
+   if(previous&&box.width>previous.width*1.25&&box.width>previous.width+55)break;
+  }
+  const author=parent.querySelector?.('h2,h3,h4,[role="heading"],a[role="link"],a[href*="/profile.php"]');
+  if(!author||author.contains?.(menu))continue;
+  // A wrapper with multiple sponsored menus or independent post boundaries
+  // is not a single card. This also protects ordinary sibling feed posts.
   const menus=parent.querySelectorAll?.('[aria-label]')||[];
   let sponsored=0;
   for(let i=0;i<Math.min(menus.length,100);i++)
    if(sponsoredMenu(menus[i])&&++sponsored>1)break;
-  if(sponsored===1)return parent;
+  if(sponsored===1)best=parent;
  }
- return null;
+ return best;
 }
 function create(doc,win,max=100){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
