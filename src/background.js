@@ -813,7 +813,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   if(info.url&&session&&host(info.url)!==session.siteHost)DKNetworkMonitor.remove(data.networkMonitors,id);
   if(info.url&&host(info.url)!==(data.hosts.get(id)||""))DKStreamingRepair.clear(data.streamingAllowances,id);
   // Keep the per-site popup count across reloads; host changes clear it above.
-  DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);
+  DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);DKMetaGraphQL.clear(id);
   autoVideoTimes.delete(id);DKAllowedActivity.clear(data.allowedActivity,id);pendingAllowedDecisions.delete(id);toolbarIcons?.reset(id);data.hosts.set(id,host(info.url||tab.url));data.counts.set(id,0);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);data.popupCounts.delete(id);badge(id);}
 });
 browser.tabs.onRemoved.addListener(id=>{
@@ -823,7 +823,7 @@ browser.tabs.onRemoved.addListener(id=>{
  DKPopupHistory.clear(data.popupHistory,id);
  DKRequestControls.dropTab(data.requestControls,id);
  DKPopupTrap.revoke(data.popupTrapPermits,id);data.popupTrapClaims.delete(id);data.popupTrapAllowed.delete(id);data.popupTrapCounts.delete(id);
- DKThreatWarning.clear(data.threatWarnings,id);data.threatWarningPending.delete(id);DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);pendingAllowedDecisions.delete(id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
+ DKThreatWarning.clear(data.threatWarnings,id);data.threatWarningPending.delete(id);DKNetworkMonitor.remove(data.networkMonitors,id);DKAllowedActivity.clear(data.allowedActivity,id);pendingAllowedDecisions.delete(id);DKPlaybackHealth.clear(data.playbackHealth,id);DKYouTubeResponse.clear(id);DKMetaGraphQL.clear(id);autoVideoTimes.delete(id);data.hosts.delete(id);data.counts.delete(id);data.logs.delete(id);data.networkIssues.delete(id);data.streamingIssues.delete(id);DKStreamingRepair.clear(data.streamingAllowances,id);data.popupCounts.delete(id);data.tempPaused.delete(id);toolbarIcons?.reset(id);});
 browser.alarms.onAlarm.addListener(a=>{if(a.name==="refresh-rules"&&data.settings.autoUpdate){
  updateLists().catch(console.warn);
  if(data.settings.threatProtection)updateThreatDatabase().catch(console.warn);
@@ -1152,6 +1152,20 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    agents:agentNestyTeam.handlers(),
    observations:data.settings.requestLog?
     cookieEvidence.listObservations().filter(row=>row.site===site).slice(-150):[]};
+ }
+ if(msg.action==="getMetaGraphqlStats"){
+  // Extension pages only, bound to the currently selected live Facebook tab.
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let site="",page="";
+  try{page=(await browser.tabs.get(id))?.url||"";site=host(page);}
+  catch(_){return {error:"Facebook tab is unavailable."};}
+  if(!/^https:\/\//i.test(page)||!DKMetaGraphQL.validSite(site)||
+     data.hosts.get(id)!==site)
+   return {error:"Choose a current Facebook tab."};
+  return {ok:true,enabled:data.settings.metaGraphqlFilter===true,
+   siteActive:activeTab(id,site),
+   supported:typeof browser.webRequest.filterResponseData==="function",
+   stats:DKMetaGraphQL.stats(id)};
  }
  if(msg.action==="getMetaProviderIntel"||msg.action==="clearMetaProviderIntel"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
