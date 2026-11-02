@@ -1,3 +1,12 @@
+## Build 245 / 0.3.215: privacy-preserving Meta third-party observations
+- [x] Observe limited, hostname-only Meta page third-party destinations from existing request monitor events when user request logging is enabled.
+- [x] Treat destinations as unknown rather than assuming advertising ownership; never retain URLs or payloads in provider intelligence.
+- [x] Clear new intelligence memory when request logging is disabled.
+- [x] Add focused source tests and engineering documentation.
+- [ ] Add local grouped inspection controls and evidence review for provider identity and behavior.
+- [ ] Run full tests/real Firefox and verify Facebook auto-hiding before marking success.
+- [ ] Expand independently tested Meta-platform adapters and shared advertising countermeasures once evidence supports them.
+
 ## Build 244 / 0.3.214: provider evidence and live Meta module
 - [x] Add bounded in-memory provider intelligence records and an explicit clear operation, no telemetry or inferred ownership.
 - [x] Add evidence-driven adaptive dispatcher whose outputs are review-only, not self-issued network rules.
