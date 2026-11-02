@@ -15,7 +15,7 @@ function inspect(env){
  const yandex=/\bYaBrowser\//i.test(ua);
  const hasFirefoxInfo=typeof runtime.getBrowserInfo==="function";
  const chrome=/\b(?:Chrome|Chromium)\//i.test(ua)||brandList.some(x=>/Chrom(?:e|ium)/i.test(String(x?.brand)));
- const family=hasFirefoxInfo?"gecko":edge||chrome||api.declarativeNetRequest?"chromium":"unknown";
+ const family=hasFirefoxInfo?"gecko":edge||yandex||chrome||api.declarativeNetRequest?"chromium":"unknown";
  // Browser identification never grants a network-blocking capability.
  const browserName=hasFirefoxInfo?"firefox":edge?"edge":yandex?"yandex":chrome?"chrome":"unknown";
  const blockingWebRequest=version===2&&

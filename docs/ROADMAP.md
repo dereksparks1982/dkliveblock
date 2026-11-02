@@ -1,3 +1,13 @@
+## Build 282: integration hardening and acceptance gates (November 2, 2026)
+- [x] Restrict Nesty evidence to vetted catalog signal vocabulary; reject arbitrary text-shaped tokens.
+- [x] Suppress all review candidates for explicitly protected contexts.
+- [x] Cache dispatcher registrations and accepted signal vocabulary per coordinator.
+- [x] Add eight focused regression tests and run 19 isolated integration tests together.
+- [x] Preserve Firefox blocking engines, site exclusions, current branch and approved UI.
+- [ ] Run full native Node/Linux test suite and actual Firefox regression/false-positive acceptance.
+- [ ] Verify Orion on iOS/macOS; implement and test Yandex MV3 adapter before claiming support.
+- [ ] Complete evidence-to-safe-response workflow only after browser verification, never autonomous blocking based on model score.
+
 ## Continuation priority: Agent Nesty / company profiles / verified-site ledger (November 2, 2026)
 - [x] Preserve exact three named specialists and eleven legacy technique IDs in [team roster](AGENT_NESTY_TEAM.md).
 - [x] Record owner strategy, separated company/platform/provider profiles, countermeasure hypotheses, safety limits and local AI integration sequence in [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md).

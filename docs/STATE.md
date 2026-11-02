@@ -1,3 +1,17 @@
+# Build 282 checkpoint (November 2, 2026)
+
+**Version:** 0.3.252. Existing three Nesty specialists and 11 compatibility
+techniques unchanged. Shared review-only coordinator now rejects arbitrary
+tokens and protected contexts; it reuses its detectors to reduce per-scan work.
+Yandex naming recognizes Chromium-family UAs while unsupported network APIs
+remain disabled. See [Build 282](BUILD_282.md).
+
+**Focused validation:** 19 Build 281/282 tests passed in an isolated JavaScript
+harness against current/staged GitHub source. Not equivalent to the full Node
+suite or real-browser testing. Facebook/YouTube/Disney+ historical owner
+observations are preserved, but no new acceptance claim is made. The next work
+must be full regression validation before expanding agent behavior.
+
 # Build 281 integration checkpoint (November 2, 2026)
 
 Shared Nesty coordination is now wired in source: `src/nesty-intelligence.js`

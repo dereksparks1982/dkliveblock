@@ -3,15 +3,46 @@
    Platform modules keep all blocking decisions in existing tested engines. */
 (function(root){"use strict";
 const TOKEN=/^[a-z][a-z0-9_]{2,47}$/,MAX_SIGNALS=40,MAX_PROVIDERS=60;
-function signalsOf(value){
+// Only known detector vocabulary enters the shared coordinator. A plausible
+// token such as "private_message_123" is NOT technical evidence.
+const BASE_SIGNALS=Object.freeze(["sponsor_label","post_boundary",
+ "ad_break_metadata","player_ad_slot","unwanted_navigation","ad_destination",
+ "ad_slot","sponsor_menu","ad_explainer","rail_ad_link",
+ "author_ad_byline","protected_context","normal_post","author_name"]);
+function vocabulary(catalog){
+ const allowed=new Set(BASE_SIGNALS);
+ for(const row of Array.isArray(catalog?.entries)?catalog.entries:[]){
+  if(TOKEN.test(row?.signal||""))allowed.add(row.signal);
+  if(TOKEN.test(row?.context||""))allowed.add(row.context);
+ }
+ return allowed;
+}
+function filterSignals(value,known){
  if(!Array.isArray(value))return Object.freeze([]);
- return Object.freeze([...new Set(value.filter(v=>typeof v==="string"&&TOKEN.test(v)).slice(0,MAX_SIGNALS))]);
+ return Object.freeze([...new Set(value.filter(v=>typeof v==="string"&&
+  TOKEN.test(v)&&known.has(v)).slice(0,MAX_SIGNALS))]);
+}
+function signalsOf(value,catalog){
+ return filterSignals(value,vocabulary(catalog||root.DKMetaDeliveryCatalog));
 }
 function create(deps){
  const env=deps||root,companies=env.DKCompanyModules,team=env.DKNestyTeam,
   catalog=env.DKMetaDeliveryCatalog,dispatcher=env.DKAdaptiveDispatcher,
   providers=env.DKProviderIntelligence,model=env.DKAdaptiveModel;
- const providerMaps=new Map();
+ const providerMaps=new Map(),acceptedSignals=vocabulary(catalog);
+ const reviewDispatcher=dispatcher?.create?.()||null;
+ if(reviewDispatcher){
+  reviewDispatcher.register("explicit-sponsored",ctx=>({
+   matched:ctx.signals.includes("sponsor_label")&&ctx.signals.includes("post_boundary"),
+   evidence:["sponsor_label","post_boundary"]}));
+  reviewDispatcher.register("bounded-video-break",ctx=>({
+   matched:ctx.platform==="youtube"&&ctx.signals.includes("ad_break_metadata")&&
+    ctx.signals.includes("player_ad_slot"),
+   evidence:["ad_break_metadata","player_ad_slot"]}));
+  reviewDispatcher.register("unwanted-ad-navigation",ctx=>({
+   matched:ctx.signals.includes("unwanted_navigation")&&ctx.signals.includes("ad_destination"),
+   evidence:["unwanted_navigation","ad_destination"]}));
+ }
  function route(hostname){
   const found=companies?.profileFor?.(hostname);
   if(!found)return null;
@@ -23,30 +54,21 @@ function create(deps){
    specialists:Object.freeze(ids)});
  }
  function inspect(hostname,input){
-  const target=route(hostname),signals=signalsOf(input);
+  const target=route(hostname),signals=filterSignals(input,acceptedSignals);
   if(!target)return Object.freeze({recognized:false,action:"none",
    signals:Object.freeze([]),matches:Object.freeze([]),reviews:Object.freeze([]),
    ranking:null});
   // The delivery catalog has Meta-specific evidence semantics; never
   // automatically carry a Facebook strategy into another platform.
-  const matches=target.company==="meta"&&catalog?.inspect?
+  // Explicitly protected contexts cannot generate a candidate review, even
+  // when an ad-looking token also happens to be present.
+  const protectedContext=signals.includes("protected_context");
+  const matches=!protectedContext&&target.company==="meta"&&catalog?.inspect?
    catalog.inspect(signals).map(m=>Object.freeze({...m,
     action:target.platform==="facebook"?m.action:"observe"})):[];
-  const d=dispatcher?.create?.();
-  if(d){
-   d.register("explicit-sponsored",ctx=>({
-    matched:ctx.signals.includes("sponsor_label")&&ctx.signals.includes("post_boundary"),
-    evidence:["sponsor_label","post_boundary"]}));
-   d.register("bounded-video-break",ctx=>({
-    matched:ctx.platform==="youtube"&&ctx.signals.includes("ad_break_metadata")&&
-      ctx.signals.includes("player_ad_slot"),
-    evidence:["ad_break_metadata","player_ad_slot"]}));
-   d.register("unwanted-ad-navigation",ctx=>({
-    matched:ctx.signals.includes("unwanted_navigation")&&ctx.signals.includes("ad_destination"),
-    evidence:["unwanted_navigation","ad_destination"]}));
-  }
-  const reviews=d?d.inspect({signals,platform:target.platform}).map(m=>Object.freeze({
-   ...m,action:target.mode==="observe-only"?"observe":"review"})):[];
+  const reviews=!protectedContext&&reviewDispatcher?
+   reviewDispatcher.inspect({signals,platform:target.platform}).map(m=>Object.freeze({
+    ...m,action:target.mode==="observe-only"?"observe":"review"})):[];
   // A synthetic score is a review priority, not probability, permission,
   // training on visitors, or authorization to alter ordinary content.
   const ranking=model?.inspectAdCandidate&&signals.length?model.inspectAdCandidate({
