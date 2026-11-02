@@ -1,3 +1,13 @@
+## Build 285 / v0.3.255: Nesty evidence-to-strategy coordination (November 2, 2026)
+- [x] Bind verified-vocabulary Nesty evidence to deterministic **review-only** named strategy proposals for Facebook post cards, Facebook rail, experimental GraphQL ad records, YouTube ad-break evidence, and unwanted navigation.
+- [x] Keep strategies explicitly inert: `enabled:false`, `executable:false`; no automatic subscriptions, rule installation, content hiding, video response mutation, or tab closure from strategy advice.
+- [x] Restrict Facebook strategy proposals to Facebook, not sibling Meta apps; protected contexts and unrecognized/private tokens produce no proposed strategy.
+- [x] Expose honest coordination readiness in private Nesty intelligence snapshots: no self-learning, no automatic rules, actual browser acceptance required.
+- [x] Add four integration regression tests in the existing registered Nesty test file and syntax-check staged code.
+- [ ] Run full exact-commit Ubuntu regression; real Firefox Facebook fast-scroll/rail, login, YouTube/Disney+, popup, and Orion checks remain necessary.
+- [ ] Establish actual browser evidence and measured false-positive rates before any strategy can be considered for owner-approved activation.
+- [ ] Finish real event-to-evidence intake, profile-owned observations, meaningful hypothesis evaluation, and independent Instagram/Threads/WhatsApp adapters. This is **not** a finished autonomous AI integration.
+
 ## Build 284 / v0.3.254: Russian user and distribution legal review (November 2, 2026)
 - [x] Set Company Bible rule requiring Russian legal due diligence before targeted distribution and truthful claims.
 - [x] Document Russia-facing legal review while expressly preserving free access for Russian users and family. OFAC GL 25G / FAQ 1040 protect certain internet communication; assess specific restricted transactions rather than inventing nationwide bans.
