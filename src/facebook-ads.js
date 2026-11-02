@@ -395,7 +395,8 @@ function create(doc,win,max=100){
    revealObserver=new win.IntersectionObserver(entries=>{
     if(!entries.some(entry=>entry.isIntersecting)||revealQueued||!mobileFeed)return;
     revealQueued=true;
-    const delay=win?.setTimeout||typeof setTimeout==="function"&&setTimeout;
+    const delay=typeof win?.setTimeout==="function"?win.setTimeout.bind(win):
+     typeof setTimeout==="function"?setTimeout:null;
     if(!delay){revealQueued=false;return;}
     delay(()=>{
      revealQueued=false;
