@@ -1,3 +1,9 @@
+# Build 284 Russia-facing compliance checkpoint (November 2, 2026)
+
+**Version 0.3.254.** The Company Bible now requires a dated Russia-facing legal review before any targeted distribution claim, and the engineering [Russia checklist](REGIONAL_COMPLIANCE_RUSSIA.md) distinguishes legitimate ad blocking from optional user-configured proxy routing, restricted-resource marketing and personal data issues. The Russian README links to a new [Russian user notice](NOTICE_RU.md). The Options proxy copy has been neutralized without changing the disabled-by-default feature. The new regression test has been added but the entire Build 284 suite/real browser has **not** been rerun.
+
+**Earlier Build 283 verified result:** second Ubuntu run [41539831637](https://github.com/dereksparks1982/dkliveblock/actions/runs/41539831637) completed with **1,235/1,235 passing Node tests**, 6/6 Python companion scripts passing, but **6/7 phases**, because release audit still correctly rejects a missing genuine npm lockfile. No ad-blocking/browser acceptance or Russian legal compliance has been verified.
+
 # Build 283 Linux regression checkpoint (November 2, 2026)
 
 **Version 0.3.253**. First genuine restricted Ubuntu seven-phase run
