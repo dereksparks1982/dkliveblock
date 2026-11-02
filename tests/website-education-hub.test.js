@@ -113,7 +113,8 @@ test("All website card and button clicks use the bundled Pixabay sound without b
 
 test("iPhone site corrections preserve both section headings without instructional intros",()=>{
  const a=site("index.html");
- assert.ok(a.includes("<h2>What it does</h2>"));
+ assert.ok(a.includes("<h2>Core Protections</h2>"));
+ assert.ok(!a.includes("<h2>What it does</h2>"));
  assert.ok(!a.includes("Select any box to explore the technology"));
  assert.ok(a.includes('<h2 id="information-hub-title">Guides, updates &amp; projects</h2>'));
  assert.ok(!a.includes("Choose a box for the full information."));

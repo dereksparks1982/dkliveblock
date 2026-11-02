@@ -4,7 +4,7 @@ Website update following Build 263 (extension remains `v0.3.233` because extensi
 
 ## The homepage now has two balanced sets of six interactive cards
 
-### What it does (six lessons)
+### Core Protections (six lessons)
 1. Block ads and trackers.
 2. Stop unwanted popups.
 3. Inspect and control requests.
@@ -63,4 +63,4 @@ The original detailed website sections are retained verbatim inside these six di
 Make DK Live Block both protective and educational. Avoid guessing who owns a request or cookie, claiming that a visually hidden ad was prevented from loading, or describing unfinished functionality as active protection. The educational text should remain accurate as new builds arrive.
 
 ## iPhone and desktop correction (November 2, 2026)
-Both 'What it does' and 'Guides, updates & projects' headings are present without either unnecessary introductory paragraph ('Select any box' or 'Choose a box'). Every clickable card has a visual divider between its heading and short description; the lessons and original long-form help remain inside the twelve dialogs. A centered SVG X replaces baseline-dependent text on twelve accessible cyan Close buttons, preserving the 44px targets and conditional Back to top. All four hero buttons keep their previous dimensions; XPI icon/text are enlarged, and GitHub/Patreon now use vector marks with the same foreground as their labels, eliminating raster background mismatch. Both candidate GitHub Pages roots have identical HTML and manifest files and local Apple touch icon copies referencing the same approved source emblem. iOS Firefox might still choose a generated letter on the home-screen bookmark; this is browser-dependent, not proof that DK's home icon is invalid. Browser extension installation remains separate.
+Both 'Core Protections' and 'Guides, updates & projects' headings are present without either unnecessary introductory paragraph ('Select any box' or 'Choose a box'). Every clickable card has a visual divider between its heading and short description; the lessons and original long-form help remain inside the twelve dialogs. A centered SVG X replaces baseline-dependent text on twelve accessible cyan Close buttons, preserving the 44px targets and conditional Back to top. All four hero buttons keep their previous dimensions; XPI icon/text are enlarged, and GitHub/Patreon now use vector marks with the same foreground as their labels, eliminating raster background mismatch. Both candidate GitHub Pages roots have identical HTML and manifest files and local Apple touch icon copies referencing the same approved source emblem. iOS Firefox might still choose a generated letter on the home-screen bookmark; this is browser-dependent, not proof that DK's home icon is invalid. Browser extension installation remains separate.
