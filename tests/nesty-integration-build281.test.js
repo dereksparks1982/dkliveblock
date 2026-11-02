@@ -137,7 +137,7 @@ test("Build 281: Russian and English favicons match selected language",()=>{
  assert.ok(fs.existsSync(path.join(root,decodeURIComponent(s.FAVICON_RU))));
  let href="",old=globalThis.NodeFilter;
  globalThis.NodeFilter={SHOW_TEXT:4};
- const doc={documentElement:{},body:{},querySelector:selector=>
+ const doc={documentElement:{dataset:{}},body:{},querySelector:selector=>
   selector==='link[rel="icon"]'?{setAttribute:(name,value)=>{if(name==="href")href=value;}}:null,
   querySelectorAll:()=>[],createTreeWalker:()=>({nextNode:()=>null}),getElementById:()=>null,
   dispatchEvent(){}};

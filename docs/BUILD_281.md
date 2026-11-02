@@ -53,3 +53,6 @@ Run the full local test suite, Firefox owner smoke tests on known working
 sites, and normal-content false-positive tests; then validate Orion separately
 and implement/test a real Chromium MV3 network adapter before Yandex claims.
 No new features until the shared integration's baseline is proven.
+
+## Verification follow-up on Build 281 (same version)
+A synthetic Node-style harness using the staged repository modules exercised all **11** new integration regression cases after a required fake-DOM fixture correction. A separate mock/source integration audit passed **49** targeted assertions. `tests/nesty-integration-build281.test.js` is now listed exactly once in the Linux `scripts/test-local.sh` inventory. This is **not** a claim that the complete Node/Python suite or real browser smoke tests passed.

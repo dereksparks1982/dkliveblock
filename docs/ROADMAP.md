@@ -3,7 +3,8 @@
 - [x] Record owner strategy, separated company/platform/provider profiles, countermeasure hypotheses, safety limits and local AI integration sequence in [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md).
 - [x] Start a distinct, scoped [verified-sites ledger](VERIFIED_SITES.md) with browser-observed successes, partial Facebook results, and unverified platforms. No company-wide defeat claims.
 - [x] Keep public English/Russian READMEs strictly about product use, privacy, support, licensing and attribution; no engineering diary.
-- [x] Wire read-only runtime coordination among Nesty profiles, provider observations, Meta delivery evidence and dispatcher (Build 281); focused source checks done.\n- [ ] Run full local integration/regression tests and Firefox owner acceptance before declaring integration complete; production self-learning, live predictive rule updates and cross-browser network parity remain unimplemented.
+- [x] Wire read-only runtime coordination among Nesty profiles, provider observations, Meta delivery evidence and dispatcher (Build 281); focused source checks done.
+- [ ] Run full local integration/regression tests and Firefox owner acceptance before declaring integration complete; production self-learning, live predictive rule updates and cross-browser network parity remain unimplemented.
 - [ ] Retest Facebook rapid-scroll feed/rail flash and clickability against Build 280 with organic feed and Contacts preserved before any Facebook verified promotion.
 - [ ] Investigate Meta's own advertising systems and third-party advertisers, trackers, attribution and analytics *separately*, using independently verified ownership and no speculative host-only blacklisting.
 - [ ] Expand platform-specific modules (Instagram, Threads, WhatsApp) with observations first, then validated, reversible strategies and browser checks.
