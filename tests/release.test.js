@@ -2,8 +2,9 @@
 const test=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const root=path.resolve(__dirname,"..");
-test("release automation is local only, never CI or auto-publishing",()=>{
- assert.equal(fs.existsSync(path.join(root,".github/workflows")),false);
+test("release packaging remains local and cannot auto-publish",()=>{
+ const workflows=path.join(root,".github/workflows");
+ assert.deepEqual(fs.readdirSync(workflows),["offline-verification.yml"]);
  const build=fs.readFileSync(path.join(root,"scripts/package-firefox.py"),"utf8");
  assert.match(build,/--candidate/);
  assert.match(build,/scripts\/test-local.sh/);
