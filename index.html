@@ -48,7 +48,11 @@ footer{text-align:center;color:var(--muted);padding:0 24px 35px}
 /* Original page sections remain intact inside accessible dialogs, without nested card panels. */
 .info-dialog .lesson-inner > section{border:0;padding:0;margin:6px 0 22px;background:transparent;border-radius:0}
 .info-dialog .lesson-inner > section > h2:first-child{display:none}
-.information-grid .info-card{border-color:#456b70}
+/* The lower six information cards are white buttons, distinct from the six dark lessons. */
+.information-grid .info-card{background:#fff;border-color:#fff}
+.information-grid .info-card .feature-card-link{color:#06191a}
+.information-grid .info-card:hover,.information-grid .info-card:focus-within{background:#e9eef0;border-color:#e9eef0}
+.information-grid .info-card .feature-card-link:focus-visible{outline:3px solid #fff;outline-offset:4px}
 
 .lesson-inner{padding:26px clamp(18px,4vw,38px) 32px}
 .lesson-dialog h2{margin:14px 0}
@@ -58,8 +62,7 @@ footer{text-align:center;color:var(--muted);padding:0 24px 35px}
 .lesson-eyebrow{color:var(--a);letter-spacing:.07em;font-size:.78rem;font-weight:800}
 .lesson-close{float:right;border:1px solid var(--a);border-radius:8px;background:var(--a);color:#041b20;font:700 15px system-ui;padding:8px 14px;cursor:pointer}
 .lesson-close:focus-visible{outline:3px solid #f7fcff;outline-offset:3px}
-.lesson-close-bottom{float:none;margin-top:15px;background:#fff;color:#000;border-color:#fff}
-.lesson-close-bottom:hover{background:#e9eef0;border-color:#e9eef0}
+.lesson-close-bottom{float:none;margin-top:15px}
 .lesson-caution{border-left:3px solid var(--a);padding:12px;background:#092028}
 @media(max-width:600px){.feature-grid .feature-card{min-height:220px}.lesson-inner{padding:19px}}
 </style></head><body><header>
