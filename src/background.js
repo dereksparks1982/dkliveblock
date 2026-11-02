@@ -307,6 +307,17 @@ function updateLists(){if(data.updateJob)return data.updateJob;
 }
 // Permitted audit reasons are kept only until Firefox completes/fails the
 // request. Never retain request IDs in exports, URLs, headers or payloads.
+const metaProviderEvidence=DKProviderIntelligence.create();
+function noteMetaProvider(site,url,status){
+ if(!data.settings.requestLog||!DKCompanyModules.profileFor(site)||
+  DKCompanyModules.companyFor(site)!=="meta")return;
+ const destination=host(url);
+ if(!destination||DKCompanyModules.companyFor(destination)==="meta")return;
+ // Destination ownership and purpose are unknown until separately verified.
+ // Store a bounded destination host only, never full URL or request contents.
+ metaProviderEvidence.observe({host:destination,type:"unknown",
+  evidence:[status==="blocked"?"request_blocked":"request_allowed"]});
+}
 const pendingAllowedDecisions=new Map();
 function notePermittedDecision(d,site,reason){
  if(!data.settings.requestLog||!Number.isInteger(d?.tabId)||d.tabId<0||
@@ -390,6 +401,7 @@ browser.webRequest.onCompleted?.addListener(d=>{
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"allowed",{statusCode:d.statusCode});
  if(data.ready&&data.settings.requestLog&&Number.isInteger(d.tabId)&&d.tabId>=0){
   const site=data.hosts.get(d.tabId)||"";
+  if(site)noteMetaProvider(site,d.url,"allowed");
   if(site)DKAllowedActivity.observe(data.allowedActivity,d.tabId,site,d.url,d.type,Date.now(),{
    reason:decision?.site===site?decision.reason:"decision-not-recorded",
    method:decision?.site===site?decision.method:d.method,
@@ -503,6 +515,8 @@ function recordBlock(tabId,url,type,rule){
   data.hosts.get(tabId)||"",host(url),type);
  if(!data.settings.requestLog)return;
  const rows=data.logs.get(tabId)||[];
+ if(DKCompanyModules.companyFor(data.hosts.get(tabId)||"")==="meta")
+  noteMetaProvider(data.hosts.get(tabId)||"",url,"blocked");
  rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),
   ruleSource:DKRuleProvenance.identify(rule,data.ruleSources),
   when:Date.now(),sequence:data.counts.get(tabId)});
