@@ -60,7 +60,7 @@ test("Build 57 diagnostic hostname validation rejects malformed DNS labels",()=>
 test("Build 192 popup status never counts another streaming service in the same tab",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const bg=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
- assert.match(bg,/DKStreamingDiagnostics\\.recent\\(data\\.streamingIssues,id\\)\\.filter\\(row=>row\\.pageHost===h\\)\\.length/);
+ assert.match(bg,/DKStreamingDiagnostics\.recent\(data\.streamingIssues,id\)\.filter\(row=>row\.pageHost===h\)\.length/);
  const logs=new Map();
  DK.record(logs,192,"www.youtube.com","cdn.example.com","media",1000);
  DK.record(logs,192,"www.disneyplus.com","cdn.example.com","media",1001);
