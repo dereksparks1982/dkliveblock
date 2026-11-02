@@ -215,12 +215,37 @@ function rightRailLinkCard(a,doc,win){
 function sponsoredFeedCard(menu,doc,win){
  if(!sponsoredMenu(menu)||menu.closest?.('nav,form,[role="dialog"],[role="navigation"],[role="complementary"]'))return null;
  const investigator=root.DKAdInvestigation;
- if(!investigator?.candidateFor||!investigator?.factsFor)return null;
- const card=investigator.candidateFor(menu,doc,win);
- if(!card||!card.contains?.(menu)||!safeCard(card,doc))return null;
- const evidence=investigator.factsFor(card,doc,win);
- // The synthetic score alone is never an automatic blocking signal.
- return evidence?.sponsoredMenu&&!evidence.protectedContext?card:null;
+ // Prefer the investigator's vetted choice, but never make automatic
+ // filtering depend on an optional inspector module loading successfully.
+ if(investigator?.candidateFor&&investigator?.factsFor){
+  const card=investigator.candidateFor(menu,doc,win);
+  if(card&&card.contains?.(menu)&&safeCard(card,doc)){
+   const evidence=investigator.factsFor(card,doc,win);
+   if(evidence?.sponsoredMenu&&!evidence.protectedContext)return card;
+  }
+ }
+ // A feed landmark identifies one post without climbing into a surrounding
+ // stream. Never hide the feed itself, a dialog, or a multi-post wrapper.
+ const landmark=menu.closest?.(ARTICLE);
+ if(landmark&&safeCard(landmark,doc)&&landmark.contains?.(menu))return landmark;
+ // Facebook also renders cards without article/pagelet attributes.
+ // Anchor on the local author heading, then take the first complete card.
+ let node=menu;
+ for(let depth=0;depth<11&&node?.parentElement;depth++,node=node.parentElement){
+  const parent=node.parentElement;
+  if(parent.matches?.(ROOTS)||parent===doc.body||parent===doc.documentElement)break;
+  if(!safeCard(parent,doc))continue;
+  const box=parent.getBoundingClientRect?.();
+  if(!box||box.height<140||box.width<350)continue;
+  if(!parent.querySelector?.('h2,h3,h4,[role="heading"]'))continue;
+  // A wrapper with multiple post action menus is not a single card.
+  const menus=parent.querySelectorAll?.('[aria-label]')||[];
+  let sponsored=0;
+  for(let i=0;i<Math.min(menus.length,100);i++)
+   if(sponsoredMenu(menus[i])&&++sponsored>1)break;
+  if(sponsored===1)return parent;
+ }
+ return null;
 }
 function create(doc,win,max=100){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
