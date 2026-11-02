@@ -457,7 +457,7 @@ function create(doc,win,max=100){
  const stats={scans:0,lastScanAt:0,lastHidden:0,lastFeedCards:0,
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
-  recycledRestored:0,rechecks:0};
+  recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
  let menuCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
@@ -587,6 +587,72 @@ function create(doc,win,max=100){
    else changed=remember(node)||changed;
   }
   return added.length>0||changed;
+ }
+
+ // Inspect changed Facebook post subtrees inside the MutationObserver callback,
+ // before the next paint. Do not traverse the entire feed on every mutation:
+ // full scan() remains the bounded fallback for late/split labels and portals.
+ function scanInserted(records){
+  if(!doc?.body||!Array.isArray(records)||!records.length)return 0;
+  stats.fastScans++;
+  const roots=new Set(),cards=new Set();
+  const take=node=>{
+   if(node?.nodeType===3)node=node.parentElement;
+   if(!node||node.nodeType!==1||node.isConnected===false||roots.size>=32||
+      node===doc.body||node===doc.documentElement)return;
+   roots.add(node);
+  };
+  for(let i=0;i<Math.min(40,records.length);i++){
+   const r=records[i];
+   if(r?.type==="childList"){
+    for(let j=0;j<Math.min(8,r.addedNodes?.length||0);j++)take(r.addedNodes[j]);
+   }
+   if(r?.type==="attributes"||r?.type==="characterData"||r?.type==="childList")
+    take(r.target);
+  }
+  let count=0,inspected=0;
+  const consider=card=>{
+   if(!card||cards.has(card)||cards.size>=28)return;
+   cards.add(card);
+   if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card))count++;
+  };
+  for(const rootNode of roots){
+   if(inspected>=320||count>=15)break;
+   // A new article can be detected even when its Sponsored label is a
+   // separate nested mutation. This path does not depend on scroll speed.
+   consider(rootNode.matches?.(ARTICLE)?rootNode:rootNode.closest?.(ARTICLE));
+   const articles=rootNode.querySelectorAll?.(ARTICLE)||[];
+   for(let i=0;i<Math.min(18,articles.length)&&count<15;i++)
+    consider(articles[i]);
+   // Facebook also uses non-article cards and character-split labels.
+   // Restrict candidates to changed subtrees, and reuse vetted resolvers.
+   const labels=[rootNode,...Array.from(rootNode.querySelectorAll?.(
+    'span,a,[aria-label],[aria-labelledby],use,text,h1,h2,h3,h4,h5,h6,[role="heading"]'
+   )||[]).slice(0,100)];
+   for(const el of labels){
+    if(++inspected>320||count>=15)break;
+    if(sponsoredMenu(el)){
+     const card=sponsoredFeedCard(el,doc,win);
+     if(card&&hide(card,el))count++;
+    }
+    const values=labelsOf(el,win);
+    if(values.some(isAdLabel)){
+     const card=feedCardFrom(el,doc);
+     if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,el))count++;
+     // Right-rail handling retains the existing strict geometry/Contacts guard.
+     if(values.some(v=>normalize(v)==="sponsored")){
+      const rail=rightRailCandidate(el,doc,win);
+      if(rail&&hide(rail,el))count++;
+     }
+    }
+    if(el.tagName==="A"&&railAdLink(el)){
+     const rail=rightRailLinkCard(el,doc,win);
+     if(rail&&hide(rail,el))count++;
+    }
+   }
+  }
+  stats.fastHidden+=count;
+  return count;
  }
 
  function scan(){
@@ -776,7 +842,7 @@ function create(doc,win,max=100){
   return count;
  }
 
- return {scan,restore,setExceptions,observeMutation,
+ return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},

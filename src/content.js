@@ -5,7 +5,7 @@
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
- const host=location.hostname.toLowerCase(),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
+ const host=location.hostname.toLowerCase(),isFacebookHost=host==="facebook.com"||host.endsWith(".facebook.com"),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
  const videoController=DKVideoAssist.createController();
  const cosmeticDebugger=DKCosmeticDebug.create(document);
@@ -33,7 +33,10 @@
  function queueAdScan(){
   if(adScanTimer!==null||!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer)||
     typeof setTimeout!=="function")return;
-  adScanTimer=setTimeout(()=>{adScanTimer=null;inspectAdSlots();},450);
+  // Facebook receives an immediate bounded subtree pass from the observer.
+  // Keep a coalesced broad scan for late labels and DOM formats we cannot resolve early.
+  const delay=isFacebookHost?Math.max(40,160-(Date.now()-lastAdScan)):450;
+  adScanTimer=setTimeout(()=>{adScanTimer=null;inspectAdSlots();},delay);
  }
  function applyCSS(){
   if(!document.documentElement)return;
@@ -290,15 +293,24 @@
    overlayObserver=new MutationObserver(records=>{
     // Delay heavy scanning; avoid loops from our own display style updates.
     let popups=false,ads=false;
+    const facebookChanges=[];
     for(const item of records.slice(0,40)){
      if(!popups&&DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el)))popups=true;
-     if(facebookRecognizer?.observeMutation(item))ads=true;
+     if(facebookRecognizer?.observeMutation(item)){
+      ads=true;facebookChanges.push(item);
+     }
      if(!ads&&adRecognizer&&DKAdRecognition.relevantMutation(item,host))ads=true;
      // Finish this bounded batch: later React records may contain ad label
     // references that disappear before the scheduled rescan.
     }
     if(popups)queueOverlayScan();
-    if(ads)queueAdScan();
+    if(ads){
+     // Run the small Facebook mutation pass before paint, not 450ms later.
+     // A separate coalesced broad scan still handles delayed/portal labels.
+     if(isFacebookHost&&active&&adRecognition&&!picking&&facebookChanges.length)
+      try{facebookRecognizer?.scanInserted?.(facebookChanges);}catch(_){}
+     queueAdScan();
+    }
    });
    overlayObserver.observe(document.documentElement,{
     childList:true,subtree:true,attributes:true,characterData:!!facebookRecognizer,

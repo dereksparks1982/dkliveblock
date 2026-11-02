@@ -1,3 +1,5 @@
+# Build 280 / v0.3.250 (2026-11-02): bounded immediate Facebook sponsored-feed inspection and faster, coalesced fallback scan. Owner-observed Build 279 partial success; live timing improvement not yet verified.
+
 ## Build 270 (v0.3.240): atomic nested Meta GraphQL safeguards
 - Integrate Agent Nesty Meta 05 to prevent editing any part of a known Meta RequireJS/JSONL transport when a nested or sibling GraphQL error appears.
 - Fail open if transport traversal exceeds bounded depth, width or node counts.

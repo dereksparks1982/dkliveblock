@@ -1,3 +1,10 @@
+# Current build: 280 / v0.3.250 (November 2, 2026)
+
+- Owner-observed Facebook Build 279 removes feed and sidebar sponsored content but feed ads remain briefly clickable while scrolling; no claim of fully seamless removal.
+- Build 280 adds a bounded synchronous Facebook mutation fast path and shortens the Facebook-only full-scan debounce, without changing ad evidence rules or non-Facebook timing.
+- Offline targeted source/fixture validation staged; complete local Ubuntu test suite and live Firefox recheck remain pending.
+- See [Build 280](BUILD_280.md). Previous snapshots below are historical.
+
 # Current build: 270 / v0.3.240 (November 2, 2026)
 - Agent Nesty Meta 05: known RequireJS / __bbox nested errors and traversal cap violations prevent partial GraphQL ad rewriting.
 - 15 focused transport scenarios passed in a V8 evaluation. Complete Ubuntu suite and actual Firefox/Orion Facebook tests remain outstanding.
