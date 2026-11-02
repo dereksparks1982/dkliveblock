@@ -17,7 +17,7 @@ test("Build 56 debounce only schedules one scan and keeps site pause functional"
   location:{hostname:"news.example",href:"https://news.example/"},
   window:{addEventListener(){}},
   DKVideoAssist:{createController:()=>({scan(){}}),isStreamingHost:()=>false},
-  DKAdRecognition:{create:()=>({scan(){scans++;},restore(){restores++;}}),
+  DKAdRecognition:{create:()=>({scan(){scans++;},restore(){restores++;},setExceptions(){}}),
    relevantMutation:r=>r.type==="childList"&&!!r.addedNodes?.length},
   DKOverlayRecovery:{create:()=>({restore(){},prune(){},wasHidden(){return false;}})},
   DKCosmeticDebug:{create:()=>({restore(){}})},
