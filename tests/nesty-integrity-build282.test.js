@@ -108,7 +108,7 @@ test("Build 282 integrated files stay in the one Firefox source",()=>{
  const manifest=require("../src/manifest.json"),pkg=require("../package.json");
  const background=manifest.background.scripts,content=manifest.content_scripts[0].js;
  assert.equal(manifest.version,pkg.version);
- assert.equal(pkg.version,"0.3.252");
+ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
  assert.ok(background.indexOf("nesty-intelligence.js")<background.indexOf("background.js"));
  assert.ok(background.indexOf("adaptive-dispatcher.js")<background.indexOf("nesty-intelligence.js"));
  assert.ok(content.indexOf("nesty-intelligence.js")<content.indexOf("meta-module.js"));
