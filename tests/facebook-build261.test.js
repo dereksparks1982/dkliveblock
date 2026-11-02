@@ -100,7 +100,7 @@ test("Build 261: removed ephemeral Sponsored text is rescued by referenced ID",(
 });
 test("Build 261: byte-for-byte upstream MIT reference remains vendored, not activated",()=>{
  const manifest=require("../src/manifest.json");
- assert.equal(manifest.version,"0.3.231");
+ assert.equal(manifest.version,require("../package.json").version);
  for(const entry of manifest.content_scripts)
   assert.ok(!entry.js.includes("vendor/facebook-sponsored-upstream.js"));
 });
