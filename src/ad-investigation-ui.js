@@ -1,4 +1,4 @@
-/* DK Live Block Build 235: explicit, private ad investigation UI.
+/* DK Live Block Build 237: explicit, private, movable ad investigation UI.
    An owner-triggered picker presents evidence and a draft; never sends DOM,
    URLs, labels, or model output to background servers or auto-saves rules. */
 (function(){"use strict";
@@ -35,7 +35,62 @@
   b.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();fn();});
   return b;
  }
+
+ let dragging=null;
+ function endPanelDrag(){
+  if(!dragging)return;
+  dragging=null;
+  document.removeEventListener("pointermove",movePanel,true);
+  document.removeEventListener("pointerup",releasePanel,true);
+  document.removeEventListener("pointercancel",releasePanel,true);
+ }
+ function positionPanel(x,y){
+  if(!overlay||!Number.isFinite(x)||!Number.isFinite(y))return;
+  const r=overlay.getBoundingClientRect();
+  const left=Math.max(0,Math.min(Math.max(0,window.innerWidth-r.width),x));
+  const top=Math.max(0,Math.min(Math.max(0,window.innerHeight-r.height),y));
+  overlay.style.setProperty("right","auto","important");
+  overlay.style.setProperty("left",Math.round(left)+"px","important");
+  overlay.style.setProperty("top",Math.round(top)+"px","important");
+ }
+ function movePanel(e){
+  if(!dragging||dragging.id!==e.pointerId)return;
+  positionPanel(dragging.left+e.clientX-dragging.x,dragging.top+e.clientY-dragging.y);
+  e.preventDefault();e.stopPropagation();
+ }
+ function releasePanel(e){
+  if(!dragging||dragging.id!==e.pointerId)return;
+  endPanelDrag();e.stopPropagation();
+ }
+ function movableTitle(label){
+  const title=make("div",label);
+  title.tabIndex=0;
+  title.setAttribute("role","group");
+  title.setAttribute("aria-label","Drag to move DK Live Block panel. Arrow keys also move it.");
+  title.setAttribute("title","Grab and drag to move this panel.");
+  title.setAttribute("style","cursor:move!important;touch-action:none!important;user-select:none!important;font-weight:700!important;padding:4px 0 8px!important;border-bottom:1px solid #38e2da!important;");
+  title.addEventListener("pointerdown",e=>{
+   if(!overlay||e.isPrimary===false||(e.pointerType==="mouse"&&e.button!==0))return;
+   endPanelDrag();
+   const r=overlay.getBoundingClientRect();
+   dragging={id:e.pointerId,x:e.clientX,y:e.clientY,left:r.left,top:r.top};
+   document.addEventListener("pointermove",movePanel,true);
+   document.addEventListener("pointerup",releasePanel,true);
+   document.addEventListener("pointercancel",releasePanel,true);
+   e.preventDefault();e.stopPropagation();
+  });
+  title.addEventListener("keydown",e=>{
+   const directions={ArrowLeft:[-1,0],ArrowRight:[1,0],ArrowUp:[0,-1],ArrowDown:[0,1]};
+   const d=directions[e.key];
+   if(!d||!overlay)return;
+   const r=overlay.getBoundingClientRect(),step=e.shiftKey?40:12;
+   positionPanel(r.left+d[0]*step,r.top+d[1]*step);
+   e.preventDefault();e.stopPropagation();
+  });
+  return title;
+ }
  function close(){
+  endPanelDrag();
   picking=false;restoreOutline();selected=null;activeExceptions=[];
   overlay?.remove();overlay=null;
   document.removeEventListener("mouseover",onHover,true);
@@ -49,7 +104,7 @@
    overlay.setAttribute("style",INFO_STYLE);
    document.documentElement.appendChild(overlay);
   }
-  overlay.replaceChildren(make("strong","DK Live Block · Ad Investigator"),make("p",message));
+  overlay.replaceChildren(movableTitle("DK Live Block · Ad Investigator"),make("p",message));
  }
  function onHover(event){
   if(!picking||overlay?.contains(event.target))return;
@@ -65,7 +120,8 @@
   if(!overlay)banner("");
   overlay.setAttribute("role","dialog");
   overlay.setAttribute("aria-label","DK Live Block ad investigation");
-  const head=make("strong","DK Live Block · Local ad investigation");
+  endPanelDrag();
+  const head=movableTitle("DK Live Block · Local ad investigation");
   const assessment=result.assessment==="strong-evidence"?
    "Strong advertising evidence":"Insufficient evidence to identify an ad";
   const p=make("p",assessment+" · Evidence score "+result.evidenceScore.toFixed(2)+

@@ -1,3 +1,10 @@
+## Build 237 (0.3.207): draggable on-page Ad Investigator
+- The on-page Ad Investigator instruction and results windows now support mouse hold-and-drag by the title bar, retaining placement across investigation and clamping to the browser viewport.
+- Added focusable keyboard arrow movement, with Shift for larger increments. Drag movement never saves rules or blocks an element; existing Block element menu and investigator hide/undo remain unchanged.
+- Registered Build 236 investigator regression tests in the Ubuntu runner and added source-level movement/lifecycle guards.
+- Facebook automatic ad removal remains owner-observed FAIL. The owner successfully hid an obstructed Sponsored word using Block element. Full Ubuntu and Firefox testing of this change pending.
+- No changes to automatic ad filtering, streaming, other approved UI layouts, third-party code, or permissions.
+
 ## Build 236 (0.3.206): local AI-assisted missed-ad investigation
 
 - Added an **opt-in, local** Ad Investigator button to the existing Firefox toolbar popup. Click a suspected advertisement on the page to see concrete ad-marker evidence, synthetic-model score, known site-level element-hiding exceptions and uncertainty.

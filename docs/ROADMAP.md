@@ -1,3 +1,12 @@
+## Build 237: Movable Ad Investigator (0.3.207)
+- [x] Grab and hold the investigator title bar to move the instruction or result window away from a Facebook Sponsored label.
+- [x] Keep the panel on-screen; retain its position when viewing results; arrow keys move the focused title (Shift for larger steps).
+- [x] Clean up pointer listeners on release, cancel and close, without selecting or hiding page content while dragging.
+- [x] Register existing investigator tests in standard Ubuntu runner and add title/drag lifecycle regression assertions.
+- [ ] Owner Firefox acceptance: verify the panel moves and does not obscure Sponsored text.
+- [ ] Facebook automatic filtering remains a FAIL in actual Firefox. Manual right-click Block element successfully removed a Sponsored word, not an entire ad.
+- [ ] Full Linux suite and real browser acceptance still pending; unchanged site protections.
+
 ## Build 236: Owner-controlled local AI Ad Investigator (0.3.206)
 - [x] Preserve the existing 256-example synthetic YouTube playback model, its parameters and working fallback behavior.
 - [x] Add a separate, reproducible offline ad-evidence ranking model trained on 64 synthetic binary cases. An evidence score is **not** real-world ad probability or autonomous blocking intelligence.

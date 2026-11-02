@@ -91,3 +91,18 @@ test("Build 236 Firefox loader includes local model before inspector; UI cannot 
  const popup=fs.readFileSync(path.join(__dirname,"../src/popup.js"),"utf8");
  assert.match(popup,/startAdInvestigation/);
 });
+
+test("Build 237 movable investigator panel uses bounded drag handles in both views",()=>{
+ const src=fs.readFileSync(path.join(__dirname,"../src/ad-investigation-ui.js"),"utf8");
+ assert.match(src,/overlay\.replaceChildren\(movableTitle\("DK Live Block · Ad Investigator"/);
+ assert.match(src,/const head=movableTitle\("DK Live Block · Local ad investigation"/);
+ assert.match(src,/title\.addEventListener\("pointerdown"/);
+ assert.match(src,/document\.addEventListener\("pointermove",movePanel,true\)/);
+ assert.match(src,/document\.removeEventListener\("pointermove",movePanel,true\)/);
+ assert.match(src,/document\.addEventListener\("pointercancel",releasePanel,true\)/);
+ assert.match(src,/window\.innerWidth-r\.width/);
+ assert.match(src,/window\.innerHeight-r\.height/);
+ assert.match(src,/ArrowLeft:\[-1,0\]/);
+ assert.match(src,/endPanelDrag\(\);\n  picking=false/);
+ assert.doesNotMatch(src,/browser\.storage\.|fetch\(|XMLHttpRequest|WebSocket/);
+});
