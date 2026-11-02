@@ -33,6 +33,21 @@
    panel.textContent="Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. "+String(e?.message||"");
   }
  }
+ $("graphqlCheck").addEventListener("click",async()=>{
+  const box=$("graphqlDiagnostics");
+  if(!Number.isSafeInteger(tabId)||tabId<0){
+   box.textContent="Choose a Facebook tab from the Site Dashboard.";return;
+  }
+  try{
+   const result=await browser.runtime.sendMessage({action:"getMetaGraphqlStats",tabId});
+   if(!result?.ok)throw Error(result?.error||"Unavailable");
+   // Report only configuration flags and bounded local counters.
+   box.textContent=JSON.stringify({
+    enabled:result.enabled===true,siteActive:result.siteActive===true,
+    supported:result.supported===true,stats:result.stats||{}
+   },null,2);
+  }catch(error){box.textContent=String(error?.message||"Unavailable");}
+ });
  $("facebookCheck").addEventListener("click",()=>checkFacebook());
  $("facebookExport").addEventListener("click",()=>{
   if(!facebookReport)return;
