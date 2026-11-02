@@ -111,6 +111,46 @@ function pruneRecord(doc){
  // data.node path, messaging, reactions and unrelated feed components.
  return removed;
 }
+// Facebook sometimes wraps GraphQL records in RequireJS / __bbox envelopes.
+// Follow only those known transport keys, not arbitrary user data. Bounded
+// breadth/depth prevents a large or unusual response from using unlimited CPU.
+function pruneRequireEnvelope(doc){
+ if(!object(doc)||!Array.isArray(doc.require)||doc.require.length>100)return 0;
+ const stack=[{node:doc.require,depth:0}],seen=new Set();
+ let visits=0,removed=0;
+ while(stack.length&&visits++<1000){
+  const {node,depth}=stack.pop();
+  if(depth>20||!node||typeof node!=="object"||seen.has(node))continue;
+  seen.add(node);
+  if(Array.isArray(node)){
+   if(node.length>100)continue;
+   for(let i=node.length-1;i>=0;i--)
+    if(node[i]&&typeof node[i]==="object")stack.push({node:node[i],depth:depth+1});
+   continue;
+  }
+  if(!object(node))continue;
+  // Each nested __bbox.result may itself be another envelope.
+  if(object(node.__bbox)){
+   if(object(node.__bbox.result)){
+    removed+=pruneRecord(node.__bbox.result);
+    stack.push({node:node.__bbox.result,depth:depth+1});
+   }
+   if(Array.isArray(node.__bbox.require))
+    stack.push({node:node.__bbox.require,depth:depth+1});
+  }
+  if(Array.isArray(node.require))
+   stack.push({node:node.require,depth:depth+1});
+  if(object(node.result))stack.push({node:node.result,depth:depth+1});
+ }
+ return removed;
+}
+function prunePayload(doc){
+ let count=pruneRecord(doc);
+ // The envelope is used only when explicitly present, and a response's
+ // unrelated non-ad fields are never traversed by the ad matcher.
+ count+=pruneRequireEnvelope(doc);
+ return count;
+}
 function rewrite(text){
  if(typeof text!=="string"||text.length<2||text.length>MAX_BYTES)
   return {text,changed:false,removed:0};
@@ -121,7 +161,7 @@ function rewrite(text){
  let result;
  try{
   const obj=JSON.parse(whitespace[2]);
-  const removed=pruneRecord(obj);
+  const removed=prunePayload(obj);
   if(removed)result={text:prefix+whitespace[1]+JSON.stringify(obj)+whitespace[3],changed:true,removed};
  }catch(_){}
  if(result)return result;
@@ -134,7 +174,7 @@ function rewrite(text){
   const line=parts[i],m=/^(\s*)([\s\S]*?)(\s*)$/.exec(line);
   if(!m||!m[2].startsWith("{"))continue;
   try{
-   const obj=JSON.parse(m[2]);const n=pruneRecord(obj);
+   const obj=JSON.parse(m[2]);const n=prunePayload(obj);
    if(n){parts[i]=m[1]+JSON.stringify(obj)+m[3];removed+=n;}
   }catch(_){}
  }
@@ -225,7 +265,7 @@ function attach(d,webRequest,clock=root){
  return true;
 }
 const API=Object.freeze({MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,
- validSite,route,eligible,safeHeaders,pruneRecord,rewrite,attach,stats,clear});
+ validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
