@@ -63,7 +63,7 @@ function labelsOf(el,win){
 function sponsoredMenu(el){
  const text=normalize(el?.getAttribute?.("aria-label"));
  return text.length<=200&&(
-  /^(?:open menu for |actions for |more options for ).{1,120} sponsored content$/.test(text)||
+  /^(?:open menu for |actions for |more options for )(?:.{1,120} )?sponsored content$/.test(text)||
   text==="sponsored content"&&
     (el?.getAttribute?.("role")==="button"||el?.getAttribute?.("aria-haspopup")==="menu")
  );
