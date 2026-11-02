@@ -3,7 +3,7 @@
    uAssets. No uBlock scriptlet code, foreign engine or network telemetry.
    Unrecognized/invalid payloads remain byte-for-byte untouched. */
 (function(root){"use strict";
-const MAX_BYTES=1500000,MAX_FILTERS=8,MAX_PER_TAB=2,MAX_DELAY_MS=4000,MAX_RECORDS=1000;
+const MAX_BYTES=1500000,MAX_FILTERS=8,MAX_PER_TAB=2,MAX_DELAY_MS=4000,MAX_LIFETIME_MS=20000,MAX_RECORDS=1000,MAX_CHUNKS=2048;
 let live=0;
 const byTab=new Map(),statsByTab=new Map();
 function object(x){return x!==null&&typeof x==="object"&&!Array.isArray(x);}
@@ -146,6 +146,9 @@ function pruneRequireEnvelope(doc){
  return removed;
 }
 function prunePayload(doc){
+ // Do not alter a response containing GraphQL errors, even if a nested
+ // __bbox object happens to resemble an ad feed.
+ if(!object(doc)||doc.error||Array.isArray(doc.errors)&&doc.errors.length)return 0;
  let count=pruneRecord(doc);
  // The envelope is used only when explicitly present, and a response's
  // unrelated non-ad fields are never traversed by the ad matcher.
@@ -175,17 +178,28 @@ function rewrite(text){
  // Facebook also delivers one JSON record per line, sometimes following
  // its anti-JSON-hijacking prefix. Leave non-JSON lines and delimiters intact.
  if(!raw.includes("\n"))return {text,changed:false,removed:0};
+ // Treat JSONL as one transaction. A corrupt/truncated line or a
+ // GraphQL error response must NEVER produce partial modifications.
+ // Keep original bytes for any uncertain mixed-format transport.
  const parts=raw.split(/(\r?\n)/);
+ if(parts.length>MAX_RECORDS*2+1)return {text,changed:false,removed:0};
+ const edits=[];
  let removed=0;
  for(let i=0;i<parts.length;i+=2){
-  const line=parts[i],m=/^(\s*)([\s\S]*?)(\s*)$/.exec(line);
-  if(!m||!m[2].startsWith("{"))continue;
-  try{
-   const obj=JSON.parse(m[2]);const n=prunePayload(obj);
-   if(n){parts[i]=m[1]+JSON.stringify(obj)+m[3];removed+=n;}
-  }catch(_){}
+  const line=parts[i];
+  if(!line.trim())continue;
+  const m=/^(\s*)(\{[\s\S]*\})(\s*)$/.exec(line);
+  if(!m)return {text,changed:false,removed:0};
+  let obj;
+  try{obj=JSON.parse(m[2]);}
+  catch(_){return {text,changed:false,removed:0};}
+  if(!object(obj)||obj.error||Array.isArray(obj.errors)&&obj.errors.length)
+   return {text,changed:false,removed:0};
+  const n=prunePayload(obj);
+  if(n){edits.push([i,m[1]+JSON.stringify(obj)+m[3]]);removed+=n;}
  }
  if(!removed)return {text,changed:false,removed:0};
+ for(const [index,value]of edits)parts[index]=value;
  const next=prefix+parts.join("");
  return new TextEncoder().encode(next).byteLength<=MAX_BYTES?
   {text:next,changed:true,removed}:{text,changed:false,removed:0};
@@ -209,7 +223,21 @@ function attach(d,webRequest,clock=root){
  let filter;try{filter=webRequest.filterResponseData(d.requestId);}
  catch(_){note(tab,"errors");return false;}
  live++;byTab.set(tab,(byTab.get(tab)||0)+1);note(tab,"attached");
- let chunks=[],size=0,cursor=0,finished=false,deadline=null;
+ let chunks=[],size=0,cursor=0,finished=false,idleTimer=null,lifeTimer=null;
+ function cancelTimer(timer){
+  if(timer!==null)try{clock?.clearTimeout?.(timer);}catch(_){}
+ }
+ function flushAndDisconnect(kind){
+  if(finished)return;
+  try{original();}catch(_){note(tab,"errors");}
+  note(tab,kind);finish(true);
+ }
+ function renewIdle(){
+  if(typeof clock?.setTimeout!=="function")return;
+  cancelTimer(idleTimer);
+  idleTimer=clock.setTimeout(()=>flushAndDisconnect("timeout"),MAX_DELAY_MS);
+  idleTimer?.unref?.();
+ }
  function original(){
   // Move the cursor before writing, never replay a partially written chunk.
   while(cursor<chunks.length)filter.write(chunks[cursor++]);
@@ -217,7 +245,7 @@ function attach(d,webRequest,clock=root){
  }
  function finish(disconnect=false){
   if(finished)return;finished=true;
-  try{if(deadline!==null)clock?.clearTimeout?.(deadline);}catch(_){}
+  cancelTimer(idleTimer);cancelTimer(lifeTimer);idleTimer=null;lifeTimer=null;
   chunks=[];live=Math.max(0,live-1);
   const count=(byTab.get(tab)||1)-1;
   if(count)byTab.set(tab,count);else byTab.delete(tab);
@@ -228,10 +256,11 @@ function attach(d,webRequest,clock=root){
   if(finished)return;
   try{
    const chunk=new Uint8Array(event.data);
-   if(size+chunk.byteLength>MAX_BYTES){
+   if(size+chunk.byteLength>MAX_BYTES||chunks.length>=MAX_CHUNKS){
     original();filter.write(chunk);note(tab,"oversized");finish(true);return;
    }
    chunks.push(chunk);size+=chunk.byteLength;
+   renewIdle();
   }catch(_){
    try{original();}catch(__){}
    note(tab,"errors");finish(true);
@@ -263,17 +292,17 @@ function attach(d,webRequest,clock=root){
  };
  if(typeof clock?.setTimeout==="function"){
   try{
-   deadline=clock.setTimeout(()=>{
-    if(finished)return;
-    try{original();}catch(_){}
-    note(tab,"timeout");finish(true);
-   },MAX_DELAY_MS);
-   deadline?.unref?.();
-  }catch(_){}
+   renewIdle();
+   lifeTimer=clock.setTimeout(()=>flushAndDisconnect("timeout"),MAX_LIFETIME_MS);
+   lifeTimer?.unref?.();
+  }catch(_){ // A failed scheduler must not strand the interception.
+   flushAndDisconnect("errors");
+   return false;
+  }
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,
+const API=Object.freeze({MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
  validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
