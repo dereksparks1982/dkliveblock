@@ -441,7 +441,12 @@ function create(doc,win,max=100){
   const bylines=doc.querySelectorAll('main span,[role="main"] span,main a,[role="main"] a');
   for(let i=0;i<Math.min(2400,bylines.length)&&count<15;i++){
    const el=bylines[i];
-   if((el.children?.length||0)>2||String(el.textContent||"").length>45)continue;
+   // Real Facebook Sponsored labels may contain dozens of single-letter
+   // spans (plus decoys). The decoder already supports them, so don't
+   // reject the wrapper before it gets a chance to decode its letters.
+   const split=splitLabelRoot(el),childCount=el.children?.length||0;
+   if((childCount>2&&!split)||childCount>120||
+      (!split&&String(el.textContent||"").length>45))continue;
    if(!labelsOf(el,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
    if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card))count++;
@@ -454,7 +459,7 @@ function create(doc,win,max=100){
    const el=refs[i];
    if(!referenceLabels(el,doc,cache,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
-   if(card&&inByline(el,card)&&hide(card))count++;
+   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card))count++;
   }
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
