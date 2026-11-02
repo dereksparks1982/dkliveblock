@@ -355,6 +355,21 @@ function create(doc,win,max=100){
    const section=rightRailCandidate(h,doc,win);
    if(section&&hide(section))count++;
   }
+  // MIT-inspired rail fallback: Facebook can render the visible Sponsored
+  // heading as an ordinary span rather than h1..h6 or role=heading. Examine
+  // short, on-screen right-column labels and hide only a bounded rail section.
+  // Unlike a broad text filter this never treats a feed post or Contacts as an ad.
+  const railLabels=doc.querySelectorAll('span,[role="complementary"] div,aside div');
+  for(let i=0;i<Math.min(5500,railLabels.length)&&count<15;i++){
+   const label=railLabels[i];
+   if((label.children?.length||0)>4||String(label.textContent||"").length>75)continue;
+   const r=label.getBoundingClientRect?.();
+   if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57)||
+      r.width>270||r.height>80)continue;
+   if(!labelsOf(label,win).some(x=>normalize(x)==="sponsored"))continue;
+   const section=rightRailCandidate(label,doc,win);
+   if(section&&hide(section,label))count++;
+  }
   // Advertiser-tagged links are detected even when "Sponsored" is obfuscated.
   const railLinks=doc.querySelectorAll('a[target="rhcad2"],a[attributionsrc],a[href*="utm_campaign"]');
   for(let i=0;i<Math.min(220,railLinks.length)&&count<15;i++){
