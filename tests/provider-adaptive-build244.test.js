@@ -5,7 +5,8 @@ test("provider records require explicit evidence and never auto-block",()=>{
  const db=P.create();
  assert.equal(db.observe({host:"not a host",type:"ad"}),null);
  const row=db.observe({host:"ads.example.com",type:"ad",evidence:["ad_slot","attribution"]});
- assert.equal(row.confidence,"corroborated");
+ assert.equal(row.confidence,"unverified"); // Repeated/candidate signals never verify a provider.
+ assert.equal(row.allowed,0);assert.equal(row.blocked,0);
  assert.equal(db.lookup("ads.example.com").type,"ad");
  assert.equal(db.list().length,1);db.clear();assert.equal(db.list().length,0);
 });
