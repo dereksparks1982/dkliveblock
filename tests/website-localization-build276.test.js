@@ -82,3 +82,20 @@ test("Russian website introduction is natural and preserves exact Latin company 
  const translationSource=fs.readFileSync(path.join(__dirname,"../assets/site-localization.js"),"utf8");
  assert.doesNotMatch(translationSource,/Элдерред|Софтворкс/);
 });
+
+test("README website links explicitly select their own language",()=>{
+ const en=fs.readFileSync(path.join(__dirname,"../README.md"),"utf8");
+ const ru=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
+ assert.ok(ru.includes("https://dereksparks1982.github.io/dkliveblock/?lang=ru"));
+ assert.ok(en.includes("https://dereksparks1982.github.io/dkliveblock/?lang=en"));
+ assert.equal(l.requested("?lang=ru"),"ru");
+ assert.equal(l.requested("?lang=en"),"en");
+ assert.equal(l.requested("?lang=fr"),null);
+ assert.equal(l.requested("?lang=RU"),null);
+ assert.equal(l.requested(""),null);
+ assert.ok(site.includes('new URLSearchParams(location.search).get("lang")'));
+ const source=fs.readFileSync(path.join(__dirname,"../assets/site-localization.js"),"utf8");
+ assert.ok(source.includes("const linkLanguage=requested(root.location?.search)"));
+ assert.ok(source.includes('url.searchParams.set("lang",choice)'));
+ assert.ok(source.includes("root.history?.replaceState"));
+});
