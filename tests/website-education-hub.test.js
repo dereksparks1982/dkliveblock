@@ -5,9 +5,9 @@ const ROOT=path.resolve(__dirname,"..");
 function site(pathname){return fs.readFileSync(path.join(ROOT,pathname),"utf8");}
 const subjects=["ad-blocking","popups","request-control","site-control","ad-delivery","cookie-literacy"];
 const info=["status","install","downloads","license","support","projects"];
-test("Both live GitHub Pages entrypoints contain the same complete education hub",()=>{
- const a=site("index.html"),b=site("docs/index.html");
- assert.equal(a,b);
+test("One maintained GitHub Pages entrypoint contains the complete education hub",()=>{
+ const a=site("index.html");
+ assert.equal(fs.existsSync(path.join(ROOT,"docs/index.html")),false);
  assert.equal((a.match(/class="feature-card-link"/g)||[]).length,12);
  assert.equal((a.match(/<dialog class="lesson-dialog/g)||[]).length,12);
  assert.match(a,/<section id="feature-lessons"/);
@@ -72,7 +72,9 @@ test("Both card groups use the original dark theme and still share one height",(
  const html=site("index.html");
  assert.match(html,/\.information-grid \.info-card\{border-color:#456b70\}/);
  assert.doesNotMatch(html,/\.information-grid \.info-card\{background:#fff/);
- assert.match(html,/\.feature-card:hover,\.feature-card:focus-within\{border-color:var\(--a\);background:#0b2731\}/);
+ assert.match(html,/\.feature-grid \.feature-card\{background:#0b2731\}/);
+ assert.match(html,/\.feature-card:hover,\.feature-card:focus-within\{border-color:var\(--a\);background:#14404b\}/);
+ assert.match(html,/html\[data-site-language="ru"\] \.feature-grid \.feature-card\{background:#481d21/);
  assert.equal((html.match(/class="feature-card info-card"/g)||[]).length,6);
  assert.equal((html.match(/class="feature-card"/g)||[]).length,6);
 });
@@ -133,15 +135,15 @@ test("The four original hero targets keep their geometry and consistently colore
  assert.ok(a.includes('.button.brand-action .brand-label'));
  assert.ok(!a.includes('class="brand-window"'));
 });
-test("Both website publishing roots use an exact copy of the approved icon and matching manifests",()=>{
+test("The single website publishing root uses the approved icon and manifest",()=>{
  const a=site("index.html");
  assert.ok(a.includes('rel="apple-touch-icon" href="apple-touch-icon.png"'));
  assert.ok(a.includes('rel="manifest" href="manifest.webmanifest"'));
- const m=JSON.parse(site("manifest.webmanifest")),n=JSON.parse(site("docs/manifest.webmanifest"));
- assert.deepEqual(m,n);
+ const m=JSON.parse(site("manifest.webmanifest"));
  assert.equal(m.start_url,"/dkliveblock/");
  assert.equal(m.icons[0].src,"/dkliveblock/apple-touch-icon.png");
  const approved=fs.readFileSync(path.join(ROOT,"src/icons/dk-live-block.png"));
  assert.deepEqual(fs.readFileSync(path.join(ROOT,"apple-touch-icon.png")),approved);
- assert.deepEqual(fs.readFileSync(path.join(ROOT,"docs/apple-touch-icon.png")),approved);
+ assert.equal(fs.existsSync(path.join(ROOT,"docs/apple-touch-icon.png")),false);
+ assert.equal(fs.existsSync(path.join(ROOT,"docs/manifest.webmanifest")),false);
 });

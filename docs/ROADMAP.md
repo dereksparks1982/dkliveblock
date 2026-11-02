@@ -6,7 +6,7 @@
 - [x] Fix frozen localization API write that blocked all card click listeners; add dark resting cards and distinct hover state.
 - [x] Correct four Russian hero button colors in black/gold/white/red order with safe text wrapping.
 - [x] Create a separate Russian README, clean the English README to features and usage only.
-- [ ] Remove old mirrored `docs/index.html` after verifying active Pages publishing source, without taking down the live website.
+- [x] Remove obsolete `docs/index.html` copy and mirrored Pages icon/manifest, retaining `index.html` as the only maintained website source. Confirm actual Pages settings in GitHub before any further host change.
 - [ ] Real GitHub Pages manual acceptance and Russian proofreading.
 
 ## Build 275 / v0.3.245: Named Agent Nesty specialists

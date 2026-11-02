@@ -25,4 +25,4 @@ Local source and translation coverage should be checked before acceptance. No as
 - Dark feature cards are visible at rest; hover remains distinguishable. No changes to card geometry or dialog behaviors.
 - Russian hero buttons use black, gold, white/steel, red in their existing order, with allowed text wrapping and original target URLs.
 - Replaced README with a short feature/usage summary and added separate `README.ru.md`; build notes remain in `docs/` only.
-- The old `docs/index.html` mirror requires a separate hosting-source check and consolidation before removal; this fix does not delete it blindly.
+- Eliminated the obsolete `docs/index.html` mirror and its duplicated page-only assets. The root `index.html` is the sole maintained website source, with a regression test to prevent mirror drift. GitHub Pages settings still need independent verification for deployment acceptance.
