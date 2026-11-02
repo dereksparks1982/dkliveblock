@@ -25,7 +25,7 @@ test("Build 259: language selector exists in popup and Settings, never changes f
  assert.match(read("ui-language.js"),/const KEY="dkUiLanguage"/);
  assert.doesNotMatch(read("background.js"),/dkUiLanguage|DKUILanguage/);
  const manifest=require("../src/manifest.json");
- assert.equal(manifest.version,"0.3.229");
+ assert.equal(manifest.version,require("../package.json").version);
 });
 test("Build 259: only extension UI loads language module",()=>{
  const manifest=require("../src/manifest.json");
