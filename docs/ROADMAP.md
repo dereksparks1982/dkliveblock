@@ -1,3 +1,14 @@
+## Build 261 / v0.3.231: complete targeted MIT Facebook DOM integration
+- [x] Add desktop Marketplace Sponsored tile resolver (never entire grid; ordinary listing/body text preserved).
+- [x] Add mobile html-renderer feed-card detection and an event-triggered reveal recheck for virtualized posts.
+- [x] Preserve ephemeral/id-based Sponsored text from late or removed text nodes; ignore normal text.
+- [x] Add author-header guards and bound all ancestor climbs, preventing accidental whole-feed or sibling-post hides.
+- [x] Run seven isolated Facebook regression scenarios (all passed), add committed Node fixtures.
+- [x] Remove Nougat Media Plus from both public website project-link sections and update three-link regression fixture.
+- [ ] Owner Firefox acceptance of Facebook feed, rail, mobile and Marketplace; preserve organic posts, Contacts, Messenger.
+- [ ] Full Ubuntu Node suite and Firefox timing audit; GraphQL/streamed response filtering remains a separate investigated technique, not a finished feature.
+- [ ] Finish supported Meta formats beyond Facebook in dedicated adapters, with feature-specific tests.
+
 ## Build 260 / v0.3.230: Facebook pre-test engineering defects and diagnostics
 - [x] Fix byline scan prematurely rejecting supported character-split Sponsored labels.
 - [x] Fix right-rail ad-link resolver repeatedly inspecting only the immediate link parent.
