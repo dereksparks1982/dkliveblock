@@ -51,8 +51,9 @@ test("All Firefox manifest assets are available locally",()=>{
    assert.ok(fs.existsSync(path.join(root,"src",match[1])),"Missing script "+match[1]);
  }
 });
-test("No GitHub Actions and no remote executable scripts",()=>{
- assert.equal(fs.existsSync(path.join(root,".github/workflows")),false);
+test("Restricted offline CI never introduces remotely loaded extension scripts",()=>{
+ const workflows=path.join(root,".github/workflows");
+ assert.deepEqual(fs.readdirSync(workflows),["offline-verification.yml"]);
  const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
  assert.equal(m.content_security_policy?.includes("unsafe-eval")||false,false);
  assert.equal(m.content_security_policy?.includes("https://")||false,false);
