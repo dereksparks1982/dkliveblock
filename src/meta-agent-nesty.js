@@ -1,4 +1,4 @@
-/* DK Live Block / Agent Nesty Meta 01-03, Build 266.
+/* DK Live Block / Agent Nesty Meta specialists 01-05, Builds 266-270.
    Local simulated evasions only; no tracking, remote AI or standalone blocking.
    Single-post safety checks remain the responsibility of DKFacebookAds. */
 (function(root){"use strict";

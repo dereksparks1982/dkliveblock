@@ -1,3 +1,5 @@
+QA follow-up: tests/meta-agent-nesty-build266.test.js now asserts the original three agents are preserved, not that no newer agent can exist. Agent registry is intentionally extensible. GraphQL remains OFF and live Firefox tests are outstanding.
+
 # Build 270 / v0.3.240 (Nov 2, 2026)
 Meta Nesty 05 guards nested RequireJS / __bbox errors, including sibling records and mixed JSONL batches. src/meta-graphql.js now validates known transport envelopes BEFORE modifying ad records. 15 synthetic test cases in tests/meta-graphql-build270.test.js passed in isolated V8. GraphQL remains default OFF; real Facebook tests and full Ubuntu suite needed. Previous Build 269 added ID cache TTL and Orion cross-site pause safety. Website unchanged.
 
