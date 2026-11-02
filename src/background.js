@@ -585,7 +585,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(d.type==="main_frame"&&data.ready&&data.settings.enabled===true&&
     data.settings.strictPopupSites===true){
   const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,d.tabId);
-  const sourceSite=row?data.hosts.get(row.source)||"":"";
+  const sourceSite=row?(data.hosts.get(row.source)||row.site):"";
   if(row&&DKPopupTrap.nestyCandidate(data.nestyPopupLinks,d.tabId,d.url,
     sourceSite,activeTab(row.source,sourceSite))&&
     !DKAuthProtection.isAuthPopup(d.url)&&
@@ -629,11 +629,16 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   // ad, while opening the requested video in a SECOND tab. Never close the
   // second tab or broadly block video sources to address this navigation.
   const originalSite=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
-  if(DKOriginalTabGuard.shouldBlock(data.originalTabGuard,d,originalSite,
-      activeTab(d.tabId,originalSite))){
+  const originalActive=activeTab(d.tabId,originalSite);
+  const legacy=DKOriginalTabGuard.shouldBlock(data.originalTabGuard,d,originalSite,originalActive);
+  const nesty5=!legacy&&data.settings.strictPopupSites===true&&
+    !DKAuthProtection.isAuthPopup(d.url)&&
+    DKOriginalTabGuard.shouldBlockNesty5(data.originalTabGuard,d,originalSite,originalActive);
+  if(legacy||nesty5){
    DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
    rememberOwnBlock(d.requestId);
-   recordBlock(d.tabId,d.url,d.type,{p:"[Blocked original-tab ad takeover]"});
+   recordBlock(d.tabId,d.url,d.type,{p:nesty5?
+    "[Agent Nesty 5: original video tab takeover]":"[Blocked original-tab ad takeover]"});
    return {cancel:true};
   }
   if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url))||
@@ -787,8 +792,9 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
 async function interceptNesty4(child,url=""){
  if(!data.ready||data.settings.strictPopupSites!==true)return "not-applicable";
  const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,child);
+ const sourceSite=row?(data.hosts.get(row.source)||row.site):"";
  if(!row||!DKPopupTrap.nestyCandidate(data.nestyPopupLinks,child,url,
-    data.hosts.get(row.source)||"",activeTab(row.source,data.hosts.get(row.source)||"")))
+    sourceSite,activeTab(row.source,sourceSite)))
   return "not-applicable";
  if(DKAuthProtection.isAuthPopup(url)){
   DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "allowed";
@@ -828,6 +834,15 @@ browser.tabs.onCreated?.addListener(tab=>{
    if(data.settings.strictPopupSites===true&&DKPopupTrap.xnxxHost(site))
     DKPopupTrap.nestyTrack(data.nestyPopupLinks,tab.id,source,site);
   }
+  // Recover browser-attributed source when a new tab precedes host caching.
+  if(data.ready&&data.settings.strictPopupSites===true&&!DKPopupTrap.xnxxHost(site))
+   browser.tabs.get(source).then(live=>{
+    const actual=host(live?.url||"");
+    if(!DKPopupTrap.xnxxHost(actual)||!activeTab(source,actual))return;
+    DKOriginalTabGuard.note(data.originalTabGuard,source,tab.id,actual,tab.url||"");
+    DKPopupTrap.nestyTrack(data.nestyPopupLinks,tab.id,source,actual);
+    interceptNesty4(tab.id,tab.url||"").catch(()=>{});
+   }).catch(()=>{});
   interceptStrictPopup(tab.id,source,tab.url||"").catch(()=>{});
   interceptNesty4(tab.id,tab.url||"").catch(()=>{});
  }
@@ -843,6 +858,14 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
   if(data.settings.strictPopupSites===true&&DKPopupTrap.xnxxHost(sourceSite))
    DKPopupTrap.nestyTrack(data.nestyPopupLinks,event.tabId,event.sourceTabId,sourceSite);
  }
+ if(data.ready&&data.settings.strictPopupSites===true&&!DKPopupTrap.xnxxHost(sourceSite))
+  try{
+   const live=host((await browser.tabs.get(event.sourceTabId))?.url||"");
+   if(DKPopupTrap.xnxxHost(live)&&activeTab(event.sourceTabId,live)){
+    DKOriginalTabGuard.note(data.originalTabGuard,event.sourceTabId,event.tabId,live,event.url||"");
+    DKPopupTrap.nestyTrack(data.nestyPopupLinks,event.tabId,event.sourceTabId,live);
+   }
+  }catch(_){}
  if(data.settings.requestLog)
   DKPopupHistory.enrich(data.popupHistory,event.sourceTabId,event.tabId,event.url||"");
  const strict=await interceptStrictPopup(event.tabId,event.sourceTabId,event.url||"");
@@ -864,6 +887,7 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
+ if(info.url)DKOriginalTabGuard.confirmVideo(data.originalTabGuard,id,info.url);
  if(info.url&&DKPopupTrap.nestyRead(data.nestyPopupLinks,id))
   interceptNesty4(id,info.url).catch(()=>{});
  if(info.url||info.status==="loading"){

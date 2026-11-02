@@ -67,3 +67,30 @@ test("Build 225 deliberate navigation cannot be blocked based on initiating site
  G.clear(m,18);
  assert.equal(G.shouldBlock(m,details(redirect),"xnxx.com",true,NOW+1000),false);
 });
+
+test("Build 274 Nesty 5 requires a real video child, not just a blank window",()=>{
+ const m=new Map();G.note(m,15,18,"xnxx.com","about:blank",NOW);
+ assert.equal(G.NESTY_5.id,"agent_nesty_5");
+ assert.equal(G.shouldBlockNesty5(m,details("https://unlisted-ad.test/"),"xnxx.com",true,NOW+100),false);
+ assert.equal(G.confirmVideo(m,18,"https://www.xnxx.com/video-321",NOW+200),true);
+ assert.equal(G.shouldBlockNesty5(m,details("https://unlisted-ad.test/"),"xnxx.com",true,NOW+300),true);
+ assert.equal(G.shouldBlockNesty5(m,details("https://another.test/"),"xnxx.com",true,NOW+4501),false);
+});
+test("Build 274 Nesty 5 refuses late, nonvideo or foreign video evidence",()=>{
+ const m=new Map();G.note(m,15,18,"xnxx.com","about:blank",NOW);
+ assert.equal(G.confirmVideo(m,18,"https://xnxx.com/search",NOW+100),false);
+ assert.equal(G.confirmVideo(m,18,"https://example.test/video-1",NOW+100),false);
+ assert.equal(G.confirmVideo(m,18,"https://xnxx.com/video-3",NOW+4501),false);
+ assert.equal(G.shouldBlockNesty5(m,details("https://ad.test/"),"xnxx.com",true,NOW+200),false);
+});
+test("Build 274 Nesty 5 preserves original-site video and unrelated external navigation",()=>{
+ const m=new Map();G.note(m,15,18,"xnxx.com","https://xnxx.com/video-1",NOW);
+ for(const d of [details("https://xnxx.com/video-2"),
+  details("https://somewhere.test/",{tabId:18}),
+  details("https://somewhere.test/",{originUrl:"https://other.test/"}),
+  details("https://somewhere.test/",{method:"POST"}),
+  details("https://user:pass@somewhere.test/")])
+  assert.equal(G.shouldBlockNesty5(m,d,"xnxx.com",true,NOW+100),false);
+ assert.equal(G.shouldBlockNesty5(m,details("https://somewhere.test/"),"xnxx.com",false,NOW+100),false);
+ assert.equal(Object.keys(m.get(15)).includes("url"),false);
+});

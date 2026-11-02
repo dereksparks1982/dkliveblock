@@ -232,3 +232,27 @@ test("Build 273 navigation-target event works without openerTabId",async()=>{
  await callbacks.navigation({sourceTabId:4,tabId:218,url:"https://redirect.test/"});
  await flush();assert.equal(removed.includes(218),true);
 });
+
+test("Build 274 Nesty 5 cancels original-tab takeover to an unfamiliar advertiser",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:237,openerTabId:4,url:"https://www.xnxx.com/video-777"});
+ const response=callbacks.request({requestId:"n5-237",tabId:4,type:"main_frame",
+  url:"https://changing-ads.test/promo",method:"GET"});
+ assert.equal(response.cancel,true);
+ await flush();assert.equal(removed.includes(237),false);
+});
+test("Build 274 blank XNXX child alone never blocks a normal original-tab link",async()=>{
+ const {callbacks,flush}=await environment();
+ callbacks.created({id:238,openerTabId:4,url:"about:blank"});
+ const response=callbacks.request({requestId:"n5-238",tabId:4,type:"main_frame",
+  url:"https://other-ordinary.test/",method:"GET"});
+ assert.notEqual(response.cancel,true);await flush();
+});
+test("Build 274 XNXX video child confirmed by URL update activates Nesty 5",async()=>{
+ const {callbacks,flush}=await environment();
+ callbacks.created({id:239,openerTabId:4,url:"about:blank"});
+ callbacks.updated(239,{url:"https://www.xnxx.com/video-55"},{url:"https://www.xnxx.com/video-55"});
+ const response=callbacks.request({requestId:"n5-239",tabId:4,type:"main_frame",
+  url:"https://other-ad.test/",method:"GET"});
+ assert.equal(response.cancel,true);await flush();
+});

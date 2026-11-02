@@ -93,8 +93,10 @@ const NESTY_4=Object.freeze({id:"agent_nesty_4",title:"Agent Nesty 4",status:"ar
 const NESTY_TTL_MS=15000,MAX_NESTY_LINKS=256;
 function xnxxHost(host){
  if(typeof host!=="string")return false;
- const h=host.toLowerCase().replace(/\.$/,"");
- return h==="xnxx.com"||h.endsWith(".xnxx.com");
+ const h=host.toLowerCase();
+ return h.length<=253&&/^[a-z0-9.-]+$/.test(h)&&
+   !h.startsWith(".")&&!h.endsWith(".")&&!h.includes("..")&&
+   (h==="xnxx.com"||h.endsWith(".xnxx.com"));
 }
 function nestyDestination(url){
  if(typeof url!=="string"||url.length>4096)return "unknown";

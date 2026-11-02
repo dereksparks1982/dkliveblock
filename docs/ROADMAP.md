@@ -1,3 +1,10 @@
+## Build 274 / v0.3.244: Agent Nesty 5 original-tab takeover
+- [x] Detect XNXX-linked confirmed video child and within 4.5 seconds a foreign original-tab navigation, independent of advertiser names.
+- [x] Ignore unconfirmed/blank child, site links, foreign origins, POST and unrelated tabs.
+- [x] Recover Agent Nesty 4 opener when cached source hostname arrives late, validate live opener before closing.
+- [x] Add regression coverage without changing YouTube, Disney+ or approved UI geometry.
+- [ ] Run complete Ubuntu suite and actual Firefox XNXX tests. No guaranteed all-popup claim.
+
 ## Build 273 / v0.3.243: Agent Nesty 4, XNXX popup redirection
 - [x] Next globally numbered agent after Agent Nesty 1–3 cookie observers.
 - [x] Detect XNXX source-linked new tabs and foreign navigation across creation, navigation-target, late tab updates and main-frame requests.
