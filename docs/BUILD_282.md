@@ -19,6 +19,9 @@ geometry changes, feature expansion, or new browser support claims.
 - Added eight dedicated regression tests for evidence filtering, protected
   content, no cross-platform Meta hiding, dispatcher reuse, read-only actions,
   opt-in/provider bounds, browser capabilities and single-source packaging.
+- Registered the Build 282 regression file in the regular offline Linux test
+  runner (`scripts/test-local.sh`); this registration is not a claim that the
+  complete runner was executed in this environment.
 
 ## Verification completed
 - 19 targeted integration tests (11 from Build 281 plus 8 from Build 282)
