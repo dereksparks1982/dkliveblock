@@ -1,3 +1,8 @@
+## Build 268 / v0.3.238: experimental Orion site pause
+- Orion-only popup and content control support exact-host pause/resume with local persistent host-only storage when available.
+- Keep existing Firefox runtime, display and network protection unchanged; no iPhone DNR claim.
+- Source syntax checked and six regression tests added; no full Ubuntu or live Orion PASS claimed.
+
 ## Build 267 (v0.3.237): Meta/Orion burst update reliability
 - Process the entire bounded Facebook update batch even after an earlier mutation schedules an ad scan. Preserve later ephemeral accessibility label data.
 - Stop pagehide-era delayed Orion callbacks from affecting a resumed page; rescan on iPhone foregrounding without scanning hidden pages.

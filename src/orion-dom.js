@@ -8,6 +8,7 @@
  const facebook=root.DKFacebookAds?.create?.(doc,win,90)||null;
  if(!generic&&!facebook)return;
  let observer=null,timer=null,queued=null,active=false,generation=0;
+ let paused=false,ready=!root.DKOrionPause;
  function scan(){
   queued=null;
   if(!active||doc.visibilityState==="hidden"||!doc.documentElement)return;
@@ -50,7 +51,7 @@
   try{generic?.restore();}catch(_){}
  }
  function start(){
-  if(active)return;
+  if(active||paused||!ready)return;
   generation++;
   active=true;
   if(typeof win.MutationObserver==="function"&&doc.documentElement){
@@ -77,7 +78,10 @@
  doc.addEventListener?.("visibilitychange",()=>{
   if(active&&doc.visibilityState==="visible")schedule();
  });
- if(doc.documentElement)start();
- else if(typeof win.addEventListener==="function")
+ root.DKOrionPause?.register(value=>{
+  ready=true;paused=value===true;if(paused)stop();else start();
+ });
+ if(ready&&doc.documentElement)start();
+ else if(ready&&typeof win.addEventListener==="function")
   win.addEventListener("DOMContentLoaded",start,{once:true});
 })(typeof globalThis!=="undefined"?globalThis:this);

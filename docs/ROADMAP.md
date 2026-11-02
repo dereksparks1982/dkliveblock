@@ -1,3 +1,12 @@
+## Build 268 / v0.3.238: Orion exact-site pause (experimental)
+- [x] Implement active website pause/resume in a dedicated Orion-only popup, using extension messaging.
+- [x] Persist at most 100 exact hostnames via local storage where supported. Session-only if storage unavailable; an unreadable saved preference pauses conservatively.
+- [x] Pause calls the existing Orion scanner's DOM restore; no Firefox source changes beyond matching version number.
+- [x] Add tabs/storage permissions only to Orion candidate, no DNR or unsupported network feature claims.
+- [x] Add six regression source checks to the offline runner; source syntax validated. Full suite not run.
+- [ ] Validate installation, message/API compatibility, cross-tab state, real Facebook ads/organic posts and performance on Orion iPhone and Mac.
+- [ ] Continue Agent Nesty evasions and full Firefox Linux suite. GraphQL remains OFF until live verification.
+
 ## Build 267 / v0.3.237: Facebook feed bursts and Orion lifecycle
 - [x] Remove Meta mutation-batch premature return from experimental Orion candidate; process all 40 bounded records for disappearing/portal Sponsored evidence.
 - [x] Remove premature desktop Firefox observer break; no extra continuous polls or new permissions.

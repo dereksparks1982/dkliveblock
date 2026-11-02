@@ -1,4 +1,6 @@
-# Current build: 267 / v0.3.237 (November 2, 2026)
+# Current build: 268 / v0.3.238 (November 2, 2026)
+Orion experimental iOS/Mac package includes a bounded exact-site Pause/Resume control and local host-only exceptions, restoring hidden content on pause. Unsupported storage uses a page-only setting; failed reads leave protection paused. Firefox UI/permissions unchanged and GraphQL filter OFF. New source checks registered; full Linux suite and real Orion iPhone tests pending.
+
 
 - Corrected an event-batch short circuit in the Orion DOM experiment so it processes up to 40 Meta mutation records, including ephemeral Sponsored labels removed later in the same batch.
 - Strengthened Orion page-cache and iPhone foreground lifecycle: canceled callbacks from old generations cannot run in a reopened page, and visibility return schedules one rescan.

@@ -1,3 +1,6 @@
+# Build 268 / v0.3.238 (Nov 2, 2026)
+Orion experimental candidate gets src/orion-pause.js (host-only 100-max local pauses, storage failure preserves paused state) and src/orion-popup.js, integrated into src/orion-dom.js and its packaging. Desktop Firefox UI and permissions unchanged. 6 Node test assertions added to runner, runtime syntax checked; no full Ubuntu test or Orion device verification. Core Protections website unchanged. GraphQL OFF.
+
 # Build 267 / v0.3.237 (November 2, 2026)
 Orion DOM experiment now processes all 40 mutation records, avoids early exits losing ephemeral Sponsored labels, protects pagehide/pageshow timer generations, and reacts to iPhone visibility changes. Firefox content observer also processes all 40, not breaking after both popup/ad signals. New tests/orion-lifecycle-build267.test.js has 11 isolated passing VM scenarios and is registered in the Linux suite. User-approved website heading is Core Protections, and other layout is unchanged. GraphQL remains OFF; live Facebook/Orion unverified. See docs/BUILD_267.md.
 

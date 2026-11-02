@@ -32,3 +32,6 @@ No network to DK servers, telemetry, account content capture, remote JS, cookies
 
 ## Build 267 lifecycle hardening
 Orion now processes the full bounded 40-record DOM mutation batch to retain late ad-reference changes, protects against stale page-cache timeouts and rescans when the iPhone page becomes visible. Eleven offline VM tests checked burst updates, stopped tabs, obsolete callbacks and the observer attribute list. These tests do not prove WebExtension support or actual ad removal on an iPhone.
+
+## Build 268: local exact-site Pause/Resume
+Experimental Orion popup now has a user-initiated exact-host pause, with up to 100 hostnames stored locally if supported. Existing DOM hiding is restored on pause. When Orion has no storage API the pause is per-page only; a failed stored-preference read suspends cleanup. New candidate needs only tabs/storage in addition to host access. No verified network API or device test, and desktop Firefox remains unaffected.
