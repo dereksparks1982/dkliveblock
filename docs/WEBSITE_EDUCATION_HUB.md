@@ -24,6 +24,12 @@ Each entire card is a single accessible anchor and opens its own native HTML dia
 
 The original detailed website sections are retained verbatim inside these six dialogs. Download locations, the test-install procedure, warnings about unsigned XPI packages, the custom noncommercial license, the bug-report address, source and roadmap links, and the three project websites have **not** been removed. All three other project buttons remain accessible in the sixth dialog: Hanafi Learning Deck, Folkhold, and Capital & Consequence. Nougat Media Plus remains excluded at owner's request.
 
+## Owner-requested card-size and copy refinements
+- All twelve card surfaces are fully clickable; the repetitive “Explore the details” / “Open details” prompts were removed.
+- The two six-card grids now share one responsive row-height value. At page load and browser resize, a small local layout routine measures all twelve at their natural sizes and applies the tallest height to both grids. This keeps the top lessons and lower information cards **exactly the same size**, while accommodating different descriptions and text wrapping.
+- There is no fixed-height clipping for long card descriptions. When JavaScript is unavailable, the original content-sized grid is the fallback.
+- Both GitHub Pages entrypoints stay identical, with all dialogs, long-form details, top-level download links, and three selected project buttons preserved.
+
 ## Interaction and accessibility
 - Entire card can be clicked, not only a small text link.
 - Native `<dialog>` used with `showModal()`, yielding keyboard Escape support and focus containment in compatible modern browsers.
