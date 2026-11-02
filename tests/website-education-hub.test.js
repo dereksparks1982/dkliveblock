@@ -53,3 +53,17 @@ test("Original top-level hero download links stay available without opening an i
  assert.ok(a.includes("Download XPI</span>"));
  assert.ok(a.includes('aria-label="Downloads and support"'));
 });
+
+test("All twelve cards use one responsive measured height, regardless of which grid contains them",()=>{
+ const html=site("index.html");
+ assert.match(html,/\.feature-grid\{grid-auto-rows:var\(--education-card-height,auto\)\}/);
+ assert.match(html,/document\.querySelectorAll\("\.feature-grid \.feature-card"\)/);
+ assert.match(html,/getBoundingClientRect\(\)\.height/);
+ assert.match(html,/style\.removeProperty\("--education-card-height"\)/);
+ assert.match(html,/style\.setProperty\("--education-card-height",height\+"px"\)/);
+ assert.match(html,/window\.addEventListener\("resize",queueCardHeights/);
+ assert.match(html,/document\.fonts\.ready\.then\(queueCardHeights\)/);
+ assert.ok(!html.includes('Explore the details'));
+ assert.ok(!html.includes('Open details &rarr;'));
+ assert.equal((html.match(/class="feature-card-link"/g)||[]).length,12);
+});
