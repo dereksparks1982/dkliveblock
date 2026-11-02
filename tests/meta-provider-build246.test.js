@@ -11,5 +11,5 @@ test("Build 246 inspect and clear actions are confined to extension UI",()=>{
  assert.match(bg,/observations:data.settings.requestLog\?metaProviderEvidence.list\(\).slice\(0,100\):\[\]/);
 });
 test("Build 246 extension version bumped",()=>{
- assert.equal(manifest.version,"0.3.216");
+ assert.equal(manifest.version,require("../package.json").version);
 });
