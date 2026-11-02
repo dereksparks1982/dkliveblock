@@ -315,8 +315,14 @@ function create(doc,win,max=100){
   if(!doc?.querySelectorAll||!doc.body||win?.innerWidth<650)return 0;
   for(const [el,old]of hidden){
    if(el.isConnected===false){hidden.delete(el);continue;}
-   if(!allowed(el)&&el.style?.getPropertyValue("display")!=="none"){
-    old.value=el.style.getPropertyValue("display");old.priority=el.style.getPropertyPriority("display");
+   // Respect a newly added exception immediately, including the original
+   // Sponsored trigger. Never re-hide a user-excepted card.
+   if(allowed(el)||old.trigger&&allowed(old.trigger)){
+    restoreOne(el,old);hidden.delete(el);continue;
+   }
+   if(el.style?.getPropertyValue("display")!=="none"){
+    old.value=el.style.getPropertyValue("display");
+    old.priority=el.style.getPropertyPriority("display");
     el.style.setProperty("display","none","important");
    }
   }
@@ -390,7 +396,10 @@ function create(doc,win,max=100){
   return count;
  }
 
- return {scan,restore,setExceptions,observeMutation,get hiddenCount(){return hidden.size;}};
+ return {scan,restore,setExceptions,observeMutation,
+  diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
+   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length});},
+  get hiddenCount(){return hidden.size;}};
 }
 const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard};
 root.DKFacebookAds=api;
