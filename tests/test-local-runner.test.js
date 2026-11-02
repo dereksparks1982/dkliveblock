@@ -5,7 +5,7 @@ const {spawnSync}=require("node:child_process");
 const RUNNER=path.join(__dirname,"../scripts/test-local.sh");
 
 // Runs only a copy of the shell runner with fake test programs, never Firefox.
-function runFixture(failing){
+function runFixture(failing,approved=false){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),"dk-live-block-test-gate-"));
  try{
   const bin=path.join(root,"bin");
@@ -30,10 +30,12 @@ function runFixture(failing){
   ].join("\n")+"\n";
   fs.writeFileSync(path.join(bin,"node"),fakeNode,{mode:0o755});
   fs.writeFileSync(path.join(bin,"python3"),fakePython,{mode:0o755});
-  if(failing){
+  if(failing||approved){
    const workflows=path.join(root,".github/workflows");
    fs.mkdirSync(workflows,{recursive:true});
-   fs.writeFileSync(path.join(workflows,"fixture.yml"),"# temporary regression fixture\n");
+   if(failing)fs.writeFileSync(path.join(workflows,"fixture.yml"),"# unreviewed workflow\n");
+   else fs.copyFileSync(path.resolve(__dirname,"../.github/workflows/offline-verification.yml"),
+    path.join(workflows,"offline-verification.yml"));
   }
   const result=spawnSync("bash",[path.join(root,"scripts/test-local.sh")],{
    cwd:root,encoding:"utf8",timeout:25000,maxBuffer:250000,
@@ -60,4 +62,11 @@ test("Build 161: failures do not hide later phases and final exit remains nonzer
  assert.match(result.output,/Node cases: 6 total, 4 passed, 1 failed, 1 skipped, 0 todo, 0 cancelled/);
  assert.match(result.output,/Python companion scripts: 6 executed, 1 failed/);
  assert.match(result.output,/FINAL FAIL: 3 of 7 offline phases failed/);
+});
+
+test("Build 283: reviewed on-demand Linux workflow passes the restricted CI gate",()=>{
+ const result=runFixture(false,true);
+ assert.equal(result.status,0,result.output);
+ assert.match(result.output,/PHASE PASS: Restricted GitHub Actions policy/);
+ assert.equal((result.output.match(/PHASE START:/g)||[]).length,7);
 });
