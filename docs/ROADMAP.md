@@ -1,10 +1,10 @@
 ## Build 284 / v0.3.254: Russian user and distribution legal review (November 2, 2026)
 - [x] Set Company Bible rule requiring Russian legal due diligence before targeted distribution and truthful claims.
-- [x] Document Russian law and U.S. export/sanctions checkpoints with dated sources in [regional compliance review](REGIONAL_COMPLIANCE_RUSSIA.md).
+- [x] Document Russia-facing legal review while expressly preserving free access for Russian users and family. OFAC GL 25G / FAQ 1040 protect certain internet communication; assess specific restricted transactions rather than inventing nationwide bans.
 - [x] Publish Russian user-facing privacy/proxy explanation and link it from Russian product README.
 - [x] Replace proxy bypass/Tor-promotional wording with neutral network settings text; preserve optional/off-by-default behavior.
 - [x] Add regression source assertion for default-off proxy, disclosure and Russian link.
-- [ ] Complete qualified Russian and U.S. counsel review of optional proxy feature, advertising, personal data, marketing and distribution before a Russia-specific launch or compliance claim.
+- [ ] Obtain Russian legal advice for any Russia-targeted marketing or compliance claim; assess U.S. restrictions only if a specific export, payment, counterparty or service makes them relevant. Do not impose blanket Russian geo-blocking or a legal review as a condition of ordinary free public access.
 - [ ] Human Russian proofread/review of all user-facing legal/consumer copy; complete untranslated extension controls.
 - [ ] Recheck applicable laws and actual Russian-language Firefox UI and network behavior before owner release approval.
 - [ ] Native full-suite run on Build 284, then actual Firefox/Orion acceptance when relevant; no automatic CI for text-only changes.
