@@ -1,3 +1,13 @@
+# Current build: 265 / v0.3.235 (November 2, 2026)
+
+- **Unreleased GitHub source:** manifest and package version 0.3.235. No complete local Ubuntu regression or real Firefox Meta acceptance has been recorded.
+- Facebook DOM scanning gained right-rail accessibility-label detection (including short Sponsored aria names on buttons) while preserving geometry boundaries and Contacts protection.
+- The separate Meta GraphQL/JSONL response module now fails open for *entire* mixed responses if any record is malformed, unknown transport text, or an error object. Nested `__bbox` errors are skipped. Stream memory, idle and total lifetime are now bounded.
+- `metaGraphqlFilter` stays **OFF by default** pending live compatibility verification. Do not present GraphQL filtering as verified or enable it automatically.
+- **34/34 targeted isolated JS checks passed** across Builds 263–265. The full `scripts/test-local.sh` suite and YouTube Build 203 A/B are still outstanding.
+- Website layout remains unchanged: two six-card educational grids, local credited Pixabay click effect, black × in cyan 44px close button, conditional Back to top. Root/docs site HTML synchronized.
+- See [Build 265 notes](BUILD_265.md) and [current handoff](CONTINUATION_HANDOFF.md); older sections below are historical snapshots.
+
 # Current implementation snapshot: Build 264 / v0.3.234 (Nov 2, 2026)
 
 - Current extension manifest/package version **0.3.234**, unreleased and not fully Firefox-verified.

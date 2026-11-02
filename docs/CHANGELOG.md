@@ -1,3 +1,12 @@
+## Build 265 (v0.3.235): atomic Meta GraphQL rewriting and Facebook rail controls
+- Implemented transactional JSONL editing: preserve the original response if any record cannot be safely parsed or signals GraphQL/auth errors; no partial ad removal.
+- Rejected nested response modifications when a top-level GraphQL envelope reports errors.
+- Added a renewing four-second idle timer, fixed 20-second absolute lifetime, and maximum 2,048 buffered chunks alongside the 1.5 MB byte cap. Unknown bytes remain original on safe fallback.
+- Expanded Facebook right-rail Sponsored matching to accessible button/link labels, preserving Contacts, ordinary labels and unrelated main content.
+- Added `tests/meta-graphql-build265.test.js` and `tests/facebook-rail-build265.test.js`. Adjusted an older selector fixture without weakening its behavior assertions.
+- 34/34 targeted synthetic tests passed across Builds 263–265. Full Linux tests and actual Firefox ad/network acceptance remain pending.
+- GraphQL experimental switch remains off; no new permissions, telemetry, GitHub Actions or approved website geometry changes.
+
 ## Build 264 (0.3.234): targeted Facebook GraphQL and sidebar-ad improvements
 - Added explicit Marketplace search/feed-story GraphQL ad detection, nested sponsored story evidence, and bounded RequireJS/`__bbox` JSONL envelope handling.
 - Tightened right-rail response metadata filtering to avoid treating arbitrary `sponsored_data` objects as ads and preserve unknown sidebar units.

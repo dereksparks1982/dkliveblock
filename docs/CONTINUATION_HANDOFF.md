@@ -2,8 +2,17 @@
 
 Use this file when a ChatGPT thread reaches its length limit. Confirm live GitHub `main` before editing; previous summary notes may lag behind repository content.
 
-## Latest work (Build 264, November 2, 2026)
-- Version `0.3.234`. Expanded GraphQL/JSONL ad detection in `src/meta-graphql.js` for named Marketplace and news-feed response shapes; added bounded nested `require` / `__bbox` transport traversal. Generic responses unchanged.
+## Latest work (Build 265 / v0.3.235, November 2, 2026)
+- Current head contains Facebook GraphQL fail-open response transaction improvements in `src/meta-graphql.js`: if one JSONL line is malformed, includes unknown plain text, or signals GraphQL errors, the *whole* response remains unedited. A top-level error also prevents modifications in nested `__bbox` response envelopes.
+- Facebook streams now use a 4-second idle timer that renews on data, plus a 20-second total lifetime and 2,048 chunk cap. Excess buffering and timeouts return unmodified response chunks. New tests simulate timers, UTF-8 failures, concurrency and fallback.
+- `src/facebook-ads.js` additionally recognizes a Sponsored accessibility label on buttons/links inside the right rail. Contacts and left-side controls remain protected by strict geometry and section checks.
+- Current `metaGraphqlFilter:false` default **must stay off** until real signed-in Firefox data and compatibility checks. The DOM path remains active under existing ad recognition.
+- **34 targeted isolated JavaScript tests passed** (Build 263/264/265). Full `scripts/test-local.sh` and browser acceptance were *not* completed; older independent audit security tests and Build 203 YouTube A/B remain outstanding.
+- Build record: `docs/BUILD_265.md`. Manifest, package, README, Pages copies and handoff all updated together.
+- No new third-party dependencies, permissions, GitHub Actions, sound changes, telemetry, account data collection or unapproved UI moves.
+
+## Prior work (Build 264, November 2, 2026)
+- Version `0.3.234` (historical Build 264). Expanded GraphQL/JSONL ad detection in `src/meta-graphql.js` for named Marketplace and news-feed response shapes; added bounded nested `require` / `__bbox` transport traversal. Generic responses unchanged.
 - Facebook DOM right-rail `Sponsored` multi-span label prefilter fixed in `src/facebook-ads.js`.
 - Regression files: `tests/meta-graphql-build264.test.js` and `tests/facebook-rail-build264.test.js`; 20 targeted Build 263/264 checks passed in isolated JS. Not live Firefox acceptance and not the full offline Linux suite.
 - **GraphQL filter stays disabled by default** (`metaGraphqlFilter:false`), especially because upstream Facebook response rewrites have caused reactions/content breakage. Do not enable automatically without user's focused QA.
@@ -12,7 +21,7 @@ Use this file when a ChatGPT thread reaches its length limit. Confirm live GitHu
 
 ## Repository, versions, release order
 - Repository: https://github.com/dereksparks1982/dkliveblock
-- Active branch: `main`; extension version **0.3.234 / Build 264** in `src/manifest.json` and `package.json`.
+- Active branch: `main`; extension version **0.3.235 / Build 265** in `src/manifest.json` and `package.json`.
 - Official Pages: https://dereksparks1982.github.io/dkliveblock/
 - User expects direct repo updates, no downloaded patches or repeated terminal commands unless specifically requested. Never introduce custom GitHub Actions; GitHub Pages still invokes managed build/deploy checks for pushes.
 - Do not claim live Firefox acceptance from synthetic JS checks. Keep README description accurate, release notes/version updated for extension changes, and do not move approved UI geometry without permission.

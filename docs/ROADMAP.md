@@ -1,3 +1,15 @@
+## Build 265 / v0.3.235: Facebook GraphQL streaming safety and right-rail coverage
+- [x] Treat multi-record GraphQL JSONL edits as one transaction. If any line is malformed, unknown transport text, or contains a GraphQL error, preserve the entire original response.
+- [x] Prevent outer error-bearing `require` / `__bbox` envelopes from rewriting nested records.
+- [x] Renew the four-second idle timeout when GraphQL data arrives, with a separate 20-second absolute limit.
+- [x] Bound GraphQL response buffering to 2,048 chunks as well as the existing 1.5 MB byte cap; on exceed, forward the original chunks and disconnect cleanly.
+- [x] Match explicitly Sponsored aria-label controls in the Facebook right rail without matching ordinary left-side controls, Contacts, or feed content.
+- [x] Add Build 265 atomic JSONL and Firefox filter-stream regression cases plus right-rail accessible-control fixtures.
+- [x] Run the combined 34 targeted GraphQL / Facebook-rail synthetic tests: all passed.
+- [ ] Full `scripts/test-local.sh` and live Firefox tests not yet run; investigate independent-audit security-contract failures before acceptance.
+- [ ] Verify current Facebook feed/Marketplace and GraphQL schema with user-authorized browser testing. `metaGraphqlFilter` remains **false** by default.
+- [ ] Confirm no breakage in Messenger, Contacts, ordinary posts, reactions, shopping listings or YouTube playback before widening the scope.
+
 ## Build 264 / v0.3.234: Facebook GraphQL and Sponsored right-rail integration
 - [x] Recognize ad markers at explicitly named Facebook news-feed, Marketplace feed and search-result edge paths, including nested `node.story.sponsored_data.ad_id`.
 - [x] Traverse bounded first-party `require` / `__bbox.result` JSONL envelopes, without inspecting arbitrary user records or blocking whole GraphQL requests.
