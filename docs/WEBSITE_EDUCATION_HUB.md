@@ -30,6 +30,12 @@ The original detailed website sections are retained verbatim inside these six di
 - There is no fixed-height clipping for long card descriptions. When JavaScript is unavailable, the original content-sized grid is the fallback.
 - Both GitHub Pages entrypoints stay identical, with all dialogs, long-form details, top-level download links, and three selected project buttons preserved.
 
+## Dialog button behavior and colors
+- Both groups of six cards use their original dark backgrounds and matching card geometry.
+- Top **Close** exits the open lesson or information dialog.
+- Bottom **Back to top** smoothly scrolls to the beginning of the currently open dialog without closing it.
+- All twelve dialog pairs keep their accessible labels and standard Escape-to-close behavior.
+
 ## Interaction and accessibility
 - Entire card can be clicked, not only a small text link.
 - Native `<dialog>` used with `showModal()`, yielding keyboard Escape support and focus containment in compatible modern browsers.

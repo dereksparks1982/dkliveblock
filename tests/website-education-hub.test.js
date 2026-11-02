@@ -68,13 +68,20 @@ test("All twelve cards use one responsive measured height, regardless of which g
  assert.equal((html.match(/class="feature-card-link"/g)||[]).length,12);
 });
 
-test("The six lower information cards are white with black text and upper cards remain dark",()=>{
+test("Both card groups use the original dark theme and still share one height",()=>{
  const html=site("index.html");
- assert.match(html,/\.information-grid \.info-card\{background:#fff;border-color:#fff\}/);
- assert.match(html,/\.information-grid \.info-card \.feature-card-link\{color:#06191a\}/);
- assert.match(html,/\.information-grid \.info-card:hover,\.information-grid \.info-card:focus-within\{background:#e9eef0/);
+ assert.match(html,/\.information-grid \.info-card\{border-color:#456b70\}/);
+ assert.doesNotMatch(html,/\.information-grid \.info-card\{background:#fff/);
  assert.match(html,/\.feature-card:hover,\.feature-card:focus-within\{border-color:var\(--a\);background:#0b2731\}/);
  assert.equal((html.match(/class="feature-card info-card"/g)||[]).length,6);
  assert.equal((html.match(/class="feature-card"/g)||[]).length,6);
- assert.doesNotMatch(html,/\.lesson-close-bottom\{[^}]*background:#fff/);
+});
+test("Close exits the modal but every Back to top scrolls inside its existing modal",()=>{
+ const html=site("index.html");
+ assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button">Back to top/g)||[]).length,12);
+ assert.doesNotMatch(html,/Back to the six lessons|Back to the information cards/);
+ assert.match(html,/querySelector\("\.lesson-close:not\(\.lesson-close-bottom\)"\)/);
+ assert.match(html,/querySelector\("\.lesson-close-bottom"\)/);
+ assert.match(html,/dialog\.scrollTo\(\{top:0,behavior:"smooth"\}\)/);
+ assert.ok(html.includes('button class="lesson-close" type="button" aria-label="Close'));
 });
