@@ -1,3 +1,11 @@
+## Build 250 / 0.3.220: Facebook exception recovery and diagnostics (test milestone)
+- [x] Correct a stale hidden-card path so newly matching exceptions restore cards during future scans.
+- [x] Add bounded, local diagnostic counters to Facebook recognizer and Meta adapter, without collecting page content.
+- [x] Compile-check changed JavaScript and commit focused regression tests; full Node suite remains unexecuted.
+- [ ] **Owner Firefox acceptance now needed:** test Facebook Sponsored feed posts and right-sidebar units after refreshing the existing extension. Confirm ordinary posts, Messenger and video playback remain functional.
+- [ ] If any ads survive, capture the specific element's Ad Investigator evidence before developing further ad-specific rules.
+- [ ] Run full Ubuntu regression suite before public release, especially established YouTube ad blocking.
+
 ## Build 249 / 0.3.219: evidence quality and provider hostname safety
 - [x] Validate provider hostname labels and normalize DNS case.
 - [x] Preserve both allowed and blocked evidence across successive third-party observations.
