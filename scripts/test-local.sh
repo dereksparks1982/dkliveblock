@@ -57,10 +57,27 @@ run_node_phase(){
  fi
  finish_phase "$label" "$code"
 }
-check_no_actions(){
- if [[ -d .github/workflows ]] && find .github/workflows -type f -print -quit | grep -q .; then
-  printf "GitHub Actions workflows are prohibited.\n" >&2
-  return 1
+check_ci_policy(){
+ # Owner permits only exceptional, targeted CI. Reject accidental scheduled,
+ # broad push-triggered, and unreviewed workflows in offline release checks.
+ local folder=".github/workflows" file
+ [[ -d "$folder" ]] || return 0
+ while IFS= read -r -d '' file; do
+  if [[ "$file" != "$folder/offline-verification.yml" ]]; then
+   printf "Unreviewed GitHub Actions workflow: %s\n" "$file" >&2
+   return 1
+  fi
+ done < <(find "$folder" -type f -print0)
+ if [[ -f "$folder/offline-verification.yml" ]]; then
+  if ! grep -Fq '  workflow_dispatch:' "$folder/offline-verification.yml" ||
+     ! grep -Fq '      - ".github/workflows/offline-verification.yml"' "$folder/offline-verification.yml"; then
+   printf "Offline verification must be manual or self-file-change-only.\n" >&2
+   return 1
+  fi
+  if grep -Eq 'schedule:|pull_request:|upload-artifact|secrets\\.' "$folder/offline-verification.yml"; then
+   printf "Offline verification has a disallowed trigger or artifact/secret use.\n" >&2
+   return 1
+  fi
  fi
  return 0
 }
@@ -106,7 +123,7 @@ check_release(){
  return "$rc"
 }
 
-run_phase "GitHub Actions absence" check_no_actions
+run_phase "Restricted GitHub Actions policy" check_ci_policy
 run_phase "Test-suite inventory" check_inventory
 run_phase "JavaScript syntax" check_syntax
 run_node_phase "Extension structure" node --test --test-reporter=tap --test-concurrency=2 tests/version-contract.test.js tests/vendor-reproducibility.test.js tests/streaming-preroll-regression.test.js tests/original-tab-guard.test.js tests/asset-integrity.test.js tests/test-local-runner.test.js tests/site-dashboard-model.test.js tests/site-dashboard-ui.test.js tests/block-details.test.js tests/threat-database.test.js tests/threat-warning.test.js tests/threat-warning-background.test.js tests/domain-investigation.test.js tests/allowed-activity.test.js tests/allowed-export.test.js tests/youtube-triage.test.js tests/youtube-outcome.test.js tests/youtube-lab.test.js tests/session-export.test.js tests/blocked-export.test.js tests/rule-provenance.test.js tests/rule-evidence.test.js tests/icon-state.test.js tests/popup-dashboard-context.test.js tests/rdap-owner-background.test.js tests/dashboard-origin-background.test.js tests/navigation-integrity.test.js tests/content-fixture-contract.test.js tests/release.test.js tests/manifest.test.js tests/dependency-catalog.test.js tests/video-library.test.js tests/video-quality.test.js tests/video-auto-memory.test.js tests/streaming-diagnostics.test.js tests/streaming-repair.test.js tests/download-library.test.js tests/request-monitor.test.js tests/playback-health.test.js tests/request-controls.test.js tests/site-allowlist.test.js tests/filter-list-controls.test.js tests/language-lists.test.js tests/cosmetic-debug.test.js tests/cosmetic-debug-ui.test.js tests/cosmetic-exceptions.test.js tests/cosmetic-exceptions-ui.test.js tests/rule-validator.test.js tests/rule-validator-ui.test.js tests/notification-protection.test.js tests/notification-protection-ui.test.js tests/context-menu.test.js tests/element-picker.test.js tests/cbs-autoplay.test.js tests/cbs-compat.test.js tests/adaptive-model.test.js tests/adaptive-youtube.test.js tests/ad-investigation.test.js tests/investigator-suite.test.js tests/browser-compat.test.js tests/devtools-panel.test.js tests/no-promotions.test.js tests/access-inspector-ui.test.js tests/popup-history.test.js tests/popup-trap.test.js tests/agent-nesty-build258.test.js tests/nesty-team-build275.test.js tests/nesty-integration-build281.test.js tests/nesty-integrity-build282.test.js tests/company-modules-build243.test.js tests/cookie-intelligence-build256.test.js tests/facebook-build242.test.js tests/facebook-build250.test.js tests/facebook-build252.test.js tests/facebook-build255.test.js tests/facebook-build260.test.js tests/facebook-build261.test.js tests/facebook-build262.test.js tests/facebook-fast-build280.test.js tests/facebook-rail-build253.test.js tests/facebook-rail-build264.test.js tests/facebook-rail-build265.test.js tests/facebook-vendor-build251.test.js tests/meta-agent-nesty-build266.test.js tests/orion-lifecycle-build267.test.js tests/orion-pause-build268.test.js tests/meta-orion-guards-build269.test.js tests/meta-orion-build272.test.js tests/meta-graphql-build270.test.js tests/meta-delivery-build254.test.js tests/meta-graphql-build263.test.js tests/meta-graphql-build264.test.js tests/meta-graphql-build265.test.js tests/meta-intelligence-build248.test.js tests/meta-module-build244.test.js tests/meta-provider-build246.test.js tests/project-links-build253.test.js tests/provider-adaptive-build244.test.js tests/provider-build249.test.js tests/provider-counts-build247.test.js tests/provider-observation-build245.test.js tests/scriptlet-facebook-build241.test.js tests/ui-language-build259.test.js tests/website-localization-build276.test.js tests/website-education-hub.test.js
