@@ -1,3 +1,11 @@
+## Build 249 / 0.3.219: evidence quality and provider hostname safety
+- [x] Validate provider hostname labels and normalize DNS case.
+- [x] Preserve both allowed and blocked evidence across successive third-party observations.
+- [x] Avoid promoting traffic frequency into proof of advertising or ownership.
+- [x] Add focused regression tests and build notes.
+- [ ] Run tests in a Linux environment with the checked-out repository and verify Firefox live behavior.
+- [ ] Add reviewed provider classifications, independently validated Meta adapters, and opt-in evaluation of proposed countermeasures before automatic activation.
+
 ## Build 248 / 0.3.218: Meta intelligence viewer
 - [x] Show local third-party hostname observations with allowed/blocked counts in a dedicated extension-only page.
 - [x] Provide refresh/confirmed-clear actions and a Meta-site-only Site Dashboard link, without moving existing controls.
