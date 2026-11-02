@@ -27,5 +27,5 @@ test("Build 244 manifest order loads Meta router before content",()=>{
   "adaptive-dispatcher.js","facebook-ads.js","meta-module.js"])
   assert.ok(names.indexOf(name)>=0&&names.indexOf(name)<names.indexOf("content.js"),name);
  assert.ok(names.indexOf("facebook-ads.js")<names.indexOf("meta-module.js"));
- assert.equal(manifest.version,"0.3.214");
+ assert.equal(manifest.version,require("../package.json").version);
 });
