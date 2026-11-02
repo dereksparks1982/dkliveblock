@@ -1,3 +1,9 @@
+# Build 285 Nesty strategy coordination checkpoint (November 2, 2026)
+
+**Version 0.3.255; unreleased.** Shared Nesty coordinator now links recognized, corroborated signals to deterministic, named, read-only strategy proposals owned by the relevant existing protection area. New source regressions cover Facebook feed/rail, deliberately disabled GraphQL, YouTube ad-break evidence, popups, Meta sibling-platform isolation and protected-context veto. Every proposal declares `enabled:false` and `executable:false`; automatic responses, self-learning and independent live-browser acceptance remain absent.
+
+This is an **incremental integration build**, not completion or uBlock parity. Source syntax/isolated coordinator checks were completed before GitHub commit; exact Build 285 full Linux/Firefox tests must be reported separately. Missing genuine npm lockfile still blocks the AMO release audit.
+
 # Build 284 Russia-facing compliance checkpoint (November 2, 2026)
 
 **Version 0.3.254.** The Company Bible now requires a dated Russia-facing legal review before any targeted distribution claim, and the engineering [Russia checklist](REGIONAL_COMPLIANCE_RUSSIA.md) distinguishes legitimate ad blocking from optional user-configured proxy routing, restricted-resource marketing and personal data issues. The Russian README links to a new [Russian user notice](NOTICE_RU.md). The Options proxy copy has been neutralized without changing the disabled-by-default feature. The new regression test has been added but the entire Build 284 suite/real browser has **not** been rerun.
