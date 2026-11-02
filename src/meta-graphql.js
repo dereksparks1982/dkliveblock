@@ -172,7 +172,7 @@ function attach(d,webRequest,clock=root){
  };
  filter.onstop=()=>{
   if(finished)return;
-  let modifiedWriteAttempted=false;
+  let modifiedWriteAttempted=false,abort=false;
   try{
    const bytes=new Uint8Array(size);let offset=0;
    for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
@@ -185,8 +185,9 @@ function attach(d,webRequest,clock=root){
    }else{original();note(tab,"unchanged");}
   }catch(_){
    if(!modifiedWriteAttempted)try{original();}catch(__){}
+   if(modifiedWriteAttempted)abort=true;
    note(tab,"errors");
-  }finally{finish(modifiedWriteAttempted&&false);}
+  }finally{finish(abort);}
  };
  filter.onerror=()=>{
   if(finished)return;
