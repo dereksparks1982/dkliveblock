@@ -87,8 +87,9 @@ def issues(root: Path = ROOT) -> list[str]:
             problems.append("Custom owner license or third-party carve-out missing")
     if (root / "README.md").is_file():
         readme = (root / "README.md").read_text(encoding="utf-8")
-        if "Not for sale or commercial exploitation" not in readme:
-            problems.append("README must disclose owner licensing policy")
+        if ("Free for individuals and ordinary internal company use." not in readme or
+                "Resale, paid repackaging and monetization of DK Live Block itself" not in readme):
+            problems.append("README must disclose free internal use and no monetization of the extension")
 
     # Reviewers need the exact transitive dependency tree for a repeatable bundle.
     # A pinned package.json alone is not a reproducible source submission.
