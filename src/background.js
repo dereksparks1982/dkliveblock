@@ -308,10 +308,10 @@ function updateLists(){if(data.updateJob)return data.updateJob;
 // Permitted audit reasons are kept only until Firefox completes/fails the
 // request. Never retain request IDs in exports, URLs, headers or payloads.
 const metaProviderEvidence=DKProviderIntelligence.create();
-// Agent Nestys: passive cookie observers, with separate event triggers and
+// Agent Nesty specialists: passive cookie observers, with separate event triggers and
 // no ability to export cookie values or change network responses.
 const cookieEvidence=DKCookieIntelligence.create();
-const cookieNestys=DKCookieSentinels.create(row=>cookieEvidence.observe(row));
+const agentNestyTeam=DKCookieSentinels.create(row=>cookieEvidence.observe(row));
 function noteMetaProvider(site,url,status){
  if(!data.settings.requestLog||!DKCompanyModules.profileFor(site)||
   DKCompanyModules.companyFor(site)!=="meta")return;
@@ -536,7 +536,7 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
  const site=d.type==="main_frame"?host(d.url):
   data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
  if(!site||!activeTab(d.tabId,site))return;
- cookieNestys.wake("http-response",{
+ agentNestyTeam.wake("http-response",{
   site,responseHost:host(d.url),responseHeaders:d.responseHeaders
  });
 },{urls:["http://*/*","https://*/*"]},["responseHeaders"]);
@@ -1118,19 +1118,19 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   }
   return {ok:true,allowed:msg.allow,changed:true,scope:"site+hostname+type"};
  }
- if(msg.action==="getCookieAgentNestys"||msg.action==="clearCookieAgentNestys"){
+ if(msg.action==="getAgentNestyCookieIntel"||msg.action==="clearAgentNestyCookieIntel"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
   let page,site;
   try{page=(await browser.tabs.get(id))?.url||"";site=host(page);}
   catch(_){return {error:"Website tab no longer available."};}
   if(!/^https?:\/\//i.test(page)||!site||data.hosts.get(id)!==site)
    return {error:"Choose an active website tab."};
-  if(msg.action==="clearCookieAgentNestys"){
+  if(msg.action==="clearAgentNestyCookieIntel"){
    cookieEvidence.clearObservations();
    return {ok:true,cleared:true};
   }
   return {ok:true,site,recording:data.settings.requestLog===true,
-   agents:cookieNestys.handlers(),
+   agents:agentNestyTeam.handlers(),
    observations:data.settings.requestLog?
     cookieEvidence.listObservations().filter(row=>row.site===site).slice(-150):[]};
  }
