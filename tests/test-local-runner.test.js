@@ -16,6 +16,7 @@ function runFixture(failing,approved=false){
   const fakeNode=[
    "#!/usr/bin/env bash",
    'if [[ "$1" == "--check" ]]; then exit 0; fi',
+   'if [[ "$1" == "scripts/build-200-audit.js" ]]; then exit 0; fi',
    'if [[ "$1" != "--test" ]]; then exit 91; fi',
    'if [[ "${DKLB_FIXTURE_FAIL:-}" == "yes" && "$*" == *"tests/version-contract.test.js"* ]]; then',
    " printf '# tests 3\\n# suites 0\\n# pass 2\\n# fail 1\\n# cancelled 0\\n# skipped 0\\n# todo 0\\n'",
