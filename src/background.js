@@ -902,7 +902,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
   interceptPopupGuard(id,info.url).catch(()=>{});
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
-   DKOriginalTabGuard.clear(data.originalTabGuard,id);
+   if(!acceptedVideo)DKOriginalTabGuard.clear(data.originalTabGuard,id);
    DKRequestControls.dropTab(data.requestControls,id);
    data.youtubeExperiment.delete(id);
    DKAdaptiveYouTube.clear(data.youtubeAdaptive,id);
