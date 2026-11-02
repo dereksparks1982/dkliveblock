@@ -1,3 +1,11 @@
+## Build 246 / 0.3.216: inspect and clear Meta provider intelligence
+- [x] Add extension-only, active-Meta-tab-gated observation read and explicit clear commands.
+- [x] Suppress returned observations when request logging is disabled; bounded local store only.
+- [x] Add contract tests and implementation notes; tests not executed in this connector environment.
+- [ ] Surface data in an owner-controlled Meta intelligence dashboard; display unknown vs verified provider ownership.
+- [ ] Develop reviewed cross-company countermeasures backed by live evidence and provider-specific false-positive tests.
+- [ ] Run Linux test suites and Firefox live ad tests. Do not declare Facebook, Meta, or company-intelligence feature complete yet.
+
 ## Build 245 / 0.3.215: privacy-preserving Meta third-party observations
 - [x] Observe limited, hostname-only Meta page third-party destinations from existing request monitor events when user request logging is enabled.
 - [x] Treat destinations as unknown rather than assuming advertising ownership; never retain URLs or payloads in provider intelligence.
