@@ -29,7 +29,8 @@ This tag is the repository-backed rollback reference; a snapshot branch is **not
 
 - Keep changes within the user's authorized scope. Larger planned builds are welcome, but never silently alter approved behavior or UI geometry.
 - Update relevant README/roadmap/release notes with truthful evidence; distinguish observed working results from incomplete automated or browser acceptance.
-- **Never use GitHub Actions.** Run tests locally on Linux where possible; don't claim unrun checks passed.
+- **GitHub Actions policy (owner revised November 2, 2026):** The previous blanket prohibition is lifted because the usage allowance has reset. Prefer local Linux testing. Use GitHub Actions **sparingly and only when genuinely necessary**, such as significant integration, compatibility, or release checks that cannot reasonably be verified locally. Do not run workflows simply because a build or small commit exists, or add routine CI triggers without a justified need.
+- For any justified Actions run, keep the jobs targeted and efficient; minimize billed minutes, artifact uploads, storage, and retention. Do not create or retain unnecessary artifacts. Record actual test results accurately; never claim an unrun check passed.
 - No external filtering-engine installation for ordinary users. DK Live Block must remain a simple self-contained Firefox extension.
 - Do not provide an installable download or declare feature parity/public readiness before actual tests and owner approval.
 - Preserve normal site functionality, login windows, privacy, safe browsing permissions, and reversible user choices.
