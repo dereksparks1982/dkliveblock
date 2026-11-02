@@ -19,7 +19,7 @@ function railFixture(labelText,contacts=false){
   parentElement:card,getBoundingClientRect:()=>({left:1000,top:110,width:90,height:22}),
   getAttribute:()=>null,closest:()=>null};
  doc.querySelectorAll=q=>{
-  if(q==="span,[role=\"complementary\"] div,aside div")return [label];
+  if(q.startsWith("span,[role=\"complementary\"] div,aside div"))return [label];
   return [];
  };
  return {doc,win,card,label};
