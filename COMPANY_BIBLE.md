@@ -36,17 +36,21 @@ This tag is the repository-backed rollback reference; a snapshot branch is **not
 - Preserve normal site functionality, login windows, privacy, safe browsing permissions, and reversible user choices.
 - Do not automatically open browsers, request passwords, or make unrelated repo changes.
 
-## 4. Free use, no monetization (owner-required)
+## 4. Agent Nesty team naming and ownership (owner approved November 2, 2026)
+
+The public names for Agent Nesty specialists **describe their responsibility**, not numeric sequence. Organize related detection methods under one accountable specialist per protection area. The agreed names currently are **Nesty Cookie Watch**, **Nesty Popup Guard**, and **Nesty Meta Ad Scout**. Existing numeric identifiers remain as compatibility aliases for historic code/tests; do not rename unrelated persistent storage or protocols. Specialist teams may grow without a fixed numerical limit. A new specialist is justified by a genuinely different responsibility, not merely another popup trick. See [team catalog](docs/AGENT_NESTY_TEAM.md). Protect functioning blocking paths and require regression checks for any future consolidation.
+
+## 5. Free use, no monetization (owner-required)
 
 **Any person or company may use DK Live Block for free. Nobody may profit by selling, charging for, rebranding, packaging as a paid product, or monetizing the DK Live Block extension or derivatives.** Ordinary internal use by businesses, even profitable businesses, is allowed. Profits from a company's unrelated business do not make its internal use of the extension prohibited.
 
 Keep the public licensing message focused on free personal and internal company use, with no resale or monetization of DK Live Block itself. Maintain required third-party notices in their proper license files and validate Mozilla submission requirements before publication.
 
-## 5. Owner control and proposals
+## 6. Owner control and proposals
 
 The owner can revise project rules. Improvements and alternatives may be **proposed** with their reasons, but changes to a rule or established project behavior require explicit owner authorization. Proposing an improvement is allowed; silently implementing a conflicting process is not.
 
-## 6. Branch cleanup verification (November 1, 2026)
+## 7. Branch cleanup verification (November 1, 2026)
 
 A comparison of `main` against all five non-`main` branches found **zero commits on any extra branch that were missing from `main`**. The Build 203 recovery tag was independently verified to match its documented commit. The owner may safely delete all five extra branches and retain only `main`; the Git history and tagged working backup stay preserved.
 

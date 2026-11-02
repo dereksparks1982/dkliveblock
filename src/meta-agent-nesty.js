@@ -2,6 +2,7 @@
    Local simulated evasions only; no tracking, remote AI or standalone blocking.
    Single-post safety checks remain the responsibility of DKFacebookAds. */
 (function(root){"use strict";
+const SPECIALIST=root.DKNestyTeam?.byKey?.("meta")||Object.freeze({id:"nesty_meta_ad_scout",key:"meta",title:"Nesty Meta Ad Scout",role:"Facebook ad-signal detection"});
 const agents=Object.freeze([
  Object.freeze({id:"agent_nesty_meta_01",status:"armed",job:"Short segmented Sponsored labels"}),
  Object.freeze({id:"agent_nesty_meta_02",status:"armed",job:"Sponsored menu wording variants"}),
@@ -68,7 +69,7 @@ function portalMutation(change){
  const text=String(node.textContent||"");
  return text.length<=64&&label(text)?Object.freeze({id,label:normalize(text)}):null;
 }
-const api=Object.freeze({agents,segmentedLabels,sponsoredAction,labelMutation,portalMutation});
+const api=Object.freeze({SPECIALIST,agents,segmentedLabels,sponsoredAction,labelMutation,portalMutation});
 root.DKMetaAgentNesty=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

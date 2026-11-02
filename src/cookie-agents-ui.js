@@ -19,9 +19,9 @@
   ready=d.recording===true;
   $("clear").disabled=!ready||!entries.length;
   const agents=Array.isArray(d.agents)?d.agents:[];
-  $("agents").textContent=agents.map(x=>
-   (x.title||x.id||"Agent Nesty")+" ("+(x.id||"unassigned")+") · "+
-   (x.role||x.type||"Unknown role")+": "+
+  const specialist=d.specialist?.title||"Nesty Cookie Watch";
+  $("agents").textContent=specialist+" · "+agents.map(x=>
+   (x.title?.split(" · ").pop()||x.type||"Unknown method")+": "+
    (x.armed?"armed, waiting for event":"standby, not armed")).join(" · ");
   if(!ready){empty("Local request history is disabled in DK Live Block settings.");return;}
   if(!entries.length){empty("No HTTP Set-Cookie attempts recorded for this website in this session.");return;}

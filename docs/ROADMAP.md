@@ -1,3 +1,12 @@
+## Build 275 / v0.3.245: Named Agent Nesty specialists
+- [x] Adopt user-approved role names: Nesty Cookie Watch, Nesty Popup Guard and Nesty Meta Ad Scout.
+- [x] Make a single immutable catalog with canonical names/IDs and backward-compatible numeric aliases for all eleven legacy detector IDs.
+- [x] Consolidate both known-destination and confirmed-video original-tab takeover checks behind one Popup Guard verdict, leaving their existing predicates intact.
+- [x] Update live popup block labels and Cookie Watch's status interface to readable job names without changing layout.
+- [x] Record team naming and ownership in Company Bible, README and the new team catalog.
+- [x] Add compatibility and cross-module regression tests to the offline runner.
+- [ ] Full Ubuntu seven-phase runner and real-browser XNXX, Facebook and Orion checks remain pending; do not claim full coverage.
+
 ## Build 274 / v0.3.244: Agent Nesty 5 original-tab takeover
 - [x] Detect XNXX-linked confirmed video child and within 4.5 seconds a foreign original-tab navigation, independent of advertiser names.
 - [x] Ignore unconfirmed/blank child, site links, foreign origins, POST and unrelated tabs.

@@ -309,7 +309,7 @@ function updateLists(){if(data.updateJob)return data.updateJob;
 // Permitted audit reasons are kept only until Firefox completes/fails the
 // request. Never retain request IDs in exports, URLs, headers or payloads.
 const metaProviderEvidence=DKProviderIntelligence.create();
-// Agent Nesty specialists: passive cookie observers, with separate event triggers and
+// Nesty Cookie Watch: three passive input methods, one specialist, with
 // no ability to export cookie values or change network responses.
 const cookieEvidence=DKCookieIntelligence.create();
 const agentNestyTeam=DKCookieSentinels.create(row=>cookieEvidence.observe(row));
@@ -581,7 +581,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!/^https?:/i.test(d.url))return {};
  // A newly created popunder tab may attempt a navigation before it can close.
  if(d.type==="main_frame"&&popupTrapClaimActive(d.tabId))return {cancel:true};
- // Agent Nesty 4: block navigation before a redirect tab can load.
+ // Nesty Popup Guard: block foreign child navigation before it loads.
  if(d.type==="main_frame"&&data.ready&&data.settings.enabled===true&&
     data.settings.strictPopupSites===true){
   const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,d.tabId);
@@ -594,7 +594,7 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
     DKPopupTrap.allowTab(data.popupTrapAllowed,d.tabId);
     DKPopupTrap.nestyClear(data.nestyPopupLinks,d.tabId);
    }else{
-    interceptNesty4(d.tabId,d.url).catch(()=>{});
+    interceptPopupGuard(d.tabId,d.url).catch(()=>{});
     return {cancel:true};
    }
   }
@@ -630,15 +630,15 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
   // second tab or broadly block video sources to address this navigation.
   const originalSite=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
   const originalActive=activeTab(d.tabId,originalSite);
-  const legacy=DKOriginalTabGuard.shouldBlock(data.originalTabGuard,d,originalSite,originalActive);
-  const nesty5=!legacy&&data.settings.strictPopupSites===true&&
-    !DKAuthProtection.isAuthPopup(d.url)&&
-    DKOriginalTabGuard.shouldBlockNesty5(data.originalTabGuard,d,originalSite,originalActive);
-  if(legacy||nesty5){
+  const popupTakeover=DKOriginalTabGuard.evaluateTakeover(data.originalTabGuard,d,
+    originalSite,originalActive,data.settings.strictPopupSites,
+    DKAuthProtection.isAuthPopup(d.url));
+  if(popupTakeover){
    DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"blocked");
    rememberOwnBlock(d.requestId);
-   recordBlock(d.tabId,d.url,d.type,{p:nesty5?
-    "[Agent Nesty 5: original video tab takeover]":"[Blocked original-tab ad takeover]"});
+   recordBlock(d.tabId,d.url,d.type,{p:popupTakeover==="confirmed-video"?
+    "[Nesty Popup Guard: confirmed-video original-tab takeover]":
+    "[Nesty Popup Guard: known-destination original-tab takeover]"});
    return {cancel:true};
   }
   if(!data.settings.stripTracking||!activeTab(d.tabId,host(d.url))||
@@ -788,8 +788,8 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
  return "blocked";
 }
 
-// Agent Nesty 4 acts only on a linked foreign child, not the video source.
-async function interceptNesty4(child,url=""){
+// Nesty Popup Guard: source-linked foreign child, never the video source.
+async function interceptPopupGuard(child,url=""){
  if(!data.ready||data.settings.strictPopupSites!==true)return "not-applicable";
  const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,child);
  const sourceSite=row?(data.hosts.get(row.source)||row.site):"";
@@ -821,8 +821,8 @@ async function interceptNesty4(child,url=""){
   await browser.tabs.remove(child);
   data.popupTrapCounts.set(row.source,(data.popupTrapCounts.get(row.source)||0)+1);
   if(data.settings.requestLog)DKPopupHistory.add(data.popupHistory,row.source,live,child,url,"strict");
-  recordBlock(row.source,url,"popup",{p:"Agent Nesty 4 source-linked foreign popup"});
- }catch(e){console.warn("Agent Nesty 4 popup:",String(e?.message||e).slice(0,100));}
+  recordBlock(row.source,url,"popup",{p:"Nesty Popup Guard: source-linked foreign popup"});
+ }catch(e){console.warn("Nesty Popup Guard popup:",String(e?.message||e).slice(0,100));}
  return "blocked";
 }
 
@@ -841,10 +841,10 @@ browser.tabs.onCreated?.addListener(tab=>{
     if(!DKPopupTrap.xnxxHost(actual)||!activeTab(source,actual))return;
     DKOriginalTabGuard.note(data.originalTabGuard,source,tab.id,actual,tab.url||"");
     DKPopupTrap.nestyTrack(data.nestyPopupLinks,tab.id,source,actual);
-    interceptNesty4(tab.id,tab.url||"").catch(()=>{});
+    interceptPopupGuard(tab.id,tab.url||"").catch(()=>{});
    }).catch(()=>{});
   interceptStrictPopup(tab.id,source,tab.url||"").catch(()=>{});
-  interceptNesty4(tab.id,tab.url||"").catch(()=>{});
+  interceptPopupGuard(tab.id,tab.url||"").catch(()=>{});
  }
 });
 // Rule-based popup filters still cover ordinary sites.
@@ -870,7 +870,7 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
   DKPopupHistory.enrich(data.popupHistory,event.sourceTabId,event.tabId,event.url||"");
  const strict=await interceptStrictPopup(event.tabId,event.sourceTabId,event.url||"");
  if(strict!=="not-applicable")return;
- const nesty=await interceptNesty4(event.tabId,event.url||"");
+ const nesty=await interceptPopupGuard(event.tabId,event.url||"");
  if(nesty!=="not-applicable")return;
  if(!/^https?:/i.test(event.url)||DKAuthProtection.isAuthPopup(event.url))return;
  try{
@@ -889,7 +889,7 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
  if(info.url)DKOriginalTabGuard.confirmVideo(data.originalTabGuard,id,info.url);
  if(info.url&&DKPopupTrap.nestyRead(data.nestyPopupLinks,id))
-  interceptNesty4(id,info.url).catch(()=>{});
+  interceptPopupGuard(id,info.url).catch(()=>{});
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
    DKOriginalTabGuard.clear(data.originalTabGuard,id);
@@ -1243,6 +1243,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    return {ok:true,cleared:true};
   }
   return {ok:true,site,recording:data.settings.requestLog===true,
+   specialist:agentNestyTeam.specialist(),
    agents:agentNestyTeam.handlers(),
    observations:data.settings.requestLog?
     cookieEvidence.listObservations().filter(row=>row.site===site).slice(-150):[]};

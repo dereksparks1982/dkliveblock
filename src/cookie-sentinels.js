@@ -2,13 +2,14 @@
    Dormant unless a matching browser event arrives. No polling, payload
    storage, automatic cookie blocking, or external service dependency. */
 (function(root){"use strict";
+const SPECIALIST=root.DKNestyTeam?.byKey?.("cookie")||Object.freeze({id:"nesty_cookie_watch",key:"cookie",title:"Nesty Cookie Watch",role:"Passive cookie observation"});
 const AGENTS=Object.freeze([
  Object.freeze({id:"agent_nesty_1",type:"http-response",
-  title:"Agent Nesty 1",role:"HTTP cookie sentinel"}),
+  title:"Nesty Cookie Watch · HTTP response",role:"HTTP cookie sentinel"}),
  Object.freeze({id:"agent_nesty_2",type:"cookie-change",
-  title:"Agent Nesty 2",role:"Firefox cookie-change sentinel"}),
+  title:"Nesty Cookie Watch · Firefox changes",role:"Firefox cookie-change sentinel"}),
  Object.freeze({id:"agent_nesty_3",type:"script-write",
-  title:"Agent Nesty 3",role:"JavaScript cookie sentinel"})
+  title:"Nesty Cookie Watch · Script writes",role:"JavaScript cookie sentinel"})
 ]);
 const TYPES=Object.freeze(AGENTS.map(agent=>agent.type));
 const MAX_HEADERS=32,MAX_HEADER_LENGTH=8192;
@@ -84,11 +85,11 @@ function create(sink){
   }
   return accepted;
  });
- return Object.freeze({on,wake,types:TYPES,descriptions:names,
+ return Object.freeze({on,wake,specialist:()=>SPECIALIST,types:TYPES,descriptions:names,
   handlers:()=>Object.freeze(AGENTS.map(agent=>
    Object.freeze({...agent,armed:handlers.get(agent.type).length>0})))});
 }
-const API=Object.freeze({create,parseHttp,TYPES,AGENTS});
+const API=Object.freeze({create,parseHttp,TYPES,AGENTS,SPECIALIST});
 root.DKCookieSentinels=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

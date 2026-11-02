@@ -4,8 +4,10 @@
    Only one observed source/destination pair is covered; no global redirect denylist. */
 (function(root){"use strict";
 const TTL_MS=30000,MAX_SOURCES=128,NESTY5_MS=4500;
-const NESTY_5=Object.freeze({id:"agent_nesty_5",title:"Agent Nesty 5",status:"armed",
- role:"Evidence-gated original XNXX video-tab takeover guard"});
+// This is a second detection method within Nesty Popup Guard, not a new agent.
+const SPECIALIST=root.DKNestyTeam?.byKey?.("popup")||Object.freeze({id:"nesty_popup_guard",key:"popup",title:"Nesty Popup Guard",role:"Unwanted tab and redirect protection"});
+const NESTY_5=Object.freeze({id:"agent_nesty_5",title:"Nesty Popup Guard · Original-tab detection",
+ status:"armed",specialistId:SPECIALIST.id,role:"Evidence-gated original XNXX tab takeover"});
 function site(host){
  if(typeof host!=="string")return false;
  const h=host.toLowerCase().replace(/\.$/,"");
@@ -92,12 +94,20 @@ function shouldBlock(map,details,currentHost,active,now=Date.now()){
   Number.isSafeInteger(row.childId)&&row.childId>=0&&
   row.childId!==details.tabId;
 }
+// One decision point for original-tab takeover. Legacy method checks remain
+// available to existing fixtures and other callers.
+function evaluateTakeover(map,details,currentHost,active,strictEnabled,authPopup,now=Date.now()){
+ if(shouldBlock(map,details,currentHost,active,now))return "known-destination";
+ if(strictEnabled===true&&authPopup!==true&&
+   shouldBlockNesty5(map,details,currentHost,active,now))return "confirmed-video";
+ return null;
+}
 function clear(map,tabId){
  map?.delete?.(tabId);
  if(!Number.isSafeInteger(tabId))return;
  for(const [id,row] of map||[])if(row?.childId===tabId)map.delete(id);
 }
-const api={note,confirmVideo,shouldBlockNesty5,shouldBlock,clear,site,
+const api={SPECIALIST,note,confirmVideo,evaluateTakeover,shouldBlockNesty5,shouldBlock,clear,site,
  adDestination,plausibleVideoTab,confirmedVideo,foreign,NESTY_5,NESTY5_MS};
 root.DKOriginalTabGuard=api;
 if(typeof module!=="undefined")module.exports=api;

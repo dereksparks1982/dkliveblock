@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.244",
+  "version": "0.3.245",
   "description": "Free Firefox ad, tracker and unwanted-popup blocker with privacy controls",
   "browser_specific_settings": {
     "gecko": {
@@ -60,6 +60,7 @@
       "meta-graphql.js",
       "provider-intelligence.js",
       "cookie-intelligence.js",
+      "nesty-team.js",
       "cookie-sentinels.js",
       "request-monitor.js",
       "request-controls.js",
@@ -123,6 +124,7 @@
         "provider-intelligence.js",
         "adaptive-dispatcher.js",
         "meta-delivery-catalog.js",
+        "nesty-team.js",
         "meta-agent-nesty.js",
         "facebook-ads.js",
         "meta-module.js",

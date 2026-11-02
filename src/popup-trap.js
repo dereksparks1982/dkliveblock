@@ -87,9 +87,10 @@ function tabAllowed(allowed,newTabId,now=Date.now()){
  return true;
 }
 
-// Agent Nesty 4: source-linked foreign popup sentinel. No destination ad list.
-const NESTY_4=Object.freeze({id:"agent_nesty_4",title:"Agent Nesty 4",status:"armed",
- role:"Source-linked unwanted new-tab navigation"});
+// One specialist owns all popup decisions; legacy ID 4 remains an alias.
+const SPECIALIST=root.DKNestyTeam?.byKey?.("popup")||Object.freeze({id:"nesty_popup_guard",key:"popup",title:"Nesty Popup Guard",role:"Unwanted tab and redirect protection"});
+const NESTY_4=Object.freeze({id:"agent_nesty_4",title:"Nesty Popup Guard · New-tab detection",
+ status:"armed",specialistId:SPECIALIST.id,role:"Source-linked foreign new-tab navigation"});
 const NESTY_TTL_MS=15000,MAX_NESTY_LINKS=256;
 function xnxxHost(host){
  if(typeof host!=="string")return false;
@@ -137,7 +138,7 @@ function nestyClear(links,tab){
  for(const [id,row] of links||[])if(row?.source===tab)links.delete(id);
 }
 
-const API=Object.freeze({NESTY_4,xnxxHost,nestyDestination,nestyTrack,nestyRead,nestyCandidate,nestyClear,
+const API=Object.freeze({SPECIALIST,NESTY_4,xnxxHost,nestyDestination,nestyTrack,nestyRead,nestyCandidate,nestyClear,
  protectedHost,shouldBlock,grantOnce,consumeOnce,
  permitActive,revoke,claim,claimActive,allowTab,tabAllowed,
  GRACE_MS,CLAIM_MS,MAX_CLAIMS});
