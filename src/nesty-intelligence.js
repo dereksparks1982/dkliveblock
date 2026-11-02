@@ -25,6 +25,42 @@ function filterSignals(value,known){
 function signalsOf(value,catalog){
  return filterSignals(value,vocabulary(catalog||root.DKMetaDeliveryCatalog));
 }
+
+// Read-only evidence-to-strategy handoff. Reviewed strategies are NOT filters.
+// Require independent browser verification before any existing engine is touched.
+const MAX_PLANS=6;
+function planReviews(target,matches,reviews){
+ const proposals=[];
+ function add(id,owner,evidence,stage){
+  if(proposals.length>=MAX_PLANS)return;
+  proposals.push(Object.freeze({id,owner,platform:target.platform,
+   evidence:Object.freeze([...evidence]),stage:stage||"browser-verification-required",
+   enabled:false,executable:false}));
+ }
+ const hasReview=id=>reviews.some(row=>row.id===id);
+ const hasCatalog=id=>matches.some(row=>row.id===id);
+ // Shared corporate ownership never transfers a Facebook strategy
+ // into Instagram, Threads, WhatsApp or another company.
+ if(target.platform==="facebook"){
+  if(hasReview("explicit-sponsored"))
+   add("facebook-sponsored-post","nesty_meta_ad_scout",
+    ["sponsor_label","post_boundary"]);
+  if(hasCatalog("right-rail"))
+   add("facebook-sponsored-rail","nesty_meta_ad_scout",
+    ["sponsor_label","rail_section"]);
+  // Response editing is experimental and remains disabled by default.
+  if(hasCatalog("graphql-sponsored"))
+   add("facebook-graphql-response","nesty_meta_ad_scout",
+    ["sponsored_data","response_schema"],"disabled-experimental");
+ }
+ if(target.platform==="youtube"&&hasReview("bounded-video-break"))
+  add("youtube-ad-break","existing-youtube-engines",
+   ["ad_break_metadata","player_ad_slot"]);
+ if(hasReview("unwanted-ad-navigation")&&target.specialists.includes("nesty_popup_guard"))
+  add("popup-source-navigation","nesty_popup_guard",
+   ["unwanted_navigation","ad_destination"]);
+ return Object.freeze(proposals);
+}
 function create(deps){
  const env=deps||root,companies=env.DKCompanyModules,team=env.DKNestyTeam,
   catalog=env.DKMetaDeliveryCatalog,dispatcher=env.DKAdaptiveDispatcher,
@@ -57,7 +93,7 @@ function create(deps){
   const target=route(hostname),signals=filterSignals(input,acceptedSignals);
   if(!target)return Object.freeze({recognized:false,action:"none",
    signals:Object.freeze([]),matches:Object.freeze([]),reviews:Object.freeze([]),
-   ranking:null});
+   strategies:Object.freeze([]),ranking:null});
   // The delivery catalog has Meta-specific evidence semantics; never
   // automatically carry a Facebook strategy into another platform.
   // Explicitly protected contexts cannot generate a candidate review, even
@@ -79,9 +115,10 @@ function create(deps){
    authorAdByline:signals.includes("author_ad_byline"),
    protectedContext:signals.includes("protected_context")
   }):null;
+  const strategies=protectedContext?Object.freeze([]):planReviews(target,matches,reviews);
   return Object.freeze({recognized:true,company:target.company,platform:target.platform,
    specialistIds:target.specialists,mode:target.mode,action:"review-only",
-   signals,matches:Object.freeze(matches),reviews:Object.freeze(reviews),ranking});
+   signals,matches:Object.freeze(matches),reviews:Object.freeze(reviews),strategies,ranking});
  }
  function observeProvider(site,destination,status,loggingEnabled){
   const target=route(site),valid=providers?.validHost;
@@ -102,6 +139,8 @@ function create(deps){
   const observed=loggingEnabled===true?
    (providerMaps.get(target.platform)?.list()||[]).slice(0,MAX_PROVIDERS):[];
   return Object.freeze({...target,networkMode:"unknown-until-capability-checked",
+   integration:Object.freeze({status:"review-only",selfLearning:false,
+    automaticRules:false,browserVerificationRequired:true}),
    providers:Object.freeze(observed)});
  }
  function clear(site){
