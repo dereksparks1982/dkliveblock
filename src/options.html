@@ -125,9 +125,9 @@
 <p>If playback fails, inspect the hostnames and verify that a blocked request is necessary before using a repair allowance. Requests to advertising hosts should generally stay blocked.</p>
 </section>
 <section id="network-recovery"><h2>DK Network Recovery / Proxy Settings</h2>
-<p>Optional proxy routing for restricted websites and failing images. <strong>Off by default.</strong> DK Live Block provides no proxy server, VPN or Tor service. A proxy you configure can see network metadata. Nothing is routed automatically without opting in.</p>
+<p>Optional routing through a proxy you configure for selected websites or image troubleshooting. <strong>Off by default.</strong> DK Live Block provides no VPN, proxy or Tor service, and this is not an anonymity or access guarantee. Your proxy can see connection metadata; direct connections may still occur.</p>
 <label><input id="netEnabled" type="checkbox"> Enable selective proxy routing</label>
-<label>Proxy protocol <select id="netType"><option value="socks">SOCKS5 (recommended for Tor)</option><option value="https">HTTPS proxy</option><option value="http">HTTP proxy</option></select></label>
+<label>Proxy protocol <select id="netType"><option value="socks">SOCKS5 proxy</option><option value="https">HTTPS proxy</option><option value="http">HTTP proxy</option></select></label>
 <label>Proxy hostname or IP address <input id="netHost" type="text" autocomplete="off" spellcheck="false" placeholder="127.0.0.1"></label>
 <label>Proxy port <input id="netPort" type="number" min="1" max="65535" value="9050"></label>
 <label><input id="netProxyDNS" type="checkbox"> Resolve destination DNS through SOCKS5 (recommended)</label>
