@@ -21,3 +21,8 @@ The DK Live Block project credits external media, code and rule-list authors her
 - **Rule-list subscriptions:** Maintain the license, authorship and source notices applicable to each external filter list.
 
 Before incorporating other third-party sounds or imagery, document their authors, original sources, local paths and licensing here.
+
+## Facebook advertising response-schema reference
+
+- **uBlock Origin uAssets:** https://github.com/uBlockOrigin/uAssets/blob/master/filters/filters.txt
+- **Purpose:** Publicly documented Facebook GraphQL ad markers and compatibility cautions informed independent DK Live Block schema matching. No uBlock Origin source code or scriptlet runtime was copied into DK's new GraphQL response module. The upstream repository and filter-list authorship remain with their original owners.

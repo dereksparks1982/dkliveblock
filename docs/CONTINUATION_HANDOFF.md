@@ -2,9 +2,17 @@
 
 Use this file when a ChatGPT thread reaches its length limit. Confirm live GitHub `main` before editing; previous summary notes may lag behind repository content.
 
+## Latest work (Build 264, November 2, 2026)
+- Version `0.3.234`. Expanded GraphQL/JSONL ad detection in `src/meta-graphql.js` for named Marketplace and news-feed response shapes; added bounded nested `require` / `__bbox` transport traversal. Generic responses unchanged.
+- Facebook DOM right-rail `Sponsored` multi-span label prefilter fixed in `src/facebook-ads.js`.
+- Regression files: `tests/meta-graphql-build264.test.js` and `tests/facebook-rail-build264.test.js`; 20 targeted Build 263/264 checks passed in isolated JS. Not live Firefox acceptance and not the full offline Linux suite.
+- **GraphQL filter stays disabled by default** (`metaGraphqlFilter:false`), especially because upstream Facebook response rewrites have caused reactions/content breakage. Do not enable automatically without user's focused QA.
+- Build notes: `docs/BUILD_264.md`. Public Pages two mirrored HTML files updated for version only.
+- Handoff priority: full Node suite; fix security-contract failures; real owner Facebook/YouTube acceptance. Avoid further speculative GraphQL edits without fixtures.
+
 ## Repository, versions, release order
 - Repository: https://github.com/dereksparks1982/dkliveblock
-- Active branch: `main`; extension version **0.3.233 / Build 263** in `src/manifest.json` and `package.json`.
+- Active branch: `main`; extension version **0.3.234 / Build 264** in `src/manifest.json` and `package.json`.
 - Official Pages: https://dereksparks1982.github.io/dkliveblock/
 - User expects direct repo updates, no downloaded patches or repeated terminal commands unless specifically requested. Never introduce custom GitHub Actions; GitHub Pages still invokes managed build/deploy checks for pushes.
 - Do not claim live Firefox acceptance from synthetic JS checks. Keep README description accurate, release notes/version updated for extension changes, and do not move approved UI geometry without permission.
@@ -21,7 +29,7 @@ Use this file when a ChatGPT thread reaches its length limit. Confirm live GitHu
 ## Extension implementation snapshot
 - DK Live Block is a Firefox-first ad/tracker blocker. Ghostery-based engine, subscriptions, request inspection/toggles and optional streaming subsystems present. No acceptable-ads or monetized features.
 - Facebook: selected techniques from MIT-licensed upstream reference integrated in `src/facebook-ads.js` for feed/side-rail/Marketplace/mobile Sponsored signals; safety checks to protect normal posts, cleanup on recycled DOM, local count-only diagnostics. See `docs/BUILD_260.md`–`docs/BUILD_262.md`.
-- **Meta GraphQL/JSONL** module `src/meta-graphql.js` introduced in Build 263; `metaGraphqlFilter` defaults **false** until actual Firefox verification and real response-shape testing. Never enable by default based only on synthetic fixtures.
+- **Meta GraphQL/JSONL** module `src/meta-graphql.js` (introduced in Build 263, extended in Build 264 with Marketplace feed units, sponsored story evidence and bounded `__bbox` envelopes); `metaGraphqlFilter` defaults **false** until actual Firefox verification and real response-shape testing. Never enable by default based only on synthetic fixtures.
 - Agent Nesty cookie observers: `agent_nesty_1` HTTP set-cookie metadata observer; `agent_nesty_2` and `agent_nesty_3` standby, not cookie enforcement. Do not claim values blocked or saved.
 - UI localization: English baseline and first partial Russian translation, with English fallback. Arabic, Turkish, Urdu, Persian/Farsi later, not selectable until implemented.
 - Competing YouTube/blocker parity, live Facebook ad coverage, malware navigation, popup breadth and performance remain unverified. The user observed strong ad blocking at some sites, but this does not constitute universal acceptance.

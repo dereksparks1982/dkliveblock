@@ -1,3 +1,11 @@
+## Build 264 (0.3.234): targeted Facebook GraphQL and sidebar-ad improvements
+- Added explicit Marketplace search/feed-story GraphQL ad detection, nested sponsored story evidence, and bounded RequireJS/`__bbox` JSONL envelope handling.
+- Tightened right-rail response metadata filtering to avoid treating arbitrary `sponsored_data` objects as ads and preserve unknown sidebar units.
+- Enforced outgoing UTF-8 byte limits after GraphQL rewriting with byte-preserving fallback on unsupported content; kept response filtering off by default.
+- Fixed DOM right-rail scanner's premature rejection of obfuscated multi-span Sponsored labels, retaining Contacts and ordinary-sidebar protection.
+- Added eight GraphQL and three rail regression fixtures; 20 focused Build 263/264 JS tests passed, but full suite and live Firefox acceptance still pending.
+- Synced manifest and package.json versions. No GitHub Actions, new permissions, telemetry, or unrelated UI rearrangement.
+
 ## Website polish after Build 263 (extension remains 0.3.233)
 - Added on-click sound for interactive website cards/buttons using the existing owner-provided DRAGON-STUDIO “Button Press” MP3. No external audio service, telemetry or new extension permissions.
 - Replaced top modal “Close ×” text with a single cyan ×, maintaining accessible labels and 44px tap sizing; bottom Back to top stays hidden for short panels.

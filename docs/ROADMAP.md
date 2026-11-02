@@ -1,3 +1,15 @@
+## Build 264 / v0.3.234: Facebook GraphQL and Sponsored right-rail integration
+- [x] Recognize ad markers at explicitly named Facebook news-feed, Marketplace feed and search-result edge paths, including nested `node.story.sponsored_data.ad_id`.
+- [x] Traverse bounded first-party `require` / `__bbox.result` JSONL envelopes, without inspecting arbitrary user records or blocking whole GraphQL requests.
+- [x] Tighten sidebar `sponsored_data` evidence and preserve unrelated sidebar units even when an ad-only sibling is removed.
+- [x] Enforce a maximum output UTF-8 byte size after rewriting, including JSONL batches, with original-byte fallback.
+- [x] Fix Facebook sidebar scanner prefilter rejecting decoy-character Sponsored labels before decoding them.
+- [x] Test Marketplace organic listings, Messenger, reactions, false positives and Contacts sidebar protection in bounded JS simulations (20/20 focused tests across Builds 263 and 264).
+- [x] Preserve opt-in/off-by-default GraphQL flag, site exceptions, streaming safeguards, and approved UI geometry.
+- [ ] Entire `scripts/test-local.sh` suite remains outstanding; investigate the independent audit's security-contract findings.
+- [ ] Firefox verification with actual Facebook feed/right-rail/Marketplace reactions and current GraphQL response schema before calling Facebook PASS or enabling response modification by default.
+- [ ] YouTube known-good A/B against Build 203 before accepted public release.
+
 ## Website polish / asset credit and session handoff (extension version remains 0.3.233)
 - [x] Confirm the owner's DRAGON-STUDIO Pixabay MP3 is present under `assets/sound/` in the live repo.
 - [x] Play the local sound on user-activated website cards and buttons; never autoplay, call Pixabay on click or block navigation when audio fails.

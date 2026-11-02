@@ -1,3 +1,13 @@
+# Current implementation snapshot: Build 264 / v0.3.234 (Nov 2, 2026)
+
+- Current extension manifest/package version **0.3.234**, unreleased and not fully Firefox-verified.
+- Facebook DOM detector now recognizes bounded character-split Sponsored labels in the right rail, alongside previous feed, mobile, Marketplace and protected Contacts logic.
+- Meta GraphQL module now supports specifically identified ad entries in news feed, Marketplace stories, Marketplace feed units, search results and limited `require`/`__bbox` JSONL envelopes. Other data, reactions, messages and unknown record shapes fail open.
+- **Meta GraphQL rewriting remains opt-in/OFF by default** due to known risks of broken Facebook interactions from response-modifying ad blockers.
+- 20 isolated synthetic JavaScript tests passed across Build 263 and Build 264 on the current source. Full Ubuntu suite, live Firefox visual test, real Facebook schema evidence and YouTube A/B still pending.
+- Public website retains the owner's two sets of six dark equal-height education cards, local credited Pixabay button sound, black × inside cyan Close buttons, and conditional Back to top. Root/docs website copies are identical.
+- [Handoff](CONTINUATION_HANDOFF.md) and [Build 264 notes](BUILD_264.md) contain next verification goals. Older snapshots below are dated historical records, not accepted current release evidence.
+
 # Latest source snapshot / post-Build 263 website changes
 
 - **Source extension version:** 0.3.233 in `src/manifest.json` and `package.json`. GraphQL filtering is opt-in/off by default and unverified in live Firefox.
