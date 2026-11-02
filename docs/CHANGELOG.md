@@ -1,3 +1,5 @@
+# Build 284 / v0.3.254 (2026-11-02): Russia-facing legal diligence added to Company Bible and roadmap, dated legal review and Russian privacy/network user notice published, optional proxy settings wording made neutral (no bypass or Tor marketing), and regression assertion added. No actual geo-detection or blocking behavior changed. Russia-specific distribution and legal approval are **not complete**. See [Build 284](BUILD_284.md).
+
 # Build 283 / v0.3.253 (2026-11-02): Full native Linux regression exposed 18 Node failures, repaired a confirmed-video original-tab guard lifecycle regression, tightened resource allowance safety and false-attribution diagnostics, and corrected stale checks under restricted Actions policy. Post-fix verification and Firefox acceptance remain pending. See [BUILD_283.md](BUILD_283.md).
 
 # Build 280 / v0.3.250 (2026-11-02): bounded immediate Facebook sponsored-feed inspection and faster, coalesced fallback scan. Owner-observed Build 279 partial success; live timing improvement not yet verified.
