@@ -80,7 +80,7 @@ test("Build 262: changed ad with surviving ad evidence remains hidden",()=>{
 });
 test("Build 262: no upstream standalone blockers or third-party runtime dependencies activated",()=>{
  const manifest=require("../src/manifest.json");
- assert.equal(manifest.version,"0.3.232");
+ assert.equal(manifest.version,require("../package.json").version);
  assert.ok(manifest.content_scripts[0].js.includes("facebook-ads.js"));
  assert.ok(manifest.content_scripts.every(s=>!s.js.includes("vendor/facebook-sponsored-upstream.js")));
 });
