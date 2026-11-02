@@ -112,3 +112,6 @@ The previously exported Facebook permitted-request report showed normal protecti
 Owner acceptance remains **OPEN**. Test normal Facebook feed and right rail at the current extension version. Side-by-side compare against uBlock Origin on the same Firefox profile setup and page/account (with only one blocker enabled at a time). Confirm right-side advertisers identified by `rhcad2`, attribution registration, and campaign fingerprints disappear when DK Live Block is enabled. Confirm ordinary links, legitimate posts, login, contacts, group pages and Messenger remain intact. Screenshot-level observations do not prove exact DOM attributes. Avoid exporting personal post contents.
 
 Automated coverage added for the advertised attribute signatures, ordinary links, right-column geometry, restoration and short split-label performance. Full Ubuntu suite not run by the assistant, and no Firefox browser PASS is asserted.
+
+## Build 235 (0.3.205) Facebook acceptance
+New code detects ads referenced through separate ARIA and SVG sprite labels, including some labels Facebook removes. The ten focused JavaScript cases passed in isolation; live Facebook and the full Ubuntu suite are unverified. Owner should check the main feed, right Sponsored column, ordinary posts and contacts. No private content is exported in these tests.

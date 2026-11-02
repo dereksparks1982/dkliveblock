@@ -1,3 +1,10 @@
+## Build 235 (0.3.205): Facebook ARIA/SVG label recovery
+- Recover Facebook ad labels from external aria-labelledby targets and SVG sprites, including split-character variants, following the specialist's documented MIT technique.
+- Retain only bounded exact Ad/Sponsored label words on React node removal; recognize relevant text mutations on Facebook only.
+- Use safe post bylines for reference-based fallback, keeping sidebar fingerprints, reversible hides and per-site exceptions unchanged.
+- Ten focused synthetic Facebook JavaScript regression cases passed. Full seven-phase Ubuntu suite and Firefox browser acceptance are not yet completed; Facebook remains FAIL / retest pending.
+- **The proposed AI investigator is documented as NEXT, not implemented.** Existing YouTube AI, networking, approved website design, and other working sites untouched.
+
 ## Build 234 (0.3.204): Facebook advertiser-link detection and scan efficiency
 
 - Adapted selected right-rail advertiser link identifiers seen in uBlock Origin's current Facebook quick-fixes; scoped to Facebook and compact right-column cards only.

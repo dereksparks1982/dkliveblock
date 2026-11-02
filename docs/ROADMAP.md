@@ -1,3 +1,18 @@
+## AFTER FACEBOOK: AI-assisted missed-ad investigation (PLANNED, not implemented)
+- [ ] Build on existing synthetic local YouTube playback model; do not misrepresent it as a current Facebook ad classifier.
+- [ ] User-initiated **Why wasn't this blocked?** investigation for a selected page item; explain detector evidence, rule/exception decisions and unrecognized content.
+- [ ] Let the user preview a narrow, site-scoped proposed filter, explicitly approve it, and reverse the choice. Never silently create filters or allow ads.
+- [ ] Use a local, self-contained model with no required downloads or remote AI APIs; avoid telemetry and protect personal page text, cookies, logins and URLs.
+- [ ] Benchmark against rule-only decisions, including false positives, safety, performance and opt-in owner control before claiming AI recognition.
+
+## Build 235: Facebook ARIA/SVG portal labels (0.3.205)
+- [x] Decode external SVG/ARIA labels and split-character referenced words with the existing bounded decoder.
+- [x] Cache only exact Ad/Sponsored words when React removes reference targets; trigger scans on removal and relevant text change.
+- [x] Inspect author bylines that point to external nodes without hiding feed roots, ordinary timestamps or contacts.
+- [x] Three new regression checks plus seven older Build 233-234 cases passed in isolated JS execution.
+- [ ] Facebook owner retest, main-feed Sponsored posts, right-side Sponsored column and ordinary navigation.
+- [ ] Full local Ubuntu seven-phase suite remains pending; do not claim Facebook PASS or competitor parity.
+
 ## Build 234: Facebook detection using established blocker evidence (0.3.204)
 - [x] Study uBlock Origin's published Facebook quick-fixes and the MIT Facebook-sponsored-post specialist. Adapt concrete right-rail ad-link signals: rhcad2, privacy-sandbox ad attribution and complete campaign parameter bundles.
 - [x] Restrict ad-link matches to narrow right-column modules, not Contacts, Messenger, dialogs, feed or navigation.

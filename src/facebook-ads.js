@@ -72,15 +72,32 @@ function inByline(label,card){
   return true;
  }return false;
 }
-function referenceLabels(el,doc,cache){
- const out=[];
- const keys=String(el.getAttribute?.("aria-labelledby")||"").split(/\s+/).slice(0,10);
- for(const id of keys){if(!id)continue;out.push(doc.getElementById?.(id)?.textContent||cache.get(id)||"");}
- const href=el.localName==="use"||el.tagName==="use"?
-  el.getAttribute?.("href")||el.getAttribute?.("xlink:href")||"":"";
- if(/^#[\w:-]{1,90}$/.test(href)){
-  const id=href.slice(1);out.push(doc.getElementById?.(id)?.textContent||cache.get(id)||"");
- }return out;
+// Facebook can create an accessible ad label in an external SVG symbol or
+// ephemeral portal span. Decode it at the reference target, including bounded
+// scrambled character spans, and retain only explicit ad words in the cache.
+// Reference interpretation adapted from Inky's MIT Facebook blocker.
+function referenceLabels(el,doc,cache,win){
+ const out=[],ids=String(el?.getAttribute?.("aria-labelledby")||"").split(/\s+/).filter(Boolean).slice(0,10);
+ const tag=String(el?.localName||el?.tagName||"").toLowerCase();
+ const href=tag==="use"?(el.getAttribute?.("href")||el.getAttribute?.("xlink:href")||""):"";
+ if(/^#[\w:-]{1,90}$/.test(href))ids.push(href.slice(1));
+ const pieces=[];
+ for(const id of ids){
+  if(!/^[\w:-]{1,90}$/.test(id))continue;
+  const target=doc?.getElementById?.(id);
+  const variants=target?labelsOf(target,win):[];
+  const saved=cache?.get?.(id);
+  out.push(...variants);
+  if(saved)out.push(saved);
+  // Short referenced fragments may concatenate to spell Sponsored or Ad.
+  const text=variants.find(isAdLabel)||variants.find(x=>String(x).length<=16)||saved||"";
+  if(text)pieces.push(text);
+ }
+ if(pieces.length>=2&&pieces.length<=9){
+  const combined=pieces.join("");
+  if(combined.length<=100)out.push(combined);
+ }
+ return out.filter(x=>typeof x==="string"&&x.length<=160);
 }
 
 function hasAdEvidence(card,doc,win,cache){
@@ -90,7 +107,7 @@ function hasAdEvidence(card,doc,win,cache){
   const el=nodes[i];
   if(sponsoredMenu(el))return true;
   if(!inByline(el,card))continue;
-  if(labelsOf(el,win).some(isAdLabel)||referenceLabels(el,doc,cache).some(isAdLabel))return true;
+  if(labelsOf(el,win).some(isAdLabel)||referenceLabels(el,doc,cache,win).some(isAdLabel))return true;
  }
  return false;
 }
@@ -201,25 +218,32 @@ function create(doc,win,max=100){
   for(const [el,old]of hidden)if(allowed(el)){restoreOne(el,old);hidden.delete(el);}
  }
  function remember(el){
-  if(!el||el.nodeType!==1)return;
+  if(!el||el.nodeType!==1)return false;
   const record=n=>{
-   const id=String(n.id||""),text=String(n.textContent||"");
-   if(id&&id.length<=100&&text.length<=60&&isAdLabel(text)){
-    if(cache.size>=200)cache.delete(cache.keys().next().value);
-    cache.set(id,text);
-   }
+   const id=String(n.id||"");
+   if(!/^[\w:-]{1,90}$/.test(id))return false;
+   const text=labelsOf(n,win).find(isAdLabel);
+   if(!text)return false;
+   if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
+   cache.set(id,normalize(text));return true;
   };
-  record(el);const all=el.querySelectorAll?.("[id]")||[];
-  for(let i=0;i<Math.min(60,all.length);i++)record(all[i]);
+  let changed=record(el);const all=el.querySelectorAll?.("[id]")||[];
+  for(let i=0;i<Math.min(60,all.length);i++)changed=record(all[i])||changed;
+  return changed;
  }
  function observeMutation(r){
   if(!r)return false;
   if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet";
+  if(r.type==="characterData"){
+   // React sometimes replaces a bare Ad/Sponsored label without adding nodes.
+   return isAdLabel(r.target?.textContent);
+  }
   if(r.type!=="childList")return false;
   const removed=r.removedNodes||[],added=r.addedNodes||[];
-  for(let i=0;i<Math.min(12,removed.length);i++)remember(removed[i]);
-  for(let i=0;i<Math.min(12,added.length);i++)remember(added[i]);
-  return added.length>0;
+  let changed=false;
+  for(let i=0;i<Math.min(12,removed.length);i++)changed=remember(removed[i])||changed;
+  for(let i=0;i<Math.min(12,added.length);i++)changed=remember(added[i])||changed;
+  return added.length>0||changed;
  }
 
  function scan(){
@@ -261,6 +285,16 @@ function create(doc,win,max=100){
    const card=feedCardFrom(el,doc);
    if(card&&inByline(el,card)&&hide(card))count++;
   }
+  // A feed byline can reference a portal span or SVG sprite with all the ad
+  // text outside the card. Walk ONLY referencing elements in the main feed;
+  // an orphan portal cannot by itself justify hiding a full container.
+  const refs=doc.querySelectorAll('main [aria-labelledby],main use,[role="main"] [aria-labelledby],[role="main"] use');
+  for(let i=0;i<Math.min(1200,refs.length)&&count<15;i++){
+   const el=refs[i];
+   if(!referenceLabels(el,doc,cache,win).some(isAdLabel))continue;
+   const card=feedCardFrom(el,doc);
+   if(card&&inByline(el,card)&&hide(card))count++;
+  }
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
   for(let i=0;i<Math.min(160,hard.length)&&count<15;i++){
@@ -276,7 +310,7 @@ function create(doc,win,max=100){
 
  return {scan,restore,setExceptions,observeMutation,get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

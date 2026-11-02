@@ -553,3 +553,50 @@ test("Build 234 does not compute styles across ordinary Facebook wrappers",()=>{
  assert.ok(FB.labelsOf(split,{getComputedStyle:x=>{reads++;return{order:x.order};}}).some(FB.isAdLabel));
  assert.equal(reads,9);
 });
+
+test("Build 235 resolves Facebook's SVG label portals and rejects organic timestamps",()=>{
+ const FB235=require("../src/facebook-ads.js");
+ const glyphs=Array.from("Sponsored",(c,i)=>({tagName:"SPAN",children:[],
+  textContent:c,classList:{length:22},order:i}));
+ const symbol={id:"sprite_a",children:glyphs,childNodes:[],getAttribute:()=>null};
+ const doc={getElementById:id=>id==="sprite_a"?symbol:null};
+ const win={getComputedStyle:e=>({order:e.order})};
+ const use={tagName:"use",getAttribute:k=>k==="href"?"#sprite_a":null};
+ assert.ok(FB235.referenceLabels(use,doc,new Map(),win).some(FB235.isAdLabel));
+ assert.equal(FB235.referenceLabels(use,{getElementById:()=>null},new Map(),win).some(FB235.isAdLabel),false);
+ const normal={tagName:"use",getAttribute:k=>k==="href"?"#time_1":null};
+ assert.equal(FB235.referenceLabels(normal,{getElementById:()=>({children:[],childNodes:[],textContent:"2h"})},
+   new Map(),win).some(FB235.isAdLabel),false);
+});
+test("Build 235 reconstructs separately referenced character fragments safely",()=>{
+ const ids=Array.from("Sponsored",(c,i)=>["ref_"+i,c]);
+ const link={getAttribute:k=>k==="aria-labelledby"?ids.map(x=>x[0]).join(" "):null};
+ const doc={getElementById:id=>({children:[],childNodes:[],textContent:ids.find(x=>x[0]===id)?.[1]||""})};
+ assert.ok(FB.referenceLabels(link,doc,new Map(),{}).some(FB.isAdLabel));
+ assert.ok(!FB.referenceLabels({getAttribute:()=>"unknown_123"},doc,new Map(),{}).some(FB.isAdLabel));
+ assert.ok(!FB.referenceLabels({getAttribute:()=> "../unsafe"},doc,new Map(),{}).some(FB.isAdLabel));
+});
+test("Build 235 uses captured removed portal label and detects text replacement",()=>{
+ const sprite={nodeType:1,id:"stored_label",children:[],childNodes:[],textContent:"Sponsored",
+  getAttribute:()=>null,querySelectorAll:()=>[]};
+ const label={nodeType:1,tagName:"SPAN",children:[],childNodes:[],textContent:"",
+  getAttribute:k=>k==="aria-labelledby"?"stored_label":null,closest:()=>null};
+ const name={contains:()=>false};
+ const byline={textContent:"Poster · Sponsored · 3h",
+  getBoundingClientRect:()=>({height:75}),querySelector:()=>name,
+  parentElement:null};
+ const card=facebookCard233(label);
+ label.parentElement=byline;byline.parentElement=card;
+ card.querySelectorAll=q=>q.includes("span,a")?[label]:[];
+ card.contains=n=>n===label||n===byline;
+ const doc={body:{},documentElement:{},location:{hostname:"www.facebook.com"},
+  getElementById:()=>null,querySelectorAll:q=>q.includes("h1,h2,h3")?[]:
+   q.includes('[role="article"]')?[card]:[]};
+ const scanner=FB.create(doc,{location:{hostname:"www.facebook.com"},innerWidth:1295});
+ assert.equal(scanner.observeMutation({type:"childList",removedNodes:[sprite],addedNodes:[]}),true);
+ assert.equal(scanner.scan(),1);
+ assert.equal(card.style.getPropertyValue("display"),"none");
+ scanner.restore();assert.equal(card.style.getPropertyValue("display"),"");
+ assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Ad"}}),true);
+ assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Adventure"}}),false);
+});

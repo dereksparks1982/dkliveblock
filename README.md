@@ -4,7 +4,7 @@
 
 **Firefox-first ad and tracker blocker from DK LAB / Elderred Softworks.**
 
-**Current development status (Build 234 / 0.3.204):** Facebook detection now includes uBlock Origin-inspired advertiser link signals in the right rail and more efficient scrambled-label handling, following Build 233. **Facebook still requires an owner's Firefox retest and is NOT yet a PASS.** XNXX passed the owner's earlier Firefox test. CBS playback is provisional. Previously observed working YouTube, Disney+, 1337x and Pirate Bay protections remain regression baselines; none establishes full competitor parity.
+**Current development status (Build 235 / 0.3.205):** Facebook now follows external ARIA/SVG advertising labels, including labels lost during dynamic page changes. **Facebook is not yet a confirmed PASS and awaits the owner's Firefox retest.** XNXX passed the owner's earlier Firefox test. CBS playback is provisional. Previously observed working YouTube, Disney+, 1337x and Pirate Bay protections remain regression baselines; none establishes full competitor parity.
 
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
