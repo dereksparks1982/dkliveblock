@@ -1,3 +1,12 @@
+## Build 236 (0.3.206): local AI-assisted missed-ad investigation
+
+- Added an **opt-in, local** Ad Investigator button to the existing Firefox toolbar popup. Click a suspected advertisement on the page to see concrete ad-marker evidence, synthetic-model score, known site-level element-hiding exceptions and uncertainty.
+- Separate lightweight synthetic evidence model (64 reproducible test cases) is loaded in Firefox's content-script world; existing seven-feature YouTube model and adaptive playback logic remain unchanged.
+- The investigation offers **manual, temporary** element hiding with undo or reload recovery; it can draft a narrow selector only where it uniquely matches a strongly recognizable ad slot. No rules are automatically persisted, no user preferences silently changed, no telemetry or remote AI endpoint.
+- Protected page, login, navigation and dialog containers are excluded. No broad DOM text capture or exported personal content.
+- Added deterministic Python standard-library training script and six targeted model/inspector/integration tests (including exhaustive 64-combination synthetic checks). These six tests passed in isolated JavaScript execution, not a full on-device Firefox/Ubuntu suite.
+- Facebook Build 235 auto-detection remains unchanged; owner to update existing local installation and retest feed/right-rail ads.
+
 ## Build 235 (0.3.205): Facebook ARIA/SVG label recovery
 - Recover Facebook ad labels from external aria-labelledby targets and SVG sprites, including split-character variants, following the specialist's documented MIT technique.
 - Retain only bounded exact Ad/Sponsored label words on React node removal; recognize relevant text mutations on Facebook only.

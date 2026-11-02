@@ -194,11 +194,23 @@ $("cosmeticDebugger").addEventListener("click",()=>browser.tabs.create({
  url:browser.runtime.getURL("cosmetic-debug.html?tab="+encodeURIComponent(tab.id))
 }));
 $("picker").addEventListener("click",async()=>{try{const result=await browser.tabs.sendMessage(tab.id,{action:"startPicker"});if(result.ok)window.close();}catch(e){$("info").textContent="Reload the tab and try again."; }});
+$("investigateAd").addEventListener("click",async()=>{
+ try{
+  if(!Number.isInteger(tab?.id)||!/^https?:\/\//i.test(tab?.url||"")){
+   $("info").textContent="Open a normal website tab to inspect an ad.";return;
+  }
+  const result=await browser.tabs.sendMessage(tab.id,{action:"startAdInvestigation"},{frameId:0});
+  if(result?.ok)window.close();
+  else $("info").textContent=result?.error||"Investigation unavailable here. Reload the tab and retry.";
+ }catch(e){$("info").textContent="Reload this website tab and retry the investigation.";}
+});
 $("update").addEventListener("click",async()=>{$("update").disabled=true;try{const result=await browser.runtime.sendMessage({action:"updateLists"});$("info").textContent=result.updated+" changed; "+result.checked+" checked; "+result.errors.length+" failed.";}catch(e){$("info").textContent=e.message;}finally{$("update").disabled=false;}});
 $("undo").addEventListener("click",async()=>{
  try{
   const latest=await browser.tabs.sendMessage(tab.id,{action:"undoTemporaryHide"}).catch(()=>null);
   if(latest?.restored){$("info").textContent="Last page-only hidden element restored.";return;}
+  const assisted=await browser.tabs.sendMessage(tab.id,{action:"undoAiHide"},{frameId:0}).catch(()=>null);
+  if(assisted?.restored){$("info").textContent="Last investigated item restored.";return;}
   $("info").textContent="Nothing to undo. Refresh the webpage to restore manually hidden elements.";
  }catch(error){$("info").textContent="Could not restore: "+String(error?.message||error);}
 });

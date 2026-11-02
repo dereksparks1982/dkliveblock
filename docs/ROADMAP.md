@@ -1,3 +1,15 @@
+## Build 236: Owner-controlled local AI Ad Investigator (0.3.206)
+- [x] Preserve the existing 256-example synthetic YouTube playback model, its parameters and working fallback behavior.
+- [x] Add a separate, reproducible offline ad-evidence ranking model trained on 64 synthetic binary cases. An evidence score is **not** real-world ad probability or autonomous blocking intelligence.
+- [x] Add **Investigate missed ad · Local AI assist** to the existing Firefox popup, launching a user-controlled hover-and-click inspection on the active webpage.
+- [x] Explain locally detected advertising signals, relevant site-level element-hiding exceptions and uncertainty without sending DOM text, account details, visited URLs, cookies or request logs anywhere.
+- [x] Offer page-only **Hide this page item**, undo from the existing popup button, and a unique narrow selector draft that the user may copy. Nothing is silently installed, changed permanently or shared.
+- [x] Keep the inspector dormant except for explicit owner requests; retain protected form/dialog/navigation roots and fixed scan ceilings; include a self-contained training script and regression tests.
+- [x] Six new targeted integration/model cases and the 64 synthetic model combinations executed without failures in an isolated JavaScript runtime (not the full local Ubuntu test suite).
+- [ ] OWNER: update existing local installation and test Facebook's feed and right Sponsored rail. Check that true posts, chat, navigation, and other known-good streaming/popup sites remain functional.
+- [ ] AI validation gates: compare model recommendations to human-labeled cases, audit privacy/performance and protected content, improve selector proposals with owner review before any permanent rule installation. No real-world accuracy claim.
+- [ ] Full Ubuntu seven-phase suite and live Firefox acceptance pending. No public competitor parity claim.
+
 ## AFTER FACEBOOK: AI-assisted missed-ad investigation (PLANNED, not implemented)
 - [ ] Build on existing synthetic local YouTube playback model; do not misrepresent it as a current Facebook ad classifier.
 - [ ] User-initiated **Why wasn't this blocked?** investigation for a selected page item; explain detector evidence, rule/exception decisions and unrecognized content.

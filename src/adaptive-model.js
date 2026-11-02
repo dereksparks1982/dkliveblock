@@ -27,7 +27,32 @@ function predict(input){
  return Object.freeze({recommendation:score>=THRESHOLD?"response-only":"combined",
   score:Number(score.toFixed(4)),modelVersion:VERSION});
 }
-const API=Object.freeze({FEATURES,WEIGHTS,BIAS,THRESHOLD,VERSION,predict});
+// Separate, offline-only ad-evidence ranking model (Build 236).
+// Trained on 64 deterministic synthetic cases. NOT a calibrated probability of
+// real advertisements; cannot authorize blocking, lists, site exceptions or
+// user-data uploads. The owner initiates every investigation and hide.
+const AD_FEATURES=Object.freeze([
+ "knownSlot","sponsoredMenu","adExplainer","railAdLink",
+ "authorAdByline","protectedContext"
+]);
+const AD_WEIGHTS=Object.freeze([
+ 2.17794663,2.17794663,2.17794663,2.17794663,2.17794663,-13.40294268
+]);
+const AD_BIAS=0.04586494,AD_THRESHOLD=0.80,AD_VERSION="synthetic-ad-evidence-v1";
+function inspectAdCandidate(input){
+ if(!input||typeof input!=="object"||
+    AD_FEATURES.some(key=>typeof input[key]!=="boolean"))return null;
+ const value=AD_FEATURES.reduce((s,key,i)=>
+  s+AD_WEIGHTS[i]*Number(input[key]),AD_BIAS);
+ if(!Number.isFinite(value))return null;
+ const score=1/(1+Math.exp(-value));
+ // The veto cannot be overridden by the numerical score.
+ const strong=!input.protectedContext&&score>=AD_THRESHOLD;
+ return Object.freeze({assessment:strong?"strong-evidence":"unconfirmed",
+  score:Number(score.toFixed(4)),modelVersion:AD_VERSION});
+}
+const API=Object.freeze({FEATURES,WEIGHTS,BIAS,THRESHOLD,VERSION,predict,
+ AD_FEATURES,AD_WEIGHTS,AD_BIAS,AD_THRESHOLD,AD_VERSION,inspectAdCandidate});
 root.DKAdaptiveModel=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

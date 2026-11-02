@@ -115,3 +115,7 @@ Automated coverage added for the advertised attribute signatures, ordinary links
 
 ## Build 235 (0.3.205) Facebook acceptance
 New code detects ads referenced through separate ARIA and SVG sprite labels, including some labels Facebook removes. The ten focused JavaScript cases passed in isolation; live Facebook and the full Ubuntu suite are unverified. Owner should check the main feed, right Sponsored column, ordinary posts and contacts. No private content is exported in these tests.
+
+## Build 236 (0.3.206) optional Ad Investigator acceptance (owner pending)
+
+With a normal Firefox tab and DK Live Block active, open the toolbar and choose **Investigate missed ad · Local AI assist**. Hover and click a surviving ad. A local panel should show ad evidence, the limitations of its synthetic score and any element-hiding exception, without automatically hiding the item or saving rules. Choose **Hide this page item** only if you intend to hide it; use the existing popup **Undo hide** to restore it, or reload. **Copy draft rule** should appear only when a stable, unique, narrow ad-slot selector exists. Close or press Escape to cancel. Test ordinary posts, Messenger, navigation, forms, dialogs and YouTube/Disney+ playback to ensure the feature is passive until invoked. Confirm no private data is transmitted. The six isolated tests (including 64 model combinations) passed, but live Firefox acceptance remains pending. Facebook Build 235 protections are still awaiting owner retest.
