@@ -1,3 +1,9 @@
+## 0.3.255 / Build 285 (November 2, 2026)
+- Nesty integrated evidence-to-strategy *review* handoff: bounded named candidate plans for Facebook feed/rail, optional GraphQL ad-data handling, YouTube ad breaks and unwanted tab navigation.
+- Explicit no-execution metadata and company/platform ownership limits; protect user content and never activate unverified models or filtering.
+- Four additional Nesty integration regression cases. Existing Firefox blocking paths, experimental GraphQL default-OFF, approved English/Russian graphics and UI geometry are unchanged.
+- Full current-version Ubuntu/Firefox acceptance, reproducible package lock, Mozilla release and full adaptive integration remain open.
+
 # Build 284 / v0.3.254 (2026-11-02): Russia-facing legal diligence added to Company Bible and roadmap, dated legal review and Russian privacy/network user notice published, optional proxy settings wording made neutral (no bypass or Tor marketing), and regression assertion added. No actual geo-detection or blocking behavior changed. Russia-specific distribution and legal approval are **not complete**. See [Build 284](BUILD_284.md).
 
 # Build 283 / v0.3.253 (2026-11-02): Full native Linux regression exposed 18 Node failures, repaired a confirmed-video original-tab guard lifecycle regression, tightened resource allowance safety and false-attribution diagnostics, and corrected stale checks under restricted Actions policy. Post-fix verification and Firefox acceptance remain pending. See [BUILD_283.md](BUILD_283.md).
