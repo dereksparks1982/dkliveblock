@@ -19,7 +19,7 @@
 
 ## 2. Working behavior is protected
 
-The owner observed DK Live Block successfully suppressing ordinary YouTube video ads, YouTube "Free with Ads" movie ads, Disney+ advertising during movies and CSI: Las Vegas, and unsolicited advertising tabs/popups on 1337x and The Pirate Bay. Those real-browser observations are documented in `README.md` and `docs/QA_LAB.md`. Do not mislabel previously resolved symptoms as a currently verified failure. Preserve the existing working blocking and streaming paths; only change them for a demonstrated issue and with appropriate regression coverage.
+The owner observed DK Live Block successfully suppressing ordinary YouTube video ads, YouTube "Free with Ads" movie ads, Disney+ advertising during movies and CSI: Las Vegas, and unsolicited advertising tabs/popups on 1337x and The Pirate Bay. Those real-browser observations are documented in `docs/QA_LAB.md` and the scoped verification ledger, not in the public README. Do not mislabel previously resolved symptoms as a currently verified failure. Preserve the existing working blocking and streaming paths; only change them for a demonstrated issue and with appropriate regression coverage.
 
 **Known-good YouTube source:** Build 203, version `0.3.173`, commit `8f4c6739ddba2cbb1a64918639d014ccf31a8f54`.  
 **Verified existing Git tag:** `youtube-working-build-203-2026-11-01`, pointing to that exact commit.  
@@ -28,7 +28,7 @@ This tag is the repository-backed rollback reference; a snapshot branch is **not
 ## 3. Builds, validation and releases
 
 - Keep changes within the user's authorized scope. Larger planned builds are welcome, but never silently alter approved behavior or UI geometry.
-- Update relevant README/roadmap/release notes with truthful evidence; distinguish observed working results from incomplete automated or browser acceptance.
+- Update roadmap, engineering notes and the scoped verification ledger with truthful evidence; distinguish owner-observed behavior from complete automated or browser acceptance. Keep README files strictly product-facing.
 - **GitHub Actions policy (owner revised November 2, 2026):** The previous blanket prohibition is lifted because the usage allowance has reset. Prefer local Linux testing. Use GitHub Actions **sparingly and only when genuinely necessary**, such as significant integration, compatibility, or release checks that cannot reasonably be verified locally. Do not run workflows simply because a build or small commit exists, or add routine CI triggers without a justified need.
 - For any justified Actions run, keep the jobs targeted and efficient; minimize billed minutes, artifact uploads, storage, and retention. Do not create or retain unnecessary artifacts. Record actual test results accurately; never claim an unrun check passed.
 - No external filtering-engine installation for ordinary users. DK Live Block must remain a simple self-contained Firefox extension.
@@ -55,3 +55,13 @@ The owner can revise project rules. Improvements and alternatives may be **propo
 A comparison of `main` against all five non-`main` branches found **zero commits on any extra branch that were missing from `main`**. The Build 203 recovery tag was independently verified to match its documented commit. The owner may safely delete all five extra branches and retain only `main`; the Git history and tagged working backup stay preserved.
 
 **Permanent policy after cleanup: `main` is the one and only branch.**
+
+## 8. Nesty company intelligence, verification and README boundary (owner direction, November 2, 2026)
+
+- **Canonical permanent project memory:** [Nesty/company playbook](docs/NESTY_COMPANY_PLAYBOOK.md), [team roster](docs/AGENT_NESTY_TEAM.md), [company/ad-provider architecture](docs/COMPANY_ADVERTISING_INTELLIGENCE.md), [Meta delivery matrix](docs/META_DELIVERY_MATRIX.md), and [scoped verified-sites ledger](docs/VERIFIED_SITES.md). Read these before building or declaring a company/site complete.
+- **One company module with platform-specific profiles** (Meta: Facebook, Instagram, Threads, WhatsApp; Google/YouTube and others as evidenced). Investigate both the company's own delivery systems and external advertisers, trackers, analytics and attribution providers. Record which relationships are observed, publicly documented, suspected or unknown. Never classify all first-party resources or a third-party host as ads merely by ownership.
+- **Nesty specialists are named by job**, not numbered techniques. The three currently registered canonical specialists account for eleven historical detection aliases. A separate responsibility merits a new specialist; another variant of the same responsibility belongs under the existing specialist. No arbitrary cap on legitimate specialist responsibilities.
+- **Anticipatory defense:** maintain a bounded hypothesis matrix for possible ad-delivery changes (DOM and accessibility labels, GraphQL/JSONL, first-party requests, mobile/virtualized feeds, shadow roots, iframe and media variants, attribution and popups). Test candidate strategies in fixtures, observe genuine evidence, then route to the existing safe engine. A forecast, AI score or changed host alone **cannot authorize deleting ordinary content**.
+- **Company victory claims must be scoped and earned:** document the exact site/surface, owner-observed browser result and date, version where known, negative controls and outstanding gaps. Facebook's owner-observed late ad removal is *partial*, not verified zero-flash behavior. Do not advertise defeat of an entire corporate advertising ecosystem based on one test.
+- **README.md and README.ru.md** describe what DK Live Block is, what users can do, installation/usage, privacy, support, legal/license and third-party notices. They must **never contain build numbers, changelogs, implementation diary, roadmap tasks, engineering predictions, agent-training notes or company victory scorekeeping**. Those belong in `docs/`.
+- Preserve approved website/banner geometry, recorded working blocking paths, reversible owner exceptions and privacy. Continue work on `main` only. GitHub Actions are permitted **sparingly** for genuinely necessary verification under Section 3, not forbidden wholesale.

@@ -12,6 +12,7 @@
 
 - **Blocks ads and trackers:** Uses bundled native and Ghostery-based filtering with configurable subscriptions, including EasyList and EasyPrivacy. Some advanced filter rules are not yet supported.
 - **Cleans up pages:** Cosmetic filtering and an optional page-only element picker can hide ads, overlays, newsletter prompts, and other distractions without permanently modifying the site.
+- **Uses specialist Agent Nesty protections:** Separate, purpose-built checks watch for cookie-setting activity, unwanted navigation and Facebook advertising signals. Not every detection method is active on every site.
 - **Stops unwanted popups and redirects:** Detects selected intrusive new-tab and redirect patterns while aiming to preserve legitimate login windows, payments, and ordinary links. Coverage varies by website.
 - **Puts you in control:** Pause or allowlist individual sites, configure narrow exceptions, add custom rules, and allow or block eligible site-scoped requests.
 - **Explains what it does:** The Site Dashboard and Network Monitor show blocked and permitted traffic, available matching-rule evidence, and optional local TXT/JSON reports.
@@ -28,8 +29,12 @@ The extension has **no Acceptable Ads program, paid feature locks, or mandatory 
 
 DK Live Block is still under development and is **not yet a signed Mozilla Add-ons release**. For a temporary desktop Firefox installation, download the latest source, open `about:debugging` → **This Firefox** → **Load Temporary Add-on**, and select `src/manifest.json`. Temporary add-ons normally disappear after Firefox restarts. The separately shared unsigned XPI is not suitable for permanent installation in standard Firefox.
 
-## Support and license
+## Privacy, support and license
 
-Report missed ads or site issues to **[elderredsoftworks@proton.me](mailto:elderredsoftworks@proton.me)** or through [GitHub Issues](https://github.com/dereksparks1982/dkliveblock/issues). Please remove private URLs, credentials, cookies, and session tokens from any diagnostic files.
+DK Live Block runs its filtering locally. Optional request logs stay in Firefox, and reports are exported only on your request. Selected filter lists and optional updates contact their own providers. See the [privacy disclosure](docs/PRIVACY.md) for what is stored, which permissions are used, and network-connection details.
 
-**Free personal and ordinary internal business use; no resale or commercial exploitation without permission.** See the [license](LICENSE) for terms. [Patreon](https://www.patreon.com/c/dkliveblock) support is voluntary and does not unlock features.
+Report missed ads or broken websites via **[elderredsoftworks@proton.me](mailto:elderredsoftworks@proton.me)**, [GitHub Issues](https://github.com/dereksparks1982/dkliveblock/issues), or the [support guide](SUPPORT.md). Never share private links, credentials, cookies or session tokens in diagnostics.
+
+Copyright © 2026 Elderred Softworks LLC / DK LAB. **Free for individuals and ordinary internal company use. Resale, paid repackaging and monetization of DK Live Block itself require written permission.** See the [DK Live Block license](LICENSE) for the complete terms, no-warranty disclaimer and separate third-party rights. Licensed third-party code, filter lists and media retain their own terms; see [attributions](docs/ATTRIBUTIONS.md).
+
+[Patreon](https://www.patreon.com/c/dkliveblock) support is optional and unlocks no features.

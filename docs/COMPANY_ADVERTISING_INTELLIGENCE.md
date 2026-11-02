@@ -53,7 +53,7 @@ Use independent, bounded detectors for request endpoints, response metadata, DOM
 ## Boundaries and owner principles
 - The work is defensive and runs on the user's own browser sessions. No intrusion into provider servers, privileged access, third-party accounts, private messaging, credentials or tracking other people.
 - No telemetry, acceptable-ads program, compulsory cloud AI, remote runtime engines, or invasive logging.
-- No GitHub Actions, no extra Git branches, no unapproved UI changes, no untested parity or victory claims.
+- No extra Git branches, unapproved UI changes, automatic untested strategies or untested parity/victory claims. GitHub Actions are allowed sparingly for meaningful verification under the Company Bible.
 - Preserve successful YouTube/streaming, 1337x/pop-up and login protections. Company modules should be self-contained but share a common engine.
 - Local data retention, deletion and per-site/provider user controls are planned, not currently assured by the new registry.
 
@@ -61,3 +61,13 @@ Use independent, bounded detectors for request endpoints, response metadata, DOM
 **Implemented as of Build 243 / v0.3.213:** pure company/platform registry; Facebook recognizer wired through it, existing YouTube engine retained unchanged; earlier scoped scriptlet and Facebook feed detector code. Tests have been added but complete Linux suite/live Firefox validation remain outstanding.
 **Not implemented:** full Meta folder tree, Instagram/Threads/WhatsApp adapters, generalized provider intelligence database, cross-platform shared countermeasures, and an autonomous AI-driven strategy activation engine.
 **Acceptance gate:** Facebook ads must actually disappear in real Firefox without damaging ordinary features before marking the Facebook milestone complete.
+
+## Current continuation and integration gaps (November 2, 2026)
+
+The repository now includes an active **Facebook-specific mutation fast path** and a catalog of 24 plausible Meta advertising-delivery methods. The three canonical named Nesty specialists and their eleven backward-compatible method IDs are already registered. Current read-only Meta provider observations record bounded destination hostnames and allowed/blocked counts when the owner enables request logging; these observations **do not prove vendor ownership or ad delivery**.
+
+**Not yet completed:** a persistent evidence-backed company/provider profile database, an automatically validated cross-company reusable strategy, independently confirmed Instagram/Threads/WhatsApp ad handling, a measured forecast model trained on real ad-delivery changes, and fully coordinated local Nesty AI/dispatcher integration. A standalone future-company-intelligence draft is not runtime integration or a verified detector.
+
+**Next controlled sequence:** make one evidence taxonomy → map it to each company/platform profile and an accountable Nesty specialist → observe candidate techniques without altering content → compare against advertiser/provider fingerprints with public evidence and dated verification → test actual strategy in isolation → protect safe organic content → enable only bounded, reversible rules under the proven engine. Preserve the GraphQL-off default until real schema and Firefox tests justify changing it. New profiles must be linked to current source files, tests and a ledger row.
+
+The authoritative continuation is [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md); live acceptance stays in [verified-sites ledger](VERIFIED_SITES.md) and detailed [QA](QA_LAB.md). Do not place this engineering material in either public README.

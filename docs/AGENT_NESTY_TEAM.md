@@ -19,3 +19,24 @@
 - Read `COMPANY_BIBLE.md` first; preserve the existing extension's verified streaming paths and user-approved UI geometry.
 
 Catalog implementation: `src/nesty-team.js`; legacy underlying detectors: `src/cookie-sentinels.js`, `src/popup-trap.js`, `src/original-tab-guard.js`, `src/meta-agent-nesty.js`.
+
+## Inventory and future intelligence work (November 2, 2026)
+
+**Current registered count:** exactly **3 named specialists**, **11 legacy IDs/detection methods** (3 Cookie Watch, 2 Popup Guard, 6 Meta Ad Scout). These are not 11 additional independently deployed agents.
+
+| Status | Specialist responsibility | Notes |
+| --- | --- | --- |
+| Registered | **Nesty Cookie Watch** | Cookie-setting observation only. Only its HTTP-response method is armed; the other two method aliases remain documented, not guaranteed active. |
+| Registered | **Nesty Popup Guard** | One accountable popup/redirect/takeover verdict with multiple input methods and user-permission safeguards. |
+| Registered | **Nesty Meta Ad Scout** | Facebook Sponsored evidence and safe feed/right-rail detection. Does not independently decide to delete posts; Meta GraphQL response rewriting remains off by default. |
+| Proposed, **not registered** | **Nesty Video Ad Scout** | Distinct responsibility for YouTube/player/feed ad-delivery evidence and existing video-safe engines. Future integration must not replace the working YouTube path without tests. |
+| Proposed, **not registered** | **Nesty Streaming Ad Scout** | Distinct responsibility for streaming ad breaks, media safety, and compatibility on independently verified services. |
+| Potential later, **not registered** | **Nesty Provider Investigator** | Cross-company advertiser/tracker/attribution relationships and evidence quality, not automatic third-party hostname blocking. |
+
+### Intelligence integration requirements
+
+Existing building blocks are `src/company-modules.js` (company/host routing), `src/provider-intelligence.js` (temporary hostname-only observations), `src/meta-delivery-catalog.js` (possible delivery mechanisms), `src/adaptive-dispatcher.js` (review-only evidence pairing), and `src/adaptive-model.js` (synthetic offline classifier, not predictive AI). These are **not yet a finished coordinated learning system**.
+
+Implement next: a profile-owned signal/event contract; a bounded read-only hypothesis/strategy registry; score and provenance checks against **real fixtures**; distinct inactive/watch/review/tested states; deterministic consent/exception precedence; reversible and measured browser interventions; privacy-safe diagnostics. Always map each new detection method under the specialist responsible for the *job*. Never expand agent count just to give an old technique a new name.
+
+The goal is rapid identification and safe response when actual ad-serving methods change, not claims of foreknowledge or untested automatic code generation. See [playbook](NESTY_COMPANY_PLAYBOOK.md), [verification ledger](VERIFIED_SITES.md), and [company architecture](COMPANY_ADVERTISING_INTELLIGENCE.md).

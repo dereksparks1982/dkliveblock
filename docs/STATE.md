@@ -1,3 +1,11 @@
+# Continuation reference: Agent Nesty, company modules and browser-verified coverage (November 2, 2026)
+
+- Read [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md), [specialist team roster](AGENT_NESTY_TEAM.md), [company/ad-provider architecture](COMPANY_ADVERTISING_INTELLIGENCE.md), [Meta delivery matrix](META_DELIVERY_MATRIX.md) and [verified-sites ledger](VERIFIED_SITES.md) before further work.
+- **Three registered specialist names, eleven historical detector IDs**; future Video, Streaming, and Provider specialists are proposals only, not completed agents.
+- Facebook observed partial success: ads removed late; Build 280 fast-path needs live Firefox retest. Do not claim Meta defeated.
+- Company/provider-intelligence AI integration is **unfinished**. Current observation-only components are not adaptive predictive blocking.
+- Both public READMEs contain only product functionality, setup, privacy, support, license and third-party attribution. Build notes remain in docs; no product version increment for documentation-only update.
+
 # Current build: 280 / v0.3.250 (November 2, 2026)
 
 - Owner-observed Facebook Build 279 removes feed and sidebar sponsored content but feed ads remain briefly clickable while scrolling; no claim of fully seamless removal.

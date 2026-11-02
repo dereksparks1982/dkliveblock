@@ -1,3 +1,15 @@
+## Continuation priority: Agent Nesty / company profiles / verified-site ledger (November 2, 2026)
+- [x] Preserve exact three named specialists and eleven legacy technique IDs in [team roster](AGENT_NESTY_TEAM.md).
+- [x] Record owner strategy, separated company/platform/provider profiles, countermeasure hypotheses, safety limits and local AI integration sequence in [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md).
+- [x] Start a distinct, scoped [verified-sites ledger](VERIFIED_SITES.md) with browser-observed successes, partial Facebook results, and unverified platforms. No company-wide defeat claims.
+- [x] Keep public English/Russian READMEs strictly about product use, privacy, support, licensing and attribution; no engineering diary.
+- [ ] Finish real runtime coordination among Nesty specialist profile routing, provider observations, delivery matrix and adaptive dispatcher, with deterministic source tests. Documentation alone is not completed AI integration.
+- [ ] Retest Facebook rapid-scroll feed/rail flash and clickability against Build 280 with organic feed and Contacts preserved before any Facebook verified promotion.
+- [ ] Investigate Meta's own advertising systems and third-party advertisers, trackers, attribution and analytics *separately*, using independently verified ownership and no speculative host-only blacklisting.
+- [ ] Expand platform-specific modules (Instagram, Threads, WhatsApp) with observations first, then validated, reversible strategies and browser checks.
+- [ ] Train/evaluate any future local AI against representative labeled evidence and negatives; maintain strict no-automatic-rule-generation safeguards.
+- [ ] Continue working through remaining websites and promote only each independently tested site/surface to the verification ledger.
+
 ## Build 279 / v0.3.249: Live Russian banner URL recovery
 - [x] Investigate report that newly approved Russian banner appears in README but not on GitHub Pages (broken image/alt-text shown).
 - [x] Switch Russian banner source to an immutable raw GitHub URL, with local Pages fallback and a single-attempt error handler.
