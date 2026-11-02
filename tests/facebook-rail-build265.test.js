@@ -10,8 +10,8 @@ function fixture(label,location="right",contacts=false){
   matches:()=>false,querySelector:q=>q==="img"?{}:null,
   querySelectorAll:q=>q==="h1,h2,h3,h4,h5,h6,[role=\"heading\"]"&&contacts?
    [{textContent:"Contacts"}]:[],
-  style:{value:"",getPropertyValue(){return this.value;},getPropertyPriority(){return "";},
-   setProperty(_,v){this.value=v;},removeProperty(){this.value="";}}};
+  style:{value:"",priority:"",getPropertyValue(){return this.value;},getPropertyPriority(){return this.priority;},
+   setProperty(_,v,p){this.value=v;this.priority=p||"";},removeProperty(){this.value="";this.priority="";}}};
  const button={tagName:"BUTTON",textContent:"",children:[],parentElement:card,
   getBoundingClientRect:()=>({left:x+20,top:135,width:92,height:30}),
   getAttribute:k=>k==="aria-label"?label:k==="role"?"button":null,
