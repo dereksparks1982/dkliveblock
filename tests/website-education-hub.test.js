@@ -90,7 +90,7 @@ test("Back to top appears only if panel overflows",()=>{const html=site("index.h
 
 test("All modal headers show a large cyan X with accessible Close label",()=>{
  const html=site("index.html");
- assert.equal((html.match(/<button class="lesson-close" type="button" aria-label="Close [^"]+"><span aria-hidden="true">&times;<\/span><\/button>/g)||[]).length,12);
+ assert.equal((html.match(/<button class="lesson-close" type="button" aria-label="Close [^"]+"><svg class="close-x-icon"/g)||[]).length,12);
  assert.doesNotMatch(html,/Close &times;/);
  assert.match(html,/\.lesson-close:not\(\.lesson-close-bottom\)\{display:inline-grid;place-items:center;width:44px;height:44px/);
  assert.match(html,/border:1px solid var\(--a\);border-radius:8px;background:var\(--a\);color:#06191a/);
@@ -109,4 +109,36 @@ test("All website card and button clicks use the bundled Pixabay sound without b
  assert.match(html,/buttonSound\.play\(\)/);
  assert.match(html,/playResult\.catch\(\(\)=>\{\}\)/);
  assert.doesNotMatch(html,/src="https?:\/\/pixabay\./);
+});
+
+test("iPhone site corrections keep all lessons and remove the unwanted intro",()=>{
+ const a=site("index.html");
+ assert.ok(!a.includes("<h2>What it does</h2>"));
+ assert.ok(!a.includes("Select any box to explore the technology"));
+ assert.ok(a.includes('.feature-card-link h3{margin-bottom:0;padding-bottom:12px;border-bottom:1px solid #426b75}'));
+ assert.equal((a.match(/class="close-x-icon"/g)||[]).length,12);
+ assert.equal((a.match(/class="feature-card-link"/g)||[]).length,12);
+});
+test("The four original hero targets keep their geometry and consistently colored, larger contents",()=>{
+ const a=site("index.html");
+ assert.ok(a.includes('width:100%;height:64px;padding:8px 10px'));
+ assert.ok(a.includes('.button.xpi .icon{transform:scale(1.24)}'));
+ assert.ok(a.includes('.button.xpi span{font-size:1.14rem}'));
+ assert.ok(a.includes('class="button white brand-action"'));
+ assert.ok(a.includes('class="button cyan brand-action"'));
+ assert.ok(a.includes('.button.brand-action .brand-symbol'));
+ assert.ok(a.includes('.button.brand-action .brand-label'));
+ assert.ok(!a.includes('class="brand-window"'));
+});
+test("Both website publishing roots use an exact copy of the approved icon and matching manifests",()=>{
+ const a=site("index.html");
+ assert.ok(a.includes('rel="apple-touch-icon" href="apple-touch-icon.png"'));
+ assert.ok(a.includes('rel="manifest" href="manifest.webmanifest"'));
+ const m=JSON.parse(site("manifest.webmanifest")),n=JSON.parse(site("docs/manifest.webmanifest"));
+ assert.deepEqual(m,n);
+ assert.equal(m.start_url,"/dkliveblock/");
+ assert.equal(m.icons[0].src,"/dkliveblock/apple-touch-icon.png");
+ const approved=fs.readFileSync(path.join(ROOT,"src/icons/dk-live-block.png"));
+ assert.deepEqual(fs.readFileSync(path.join(ROOT,"apple-touch-icon.png")),approved);
+ assert.deepEqual(fs.readFileSync(path.join(ROOT,"docs/apple-touch-icon.png")),approved);
 });
