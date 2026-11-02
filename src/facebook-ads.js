@@ -12,53 +12,50 @@ function normalize(text){return String(text||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/g
 function isAdLabel(text){return normalize(text)==="ad"||normalize(text)==="sponsored";}
 function ownText(el){let out="";for(const c of el?.childNodes||[]){if(c.nodeType===3)out+=String(c.textContent||"");if(out.length>120)return "";}return out;}
 
-function orderedPieces(el,win,depth=0){
- if(!el||depth>4)return [];
- const parts=Array.from(el.childNodes||[]).slice(0,96).map((child,index)=>{
+// Avoid expensive computed-style checks across arbitrary Facebook feed wrappers.
+// Decode CSS-split labels only where all leaf spans have character-sized text.
+function splitLabelRoot(el){
+ let node=el;
+ for(let d=0;d<4&&node;d++){
+  const children=node.children||[];
+  if(children.length>=4&&children.length<=120&&Array.from(children).every(x=>
+    x.tagName==="SPAN"&&!x.children?.length&&String(x.textContent||"").length<=3))return node;
+  node=children.length===1&&children[0].tagName==="SPAN"?children[0]:null;
+ }
+ return null;
+}
+function orderedPieces(el,win){
+ return Array.from(el.children||[]).slice(0,120).map((child,index)=>{
   let order=index,hidden=false;
-  if(child.nodeType===1)try{
-   const s=win.getComputedStyle?.(child);
-   const value=Number.parseInt(s?.order,10);
-   if(Number.isFinite(value))order=value;
+  try{
+   const s=win?.getComputedStyle?.(child),n=Number.parseInt(s?.order,10);
+   if(Number.isFinite(n))order=n;
    hidden=s?.display==="none"||s?.visibility==="hidden";
   }catch(_){}
-  return {child,index,order,hidden};
+  return {s:String(child.textContent||""),n:child.classList?.length||0,order,index,hidden};
  }).filter(x=>!x.hidden).sort((a,b)=>a.order-b.order||a.index-b.index);
- const out=[];
- for(const {child} of parts){
-  if(out.length>=96)break;
-  if(child.nodeType===3){
-   if(String(child.textContent||"").length<=4)out.push({s:child.textContent,n:null});
-  }else if(child.nodeType===1){
-   if(child.tagName==="SPAN"&&!child.children?.length){
-    const txt=String(child.textContent||"");
-    if(txt.length<=4)out.push({s:txt,n:child.classList?.length||0});
-   }else if(depth<4&&child.children?.length<=96)
-    out.push(...orderedPieces(child,win,depth+1).slice(0,96-out.length));
-  }
- }
- return out;
 }
 function labelsOf(el,win){
  if(!el)return [];
- const out=[];
- if(!el.children?.length)out.push(el.textContent);
- else{
-  const direct=ownText(el);if(direct)out.push(direct);
-  if(el.children.length<=96){
-   const parts=orderedPieces(el,win);
-   if(parts.length>=2&&parts.length<=96&&parts.every(x=>String(x.s||"").length<=4)){
-    for(const keep of [()=>true,x=>x.n===null||x.n>10,x=>x.n===null||x.n<=10])
-     out.push(parts.filter(keep).map(x=>x.s).join(""));
-   }
-  }
+ const out=[],direct=ownText(el);
+ if(direct)out.push(direct);
+ if(!el.children?.length&&String(el.textContent||"").length<=160)out.push(el.textContent);
+ const split=splitLabelRoot(el);
+ if(split){
+  const leaves=orderedPieces(split,win);
+  for(const keep of [()=>true,x=>x.n>10,x=>x.n<=10])
+   out.push(leaves.filter(keep).map(x=>x.s).join(""));
  }
  try{out.push(el.getAttribute?.("aria-label"));}catch(_){}
  return out.filter(x=>typeof x==="string"&&x.length<=160);
 }
 function sponsoredMenu(el){
  const text=normalize(el?.getAttribute?.("aria-label"));
- return text.length<=200&&/^(?:open menu for |actions for |more options for ).{1,120} sponsored content$/.test(text);
+ return text.length<=200&&(
+  /^(?:open menu for |actions for |more options for ).{1,120} sponsored content$/.test(text)||
+  text==="sponsored content"&&
+    (el?.getAttribute?.("role")==="button"||el?.getAttribute?.("aria-haspopup")==="menu")
+ );
 }
 
 function inByline(label,card){
@@ -149,6 +146,38 @@ function rightRailCandidate(label,doc,win){
  return railSection(label,rail,doc,win);
 }
 
+// uBlock Origin's public Facebook quick-fixes identify ads using right-rail
+// link attributes as well as Sponsored headings. Require geometry and strict
+// container bounds so normal feeds, contacts, and navigation remain untouched.
+function railAdLink(a){
+ if(!a||String(a.tagName||"").toLowerCase()!=="a")return false;
+ const get=k=>String(a.getAttribute?.(k)||"");
+ const rel=get("rel"),target=get("target"),href=get("href"),attr=get("attributionsrc");
+ if(target==="rhcad2"&&/noreferrer/.test(rel))return true;
+ if(attr.includes("/privacy_sandbox/comet/register/")&&attr.includes("eid="))return true;
+ if(attr&&target==="_blank"&&/noreferrer/.test(rel)&&/^https?:\/\//i.test(href)&&a.querySelector?.("img"))return true;
+ if(/noreferrer/.test(rel)&&/fbclid=/.test(href)&&/utm_medium=/.test(href)&&/utm_source=/.test(href)&&/utm_id=/.test(href)&&/utm_content=/.test(href)&&/utm_term=/.test(href)&&/utm_campaign=/.test(href))return true;
+ return false;
+}
+function rightRailLinkCard(a,doc,win){
+ if(!railAdLink(a)||!a.closest||!doc?.body)return null;
+ if(a.closest('main,[role="main"],[role="feed"],[role="article"],[role="dialog"],nav,form'))return null;
+ const r=a.getBoundingClientRect?.();
+ if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57))return null;
+ let node=a,best=null;
+ for(let i=0;i<10&&node?.parentElement;i++,node=node.parentElement){
+  const p=node.parentElement;
+  if(p===doc.body||p===doc.documentElement||p.matches?.(ROOTS))break;
+  const pr=p.getBoundingClientRect?.();
+  if(!pr||pr.width<160||pr.width>480||pr.height>560||
+     pr.left<Math.max(480,(win?.innerWidth||1200)*0.57))break;
+  if(p.querySelector?.(ROOTS)||p.querySelector?.('video[controls]'))break;
+  const headings=p.querySelectorAll?.(HEADING)||[];
+  if(Array.from(headings).some(h=>/^(contacts|birthdays|group chats|friends|your pages|your shortcuts)$/i.test(normalize(h.textContent))))break;
+  if(pr.height>=65&&(p.querySelector?.("img")||p.querySelector?.("a")))best=p;
+ }
+ return best;
+}
 function create(doc,win,max=100){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -211,10 +240,26 @@ function create(doc,win,max=100){
    const section=rightRailCandidate(h,doc,win);
    if(section&&hide(section))count++;
   }
+  // Advertiser-tagged links are detected even when "Sponsored" is obfuscated.
+  const railLinks=doc.querySelectorAll('a[target="rhcad2"],a[attributionsrc],a[href*="utm_campaign"]');
+  for(let i=0;i<Math.min(220,railLinks.length)&&count<15;i++){
+   const card=rightRailLinkCard(railLinks[i],doc,win);
+   if(card&&hide(card))count++;
+  }
   const cards=doc.querySelectorAll(ARTICLE),seen=new Set();
   for(let i=0;i<Math.min(240,cards.length)&&count<15;i++){
    const card=cards[i];if(seen.has(card))continue;seen.add(card);
    if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card))count++;
+  }
+  // Some feed advertisements only show the short "Ad" byline in ordinary
+  // spans; require a plausible author-level heading and safe feed card shape.
+  const bylines=doc.querySelectorAll('main span,[role="main"] span,main a,[role="main"] a');
+  for(let i=0;i<Math.min(2400,bylines.length)&&count<15;i++){
+   const el=bylines[i];
+   if((el.children?.length||0)>2||String(el.textContent||"").length>45)continue;
+   if(!labelsOf(el,win).some(isAdLabel))continue;
+   const card=feedCardFrom(el,doc);
+   if(card&&inByline(el,card)&&hide(card))count++;
   }
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
@@ -231,7 +276,7 @@ function create(doc,win,max=100){
 
  return {scan,restore,setExceptions,observeMutation,get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

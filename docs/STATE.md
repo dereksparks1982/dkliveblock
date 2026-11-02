@@ -1,11 +1,11 @@
 # DK Live Block: current engineering state
 
-**Latest repository source: Build 233 / 0.3.203 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
+**Latest repository source: Build 234 / 0.3.204 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
 Historical build sections below remain dated snapshots; this document distinguishes source implementation from browser acceptance and does not claim competitor parity.
 
 ## Current browser acceptance (Build 232, owner-reported)
 - **XNXX PASS:** User confirmed site works in Firefox with the new premium-banner and ad cleanup.
-- **Facebook FAIL in Build 232; Build 233 retest pending:** Targeted feed and right-rail fixes implemented, but owner browser acceptance is not yet established.
+- **Facebook FAIL in Build 232; Build 234 retest pending:** New uBlock-inspired sidebar link signatures and faster split-label decoding added. No Firefox PASS recorded.
 - **CBS News PROVISIONAL:** Playback now runs, but a longer check across commercial breaks remains open.
 - **Prior observed successes:** YouTube, Disney+, 1337x and The Pirate Bay; preserve their existing filtering and popup behavior.
 - **Release remains blocked:** Full current Linux suite, security/performance evaluation, competitor coverage and Mozilla signing/owner release approval are not complete.

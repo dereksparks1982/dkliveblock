@@ -515,3 +515,41 @@ test("Build 233 protects feed layout and comment forms; detects dynamic Facebook
  assert.equal(scanner.observeMutation({type:"attributes",attributeName:"title"}),false);
  assert.equal(FB.create({location:{hostname:"example.com"}},{location:{hostname:"example.com"}}),null);
 });
+
+
+test("Build 234 uBO-inspired Facebook rail signatures avoid ordinary links",()=>{
+ const link=a=>({tagName:"A",getAttribute:k=>a[k]||"",querySelector:()=>null,closest:()=>null});
+ assert.equal(FB.railAdLink(link({target:"rhcad2",rel:"nofollow noreferrer noopener"})),true);
+ assert.equal(FB.railAdLink(link({attributionsrc:"/privacy_sandbox/comet/register/?eid=abc"})),true);
+ assert.equal(FB.railAdLink(link({rel:"noreferrer",href:"https://example.org/?fbclid=1&utm_medium=cpc&utm_source=fb&utm_id=9&utm_content=z&utm_term=b&utm_campaign=test"})),true);
+ assert.equal(FB.railAdLink(link({rel:"noreferrer",href:"https://example.org/?fbclid=1&utm_medium=cpc&utm_source=fb&utm_campaign=test"})),false);
+ assert.equal(FB.railAdLink(link({href:"/friends/"})),false);
+});
+test("Build 234 narrowly removes and restores Facebook right-rail ad-link card",()=>{
+ const attr={target:"rhcad2",rel:"nofollow noreferrer noopener"};
+ const link={tagName:"A",getAttribute:k=>attr[k]||"",getBoundingClientRect:()=>({left:1050,width:200,height:30}),closest:()=>null};
+ const panel={style:new Style(),isConnected:true,tagName:"DIV",getClientRects:()=>[{}],
+  matches:()=>false,getBoundingClientRect:()=>({left:1015,width:280,height:170}),
+  querySelector:q=>q==="img"?{}:null,querySelectorAll:()=>[]};
+ const body={};link.parentElement=panel;panel.parentElement=body;
+ const doc={body,documentElement:{},location:{hostname:"www.facebook.com"},
+  querySelectorAll:q=>q.includes('a[target="rhcad2"]')?[link]:[]};
+ const scan=FB.create(doc,{location:{hostname:"www.facebook.com"},innerWidth:1295});
+ assert.equal(scan.scan(),1);
+ assert.equal(panel.style.getPropertyValue("display"),"none");
+ scan.restore();assert.equal(panel.style.getPropertyValue("display"),"");
+ link.getBoundingClientRect=()=>({left:80,width:180,height:30});
+ assert.equal(FB.rightRailLinkCard(link,doc,{innerWidth:1295}),null);
+});
+test("Build 234 does not compute styles across ordinary Facebook wrappers",()=>{
+ let reads=0;
+ const regular={children:Array.from({length:12},()=>({tagName:"DIV",children:[],textContent:"Hi"})),
+  childNodes:[],getAttribute:()=>null};
+ FB.labelsOf(regular,{getComputedStyle:()=>{reads++;return{};}});
+ assert.equal(reads,0);
+ const chars=Array.from("Sponsored",(x,i)=>({tagName:"SPAN",children:[],textContent:x,
+  classList:{length:20},order:i}));
+ const split={children:chars,childNodes:[],getAttribute:()=>null};
+ assert.ok(FB.labelsOf(split,{getComputedStyle:x=>{reads++;return{order:x.order};}}).some(FB.isAdLabel));
+ assert.equal(reads,9);
+});

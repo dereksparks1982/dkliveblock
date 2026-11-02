@@ -1,3 +1,14 @@
+## Build 234: Facebook detection using established blocker evidence (0.3.204)
+- [x] Study uBlock Origin's published Facebook quick-fixes and the MIT Facebook-sponsored-post specialist. Adapt concrete right-rail ad-link signals: rhcad2, privacy-sandbox ad attribution and complete campaign parameter bundles.
+- [x] Restrict ad-link matches to narrow right-column modules, not Contacts, Messenger, dialogs, feed or navigation.
+- [x] Apply the specialist's proven performance safeguard: decode CSS ordered split-character labels only for plausible short character-span runs; avoid expensive style flushes on ordinary feed elements.
+- [x] Extend narrow feed-card fallback to explicitly detected short 'Ad' bylines when an author/header layout supports it.
+- [x] Add tests for campaign fingerprints, false positives, sidebar bounds, undo and split-label performance.
+- [ ] **OWNER BROWSER TEST:** Facebook feed and right-rail Sponsored content; ensure normal posts, contacts, groups, navigation, Messenger, Marketplace and Reels remain usable.
+- [ ] Compare observed results side by side against uBlock Origin. Consider proven Facebook GraphQL techniques only with explicit safety tests; no broad host blocking or unreviewed response rewrites.
+- [ ] Full on-machine Ubuntu suite and long-session browser checks remain open; not a Facebook PASS or competitor-parity claim.
+- [x] Preserve existing accepted sites, website button geometry, one-branch main-only rule and no GitHub Actions.
+
 ## Build 233: Facebook sponsored feed and sidebar follow-up (0.3.203)
 - [x] Recognize explicit Facebook sponsored-content action-menu accessibility labels without relying on a bare 'Ad' text label.
 - [x] Identify narrow Sponsored right-rail sections even without role=complementary; stop at Contacts, friends, navigation, or broad sidebar containers.

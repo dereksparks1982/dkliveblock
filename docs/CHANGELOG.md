@@ -1,3 +1,12 @@
+## Build 234 (0.3.204): Facebook advertiser-link detection and scan efficiency
+
+- Adapted selected right-rail advertiser link identifiers seen in uBlock Origin's current Facebook quick-fixes; scoped to Facebook and compact right-column cards only.
+- Added stricter safeguards around ordinary links and UTM parameters, protected sections, contacts, main feeds and navigation.
+- Specialized split-character label scan avoids expensive per-node computed style unless the label actually resembles Facebook's scrambled character spans, following the MIT Facebook blocker performance notes.
+- Added feed fallback for standalone 'Ad' byline with owner-header evidence; retained reversible hiding, site-specific exceptions and dynamic scans.
+- Added seven Build 233/234 focused JavaScript assertions in an isolated runtime; complete Ubuntu suite and real Firefox acceptance are still open.
+- No network-response rewrites, new permissions, external helpers, website geometry changes, branch creation, or GitHub Actions.
+
 ## Build 233 (0.3.203): Facebook feed and right-rail detection repair
 
 - Fix missed Facebook feed ads whose action menus identify them as sponsored content, and decode limited nested CSS-ordered/scrambled labels. Reject unrelated ordinary text, navigation and dialogs.
