@@ -1,3 +1,14 @@
+## Build 262 / v0.3.232: stronger MIT Facebook label decoding and safe DOM recycling
+- [x] Decode bounded nested, CSS-ordered, character-split Sponsored labels, rejecting malformed wrappers and decoys.
+- [x] Protect two distinct sibling posts even when their wrapper has an article landmark.
+- [x] Re-evaluate changed hidden ads after a grace period and restore React-recycled ordinary posts only after two corroborated checks.
+- [x] Keep the original DK Meta module and all site-exception/restore controls; no extra extension engine activated.
+- [x] Align package/manifest versions at 0.3.232 and remove hard-coded historical versions from eight feature regression tests.
+- [x] Execute 13 isolated JavaScript regression scenarios from Builds 261 and 262: all passed.
+- [ ] Full Linux Node `scripts/test-local.sh` suite and actual Firefox acceptance not run; complete these before declaring Facebook PASS.
+- [ ] First-party Meta GraphQL/JSONL response filtering with real traffic fixtures, verified license compatibility, and strict fail-open schema checks.
+- [ ] Real Facebook DOM safety/performance inspection: live feed, right rail, Marketplace, mobile, recycled cards, Messenger and Contacts.
+
 ## Build 261 / v0.3.231: complete targeted MIT Facebook DOM integration
 - [x] Add desktop Marketplace Sponsored tile resolver (never entire grid; ordinary listing/body text preserved).
 - [x] Add mobile html-renderer feed-card detection and an event-triggered reveal recheck for virtualized posts.
