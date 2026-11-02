@@ -7,7 +7,11 @@
 const ARTICLE='[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]';
 const HEADING='h1,h2,h3,h4,h5,h6,[role="heading"]';
 const ROOTS='main,[role="main"],[role="feed"],[role="navigation"],nav,form,[role="dialog"]';
-function isFacebook(host){return typeof host==="string"&&(host==="facebook.com"||host.endsWith(".facebook.com"));}
+function isFacebook(host){
+ const modules=root.DKCompanyModules;
+ if(modules)return modules.profileFor(host)?.platform==="facebook";
+ return typeof host==="string"&&(host==="facebook.com"||host.endsWith(".facebook.com"));
+}
 function normalize(text){return String(text||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
 function isAdLabel(text){return normalize(text)==="ad"||normalize(text)==="sponsored";}
 function ownText(el){let out="";for(const c of el?.childNodes||[]){if(c.nodeType===3)out+=String(c.textContent||"");if(out.length>120)return "";}return out;}
