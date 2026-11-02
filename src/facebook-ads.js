@@ -235,10 +235,12 @@ function marketplaceTileFrom(label,doc){
  return null;
 }
 function marketplaceSignal(label,tile,win){
- if(sponsoredMenu(label))return true;
- if(!labelsOf(label,win).some(x=>normalize(x)==="sponsored"))return false;
  if(label.closest?.('p,blockquote,[role="paragraph"],[role="dialog"]'))return false;
+ if(!sponsoredMenu(label)&&
+    !labelsOf(label,win).some(x=>normalize(x)==="sponsored"))return false;
  const labelBox=label.getBoundingClientRect?.(),cardBox=tile.getBoundingClientRect?.();
+ // Never hide a tile because the word Sponsored occurs in its description.
+ // A true listing badge lives close to the tile's own upper edge.
  return !!labelBox&&!!cardBox&&labelBox.top>=cardBox.top-8&&
   labelBox.top<=cardBox.top+Math.min(110,cardBox.height*.32);
 }
@@ -529,7 +531,9 @@ function create(doc,win,max=100){
     stats.lastBylineSignals++;
     const card=mobilePostFrom(label,doc,win,watchMobileFeed);
     const first=card?.firstElementChild;
-    if(!card||(!menu&&!explains&&first&&!first.contains?.(label))){
+    // Mobile's own author row is the first subtree. A quoted or commented
+    // "Sponsored" inside the body must never hide the parent post.
+    if(!card||!first||!first.contains?.(label)){
      stats.lastBylineUnresolved++;continue;
     }
     if(hide(card,label))count++;
