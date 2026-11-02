@@ -1,3 +1,11 @@
+## Build 242 / 0.3.212: Facebook competitor-code review and independent card detection
+- [x] Examine the maintained MIT Facebook-specific blocker, Mowd's feed filter, uBlock-compatible feed-category scriptlet, and older Facebook blocker approaches.
+- [x] Make sponsored-menu card identification work independently of the optional investigator, using bounded landmarks and single-post safety checks.
+- [x] Recheck short Facebook labels arriving after initial render; preserve existing mutation observer and site exceptions.
+- [x] Add isolated source regression fixtures and document known false-positive traps.
+- [ ] Run the complete Node suite, test Facebook feed/right rail in actual Firefox, confirm ordinary posts/contacts/Google login/playback. **Do not claim Facebook PASS until observed.**
+- [ ] If needed, investigate opt-in category-based response filters only after safe GraphQL schema and false-positive review.
+
 ## Build 241 / 0.3.211: manual scriptlet expansion and Facebook scanner independence
 - [x] Add explicit user-authored, domain-bound `abort-on-property-read` scriptlet with reversible teardown and protected-global restrictions; disabled by default everywhere.
 - [x] Remove the generic ad recognizer as a prerequisite for Facebook-specific ad scans.
