@@ -22,6 +22,13 @@ function splitLabelRoot(el){
  let node=el;
  for(let d=0;d<4&&node;d++){
   const children=node.children||[];
+  // "Ad" can be two single-letter spans. Do not perform expensive style
+  // queries on arbitrary two-child wrappers: accept only an exact A+d pair.
+  if(children.length===2&&Array.from(children).every(x=>
+    x.tagName==="SPAN"&&!x.children?.length)){
+   const pair=Array.from(children).map(x=>normalize(x.textContent||"")).join("");
+   if(pair==="ad"||pair==="da")return node;
+  }
   if(children.length>=4&&children.length<=120&&Array.from(children).every(x=>
     x.tagName==="SPAN"&&!x.children?.length&&String(x.textContent||"").length<=3))return node;
   node=children.length===1&&children[0].tagName==="SPAN"?children[0]:null;
