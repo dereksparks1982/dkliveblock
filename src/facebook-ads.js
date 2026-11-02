@@ -430,15 +430,18 @@ function create(doc,win,max=100){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
   for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
  }
+ function cacheAdId(id,text){
+  if(!/^[\\w:-]{1,90}$/.test(String(id||""))||!isAdLabel(text))return false;
+  if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
+  cache.set(id,normalize(text));return true;
+ }
  function remember(el){
   if(!el||el.nodeType!==1)return false;
   const record=n=>{
    const id=String(n.id||"");
    if(!/^[\w:-]{1,90}$/.test(id))return false;
    const text=referenceTargetLabels(n,win).find(isAdLabel);
-   if(!text)return false;
-   if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
-   cache.set(id,normalize(text));return true;
+   return text?cacheAdId(id,text):false;
   };
   let changed=record(el);const all=el.querySelectorAll?.("[id]")||[];
   for(let i=0;i<Math.min(60,all.length);i++)changed=record(all[i])||changed;
@@ -448,22 +451,32 @@ function create(doc,win,max=100){
   if(!r)return false;
   if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet";
   if(r.type==="characterData"){
-   // Facebook can attach its short Ad label *after* a post has rendered.
-   // Scan a newly changed short label in a feed card even if React kept
-   // invisible formatting or the label lives in its parent span.
+   // An ephemeral ad-label portal can be OUTSIDE the feed. If its short text
+   // changes, cache it and request a re-scan of the referencing post.
    const target=r.target,parent=target?.parentElement;
    const raw=String(target?.textContent||"");
+   const cached=parent?.id?cacheAdId(parent.id,raw):false;
    if(raw.length>48)return false;
    const inFeed=!!parent?.closest?.(ARTICLE)||
      !!parent?.closest?.('main,[role="main"]');
-   return inFeed&&(isAdLabel(raw)||
+   return cached||inFeed&&(isAdLabel(raw)||
      (parent&&labelsOf(parent,win).some(isAdLabel)));
   }
   if(r.type!=="childList")return false;
   const removed=r.removedNodes||[],added=r.addedNodes||[];
   let changed=false;
-  for(let i=0;i<Math.min(12,removed.length);i++)changed=remember(removed[i])||changed;
-  for(let i=0;i<Math.min(12,added.length);i++)changed=remember(added[i])||changed;
+  for(let i=0;i<Math.min(12,removed.length);i++){
+   const node=removed[i];
+   if(node?.nodeType===3&&r.target?.id)
+    changed=cacheAdId(r.target.id,node.textContent)||changed;
+   else changed=remember(node)||changed;
+  }
+  for(let i=0;i<Math.min(12,added.length);i++){
+   const node=added[i];
+   if(node?.nodeType===3&&r.target?.id)
+    changed=cacheAdId(r.target.id,node.textContent)||changed;
+   else changed=remember(node)||changed;
+  }
   return added.length>0||changed;
  }
 
