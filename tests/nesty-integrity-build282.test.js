@@ -119,3 +119,56 @@ test("Build 282 integrated files stay in the one Firefox source",()=>{
  assert.equal(targets.experimental_targets["yandex-desktop"].status,"adapter-required-unverified");
  assert.equal(targets.experimental_targets["orion-ios"].mode,"dom-only");
 });
+
+
+test("Build 285: evidence yields inert platform-owned strategy reviews",()=>{
+ const i=create();
+ const feed=i.inspect("facebook.com",["sponsor_label","post_boundary"]);
+ assert.deepEqual(feed.strategies.map(x=>x.id),["facebook-sponsored-post"]);
+ assert.equal(feed.strategies[0].owner,"nesty_meta_ad_scout");
+ assert.equal(feed.strategies[0].enabled,false);
+ assert.equal(feed.strategies[0].executable,false);
+ assert.equal(feed.strategies[0].stage,"browser-verification-required");
+ assert.ok(Object.isFrozen(feed.strategies));
+ assert.ok(Object.isFrozen(feed.strategies[0].evidence));
+ assert.deepEqual(i.inspect("facebook.com",["sponsor_label","rail_section"])
+  .strategies.map(x=>x.id),["facebook-sponsored-rail"]);
+ assert.deepEqual(i.inspect("youtube.com",["ad_break_metadata","player_ad_slot"])
+  .strategies.map(x=>x.id),["youtube-ad-break"]);
+ assert.deepEqual(i.inspect("facebook.com",["unwanted_navigation","ad_destination"])
+  .strategies.map(x=>x.id),["popup-source-navigation"]);
+});
+test("Build 285: experimental Facebook response filtering is never activated",()=>{
+ const v=create().inspect("facebook.com",["sponsored_data","response_schema"]);
+ assert.deepEqual(v.strategies.map(x=>x.id),["facebook-graphql-response"]);
+ assert.equal(v.strategies[0].stage,"disabled-experimental");
+ assert.equal(v.strategies[0].enabled,false);
+ assert.equal(v.strategies[0].executable,false);
+});
+test("Build 285: inherited platforms and protected contexts cannot obtain Meta strategies",()=>{
+ const i=create();
+ for(const site of ["instagram.com","threads.net","whatsapp.com"]){
+  const result=i.inspect(site,["sponsor_label","post_boundary",
+   "sponsored_data","response_schema","sponsor_label","rail_section"]);
+  assert.equal(result.mode,"observe-only");
+  assert.deepEqual([...result.strategies],[]);
+ }
+ for(const site of ["youtube.com","reddit.com"])
+  assert.deepEqual([...i.inspect(site,["sponsor_label","post_boundary",
+   "sponsored_data","response_schema"]).strategies],[]);
+ assert.deepEqual([...i.inspect("facebook.com",["sponsor_label","post_boundary",
+  "protected_context"]).strategies],[]);
+ assert.deepEqual([...i.inspect("facebook.com",["private_email","user_secret_99"])
+  .strategies],[]);
+ assert.deepEqual([...i.inspect("facebook.com.evil.test",["sponsor_label",
+  "post_boundary"]).strategies],[]);
+});
+test("Build 285: integration status explicitly denies self-learning and automatic rules",()=>{
+ const v=create().snapshot("facebook.com",false);
+ assert.equal(v.integration.status,"review-only");
+ assert.equal(v.integration.selfLearning,false);
+ assert.equal(v.integration.automaticRules,false);
+ assert.equal(v.integration.browserVerificationRequired,true);
+ assert.ok(Object.isFrozen(v.integration));
+ assert.equal(v.providers.length,0);
+});
