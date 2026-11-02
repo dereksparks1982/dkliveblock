@@ -313,6 +313,11 @@ function create(doc,win,max=100){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
  const hidden=new Map(),cache=new Map(),limit=Math.max(1,Math.min(120,max));
+ // Only aggregate counts. Never record Facebook post text, user IDs, URLs,
+ // message contents or other personal information in detector diagnostics.
+ const stats={scans:0,lastScanAt:0,lastHidden:0,lastFeedCards:0,
+  lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
+  lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0};
  let menuCursor=0;
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
@@ -371,6 +376,10 @@ function create(doc,win,max=100){
 
  function scan(){
   if(!doc?.querySelectorAll||!doc.body||win?.innerWidth<650)return 0;
+  stats.scans++;stats.lastScanAt=Date.now();
+  for(const key of ["lastHidden","lastFeedCards","lastRailSignals",
+   "lastRailUnresolved","lastMenuSignals","lastMenuUnresolved",
+   "lastBylineSignals","lastBylineUnresolved"])stats[key]=0;
   for(const [el,old]of hidden){
    if(el.isConnected===false){hidden.delete(el);continue;}
    // Respect a newly added exception immediately, including the original
@@ -390,7 +399,9 @@ function create(doc,win,max=100){
   for(let i=0;i<Math.min(260,headings.length)&&count<15;i++){
    const h=headings[i];
    if(normalize(h.textContent)!=="sponsored")continue;
+   stats.lastRailSignals++;
    const section=rightRailCandidate(h,doc,win);
+   if(!section)stats.lastRailUnresolved++;
    if(section&&hide(section))count++;
   }
   // MIT-inspired rail fallback: Facebook can render the visible Sponsored
@@ -405,19 +416,26 @@ function create(doc,win,max=100){
    if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57)||
       r.width>270||r.height>80)continue;
    if(!labelsOf(label,win).some(x=>normalize(x)==="sponsored"))continue;
+   stats.lastRailSignals++;
    const section=rightRailCandidate(label,doc,win);
+   if(!section)stats.lastRailUnresolved++;
    if(section&&hide(section,label))count++;
   }
   // Advertiser-tagged links are detected even when "Sponsored" is obfuscated.
   const railLinks=doc.querySelectorAll('a[target="rhcad2"],a[attributionsrc],a[href*="utm_campaign"]');
   for(let i=0;i<Math.min(220,railLinks.length)&&count<15;i++){
    const card=rightRailLinkCard(railLinks[i],doc,win);
+   if(railAdLink(railLinks[i]))stats.lastRailSignals++;
+   if(!card&&railAdLink(railLinks[i]))stats.lastRailUnresolved++;
    if(card&&hide(card))count++;
   }
   const cards=doc.querySelectorAll(ARTICLE),seen=new Set();
   for(let i=0;i<Math.min(240,cards.length)&&count<15;i++){
    const card=cards[i];if(seen.has(card))continue;seen.add(card);
-   if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card))count++;
+   if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)){
+    stats.lastFeedCards++;
+    if(hide(card))count++;
+   }
   }
   // Automatic detection now uses the same concrete sponsored-menu fact
   // and bounded card identification that succeeded in the owner's inspector.
@@ -430,8 +448,10 @@ function create(doc,win,max=100){
    for(let i=0;i<limitNodes&&count<15;i++){
     const menu=menuNodes[(start+i)%menuNodes.length];
     if(!sponsoredMenu(menu)||allowed(menu))continue;
+    stats.lastMenuSignals++;
     if(++evidenceChecks>24)break;
     const card=sponsoredFeedCard(menu,doc,win);
+    if(!card)stats.lastMenuUnresolved++;
     if(card&&hide(card,menu))count++;
    }
    menuCursor=(start+limitNodes)%menuNodes.length;
@@ -448,8 +468,11 @@ function create(doc,win,max=100){
    if((childCount>2&&!split)||childCount>120||
       (!split&&String(el.textContent||"").length>45))continue;
    if(!labelsOf(el,win).some(isAdLabel))continue;
+   stats.lastBylineSignals++;
    const card=feedCardFrom(el,doc);
-   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card))count++;
+   if(!card||!(inByline(el,card)||explicitHeaderAd(el,card,win)))
+    stats.lastBylineUnresolved++;
+   else if(hide(card))count++;
   }
   // A feed byline can reference a portal span or SVG sprite with all the ad
   // text outside the card. Walk ONLY referencing elements in the main feed;
@@ -471,12 +494,13 @@ function create(doc,win,max=100){
    const section=rightRailCandidate(el,doc,win);
    if(section&&hide(section))count++;
   }
+  stats.lastHidden=count;
   return count;
  }
 
  return {scan,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
-   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length});},
+   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,...stats});},
   get hiddenCount(){return hidden.size;}};
 }
 const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard};
