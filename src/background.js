@@ -541,6 +541,25 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
  });
 },{urls:["http://*/*","https://*/*"]},["responseHeaders"]);
 
+// Independently scoped Facebook first-party GraphQL/XHR ad-record filtering.
+// Do not share player filters, capture credentials, or touch other Meta sites.
+// Unknown schemas, content types and streaming errors pass through unchanged.
+browser.webRequest.onHeadersReceived?.addListener(d=>{
+ if(!data.ready||!data.settings.enabled||data.settings.adRecognition!==true||
+    data.settings.metaGraphqlFilter!==true||
+    typeof browser.webRequest.filterResponseData!=="function")return;
+ const site=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
+ if(!activeTab(d.tabId,site))return;
+ const page=d.documentUrl||d.originUrl||"";
+ const policy=data.engine.getPagePolicy(page);
+ if(policy?.document||policy?.elemhide)return;
+ const request={...d,pageHost:site};
+ if(!DKMetaGraphQL.eligible(request,site))return;
+ DKMetaGraphQL.attach(request,browser.webRequest);
+},{urls:["https://www.facebook.com/api/graphql*",
+         "https://web.facebook.com/api/graphql*"],
+   types:["xmlhttprequest"]},["responseHeaders"]);
+
 // Firefox MV2 response filtering: modify only known player JSON ad fields.
 browser.webRequest.onHeadersReceived?.addListener(d=>{
  if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return;
