@@ -654,7 +654,12 @@ function create(doc,win,max=100){
   const railLabels=doc.querySelectorAll('span,[role="complementary"] div,aside div');
   for(let i=0;i<Math.min(5500,railLabels.length)&&count<15;i++){
    const label=railLabels[i];
-   if((label.children?.length||0)>4||String(label.textContent||"").length>75)continue;
+   // The visible right-rail Sponsored label can itself be character-split.
+   // The old >4-children prefilter discarded it before labelsOf() decoded it.
+   const childCount=label.children?.length||0;
+   const split=splitLabelRoot(label);
+   if((childCount>4&&!split)||childCount>120||
+      (!split&&String(label.textContent||"").length>88))continue;
    const r=label.getBoundingClientRect?.();
    if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57)||
       r.width>270||r.height>80)continue;
