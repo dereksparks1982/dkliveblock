@@ -92,3 +92,8 @@ These are **plausible contingencies**, not privileged knowledge about companies'
 - `docs/QA_LAB.md`: detailed owner-observed browser sessions and reproducible checks.
 
 **Continuation reminder:** source code, tested fixtures, owner observations and speculative forecasts are four different things. Never turn a forecast into a claimed victory.
+
+## Build 285 integration progress (Nov 2, 2026)
+`src/nesty-intelligence.js` now translates recognized catalog/dispatcher evidence into a small set of **inert, named, platform-owned review strategies**. The bridge never enables a strategy, generates a rule, hides a DOM node, cancels navigation, or calls the network. It records browser-verification-required status, and explicitly identifies Facebook GraphQL as disabled experimental. Sibling Meta products cannot inherit Facebook responses; protected contexts veto all proposals. The private snapshot reports self-learning and automatic rule creation as disabled. Four registered integration test cases check these boundaries.
+
+**Still unfinished:** trusted live event ingestion, measured and browser-approved response activation, cookie observation method expansion, Meta sibling-platform implementations, broader provider-source corroboration, and browser/runtime parity. This source step must not be described as a completed autonomous AI integration.
