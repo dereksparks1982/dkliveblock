@@ -53,3 +53,18 @@ test("Both feature-only READMEs have no build log or identity story",()=>{
   assert.match(t,/elderredsoftworks@proton\.me/);
  }
 });
+
+test("Russian website introduction is natural and preserves exact Latin company name",()=>{
+ const english="Free Firefox ad blocking, tracker protection, popup prevention, and control over unwanted page clutter. From Elderred Softworks LLC.";
+ const russian="Бесплатное расширение для Firefox, которое блокирует рекламу и отслеживание, защищает от всплывающих окон и скрывает нежелательные элементы страниц. Разработано Elderred Softworks.";
+ assert.equal(l.localized(english,"ru"),russian);
+ assert.equal(l.localized(english,"en"),english);
+ assert.equal(l.localized(english,"ru").includes("Elderred Softworks"),true);
+ assert.doesNotMatch(l.localized(english,"ru"),/Элдерред|Софтворкс|Файрфокс|слежки/);
+ assert.match(site,/<p class="lead">Free Firefox ad blocking, tracker protection/);
+ const ru=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
+ assert.match(ru,/Разработчик: Elderred Softworks\./);
+ assert.doesNotMatch(ru,/Элдерред|Софтворкс/);
+ const translationSource=fs.readFileSync(path.join(__dirname,"../assets/site-localization.js"),"utf8");
+ assert.doesNotMatch(translationSource,/Элдерред|Софтворкс/);
+});

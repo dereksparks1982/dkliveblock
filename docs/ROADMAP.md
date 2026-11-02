@@ -1,3 +1,10 @@
+## Build 277 / v0.3.247: Natural Russian website introduction and exact company spelling
+- [x] Update only the Russian-facing introduction between the banner and download buttons with natural wording.
+- [x] Preserve the company name as the exact Latin brand `Elderred Softworks` instead of phonetic Cyrillic transliterations in Russian-facing website text and the Russian README.
+- [x] Align Russian meta description with standard terminology for online tracking.
+- [x] Protect the correct translation and reverse switch in a focused regression test.
+- [ ] Real GitHub Pages visual check remains pending. This update does not touch approved artwork, site geometry, or network-blocking behavior.
+
 ## Build 276 / v0.3.246: Bilingual website and extension controls
 - [x] Website language selector in top-right outside the banner.
 - [x] Local browser-language default (Russian when requested), saved explicit override, instant reversible switch.
