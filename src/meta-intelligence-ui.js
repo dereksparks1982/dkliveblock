@@ -5,6 +5,44 @@
  const idText=params.get("tab");
  const tabId=idText!==null&&/^\d+$/.test(idText)?Number(idText):null;
  let ready=false;
+ let facebookReport=null;
+ // Explicit read-only inspection: no page text, cookies or individual URLs.
+ async function checkFacebook(){
+  const panel=$("facebookDiagnostics");
+  facebookReport=null;$("facebookExport").disabled=true;
+  if(!Number.isSafeInteger(tabId)||tabId<0){
+   panel.textContent="Select a Facebook tab through the Site Dashboard.";return;
+  }
+  try{
+   const tab=await browser.tabs.get(tabId);
+   if(!/^https:\/\/(?:[^/]+\.)?facebook\.com(?:\/|$)/i.test(tab?.url||"")){
+    panel.textContent="This diagnostic works on a Facebook tab only.";return;
+   }
+   const reply=await browser.tabs.sendMessage(tabId,
+    {action:"getFacebookDetectorStatus"},{frameId:0});
+   if(!reply?.ok)throw Error(reply?.error||"Detector unavailable");
+   facebookReport=Object.freeze({
+    schema:1,kind:"dk-facebook-aggregate-diagnostics",
+    active:reply.active===true,adRecognition:reply.adRecognition===true,
+    picking:reply.picking===true,adapterLoaded:reply.adapterLoaded===true,
+    lastScanAt:Number(reply.lastScanAt)||0,detector:reply.detector||null
+   });
+   panel.textContent=JSON.stringify(facebookReport,null,2);
+   $("facebookExport").disabled=false;
+  }catch(e){
+   panel.textContent="Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. "+String(e?.message||"");
+  }
+ }
+ $("facebookCheck").addEventListener("click",()=>checkFacebook());
+ $("facebookExport").addEventListener("click",()=>{
+  if(!facebookReport)return;
+  const blob=new Blob([JSON.stringify(facebookReport,null,2)+"\n"],{type:"application/json"});
+  const url=URL.createObjectURL(blob),a=document.createElement("a");
+  a.href=url;a.download="dk-live-block-facebook-detector.json";
+  document.body.appendChild(a);a.click();a.remove();
+  setTimeout(()=>URL.revokeObjectURL(url),1000);
+ });
+
  // Render a read-only inventory. Each row is a potential mechanism, not a
  // claim that a request is an ad or an instruction to block anything.
  const catalog=globalThis.DKMetaDeliveryCatalog?.entries||[];
