@@ -1,3 +1,13 @@
+## Build 258 / v0.3.228: Agent Nesty numbered identity registry
+- [x] Replace plural naming with the singular **Agent Nesty** brand and assign stable `agent_nesty_1` / `agent_nesty_2` / `agent_nesty_3` identities.
+- [x] Display each agent's ID, specific job and real armed/standby state in the Cookie Watch page.
+- [x] Keep HTTP watcher passive; browser-change and JavaScript watcher not armed or claimed to be implemented.
+- [x] Run isolated JavaScript syntax checks and value-redaction/wake smoke test; add regression fixture.
+- [ ] Wire tested Firefox cookie-change and JavaScript-write hooks using the agent IDs, without collecting values.
+- [ ] Add functional per-cookie controls with user-approved persistence and minimal permissions.
+- [ ] Add requested extension display-language selector independently of regional filter-list subscriptions.
+- [ ] Full Linux Node suite, Firefox cookie workflow and Meta ad acceptance.
+
 ## Build 256 / 0.3.226: cookie intelligence and user-directed controls foundation
 - [x] Document a dedicated Cookie Intelligence & Control Center with per-cookie Allow/Block, site+domain+name scope, observed setting attempts, timestamps, metadata, verified ownership/purpose, opt-in collection and cleanup.
 - [x] Add bounded cookie metadata sanitizer and in-memory decision model; no values, account tokens, cookies, full URLs or raw headers persisted.
