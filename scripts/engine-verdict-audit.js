@@ -85,7 +85,9 @@ function audit(env,rows=SAMPLES){
   if(!row||typeof row.id!=="string"||!/^[a-z0-9-]{1,60}$/.test(row.id)||
      typeof row.rules!=="string"||row.rules.length>24000||
      typeof row.url!=="string"||row.url.length>16384||
-     typeof row.origin!=="string"||!env.DKRules.validDomains(row.origin)||
+     typeof row.origin!=="string"||
+     !/^(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,63}$/.test(row.origin)||
+     !env.DKRules.validDomains(row.origin)||
      typeof row.type!=="string"||row.type.length>25)
    throw Error("Invalid bounded synthetic engine case");
   let engine=cache.get(row.rules);
