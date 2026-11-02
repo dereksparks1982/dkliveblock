@@ -93,7 +93,8 @@ test("All modal headers show a large cyan X with accessible Close label",()=>{
  assert.equal((html.match(/<button class="lesson-close" type="button" aria-label="Close [^"]+"><span aria-hidden="true">&times;<\/span><\/button>/g)||[]).length,12);
  assert.doesNotMatch(html,/Close &times;/);
  assert.match(html,/\.lesson-close:not\(\.lesson-close-bottom\)\{display:inline-grid;place-items:center;width:44px;height:44px/);
- assert.match(html,/background:transparent;color:var\(--a\)/);
+ assert.match(html,/border:1px solid var\(--a\);border-radius:8px;background:var\(--a\);color:#06191a/);
+ assert.match(html,/\.lesson-close:not\(\.lesson-close-bottom\):hover\{background:#b1fff2;border-color:#b1fff2;color:#000\}/);
  assert.equal((html.match(/class="lesson-close lesson-close-bottom" type="button" hidden>Back to top/g)||[]).length,12);
 });
 test("All website card and button clicks use the bundled Pixabay sound without breaking dialog controls",()=>{
