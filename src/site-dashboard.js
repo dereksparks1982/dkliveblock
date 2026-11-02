@@ -658,6 +658,7 @@ $("dashboardMonitor").addEventListener("click",()=>{
 $("dashboardReport").addEventListener("click",()=>openLocal("report.html"));
 $("dashboardOptions").addEventListener("click",()=>browser.runtime.openOptionsPage());
 $("dashboardMetaIntel").addEventListener("click",event=>{event.preventDefault();const id=selected();if(id!==null)openLocal("meta-intelligence.html?tab="+id);});
+$("dashboardCookieNestys").addEventListener("click",event=>{event.preventDefault();const id=selected();if(id!==null)openLocal("cookie-agents.html?tab="+id);});
 const tabParameter=new URLSearchParams(location.search).get("tab");
 const preferred=tabParameter!==null&&/^\d+$/.test(tabParameter)?Number(tabParameter):null;
 selectTabs(Number.isSafeInteger(preferred)&&preferred>=0?preferred:null)
