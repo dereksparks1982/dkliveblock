@@ -66,6 +66,10 @@
 <p id="filterListNotice" role="status">Loading built-in filter lists…</p>
 <label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
 <p id="updated"></p><button id="update" type="button">Update all enabled lists</button></section>
+<section id="meta-graphql"><h2>Facebook GraphQL advertising data</h2>
+<label><input id="metaGraphqlFilter" type="checkbox"> Filter verified Sponsored entries in first-party Facebook GraphQL and JSONL responses</label>
+<p>On by default. Only known Facebook advertising records are removed. Unknown responses, ordinary posts, login/session data, media, and unrelated Meta sites are left unchanged. This complements the existing Facebook page scanner. If Facebook features stop working, turn this off; the other ad-blocking protections stay active.</p>
+</section>
 <section id="youtube-player-response"><h2>YouTube player advertising metadata</h2>
 <label><input id="youtubeResponseFilter" type="checkbox"> Remove known ad placements from eligible YouTube player JSON responses</label>
 <p>On by default. Firefox-only, limited to first-party YouTube player/get_watch JSON. Does not change video bytes, DRM, login, or unrecognized responses. It may stop working if YouTube changes its format and can be turned off if playback breaks. A response modification is not proof that a video played without ads.</p>
