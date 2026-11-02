@@ -23,6 +23,11 @@ Hebrew, Spanish, Greek, and French are not in the current localization plan. Thi
 ## Coverage limitations
 This is the **first Russian localization slice**, not a fully verified translation. Main popup labels/actions and Settings headings are translated. Complex dynamic feedback, verbose Settings descriptions, secondary tools (dashboard, agent viewers, network monitor), and error strings may remain English. Do not claim full Russian support until a UI text audit and Firefox acceptance pass.
 
+## Russian user disclosures (November 2, 2026)
+- Russian README now links to the accessible [Russian user notice](NOTICE_RU.md), including explicit voluntary proxy routing and local privacy explanations.
+- Optional network settings heading now uses **Proxy Settings / Сетевые настройки DK / Прокси**, not circumvention-promoting language. The network feature itself is unchanged and disabled by default.
+- Russian regulatory diligence is tracked separately in [regional compliance review](REGIONAL_COMPLIANCE_RUSSIA.md). These documents do not establish full Russian-language UI coverage or legal sign-off.
+
 ## Follow-up quality gates
 - Verify persistence of Russian setting across Firefox restart and synchronization between popup and Settings.
 - Audit and translate all remaining settings descriptions, system messages and named UI tools.
