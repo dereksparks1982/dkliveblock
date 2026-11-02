@@ -33,10 +33,10 @@ test("Build 241 later-created path and duplicate refresh are safe",()=>{
  const env=setup(),rule=[{name:"abort-on-property-read",path:"future.adCheck"}];
  env.apply(rule);
  env.window.future={adCheck:true,other:123};
- assert.throws(()=>env.window.future.adCheck,ReferenceError);
+ assert.throws(()=>env.window.future.adCheck,/blocked scripted property read/);
  assert.equal(env.window.future.other,123);
  env.apply(rule);
- assert.throws(()=>env.window.future.adCheck,ReferenceError);
+ assert.throws(()=>env.window.future.adCheck,/blocked scripted property read/);
  env.apply([]);
  assert.equal(env.window.future.adCheck,true);
 });
