@@ -5,6 +5,16 @@
  const idText=params.get("tab");
  const tabId=idText!==null&&/^\d+$/.test(idText)?Number(idText):null;
  let ready=false;
+ // Render a read-only inventory. Each row is a potential mechanism, not a
+ // claim that a request is an ad or an instruction to block anything.
+ const catalog=globalThis.DKMetaDeliveryCatalog?.entries||[];
+ const list=$("deliveryMethods");
+ if(list)for(const method of catalog){
+  const item=document.createElement("li");
+  item.textContent=method.description+" ["+method.layer+"] · "+method.mode+
+   " only · evidence: "+method.signal+" + "+method.context;
+  list.appendChild(item);
+ }
  function status(s){$("status").textContent=s;}
  function empty(s){$("rows").replaceChildren();const row=document.createElement("tr"),cell=document.createElement("td");cell.colSpan=5;cell.textContent=s;row.appendChild(cell);$("rows").appendChild(row);}
  function display(data){
