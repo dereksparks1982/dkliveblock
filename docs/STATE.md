@@ -1,3 +1,13 @@
+# Build 283 Linux regression checkpoint (November 2, 2026)
+
+**Version 0.3.253**. First genuine restricted Ubuntu seven-phase run
+[41538630300](https://github.com/dereksparks1982/dkliveblock/actions/runs/41538630300):
+1,232 Node cases, 1,214 passed, 18 failed; six Python companion modules passed.
+Identified stale tests and a real Nesty original-tab evidence loss; fixes applied to
+`main`. Second full post-fix run and real Firefox acceptance are pending. Missing npm
+package-lock remains an AMO reproducibility blocker. See [Build 283](BUILD_283.md).
+Approved English/Russian artwork and Facebook/YouTube network blocking policy unchanged.
+
 # Build 282 checkpoint (November 2, 2026)
 
 **Version:** 0.3.252. Existing three Nesty specialists and 11 compatibility
