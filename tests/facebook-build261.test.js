@@ -21,7 +21,7 @@ function market(labelText,top=130){
   childNodes:[{nodeType:3,textContent:labelText}],parentElement:tile,
   getAttribute:()=>null,closest:()=>null,
   getBoundingClientRect:()=>({top,left:370,width:100,height:18})};
- doc.querySelectorAll:q=>q.includes("main span")?[label]:[];
+ doc.querySelectorAll=q=>q.includes("main span")?[label]:[];
  return {doc,win,tile,label,grid};
 }
 function mobile(labelText,placement="header",visible=true){
@@ -44,7 +44,7 @@ function mobile(labelText,placement="header",visible=true){
   childNodes:[{nodeType:3,textContent:labelText}],
   parentElement:placement==="header"?header:bodyPart,
   getAttribute:()=>null,closest:()=>null,getBoundingClientRect:()=>({top:130})};
- doc.querySelectorAll:q=>q.includes("span,a,")?[label]:[];
+ doc.querySelectorAll=q=>q.includes("span,a,")?[label]:[];
  return {doc,win,card,label};
 }
 test("Build 261: Marketplace Sponsored badge hides only own tile",()=>{
