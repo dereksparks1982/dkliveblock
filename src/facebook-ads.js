@@ -160,7 +160,22 @@ function hasAdEvidence(card,doc,win,cache){
 // Nested list positions and quoted content are not separate feed posts.
 // Count only independent article/pagelet anchors before hiding an ancestor.
 // Adapted conceptually from the MIT blocker's holdsSeveralCards protections.
+// A wrapper holding two real card-sized sibling posts is not itself a post.
+// Facebook often reuses role="article" for shared/embedded content, so do not
+// treat nested positional markers alone as proof of additional cards.
+function holdsSeparatePostSiblings(card){
+ let siblings=0;
+ for(const child of Array.from(card?.children||[]).slice(0,60)){
+  const r=child.getBoundingClientRect?.();
+  if(!r||r.width<300||r.height<160)continue;
+  const landmark=child.matches?.('[role="article"],[data-pagelet^="FeedUnit"]')||
+   child.querySelector?.('[role="article"],[data-pagelet^="FeedUnit"]');
+  if(landmark&&++siblings>1)return true;
+ }
+ return false;
+}
 function independentPostCount(card){
+ if(holdsSeparatePostSiblings(card))return 2;
  const descendants=card.querySelectorAll?.(ARTICLE)||[];
  // An explicit article/FeedUnit is the post boundary. Nested list positions
  // (comments, cards, quotes) should not disqualify that same post.
@@ -652,7 +667,7 @@ function create(doc,win,max=100){
    cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
