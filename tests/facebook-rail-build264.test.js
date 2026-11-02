@@ -4,7 +4,7 @@ const FB=require("../src/facebook-ads.js");
 function railFixture(labelText,contacts=false){
  const win={innerWidth:1350,location:{hostname:"www.facebook.com",pathname:"/"},
   getComputedStyle:child=>({order:String(child.order||0),display:"block",visibility:"visible"})};
- const doc={body:{},documentElement:{},location:{hostname:"www.facebook.com"}};
+ const doc={body:{contains:()=>true},documentElement:{},location:{hostname:"www.facebook.com"}};
  const card={parentElement:doc.body,isConnected:true,style:{
   value:"",getPropertyValue(){return this.value;},getPropertyPriority(){return "";},
   setProperty(_,v){this.value=v;},removeProperty(){this.value="";}},
