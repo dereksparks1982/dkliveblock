@@ -1777,7 +1777,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){metaProviderEvidence.clear();data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))
    data.settings.paused=DKSiteAllowlist.normalize(s.paused);
