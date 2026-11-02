@@ -54,3 +54,26 @@ test("Empty nested error array is not a GraphQL failure",()=>{
 test("Root GraphQL error prevents nested edits",()=>{
  untouched(raw({...good,errors:[{message:"failed"}],require:nest(good).require}));
 });
+
+test("Build 271: malformed nested require cancels sibling edit",()=>{
+ untouched(raw({require:[{__bbox:{result:good}},{require:{unexpected:true}}]}));
+});
+test("Build 271: malformed bbox result cancels sibling edit",()=>{
+ untouched(raw({require:[{__bbox:{result:good}},{__bbox:{result:"bad transport"}}]}));
+});
+test("Build 271: malformed bbox require cancels sibling edit",()=>{
+ untouched(raw({require:[{__bbox:{result:good}},{__bbox:{require:{bad:true}}}]}));
+});
+test("Build 271: malformed nested result cancels sibling edit",()=>{
+ untouched(raw({require:[{__bbox:{result:good}},{result:42}]}));
+});
+test("Build 271: malformed bbox object cancels sibling edit",()=>{
+ untouched(raw({require:[{__bbox:{result:good}},{__bbox:"invalid"}]}));
+});
+test("Build 271: JSONL malformed nested field cancels all changes",()=>{
+ untouched("for (;;);"+raw(good)+"\\n"+raw({require:[{__bbox:{require:"no"}}]})+"\\n");
+});
+test("Build 271: ordinary message data fields do not block valid ad removal",()=>{
+ const x={data:{viewer:{news_feed:good.data.viewer.news_feed,messages:{result:"plain message",require:"plain message"}}}};
+ assert.equal(M.rewrite(raw(x)).removed,1);
+});
