@@ -2,7 +2,13 @@
 (function(root){"use strict";
 const TYPES=new Set(["ad","tracker","analytics","attribution","cdn","authentication","unknown"]);
 const MAX=100,HOST=/^[a-z0-9.-]{1,253}$/;
-function validHost(s){return typeof s==="string"&&HOST.test(s)&&s.includes(".")&&!s.includes("..");}
+function validHost(s){
+ if(typeof s!=="string"||!HOST.test(s)||!s.includes(".")||s.includes(".."))return false;
+ const labels=s.split(".");
+ return labels.every(label=>label.length>=1&&label.length<=63&&
+  /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label))&&
+  /[a-z]/.test(labels[labels.length-1]);
+}
 function normalize(record){
  if(!record||!validHost(record.host)||!TYPES.has(record.type))return null;
  const evidence=Array.isArray(record.evidence)?record.evidence.filter(x=>typeof x==="string"&&
@@ -23,7 +29,12 @@ function create(){
   const aggregate=Object.freeze({...row,
    allowed:Math.min(100000,(previous?.allowed||0)+(allowed?1:0)),
    blocked:Math.min(100000,(previous?.blocked||0)+(blocked?1:0)),
-   confidence:row.type==="unknown"?"unverified":row.confidence});
+   // A live request observation must never upgrade a reviewed provider
+   // classification or claim confidence merely by repeating the same request.
+   type:previous?.type!=="unknown"&&previous?.type?previous.type:row.type,
+   confidence:previous?.confidence==="verified"?"verified":
+    "unverified",
+   evidence:Object.freeze([...new Set([...(previous?.evidence||[]),...row.evidence])].slice(0,8))});
   records.set(row.host,aggregate);return aggregate;
  }
  function lookup(host){return validHost(host)?records.get(host.toLowerCase())||null:null;}
