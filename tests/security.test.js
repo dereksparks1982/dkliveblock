@@ -33,9 +33,10 @@ test("content script cannot mutate settings, proxy policy or logs",async()=>{
  const invalidKind=await handles.message({action:"reportPopupCleanup",count:1,kind:"other"},frame);
  assert.match(invalidKind.error,/Invalid popup report/);
  const rule=await handles.message({action:"addElementRule",selector:".sponsored"},frame);
- assert.equal(rule.ok,true);
- assert.match(saved.settings.customRules,/site\.example##\.sponsored/);
- assert.equal(saved.settings.customRules.includes("other.example"),false);
+ assert.match(rule.error,/extension interface/);
+ assert.equal(saved.settings.customRules||"","");
+ // Untrusted content cannot install persistent rules. Trusted extension
+ // controls remain the separate, user-directed edit path.
 
  // Build 174: sender.url from a non-extension caller without sender.tab
  // must never be interpreted as a trusted extension interface.
