@@ -1,3 +1,14 @@
+## Build 254 / 0.3.224: Meta delivery matrix and sponsored-post detection
+- [x] Inventory 24 documented ad delivery/advertising-assistance mechanisms, from GraphQL/JSONL through DOM, images, video, canvas, attribution and anti-adblock.
+- [x] Implement a read-only signal + contextual-evidence catalog under the Meta adapter; review/observe only, no speculative auto-blocking.
+- [x] Show the inventory in a collapsible section of the existing Meta Intelligence viewer, without moving existing controls.
+- [x] Correct nested list-position post-count handling and prefer real feed landmarks; add strict two-span "Ad" decoding.
+- [x] Add regression cases and perform small source-level JavaScript smoke evaluations; full Node suite and Firefox remain pending.
+- [ ] Instrument ad-scanner misses and compare exact DOM of remaining feed/rail ads with MIT reference.
+- [ ] Implement narrow, licensed Meta GraphQL/JSONL filtering only with proven response fixtures and reversible fallback.
+- [ ] Cover Instagram, Threads and WhatsApp with their own tested adapters.
+- [ ] Owner Facebook retest must verify Sponsored feed, right rail, organic posts, contacts, Messenger and video before a PASS.
+
 ## Build 253 / 0.3.223: Elderred project websites and Facebook Sponsored rail fallback
 - [x] Add separate "More from Elderred Softworks" website-link section above the DK Live Block footer in both Pages entrypoint copies, including Hanafi Learning Deck, Folkhold, Nougat Media Plus and Capital & Consequence.
 - [x] Verify three published addresses against official READMEs; Capital & Consequence Pages site requires live availability check and possible main/(root) Pages-source configuration (old homepage metadata still says federalelectric).
