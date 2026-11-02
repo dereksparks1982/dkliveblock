@@ -1,3 +1,14 @@
+## Build 259 / v0.3.229: Russian-first interface localization
+- [x] Add a persistent **Interface language** selector in both popup and Options/Settings, independent of regional ad filter subscriptions.
+- [x] Ship Russian as the first additional selectable UI locale, with English as baseline/fallback; no remote translators or new permissions.
+- [x] Record later targets: Arabic (ar), Turkish (tr), Urdu (ur), Persian/Farsi (fa). Do not add unsupported locale buttons.
+- [x] Translate primary popup controls and Settings section headings; keep dynamic translation scoped to extension UI pages.
+- [x] Run isolated Russian-to-English switch smoke test and add regression fixture.
+- [ ] Complete Russian localization for longer Settings explanations, error/status messages and secondary tools.
+- [ ] Verify persistence, long text wrapping and Firefox UI in a real browser, and have a fluent speaker proofread.
+- [ ] Localize Arabic, Turkish, Urdu, and Persian/Farsi with explicit right-to-left testing for ar, ur and fa.
+- [ ] Return to Meta sponsored feed/right-rail acceptance, Agent Nesty cookie enforcement, and full test suite without feature regressions.
+
 ## Build 258 / v0.3.228: Agent Nesty numbered identity registry
 - [x] Replace plural naming with the singular **Agent Nesty** brand and assign stable `agent_nesty_1` / `agent_nesty_2` / `agent_nesty_3` identities.
 - [x] Display each agent's ID, specific job and real armed/standby state in the Cookie Watch page.
