@@ -1,4 +1,11 @@
-# Current build: 266 / v0.3.236 (November 2, 2026)
+# Current build: 267 / v0.3.237 (November 2, 2026)
+
+- Corrected an event-batch short circuit in the Orion DOM experiment so it processes up to 40 Meta mutation records, including ephemeral Sponsored labels removed later in the same batch.
+- Strengthened Orion page-cache and iPhone foreground lifecycle: canceled callbacks from old generations cannot run in a reopened page, and visibility return schedules one rescan.
+- Aligned Firefox's own bounded observer to inspect every record in its 40-event window instead of stopping when both alert types are first seen.
+- Ran 11 isolated JS lifecycle regression scenarios. Full Linux suite and real Orion iPhone / Firefox Facebook tests remain outstanding.
+- Facebook GraphQL response rewriting remains OFF by default. Not a verified ad-removal PASS.
+
 
 - Added three **real event-driven, bounded** Agent Nesty Meta detectors on top of existing Facebook recognition. These are not neural-network predictions.
 - Corrected 29 missing Node test registrations and registered the eleventh-case Build 266 fixture; the full Ubuntu suite has not been executed.

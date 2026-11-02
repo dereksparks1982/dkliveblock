@@ -29,3 +29,6 @@ Status on 2026-11-02: research completed, **DOM-only candidate source implemente
 
 ## Privacy and user control
 No network to DK servers, telemetry, account content capture, remote JS, cookies or credentials in this Orion candidate. Hiding only affects the current page and is reversed on pagehide; disabling the experimental extension in Orion is the immediate fallback. Do not invent Orion ad-blocking results.
+
+## Build 267 lifecycle hardening
+Orion now processes the full bounded 40-record DOM mutation batch to retain late ad-reference changes, protects against stale page-cache timeouts and rescans when the iPhone page becomes visible. Eleven offline VM tests checked burst updates, stopped tabs, obsolete callbacks and the observer attribute list. These tests do not prove WebExtension support or actual ad removal on an iPhone.

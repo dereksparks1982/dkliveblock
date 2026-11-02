@@ -1,3 +1,12 @@
+## Build 267 / v0.3.237: Facebook feed bursts and Orion lifecycle
+- [x] Remove Meta mutation-batch premature return from experimental Orion candidate; process all 40 bounded records for disappearing/portal Sponsored evidence.
+- [x] Remove premature desktop Firefox observer break; no extra continuous polls or new permissions.
+- [x] Add Orion iPhone foreground/page-cache generation guard and visibility rescan; stop old pending callbacks.
+- [x] Add 11 focused VM lifecycle/Meta event tests; register in Linux suite.
+- [ ] Run exact-source seven-phase Ubuntu test suite and actual Firefox/Orion Facebook A/B checks. Core live Facebook protection remains unverified.
+- [ ] Investigate further Agent Nesty changes with a real missed ad fixture before enabling default GraphQL responses.
+- [ ] Test orion-ios packaging file installation and browser API support with owner.
+
 ## Build 266 / v0.3.236: proactive Agent Nesty Meta slices
 - [x] Integrate Meta-01/02/03 into current Facebook scanner and experimental Orion DOM adapter without adding a second competing engine.
 - [x] Simulate fragmented/ordered Sponsored labels, menu wording changes, CSS-hidden decoys, benign captions/menus and style mutations; 11/11 focused cases passed.

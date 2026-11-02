@@ -7,7 +7,7 @@
  const generic=root.DKAdRecognition?.create?.(doc,win,55)||null;
  const facebook=root.DKFacebookAds?.create?.(doc,win,90)||null;
  if(!generic&&!facebook)return;
- let observer=null,timer=null,queued=null,active=false;
+ let observer=null,timer=null,queued=null,active=false,generation=0;
  function scan(){
   queued=null;
   if(!active||doc.visibilityState==="hidden"||!doc.documentElement)return;
@@ -16,22 +16,31 @@
  }
  function schedule(){
   if(!active||queued!==null||typeof win.setTimeout!=="function")return;
-  queued=win.setTimeout(scan,450);
+  const current=generation;
+  queued=win.setTimeout(()=>{
+   // A queued callback from a prior pagehide must not affect a restored tab.
+   if(!active||generation!==current)return;
+   scan();
+  },450);
  }
  function changed(records){
-  let n=0;
+  let n=0,interesting=false;
   for(const item of records||[]){
    if(++n>40)break;
-   // Use the identical evidence triage as desktop DK's ad recognizers.
+   // Keep observing the entire bounded batch. An earlier style mutation
+   // must not prevent Facebook's ephemeral ad-ID cache from seeing the later
+   // removed Sponsored label in the same React update.
    try{
-    if(facebook?.observeMutation?.(item)||
-       root.DKAdRecognition?.relevantMutation?.(item,win.location.hostname))
-     return true;
+    const meta=facebook?.observeMutation?.(item)===true;
+    if(meta)interesting=true;
+    if(!interesting&&root.DKAdRecognition?.relevantMutation?.(item,win.location.hostname))
+     interesting=true;
    }catch(_){}
   }
-  return false;
+  return interesting;
  }
  function stop(){
+  generation++;
   active=false;
   try{observer?.disconnect();}catch(_){}
   observer=null;
@@ -42,6 +51,7 @@
  }
  function start(){
   if(active)return;
+  generation++;
   active=true;
   if(typeof win.MutationObserver==="function"&&doc.documentElement){
    try{
@@ -62,6 +72,11 @@
   win.addEventListener("pagehide",stop,false);
   win.addEventListener("pageshow",start,false);
  }
+ // On mobile, backgrounding a tab may stop its timers. Resume promptly only
+ // on visibility return; do not wake a paused or hidden document.
+ doc.addEventListener?.("visibilitychange",()=>{
+  if(active&&doc.visibilityState==="visible")schedule();
+ });
  if(doc.documentElement)start();
  else if(typeof win.addEventListener==="function")
   win.addEventListener("DOMContentLoaded",start,{once:true});

@@ -1,3 +1,9 @@
+## Build 267 (v0.3.237): Meta/Orion burst update reliability
+- Process the entire bounded Facebook update batch even after an earlier mutation schedules an ad scan. Preserve later ephemeral accessibility label data.
+- Stop pagehide-era delayed Orion callbacks from affecting a resumed page; rescan on iPhone foregrounding without scanning hidden pages.
+- Align desktop Firefox's existing 40-change observer with the same bounded batch integrity.
+- Register 11 additional Orion lifecycle tests, run them in the isolated JS harness; full Linux/Firefox/Orion checks outstanding.
+
 ## Build 266 (v0.3.236): Agent Nesty Meta evasion defenses and test inventory
 - Integrated three local, bounded Meta sentinels into the shared Facebook scanner for segmented Sponsored badges, exact Sponsored action menus and style-change rescans; original post and rail safety guards remain.
 - Repaired 29 previously unregistered Node test files in the seven-phase offline Linux runner; registered the new Meta Nesty regression file (169 total).

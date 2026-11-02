@@ -294,7 +294,8 @@
      if(!popups&&DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el)))popups=true;
      if(facebookRecognizer?.observeMutation(item))ads=true;
      if(!ads&&adRecognizer&&DKAdRecognition.relevantMutation(item,host))ads=true;
-     if(popups&&ads)break;
+     // Finish this bounded batch: later React records may contain ad label
+    // references that disappear before the scheduled rescan.
     }
     if(popups)queueOverlayScan();
     if(ads)queueAdScan();
