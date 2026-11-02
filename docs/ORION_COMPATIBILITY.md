@@ -38,3 +38,7 @@ Experimental Orion popup now has a user-initiated exact-host pause, with up to 1
 
 ## Build 269: current-tab binding
 Orion Pause/Resume requires the active tab's current URL and includes the exact hostname in its message. Content scripts reject commands for a different host, preventing stale popups from applying decisions after cross-site navigation. Corrupt saved host settings fail closed. No browser parity claimed; these changes await actual iPhone testing.
+
+## Build 272: conservative site-pause and page-cache safety
+
+Saved Orion paused-host lists are now fully validated, including change notifications; corrupt, oversized or removed data conservatively pauses DOM cleanup rather than silently resuming. Late initial reads cannot override a newer storage notification. A save error disables the stale popup button until reopened. While in page cache, delayed pause callbacks cannot restart scanning ahead of pageshow. A new bounded Meta 06 signal recognizes exact Sponsored/Ad label style changes on explicitly ID-bearing external spans/SVG labels; unrelated user content remains outside that matcher. All remain **source-level candidate controls**, not confirmed Orion iPhone/Mac behavior. The shared list storage may still have simultaneous cross-tab write conflicts; actual device and API tests remain required.

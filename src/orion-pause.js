@@ -2,13 +2,16 @@
 (function(root){"use strict";
 const api=root.browser||root.chrome,host=String(root.location?.hostname||"").toLowerCase();
 const KEY="dkOrionPausedHosts",MAX=100,store=api?.storage?.local;
-let paused=false,ready=false,listener=null,saved=!!store,queue=Promise.resolve();
+let paused=false,ready=false,listener=null,saved=!!store,queue=Promise.resolve(),revision=0;
 function valid(x){return typeof x==="string"&&x.length<=253&&x===x.toLowerCase()&&
  /^[a-z0-9.-]+$/.test(x)&&!x.startsWith(".")&&!x.endsWith(".")&&!x.includes("..");}
 function safeList(value){
- if(!Array.isArray(value))return [];
+ if(!Array.isArray(value)||value.length>MAX)throw Error("Invalid saved Orion host list");
  const out=new Set();
- for(const x of value.slice(0,MAX*2)){if(valid(x))out.add(x);if(out.size>=MAX)break;}
+ for(const x of value){
+  if(!valid(x))throw Error("Invalid saved Orion host entry");
+  out.add(x);
+ }
  return [...out];
 }
 function call(object,name,args){
@@ -39,16 +42,18 @@ async function read(){
  if(!record||typeof record!=="object"||
    Object.prototype.hasOwnProperty.call(record,KEY)&&!Array.isArray(record[KEY]))
   throw Error("Invalid saved Orion site settings");
- return safeList(record[KEY]);
+ return record[KEY]===undefined?[]:safeList(record[KEY]);
 }
 async function change(next){
  if(!ready||!valid(host)||typeof next!=="boolean")throw Error("Invalid site setting");
  if(!store){apply(next);return control.get();}
- const list=await read(),newList=list.filter(x=>x!==host);
- if(next&&newList.length>=MAX)throw Error("Saved site limit reached");
- if(next)newList.push(host);
- await call(store,"set",[{[KEY]:newList}]);
- apply(next);return control.get();
+ try{
+  const list=await read(),newList=list.filter(x=>x!==host);
+  if(next&&newList.length>=MAX)throw Error("Saved site limit reached");
+  if(next)newList.push(host);
+  await call(store,"set",[{[KEY]:newList}]);
+  saved=true;apply(next);return control.get();
+ }catch(error){saved=false;apply(true);throw error;}
 }
 api?.runtime?.onMessage?.addListener?.((message,sender,respond)=>{
  if(!message||typeof message!=="object")return false;
@@ -65,10 +70,24 @@ api?.runtime?.onMessage?.addListener?.((message,sender,respond)=>{
  return true;
 });
 api?.storage?.onChanged?.addListener?.((changes,area)=>{
- if(area==="local"&&changes?.[KEY]&&ready&&valid(host))
-  apply(safeList(changes[KEY].newValue).includes(host));
+ if(area!=="local"||!changes?.[KEY]||!valid(host))return;
+ revision++;
+ try{
+  const value=changes[KEY].newValue;
+  if(value===undefined)throw Error("Orion site settings cleared");
+  const list=safeList(value);
+  saved=true;apply(list.includes(host));
+ }catch(_){saved=false;apply(true);}
 });
 if(!valid(host)){apply(true);}
 else if(!store){apply(false);}
-else read().then(list=>apply(list.includes(host)),()=>{saved=false;apply(true);});
+else {
+ const startupRevision=revision;
+ read().then(list=>{
+  // A newer storage change is authoritative over this old async read.
+  if(revision===startupRevision){saved=true;apply(list.includes(host));}
+ },()=>{
+  if(revision===startupRevision){saved=false;apply(true);}
+ });
+}
 })(typeof globalThis!=="undefined"?globalThis:this);

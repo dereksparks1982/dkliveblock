@@ -60,7 +60,10 @@ button.addEventListener("click",async()=>{
   if(!r?.ok||r.site!==site)throw Error(r?.error||"Website changed; reopen the popup");
   paused=r.paused===true;
   status.textContent=r.site+(r.persistent?" · saved":" · current page only");
- }catch(e){status.textContent=String(e?.message||"Pause failed");}
+ }catch(e){
+  // Do not leave an enabled control backed by stale state after failed save.
+  tab=null;status.textContent=String(e?.message||"Pause failed")+"; reopen DK controls";
+ }
  finally{busy=false;update();}
 });
 init();

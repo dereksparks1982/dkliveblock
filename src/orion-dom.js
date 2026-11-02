@@ -8,7 +8,7 @@
  const facebook=root.DKFacebookAds?.create?.(doc,win,90)||null;
  if(!generic&&!facebook)return;
  let observer=null,timer=null,queued=null,active=false,generation=0;
- let paused=false,ready=!root.DKOrionPause;
+ let paused=false,ready=!root.DKOrionPause,pageHidden=false;
  function scan(){
   queued=null;
   if(!active||doc.visibilityState==="hidden"||!doc.documentElement)return;
@@ -52,6 +52,8 @@
  }
  function start(){
   if(active||paused||!ready)return;
+  // A late storage callback must not restart a page inside BFCache.
+  if(pageHidden)return;
   generation++;
   active=true;
   if(typeof win.MutationObserver==="function"&&doc.documentElement){
@@ -70,8 +72,8 @@
  }
  if(typeof win.addEventListener==="function"){
   // Restore styles when entering page cache; restart only on genuine pageshow.
-  win.addEventListener("pagehide",stop,false);
-  win.addEventListener("pageshow",start,false);
+  win.addEventListener("pagehide",()=>{pageHidden=true;stop();},false);
+  win.addEventListener("pageshow",()=>{pageHidden=false;start();},false);
  }
  // On mobile, backgrounding a tab may stop its timers. Resume promptly only
  // on visibility return; do not wake a paused or hidden document.

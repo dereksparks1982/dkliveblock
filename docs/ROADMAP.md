@@ -1,3 +1,13 @@
+## Build 272 / v0.3.242: Orion storage and page-cache reliability; Agent Nesty Meta 06
+- [x] Make Orion exact-site pause fail conservatively on corrupt, oversized or cleared saved host data, including storage-change events.
+- [x] Prevent late initial storage reads from overriding newer decisions, and stop failed save operations leaving an actionable stale popup.
+- [x] Keep Orion page-cache suspension authoritative until pageshow, even if asynchronous pause state arrives later.
+- [x] Add Agent Nesty Meta 06 for exact short ad-label attribute changes on referenced ID-bearing span/SVG nodes.
+- [x] Register automated focused regression fixtures in the existing offline Linux Node runner.
+- [ ] Run the full seven-phase Ubuntu suite; real Firefox signed-in Facebook and Orion iPhone/Mac acceptance is pending.
+- [ ] Improve cross-tab storage concurrency in the experimental candidate and validate actual Orion extension APIs.
+- [ ] Leave experimental GraphQL filtering OFF and preserve streaming and approved UI geometry.
+
 ## Build 271 / v0.3.241: Nested Meta transport schema guard
 - [x] Reject malformed explicitly named nested RequireJS / __bbox / result fields before any response edits, including late siblings and multi-line JSONL records.
 - [x] Keep unknown ordinary user data untouched and Facebook GraphQL rewriting OFF by default.

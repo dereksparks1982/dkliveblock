@@ -1,4 +1,4 @@
-/* DK Live Block / Agent Nesty Meta specialists 01-05, Builds 266-270.
+/* DK Live Block / Agent Nesty Meta specialists 01-06, Builds 266-272.
    Local simulated evasions only; no tracking, remote AI or standalone blocking.
    Single-post safety checks remain the responsibility of DKFacebookAds. */
 (function(root){"use strict";
@@ -7,7 +7,8 @@ const agents=Object.freeze([
  Object.freeze({id:"agent_nesty_meta_02",status:"armed",job:"Sponsored menu wording variants"}),
  Object.freeze({id:"agent_nesty_meta_03",status:"armed",job:"Event-driven label CSS rechecks"}),
  Object.freeze({id:"agent_nesty_meta_04",status:"armed",job:"Expiry and ID-reuse protection for ephemeral Sponsored labels"}),
- Object.freeze({id:"agent_nesty_meta_05",status:"armed",job:"Transactional nested GraphQL error and bound guards"})
+ Object.freeze({id:"agent_nesty_meta_05",status:"armed",job:"Transactional nested GraphQL error and bound guards"}),
+ Object.freeze({id:"agent_nesty_meta_06",status:"armed",job:"Bounded external Sponsored-label attribute changes"})
 ]);
 function normalize(t){return String(t||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
 function label(t){const s=normalize(t);return s==="sponsored"||s==="ad";}
@@ -56,7 +57,18 @@ function labelMutation(change,win){
  }
  return false;
 }
-const api=Object.freeze({agents,segmentedLabels,sponsoredAction,labelMutation});
+function portalMutation(change){
+ if(change?.type!=="attributes"||
+  !["style","class","hidden","aria-hidden","id"].includes(change.attributeName))return null;
+ const node=change.target;
+ if(node?.nodeType!==1||
+  !["span","text","title","symbol","svg"].includes(String(node.localName||node.tagName||"").toLowerCase()))return null;
+ const id=String(node.id||"");
+ if(!/^[\w:-]{1,90}$/.test(id))return null;
+ const text=String(node.textContent||"");
+ return text.length<=64&&label(text)?Object.freeze({id,label:normalize(text)}):null;
+}
+const api=Object.freeze({agents,segmentedLabels,sponsoredAction,labelMutation,portalMutation});
 root.DKMetaAgentNesty=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

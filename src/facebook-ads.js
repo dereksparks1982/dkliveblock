@@ -550,8 +550,15 @@ function create(doc,win,max=100){
  function observeMutation(r){
   if(!r)return false;
   const tracked=hidden.size?flagChangedContainer(r.target):false;
-  if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet"||
-   tracked||root.DKMetaAgentNesty?.labelMutation?.(r,win)===true;
+  if(r.type==="attributes"){
+   // A referenced portal/SVG Sponsored label can change appearance outside
+   // the feed. Remember only an exact short ad label with a bounded ID.
+   const portal=root.DKMetaAgentNesty?.portalMutation?.(r);
+   const remembered=portal?cacheAdId(portal.id,portal.label):false;
+   return remembered||r.attributeName==="aria-labelledby"||
+    r.attributeName==="aria-label"||r.attributeName==="data-pagelet"||
+    tracked||root.DKMetaAgentNesty?.labelMutation?.(r,win)===true;
+  }
   if(r.type==="characterData"){
    // An ephemeral ad-label portal can be OUTSIDE the feed. If its short text
    // changes, cache it and request a re-scan of the referencing post.
