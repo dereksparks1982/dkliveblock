@@ -1,3 +1,15 @@
+## Build 263 / v0.3.233: first-party Facebook GraphQL ad-record filter and website buttons
+- [x] Add separate Firefox response-body filter for schema-confirmed Sponsored Facebook GraphQL/JSONL records; preserve ordinary feed data and unknown shapes.
+- [x] Restrict to protected first-party Facebook GraphQL POST XHR responses, known MIME, bounded size/time/concurrency and fail-open stream handling.
+- [x] Add a separate `metaGraphqlFilter` Settings switch, default **OFF** until live Firefox verification; retain all existing ad recognition and site exceptions.
+- [x] Add read-only, tab-scoped GraphQL response filter counters to Meta Intelligence.
+- [x] Add three matching, bottom-aligned website buttons for Hanafi Learning Deck, Folkhold and Capital & Consequence in both Pages files, with no Nougat card.
+- [x] Correct historical redirect-resource test expectation for distinct `blocked.html` phishing warning page, without widening redirect asset permissions.
+- [x] Synchronize manifest and package versions at 0.3.233; create GraphQL and link regression fixtures, execute eight isolated response-filter checks.
+- [ ] Reproduce all 13 independent-audit test failures on a complete Ubuntu checkout; verify security contracts rather than assuming fixed.
+- [ ] Full `scripts/test-local.sh`, actual Facebook GraphQL schema/Firefox acceptance, and known-good YouTube A/B before enabling GraphQL by default.
+- [ ] Recheck main-frame `$document` / `$all` blocking, performance and optional proxy/dns permission scope after test baseline is green.
+
 ## Build 262 / v0.3.232: stronger MIT Facebook label decoding and safe DOM recycling
 - [x] Decode bounded nested, CSS-ordered, character-split Sponsored labels, rejecting malformed wrappers and decoys.
 - [x] Protect two distinct sibling posts even when their wrapper has an article landmark.
