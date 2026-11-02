@@ -1,53 +1,53 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Live Block</title><link rel="stylesheet" href="style.css"></head>
 <body class="popup">
-<header><span class="popup-brand"><img src="icons/dk-live-block.png" alt="" aria-hidden="true" width="24" height="24"><strong>DK LIVE BLOCK</strong></span><small>Development build</small></header>
-<main><div class="metric"><span><b id="count">0</b> <span id="countScope">blocked on this tab</span></span><button id="viewBlocked" type="button" aria-label="View blocked requests for this tab">View blocked</button></div>
-<div class="row" id="allowedSummary"><span><strong id="allowedCount">0</strong> permitted requests</span><button id="viewAllowed" type="button">View allowed</button></div>
+<header><span class="popup-brand" aria-label="DK Live Block"><img src="icons/dk-live-block.png" alt="" aria-hidden="true" width="24" height="24"><strong>LIVE BLOCK</strong></span><small>Development build</small></header>
+<main><div class="metric"><span><b id="count">0</b> <span id="countScope">blocked on this tab</span></span><button data-tone="white" id="viewBlocked" type="button" aria-label="View blocked requests for this tab">View blocked</button></div>
+<div class="row" id="allowedSummary"><span><strong id="allowedCount">0</strong> permitted requests</span><button data-tone="white" id="viewAllowed" type="button">View allowed</button></div>
 <label class="row">Protection everywhere <input id="enabled" type="checkbox"></label>
 <section id="allowlistSection">
 <strong>Allowed website</strong>
-<div class="row"><span id="site">Current site</span><button id="toggle" type="button">Allowlist website</button></div>
+<div class="row"><span id="site">Current site</span><button data-tone="black" id="toggle" type="button">Allowlist website</button></div>
 <p id="allowlistNotice" role="status">Allowlisting disables automatic filters here; any selective blocks you choose remain active. Other websites stay protected.</p>
 </section>
-<div class="row"><span>Only this tab</span><button id="temporary">Pause this tab</button></div>
-<div class="row" id="popupProtectionRow"><span>Popup cleanups: <b id="popups">0</b></span><button id="popupProtection">Disable popup cleanup here</button></div>
+<div class="row"><span>Only this tab</span><button data-tone="black" id="temporary">Pause this tab</button></div>
+<div class="row" id="popupProtectionRow"><span>Popup cleanups: <b id="popups">0</b></span><button data-tone="black" id="popupProtection">Disable popup cleanup here</button></div>
 <section id="siteProtections">
 <strong>Fine-tune this website</strong>
-<div class="row"><span>Cookie rejection</span><button id="siteCookieReject" type="button">Disable here</button></div>
-<div class="row"><span>Newsletter and distraction cleanup</span><button id="siteDistraction" type="button">Disable here</button></div>
+<div class="row"><span>Cookie rejection</span><button data-tone="black" id="siteCookieReject" type="button">Disable here</button></div>
+<div class="row"><span>Newsletter and distraction cleanup</span><button data-tone="black" id="siteDistraction" type="button">Disable here</button></div>
 <p id="siteProtectionInfo" role="status">These exceptions leave ad and tracker blocking active. No website is allowlisted.</p>
 </section>
 <section id="strictPopupRow" hidden>
 <strong>Strict scam-tab protection</strong>
 <p>Unwanted new tabs stopped: <b id="strictPopupBlocked">0</b></p>
-<button id="permitNextPopup" type="button">Allow next new tab (15 seconds)</button>
+<button data-tone="black" id="permitNextPopup" type="button">Allow next new tab (15 seconds)</button>
 <p id="strictPopupMessage" role="status">Unrequested new tabs from this site are blocked.</p>
 </section>
-<div class="row" id="mediaRecoveryRow" hidden><span>Playback Rescue</span><button id="mediaRecovery">Enable media rescue</button></div>
+<div class="row" id="mediaRecoveryRow" hidden><span>Playback Rescue</span><button data-tone="black" id="mediaRecovery">Enable media rescue</button></div>
 <p id="mediaWarning" hidden>Allows media requests on this site. Some video ads may play.</p>
-<div class="row" id="streamingDiagnosticsRow" hidden><span>Blocked streaming requests: <b id="streamingIssueCount">0</b></span><button id="streamingDiagnostics" type="button">Inspect</button></div>
+<div class="row" id="streamingDiagnosticsRow" hidden><span>Blocked streaming requests: <b id="streamingIssueCount">0</b></span><button data-tone="white" id="streamingDiagnostics" type="button">Inspect</button></div>
 <p id="streamingRepairNotice" hidden>Temporary playback repair active for this tab. Expires within 10 minutes.</p>
-<div class="row"><span>Failed resources: <b id="issues">0</b></span><button id="recovery">Network recovery</button></div>
-<div class="row"><button id="picker">Hide an element</button><button id="undo">Undo hide</button><button id="update">Update lists</button></div>
-<div class="row"><button id="investigateAd" type="button" class="full">Investigate missed ad · Local AI assist</button></div>
-<div class="row"><button id="siteDashboard" type="button" class="full">Site dashboard · Protection and exceptions</button></div>
-<div class="row"><button id="cosmeticDebugger" type="button" class="full">Inspect element-hiding filters</button></div>
-<div class="row"><button id="networkMonitor" type="button" class="full">Network Monitor · View requests and blocked traffic</button></div>
+<div class="row"><span>Failed resources: <b id="issues">0</b></span><button data-tone="white" id="recovery">Network recovery</button></div>
+<div class="row"><button data-tone="cyan" id="picker">Hide an element</button><button data-tone="black" id="undo">Undo hide</button><button data-tone="cyan" id="update">Update lists</button></div>
+<div class="row"><button data-tone="cyan" id="investigateAd" type="button" class="full">Investigate missed ad · Local AI assist</button></div>
+<div class="row"><button data-tone="white" id="siteDashboard" type="button" class="full">Site dashboard · Protection and exceptions</button></div>
+<div class="row"><button data-tone="white" id="cosmeticDebugger" type="button" class="full">Inspect element-hiding filters</button></div>
+<div class="row"><button data-tone="white" id="networkMonitor" type="button" class="full">Network Monitor · View requests and blocked traffic</button></div>
 <section id="videoTools" class="video-tools" hidden>
 <strong>▶ Current YouTube video</strong><p id="videoTitle"></p>
-<div class="video-actions"><button id="saveVideo">Save for Later</button></div>
+<div class="video-actions"><button data-tone="cyan" id="saveVideo">Save for Later</button></div>
 <label class="video-quality-label">Download quality
 <select id="videoQuality">
 <option value="compatible">Compatible MP4 (no FFmpeg needed)</option>
 <option value="best">Best video + audio (requires FFmpeg)</option>
 <option value="audio">Audio only (original format)</option>
 </select></label>
-<div class="video-actions"><button id="downloadVideo">Download This Video</button><button id="cancelVideo" hidden>Cancel Download</button></div>
+<div class="video-actions"><button data-tone="cyan" id="downloadVideo">Download This Video</button><button data-tone="black" id="cancelVideo" hidden>Cancel Download</button></div>
 <progress id="videoProgress" value="0" max="100" hidden></progress>
 <p id="videoDownloadStatus" role="status">Downloads require the optional Linux companion and verified yt-dlp.</p>
 </section>
-<p id="info" role="status">Loading…</p><div class="row"><button id="savedVideos">My Saved Videos</button><button id="myDownloads">My Downloads</button></div>
-<div class="row"><button id="dependencies">Dependencies</button><button id="reportBug" type="button">Report a problem</button></div>
-<button id="settings" class="full">Settings, privacy and logs</button></main>
-<footer>No account · No telemetry · No paywall<br><a class="repo-link" href="https://github.com/dereksparks1982/dkliveblock" target="_blank" rel="noopener noreferrer" title="View DK Live Block source and support on GitHub">GitHub Repository</a> · <button id="patreonSupport" type="button" class="patreon-button" disabled>Support on Patreon</button></footer><script src="support.js"></script><script src="video-library.js"></script><script src="popup.js"></script></body></html>
+<p id="info" role="status">Loading…</p><div class="row"><button data-tone="white" id="savedVideos">My Saved Videos</button><button data-tone="white" id="myDownloads">My Downloads</button></div>
+<div class="row"><button data-tone="white" id="dependencies">Dependencies</button><button data-tone="white" id="reportBug" type="button">Report a problem</button></div>
+<button data-tone="white" id="settings" class="full">Settings, privacy and logs</button></main>
+<footer>No account · No telemetry · No paywall<br><a class="repo-link" href="https://github.com/dereksparks1982/dkliveblock" target="_blank" rel="noopener noreferrer" title="View DK Live Block source and support on GitHub">GitHub Repository</a> · <button data-tone="white" id="patreonSupport" type="button" class="patreon-button" disabled>Support on Patreon</button></footer><script src="support.js"></script><script src="video-library.js"></script><script src="popup.js"></script></body></html>

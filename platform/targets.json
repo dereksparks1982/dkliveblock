@@ -1,0 +1,31 @@
+{
+  "schema": 1,
+  "project": "DK Live Block",
+  "single_source": "src",
+  "supported_source": "firefox",
+  "targets": {
+    "firefox": {
+      "engine": "gecko",
+      "manifest": 2,
+      "network_backend": "blocking-webrequest",
+      "status": "development",
+      "package": "xpi",
+      "builder": "scripts/package-firefox.py"
+    },
+    "chrome": {
+      "engine": "chromium",
+      "manifest": 3,
+      "network_backend": "declarative-net-request",
+      "status": "adapter-required",
+      "package": "zip"
+    },
+    "edge": {
+      "engine": "chromium",
+      "manifest": 3,
+      "network_backend": "declarative-net-request",
+      "status": "adapter-required",
+      "package": "zip"
+    }
+  },
+  "principle": "One shared filtering core. Browser adapters and release manifests may vary. No parity claim before browser testing."
+}

@@ -1,3 +1,15 @@
+## Build 239 / 0.3.209: Owner-controlled investigator + browser portability foundation
+- [x] Integrate the **existing** on-page draggable Ad Investigator with read-only bounded DOM hierarchy, outline and cosmetic selector match checks, plus direct links to the original Network Monitor, rule-provenance Site Dashboard and Cosmetic Debugger. Never claim CSS matches prove a hide was applied.
+- [x] Keep manual hide/undo/selector draft, site exception preferences, no-upload privacy, and selected panel position on repeat inspection.
+- [x] Network Monitor: opt-in, in-memory third-party hostname/resource groups, counted from actual captured traffic, linked to existing reversible host/type Allow and Block controls. Purpose hints remain unverified, not automatically bad.
+- [x] Owner interface: original DK icon + **LIVE BLOCK** header text, cyan primary/white investigation/black secondary popup actions and accessible sliding switches for protection and Allow/Block. Preserve popup size and public website geometry.
+- [x] One-source, three-target architecture foundation: data-only Firefox/Chrome/Edge target manifest, pure runtime capability selection, read-only packaging plan, strict Firefox candidate delegation, and fail-closed Chrome/Edge gates until MV3 DNR adapter and actual browser tests exist. Firefox remains the only active runtime.
+- [x] Keep public marketing free of adult-content and piracy-site names; independent test records remain in internal docs, not the README.
+- [x] Eight focused inspector tests passed in isolated JavaScript and compatibility smoke checks for Firefox/Chrome/Edge passed. Dedicated five-case compatibility test registered for the Linux suite. **Full seven-phase Ubuntu tests and real Firefox UI acceptance not run**.
+- [ ] Validate in real Firefox: investigator on Facebook; preserved sign-in including Google account creation; new Network Monitor views, Allow/Block toggles, disabled/error states, keyboard accessibility and actual automatic Facebook ad removal.
+- [ ] Port blocking logic and lifecycle to Chrome/Edge Manifest V3 declarativeNetRequest without losing safety, explainability or controls; only then produce and test three packages. No parity claim or release.
+- [ ] Broader real-browser tests, release dependencies, signing, and owner acceptance still pending. No new GitHub Actions or new branch.
+
 ## Build 238: Auto-hide Facebook posts recognized by the Ad Investigator (0.3.208)
 - [x] Repair the confirmed mismatch between manually inspected Facebook Sponsored feed posts and automatic detection: share the existing bounded Ad Investigator card resolver and explicit `sponsoredMenu` evidence, **not** the AI score, to select a safe full post.
 - [x] Recognize sponsored-content accessible menus despite trailing spaces or formatting that defeats an exact CSS suffix selector, even without role=article / FeedUnit wrappers.

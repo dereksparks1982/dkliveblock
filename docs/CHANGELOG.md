@@ -1,3 +1,13 @@
+## Build 239 (0.3.209): integrated defense controls and future one-source browser adapters
+- Completed owner-requested integration of local Ad Investigator with bounded DOM hierarchy and cosmetic selector matches; linked existing network monitor, rule evidence and cosmetic filter debugging without hiding or saving extra items automatically.
+- Grouped only opt-in captured third-party requests by destination hostname and resource type. Linked each to existing request detail search and reversible individually labeled Allow/Block controls.
+- Styled Allow/Block and global-protection checkboxes as accessible cyan/dark sliding switches. Existing checkbox state, confirmation, error recovery and persistent choices remain authoritative.
+- Corrected duplicate popup brand text: cyan DK logo + LIVE BLOCK. Applied cyan primary/white inspection/black secondary button hierarchy while preserving 340px popup geometry.
+- Fixed investigator startup resetting loaded site exceptions, retained movable window position, and restricted new background read/navigation operations to verified active top-frame content senders and fixed extension destinations.
+- Introduced a read-only browser capability adapter, single-source three-target plan and guarded Python packaging dispatcher. Firefox MV2/actual bundled filtering stays intact; Chrome/Edge need separate Chromium MV3 network implementation and live validation before their packages can be built.
+- Removed adult/piracy-site names from both public website mirrors without changing their approved four-button layout. README left unchanged, and all build details remain in docs.
+- Eight inspector/integration checks and basic three-browser capability simulations passed in isolated JavaScript; new compatibility tests are registered in local suite. Full seven-phase Linux suite, real Firefox and Chromium browser testing remain pending. No competitor parity or public release.
+
 ## Build 238 (0.3.208): Facebook automatic detection reuses confirmed investigator evidence
 - Fix the owner-observed **strong-evidence-but-ad-visible** mismatch: the automatic Facebook scanner now finds expressly sponsored-content menus and uses the same bounded candidate-for-post and facts-for-post logic as the user-invoked Ad Investigator, rather than depending on an article marker or strict accessible-label suffix.
 - Hide only bounded Facebook feed posts containing a directly verified sponsored-content action menu; synthetic AI score alone never blocks anything. Continue respecting safely bounded structure and protected contexts.

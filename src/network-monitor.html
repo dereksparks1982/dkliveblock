@@ -35,6 +35,10 @@
 <p id="allowStatus" role="status">No exceptions have been added.</p>
 <div id="allowList"></div>
 </section>
+<section id="trackerActivity"><h2>Third-party destinations &amp; tracker controls</h2>
+<p>Review observed destinations by hostname and request type. A third-party request is not necessarily advertising, tracking or harmful. Select <strong>Inspect &amp; control</strong> for its individual request evidence and your existing reversible Allow/Block switches. Capture starts only when you press Start capture.</p>
+<div id="trackerRows" aria-live="polite">Start capture to review third-party destinations.</div>
+</section>
 <section id="popupActivity"><h2>Popup and popunder activity</h2>
 <p>Shows new tabs DK Live Block closed while private request logging was enabled. Some sites first create a blank tab, so Firefox may never reveal the intended destination. Unknown means unknown, not an assumed scam hostname.</p>
 <div class="network-monitor-controls">
@@ -50,4 +54,4 @@
 <p><strong>Privacy:</strong> The monitor keeps up to 1,500 recent requests per tab in Firefox memory. It does not collect full URL paths, query strings, request or response bodies, cookies, headers, passwords or IP packet contents. When the limit is reached, older rows are discarded and a warning appears. Export happens only when you click Export CSV.</p>
 <p>The number on the DK Live Block toolbar icon counts blocked requests on the current tab independently of whether monitoring is enabled. It resets when the tab navigates or reloads.</p>
 <p><strong>Scope:</strong> This shows Firefox web requests, not all traffic from your Linux computer. Some browser-internal or cached activity may not appear.</p>
-</main><script src="access-inspector.js"></script><script src="network-monitor.js"></script></body></html>
+</main><script src="access-inspector.js"></script><script src="tracker-groups.js"></script><script src="network-monitor.js"></script></body></html>

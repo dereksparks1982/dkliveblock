@@ -29,6 +29,12 @@ function matches(entry){
  return (status==="all"||entry.status===status)&&(type==="all"||entry.type===type)&&
   (!search||entry.host.includes(search));
 }
+function requestSwitch(input,action){
+ const wrap=document.createElement("span");wrap.className="dk-toggle";wrap.dataset.action=action;
+ const track=document.createElement("span");track.className="dk-toggle-track";track.setAttribute("aria-hidden","true");
+ const caption=document.createElement("span");caption.className="dk-toggle-caption";caption.textContent=action;
+ wrap.append(input,track,caption);return wrap;
+}
 function render(){
  const snapshot=lastSnapshot||{rows:[],counts:{},seen:0,dropped:0,active:false,siteHost:""};
  $("monitorSeen").textContent=String(snapshot.seen||0);
@@ -74,8 +80,7 @@ function render(){
     if(!ok)toggle.checked=!enabling;
     toggle.disabled=false;
    });
-   const label=document.createElement("label");label.append(toggle,
-    document.createTextNode(" Allow host + type"));
+   const label=document.createElement("label");label.append(requestSwitch(toggle,"Allow"));
    control.appendChild(label);
   }else if(entry.status==="allowed"&&entry.host&&controlsSite===snapshot.siteHost&&
        !["popup","main_frame","document"].includes(entry.type)){
@@ -88,8 +93,7 @@ function render(){
     try{if(!await blockAllowedEntry(entry,block))toggle.checked=!block;}
     finally{toggle.disabled=false;}
    });
-   const label=document.createElement("label");
-   label.append(toggle,document.createTextNode(" Block host + type"));
+   const label=document.createElement("label");label.append(requestSwitch(toggle,"Block"));
    control.appendChild(label);
   }else{
    control.textContent=entry.status==="blocked"?
@@ -98,6 +102,7 @@ function render(){
   row.appendChild(control);
   body.appendChild(row);
  }
+ renderTrackerGroups(snapshot);
  $("monitorMore").hidden=filtered.length<=displayLimit;
  $("monitorCount").textContent=filtered.length+" matching requests across "+new Set(filtered.map(x=>x.host+"|"+x.type)).size+" host/type pairs; showing "+visible.length+
   (snapshot.dropped?" · "+snapshot.dropped+" oldest requests discarded at the 1,500-row limit.":"");
@@ -105,6 +110,37 @@ function render(){
   "Capturing network requests on "+snapshot.siteHost+" (this tab only).":
   snapshot.seen?"Capture stopped for "+snapshot.siteHost+". Results remain in memory.":
   "Capture not running. Click Start capture to see new network requests.";
+}
+function renderTrackerGroups(snapshot){
+ const panel=$("trackerRows");if(!panel)return;
+ panel.replaceChildren();
+ if(!Array.isArray(snapshot?.rows)||!snapshot.rows.length){
+  panel.textContent="Start capture, then browse this site to review its third-party destinations.";
+  return;
+ }
+ const groups=DKTrackerGroups.group(snapshot,DKAccessInspector);
+ if(!groups.length){
+  panel.textContent="No third-party destinations observed. This is not proof none were requested.";
+  return;
+ }
+ for(const group of groups){
+  const row=document.createElement("div");row.className="log-row";
+  const summary=document.createElement("span");
+  summary.textContent=group.host+" · "+group.type+" · "+
+   group.total+" request(s), "+group.blocked+" blocked, "+group.allowed+" allowed. "+
+   (group.purpose.certainty==="likely"?"Likely purpose: ":"Unverified purpose: ")+
+   group.purpose.purpose;
+  const inspect=document.createElement("button");inspect.type="button";
+  inspect.textContent="Inspect & control";
+  inspect.addEventListener("click",()=>{
+   $("monitorStatus").value="all";
+   $("monitorType").value="all";
+   $("monitorSearch").value=group.host;
+   displayLimit=250;render();
+   $("monitorRows")?.scrollIntoView?.({behavior:"smooth",block:"start"});
+  });
+  row.append(summary,inspect);panel.appendChild(row);
+ }
 }
 function renderPopupHistory(){
  const panel=$("popupHistoryRows");panel.replaceChildren();

@@ -1,7 +1,15 @@
 # DK Live Block: current engineering state
 
-**Latest repository source: Build 238 / 0.3.208 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
+**Latest repository source: Build 239 / 0.3.209 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
 Historical build sections below remain dated snapshots; this document distinguishes source implementation from browser acceptance and does not claim competitor parity.
+
+## Build 239 / 0.3.209 snapshot (unreleased)
+- Source work: draggable private Ad Investigator now includes bounded DOM ancestry and cosmetic matches plus existing network, rule detail and cosmetic-debug entry points. Owner only. No automatic block from AI scores.
+- Source work: opt-in network capture shows grouped third-party destinations and uses existing scoped, reversible Allow/Block request controls displayed as cyan/dark switches. The main toolbar brand is DK icon + LIVE BLOCK with functional black/white/cyan buttons.
+- Portability: Firefox/Chrome/Edge share the one source tree and capability profile. Firefox stays the actual MV2 runtime. Chrome/Edge require MV3 DNR network-port and background conversion, currently blocked, and won't generate falsely advertised usable packages.
+- Owner observed a successful Google-based NBCUniversal sign-in/account creation with current filtering. Retest on Build 239 before considering it a fresh acceptance; do not broadly allowlist Google traffic.
+- Current status: real automatic Facebook sponsored-feed/sidebar removal not verified. Keep documented owner pass/provisional/known-issue history. The exact Build 239 full Ubuntu seven-phase and live browser tests remain pending.
+- Public README has no release-status paragraph. Public website status omits adult and piracy-site names. Detailed historical QA may name particular test sites as needed for maintenance.
 
 ## Current browser acceptance (Build 232, owner-reported)
 - **XNXX PASS:** User confirmed site works in Firefox with the new premium-banner and ad cleanup.

@@ -164,3 +164,38 @@ h1{margin:0}h2{margin:0 0 12px;font-size:18px}.options{max-width:900px;margin:au
  flex:0 0 101px;padding:7px 8px;font-size:12px;
  line-height:20px;white-space:nowrap;text-align:center;
 }
+
+/* Build 239: three-tone command hierarchy in the already-approved 340px popup.
+   Cyan = primary action, white = investigate/navigation, black = toggle/undo.
+   No element size, spacing, order, brand geometry or icon changes. */
+.popup button[data-tone="cyan"]{background:#19d6cc;color:#042522;border:0;box-shadow:inset 0 0 0 1px #61fff4}
+.popup button[data-tone="white"]{background:#fafdfc;color:#082522;border:0;box-shadow:inset 0 0 0 1px #c8e6de}
+.popup button[data-tone="black"]{background:#071a19;color:#f1fbf8;border:0;box-shadow:inset 0 0 0 1px #608b84}
+.popup button[data-tone]:hover:not(:disabled){filter:brightness(1.09)}
+.popup button[data-tone]:focus-visible{outline:3px solid #9df5ef;outline-offset:2px}
+.popup button[data-tone]:disabled{opacity:.4}
+
+/* Build 239: slider toggles retain native checkboxes, accessible names,
+   change handlers, confirmations and failures. Action labels say Allow
+   versus Block, not an ambiguous unlabeled on/off switch. */
+.dk-toggle{display:inline-flex;align-items:center;gap:8px;position:relative;flex-shrink:0;min-height:28px;cursor:pointer}
+.dk-toggle input[type="checkbox"]{position:absolute!important;top:0;left:0;width:48px;height:26px;margin:0;opacity:0;z-index:1;cursor:pointer}
+.dk-toggle-track{display:inline-block;box-sizing:border-box;width:48px;height:26px;border:2px solid #69968d;border-radius:18px;background:#071918;transition:background .16s ease,border-color .16s ease;position:relative;pointer-events:none;flex:none}
+.dk-toggle-track::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#f6fffd;box-shadow:0 1px 4px #0008;transition:transform .16s ease;pointer-events:none}
+.dk-toggle input:checked+.dk-toggle-track{background:#19d6cc;border-color:#19d6cc}
+.dk-toggle input:checked+.dk-toggle-track::after{transform:translateX(22px);background:#062824}
+.dk-toggle input:focus-visible+.dk-toggle-track{outline:3px solid #baf9e5;outline-offset:3px}
+.dk-toggle input:disabled+.dk-toggle-track{opacity:.4;cursor:not-allowed}
+.dk-toggle-caption{font-size:12px;font-weight:700;color:#f4fffd;pointer-events:none}
+.dk-toggle[data-action="Block"] .dk-toggle-caption{color:#ffefe7}
+@media(prefers-reduced-motion:reduce){.dk-toggle-track,.dk-toggle-track::after{transition:none}}
+/* Global protection gets the same switch style without repositioning it. */
+.popup #enabled{appearance:none;-webkit-appearance:none;box-sizing:border-box;width:48px;height:26px;flex:0 0 48px;margin:0;border:2px solid #69968d;border-radius:18px;background:#071918;position:relative;cursor:pointer}
+.popup #enabled::after{content:"";position:absolute;left:3px;top:3px;width:16px;height:16px;border-radius:50%;background:#f6fffd;box-shadow:0 1px 4px #0008;transition:transform .16s ease}
+.popup #enabled:checked{background:#19d6cc;border-color:#19d6cc}
+.popup #enabled:checked::after{transform:translateX(22px);background:#062824}
+.popup #enabled:focus-visible{outline:3px solid #baf9e5;outline-offset:2px}
+@media(prefers-reduced-motion:reduce){.popup #enabled::after{transition:none}}
+#trackerRows{max-height:370px;overflow-y:auto}
+#trackerRows .log-row{gap:16px;padding:10px 4px}
+#trackerRows .log-row button{min-width:128px;flex-shrink:0}

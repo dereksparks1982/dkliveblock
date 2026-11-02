@@ -791,11 +791,44 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
  if(typeof sender.url==="string"&&sender.url&&!ownExtensionPage&&!sender.tab)
   return {error:"This action is only available in the extension interface."};
  const fromContent=!!sender.tab&&!ownExtensionPage;
- if(fromContent&&msg.action!=="getStyle"&&msg.action!=="reportPopupCleanup"&&msg.action!=="rememberVideoProgress"&&msg.action!=="reportPlaybackHealth"&&msg.action!=="reportYouTubeBootstrap"&&msg.action!=="reportYouTubePagePrune")
+ if(fromContent&&!["getStyle","reportPopupCleanup","rememberVideoProgress","reportPlaybackHealth","reportYouTubeBootstrap","reportYouTubePagePrune","getInvestigatorCosmetics","openInvestigatorTool"].includes(msg.action))
   return {error:"This action is only available in the extension interface."};
  const id=fromContent?sender.tab.id:(Number.isInteger(msg.tabId)?msg.tabId:-1);
  const url=fromContent?(sender.url||sender.tab.url||""):(msg.url||sender.url||"");
  const h=host(url);
+ if(msg.action==="getInvestigatorCosmetics"||msg.action==="openInvestigatorTool"){
+  // Only active top-level DK content scripts can request local inspection.
+  // Bind solely to browser-supplied sender/tab URLs, not message URL fields.
+  if(!data.ready||!fromContent||sender.frameId!==0||
+     !Number.isInteger(id)||id<0||!/^https?:\/\//i.test(url)||
+     !h||!activeTab(id,h))
+   return {error:"Only an active protected website may use the investigator."};
+  let tab;
+  try{tab=await browser.tabs.get(id);}
+  catch(_){return {error:"The original website tab is unavailable."};}
+  const liveSite=host(tab?.url||"");
+  if(!/^https?:\/\//i.test(tab?.url||"")||liveSite!==h||
+       data.hosts.get(id)&&data.hosts.get(id)!==h)
+   return {error:"The website changed during inspection."};
+  const policy=data.engine.getPagePolicy(tab.url);
+  if(policy.document)return {error:"Filtering is disabled for this site."};
+  if(msg.action==="getInvestigatorCosmetics"){
+   if(policy.elemhide)return {ok:true,siteHost:h,selectors:[],note:"Cosmetic filtering is disabled for this site."};
+   const selectors=DKAuthProtection.safeCosmetics(
+     DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,240),h))
+     .filter(s=>typeof s==="string"&&s.length>0&&s.length<=240)
+     .slice(0,80);
+   return {ok:true,siteHost:h,selectors,
+    note:"At most 80 eligible CSS selectors were sampled. A match does not prove a rule was applied."};
+  }
+  const tools={network:"network-monitor.html",cosmetic:"cosmetic-debug.html",
+    dashboard:"site-dashboard.html"};
+  if(!Object.prototype.hasOwnProperty.call(tools,msg.tool))
+   return {error:"Unknown DK Live Block investigator destination."};
+  const destination=browser.runtime.getURL(tools[msg.tool]+"?tab="+id);
+  try{await browser.tabs.create({url:destination});return {ok:true};}
+  catch(_){return {error:"Unable to open the selected DK Live Block tool."};}
+ }
  if(msg.action==="status")return status(id,url);
  if(msg.action==="permitNextPopupTab"){
   if(fromContent||id<0)return {error:"Extension toolbar only."};

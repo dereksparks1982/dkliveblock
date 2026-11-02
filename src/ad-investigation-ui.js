@@ -1,10 +1,10 @@
-/* DK Live Block Build 237: explicit, private, movable ad investigation UI.
+/* DK Live Block Build 239: explicit, private, movable ad investigation UI.
    An owner-triggered picker presents evidence and a draft; never sends DOM,
    URLs, labels, or model output to background servers or auto-saves rules. */
 (function(){"use strict";
  if(typeof browser==="undefined"||!browser.runtime?.onMessage)return;
  const INFO_STYLE="position:fixed!important;z-index:2147483646!important;right:12px!important;top:12px!important;width:min(420px,calc(100vw - 24px))!important;max-height:85vh!important;overflow:auto!important;padding:14px!important;background:#09232a!important;color:#f1fbfb!important;border:2px solid #38e2da!important;border-radius:9px!important;box-shadow:0 8px 28px #000a!important;font:14px/1.45 system-ui,sans-serif!important;";
- let picking=false,overlay=null,highlight=null,oldOutline=null,selected=null,undoStack=[],activeExceptions=[];
+ let picking=false,overlay=null,highlight=null,oldOutline=null,selected=null,undoStack=[],activeExceptions=[],activeSelectors=[],inspectorNote="",panelPosition=null;
  function restoreOutline(){
   if(!highlight)return;
   try{
@@ -31,7 +31,12 @@
  function button(title,fn){
   const b=make("button",title);
   b.type="button";
-  b.setAttribute("style","background:#18d2d1!important;color:#032224!important;border:0!important;border-radius:5px!important;padding:8px 11px!important;margin:5px 6px 0 0!important;font:700 13px system-ui,sans-serif!important;cursor:pointer!important");
+  const secondary=/^(Pick another|Cancel|Close)$/.test(title);
+  const primary=title==="Hide this page item";
+  const bg=primary?"#19d6cc":secondary?"#071a19":"#fafdfc";
+  const fg=secondary?"#f1fbf8":"#042522";
+  const border=secondary?"#608b84":primary?"#19d6cc":"#c8e6de";
+  b.setAttribute("style","background:"+bg+"!important;color:"+fg+"!important;border:1px solid "+border+"!important;border-radius:5px!important;padding:8px 11px!important;margin:5px 6px 0 0!important;font:700 13px system-ui,sans-serif!important;cursor:pointer!important");
   b.addEventListener("click",event=>{event.preventDefault();event.stopPropagation();fn();});
   return b;
  }
@@ -52,6 +57,7 @@
   overlay.style.setProperty("right","auto","important");
   overlay.style.setProperty("left",Math.round(left)+"px","important");
   overlay.style.setProperty("top",Math.round(top)+"px","important");
+  panelPosition={left,top};
  }
  function movePanel(e){
   if(!dragging||dragging.id!==e.pointerId)return;
@@ -91,7 +97,7 @@
  }
  function close(){
   endPanelDrag();
-  picking=false;restoreOutline();selected=null;activeExceptions=[];
+  picking=false;restoreOutline();selected=null;activeExceptions=[];activeSelectors=[];inspectorNote="";panelPosition=null;
   overlay?.remove();overlay=null;
   document.removeEventListener("mouseover",onHover,true);
   document.removeEventListener("click",onChoose,true);
@@ -105,6 +111,7 @@
    document.documentElement.appendChild(overlay);
   }
   overlay.replaceChildren(movableTitle("DK Live Block · Ad Investigator"),make("p",message));
+  if(panelPosition)positionPanel(panelPosition.left,panelPosition.top);
  }
  function onHover(event){
   if(!picking||overlay?.contains(event.target))return;
@@ -134,6 +141,47 @@
   if(!result.reasons.length)ul.appendChild(make("li","No recognized advertising markers were found."));
   const notice=make("p","Nothing has been blocked or saved. Any hide is temporary until you undo it or reload the page.");
   overlay.replaceChildren(head,p,explanation,ul,notice);
+  // User-requested DOM and cosmetic rule evidence inside the same movable
+  // investigator window. Only explicit click triggers read-only inspection.
+  const details=make("details");
+  const summary=make("summary","DOM hierarchy & cosmetic filter matches");
+  summary.setAttribute("style","cursor:pointer!important;font-weight:700!important;");
+  details.appendChild(summary);
+  const hierarchy=globalThis.DKInspectorDetails?.hierarchy?.(result.candidate,document)||[];
+  details.appendChild(make("p","Selected item and parent tags (no page text, IDs or classes):"));
+  for(let i=0,node=result.candidate;i<hierarchy.length&&node;i++,node=node.parentElement){
+   const rowInfo=make("div",hierarchy[i].element+
+     (hierarchy[i].size?" · "+hierarchy[i].size.width+"×"+hierarchy[i].size.height+" px":""));
+   if(node!==document.body&&node!==document.documentElement&&i<hierarchy.length-1){
+    const element=node;
+    rowInfo.appendChild(button("Outline",()=>{
+     mark(element);notice.textContent="Outlined hierarchy level "+(i+1)+". No rule was changed.";
+    }));
+   }
+   details.appendChild(rowInfo);
+  }
+  const cosmetic=globalThis.DKInspectorDetails?.matchedCosmetics?.(result.candidate,activeSelectors);
+  details.appendChild(make("p","Cosmetic selector matches: "+
+    (cosmetic?.matches?.length||0)+" match(es) among "+(cosmetic?.checked||0)+" checked."));
+  if(inspectorNote)details.appendChild(make("p",inspectorNote));
+  for(const match of cosmetic?.matches||[]){
+   details.appendChild(make("div",match.selector+" · "+match.where));
+  }
+  details.appendChild(make("p","A matching CSS selector is not proof that it hid anything. The Network Monitor and Site Dashboard show observed request decisions and their recorded rule sources."));
+  overlay.appendChild(details);
+  const tools=make("div");
+  tools.setAttribute("style","border-top:1px solid #38e2da!important;margin-top:8px!important;padding-top:8px!important");
+  const openTool=async tool=>{
+   try{
+    const response=await browser.runtime.sendMessage({action:"openInvestigatorTool",tool});
+    notice.textContent=response?.ok?"Opened the DK Live Block "+(tool==="network"?"Network Monitor":tool==="dashboard"?"Site Dashboard":"Cosmetic Debugger")+
+      ".":response?.error||"Unable to open the requested tool.";
+   }catch(_){notice.textContent="Unable to open this DK tool. Open it from the extension toolbar.";}
+  };
+  tools.appendChild(button("Network log & tracker controls",()=>openTool("network")));
+  tools.appendChild(button("Recorded rule details",()=>openTool("dashboard")));
+  tools.appendChild(button("Cosmetic filter debugger",()=>openTool("cosmetic")));
+  overlay.appendChild(tools);
   const row=make("div");
   if(!result.facts.protectedContext){
    row.appendChild(button("Hide this page item",()=>{
@@ -172,7 +220,7 @@
  function onKey(event){if(event.key==="Escape"){event.preventDefault();close();}}
  function beginListening(){
   picking=true;
-  banner("Move over an ad and click it to inspect. Esc cancels. No content leaves Firefox.");
+  banner("Move over an ad and click it to inspect. Drag the title to move this panel. Esc cancels. No content leaves Firefox.");
   document.addEventListener("mouseover",onHover,true);
   document.addEventListener("click",onChoose,true);
   document.addEventListener("keydown",onKey,true);
@@ -181,12 +229,20 @@
   if(window.top!==window||!/^https?:$/.test(location.protocol)||!document.body||
      !globalThis.DKAdaptiveModel?.inspectAdCandidate||
      !globalThis.DKAdInvestigation?.inspect)return {ok:false,error:"Ad investigation is unavailable on this page."};
+  close();
   try{
    const settings=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
    if(!settings?.active)return {ok:false,error:"Enable DK Live Block for this site first."};
    activeExceptions=Array.isArray(settings.adRecognitionExceptions)?settings.adRecognitionExceptions.slice(0,120):[];
   }catch(_){return {ok:false,error:"Couldn't verify this site's protection settings."};}
-  close();beginListening();
+  // Only when explicitly requested. No background DOM scrape or remote API.
+  try{
+   const evidence=await browser.runtime.sendMessage({action:"getInvestigatorCosmetics"});
+   if(evidence?.ok&&Array.isArray(evidence.selectors))
+    activeSelectors=evidence.selectors.slice(0,80);
+   inspectorNote=String(evidence?.note||evidence?.error||"").slice(0,180);
+  }catch(_){inspectorNote="Cosmetic selector list unavailable; local investigation still works.";}
+  beginListening();
   return {ok:true};
  }
  function undo(){

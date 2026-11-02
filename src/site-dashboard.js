@@ -429,6 +429,12 @@ function showAllowed(row){
 $("allowedDetailClose").addEventListener("click",()=>{
  selectedAllowed=null;$("dashboardAllowedDetails").hidden=true;
 });
+function requestSwitch(input,action){
+ const wrap=document.createElement("span");wrap.className="dk-toggle";wrap.dataset.action=action;
+ const track=document.createElement("span");track.className="dk-toggle-track";track.setAttribute("aria-hidden","true");
+ const caption=document.createElement("span");caption.className="dk-toggle-caption";caption.textContent=action;
+ wrap.append(input,track,caption);return wrap;
+}
 function permittedLine(row,siteStatus){
  const div=document.createElement("div");div.className="dashboard-line allowed-request-line";
  const label=document.createElement("label");label.className="allowed-request-label";
@@ -446,7 +452,7 @@ function permittedLine(row,siteStatus){
  });
  const inspect=document.createElement("button");inspect.type="button";
  inspect.textContent="Inspect";inspect.addEventListener("click",()=>showAllowed(row));
- label.append(desc,checkbox);div.append(label,inspect);
+ label.append(desc,requestSwitch(checkbox,"Block"));div.append(label,inspect);
  return div;
 }
 async function toggleBlockedRequest(row,allow,input){
@@ -498,7 +504,7 @@ function blockedLine(row,d){
  });
  const detail=document.createElement("button");detail.type="button";
  detail.textContent="Details";detail.addEventListener("click",()=>showBlock(row));
- label.append(desc,checkbox);div.append(label,detail);
+ label.append(desc,requestSwitch(checkbox,"Allow"));div.append(label,detail);
  return div;
 }
 function display(d){
