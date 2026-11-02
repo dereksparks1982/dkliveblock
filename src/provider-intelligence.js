@@ -3,8 +3,10 @@
 const TYPES=new Set(["ad","tracker","analytics","attribution","cdn","authentication","unknown"]);
 const MAX=100,HOST=/^[a-z0-9.-]{1,253}$/;
 function validHost(s){
- if(typeof s!=="string"||!HOST.test(s)||!s.includes(".")||s.includes(".."))return false;
- const labels=s.split(".");
+ if(typeof s!=="string")return false;
+ const normalized=s.toLowerCase();
+ if(!HOST.test(normalized)||!normalized.includes(".")||normalized.includes(".."))return false;
+ const labels=normalized.split(".");
  return labels.every(label=>label.length>=1&&label.length<=63&&
   /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label))&&
   /[a-z]/.test(labels[labels.length-1]);
