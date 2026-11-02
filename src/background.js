@@ -308,6 +308,10 @@ function updateLists(){if(data.updateJob)return data.updateJob;
 // Permitted audit reasons are kept only until Firefox completes/fails the
 // request. Never retain request IDs in exports, URLs, headers or payloads.
 const metaProviderEvidence=DKProviderIntelligence.create();
+// Agent Nestys: passive cookie observers, with separate event triggers and
+// no ability to export cookie values or change network responses.
+const cookieEvidence=DKCookieIntelligence.create();
+const cookieNestys=DKCookieSentinels.create(row=>cookieEvidence.observe(row));
 function noteMetaProvider(site,url,status){
  if(!data.settings.requestLog||!DKCompanyModules.profileFor(site)||
   DKCompanyModules.companyFor(site)!=="meta")return;
@@ -522,6 +526,21 @@ function recordBlock(tabId,url,type,rule){
   when:Date.now(),sequence:data.counts.get(tabId)});
  if(rows.length>250)rows.shift();data.logs.set(tabId,rows);
 }
+// Agent Nesty / HTTP Cookie Watcher: only activates for real Firefox
+// responses while optional request diagnostics are enabled. Read-only:
+// receiving Set-Cookie does NOT establish that the browser stored it.
+browser.webRequest.onHeadersReceived?.addListener(d=>{
+ if(!data.ready||!data.settings.enabled||!data.settings.requestLog||
+    !Number.isInteger(d.tabId)||d.tabId<0||
+    !Array.isArray(d.responseHeaders))return;
+ const site=d.type==="main_frame"?host(d.url):
+  data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
+ if(!site||!activeTab(d.tabId,site))return;
+ cookieNestys.wake("http-response",{
+  site,responseHost:host(d.url),responseHeaders:d.responseHeaders
+ });
+},{urls:["http://*/*","https://*/*"]},["responseHeaders"]);
+
 // Firefox MV2 response filtering: modify only known player JSON ad fields.
 browser.webRequest.onHeadersReceived?.addListener(d=>{
  if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId))return;
@@ -1098,6 +1117,22 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    return {error:"Saving failed; prior request allowances restored."};
   }
   return {ok:true,allowed:msg.allow,changed:true,scope:"site+hostname+type"};
+ }
+ if(msg.action==="getCookieAgentNestys"||msg.action==="clearCookieAgentNestys"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let page,site;
+  try{page=(await browser.tabs.get(id))?.url||"";site=host(page);}
+  catch(_){return {error:"Website tab no longer available."};}
+  if(!/^https?:\/\//i.test(page)||!site||data.hosts.get(id)!==site)
+   return {error:"Choose an active website tab."};
+  if(msg.action==="clearCookieAgentNestys"){
+   cookieEvidence.clearObservations();
+   return {ok:true,cleared:true};
+  }
+  return {ok:true,site,recording:data.settings.requestLog===true,
+   agents:cookieNestys.handlers(),
+   observations:data.settings.requestLog?
+    cookieEvidence.listObservations().filter(row=>row.site===site).slice(-150):[]};
  }
  if(msg.action==="getMetaProviderIntel"||msg.action==="clearMetaProviderIntel"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
@@ -1791,7 +1826,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){metaProviderEvidence.clear();data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){metaProviderEvidence.clear();cookieEvidence.clearObservations();data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))
    data.settings.paused=DKSiteAllowlist.normalize(s.paused);
