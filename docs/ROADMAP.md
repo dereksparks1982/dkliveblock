@@ -1,3 +1,12 @@
+## Build 251 / 0.3.221: complete MIT Facebook source incorporated for integration
+- [x] Copy the complete MIT Facebook Sponsored/Ad blocker source into `src/vendor/facebook-sponsored-upstream.js` with its original license.
+- [x] Compare upstream standalone architecture with DK site pauses, per-site exceptions, Facebook Ad Investigator and Meta adapter.
+- [x] Review uBlock's active Facebook quick fixes separately; uAssets is GPL-3.0 and its scriptlets require engine integration.
+- [x] Preserve existing runtime by keeping standalone upstream code **not activated** pending compatibility extraction.
+- [ ] Integrate proven upstream **Sponsored and Ad** feed/rail detection into DK Meta adapter, rather than load competing standalone extension.
+- [ ] Retest Facebook screenshot cases: "Ad" post plus two "Sponsored" rail ads, no ordinary-post false positives.
+- [ ] Run Linux automated tests and owner Firefox acceptance; Facebook is currently FAIL, not solved.
+
 ## Build 250 / 0.3.220: Facebook exception recovery and diagnostics (test milestone)
 - [x] Correct a stale hidden-card path so newly matching exceptions restore cards during future scans.
 - [x] Add bounded, local diagnostic counters to Facebook recognizer and Meta adapter, without collecting page content.
