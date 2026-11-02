@@ -24,7 +24,8 @@
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
- const facebookRecognizer=typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
+ const facebookRecognizer=typeof DKMetaModule!=="undefined"?DKMetaModule.create(document,window):
+  typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
  function inspectAdSlots(){
   if(!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer))return;
   lastAdScan=Date.now();adRecognizer?.scan();facebookRecognizer?.scan();
