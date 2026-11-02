@@ -2,7 +2,15 @@
    Dormant unless a matching browser event arrives. No polling, payload
    storage, automatic cookie blocking, or external service dependency. */
 (function(root){"use strict";
-const TYPES=Object.freeze(["http-response","cookie-change","script-write"]);
+const AGENTS=Object.freeze([
+ Object.freeze({id:"agent_nesty_1",type:"http-response",
+  title:"Agent Nesty 1",role:"HTTP cookie sentinel"}),
+ Object.freeze({id:"agent_nesty_2",type:"cookie-change",
+  title:"Agent Nesty 2",role:"Firefox cookie-change sentinel"}),
+ Object.freeze({id:"agent_nesty_3",type:"script-write",
+  title:"Agent Nesty 3",role:"JavaScript cookie sentinel"})
+]);
+const TYPES=Object.freeze(AGENTS.map(agent=>agent.type));
 const MAX_HEADERS=32,MAX_HEADER_LENGTH=8192;
 const names=Object.freeze({
  "http-response":"HTTP Set-Cookie header received (attempted, not confirmed stored)",
@@ -77,10 +85,10 @@ function create(sink){
   return accepted;
  });
  return Object.freeze({on,wake,types:TYPES,descriptions:names,
-  handlers:()=>Object.freeze(TYPES.map(type=>
-   Object.freeze({type,armed:handlers.get(type).length>0})))});
+  handlers:()=>Object.freeze(AGENTS.map(agent=>
+   Object.freeze({...agent,armed:handlers.get(agent.type).length>0})))});
 }
-const API=Object.freeze({create,parseHttp,TYPES});
+const API=Object.freeze({create,parseHttp,TYPES,AGENTS});
 root.DKCookieSentinels=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
