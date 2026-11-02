@@ -16,6 +16,14 @@
 - Purpose categories: essential authentication, preferences, analytics, attribution, advertising/tracking and **unknown**. All start unknown until independently evidenced. Ownership must be evidence-based through explicit provider investigation, not a registrar name guessed to be the operator.
 - Retain no cookie **values**, session IDs, raw request headers, full URLs, passwords or private account content in logs or exports. User can clear investigation history and decision rules separately.
 
+## Agent Nesty registry (Build 258)
+The owner-approved singular brand is **Agent Nesty**. Each watcher has a permanent, extension-local identifier:
+- `agent_nesty_1`: HTTP response `Set-Cookie` watcher, currently armed when request logging is enabled.
+- `agent_nesty_2`: Firefox cookie-change watcher, defined but not yet armed.
+- `agent_nesty_3`: JavaScript cookie-write watcher, defined but not yet armed.
+
+Agents stay dormant until their specific events occur; an observed cookie-setting attempt is **not** proof of acceptance or blocking. The active watcher records no cookie values. The current viewer is accessible through the existing Site Dashboard under **Agent Nesty · Cookie Watch**.
+
 ## Technical implementation sequence
 1. **Build 256:** Pure, bounded cookie metadata sanitizer and site-specific decision model in `src/cookie-intelligence.js`. No browser.cookie API, automatic interception or UI toggles yet, so do not describe this as working cookie blocking.
 2. Add Firefox `cookies` API access only when controls and capability notice are ready; inspect same-site cookies and onChanged events. Avoid enumerating unrelated browser cookies on a page and honor privacy/partition keys.
