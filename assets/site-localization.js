@@ -13,6 +13,11 @@ const originals=new WeakMap(),attrs=new WeakMap();
 function hash(str){let v=2166136261;for(let i=0;i<str.length;i++){v^=str.charCodeAt(i);v=Math.imul(v,16777619)}return (v>>>0).toString(36)}
 function preferred(languages){return Array.isArray(languages)&&languages.some(x=>/^ru(?:-|$)/i.test(String(x)))?"ru":"en";}
 function language(value){return value==="ru"?"ru":"en";}
+function requested(search){
+ try{const value=new URLSearchParams(search||"").get("lang");
+  return value==="ru"||value==="en"?value:null;
+ }catch(_){return null;}
+}
 function localized(source,lang){return lang==="ru"?(translations.get(hash(source))||source):source;}
 function translateNode(node,lang){
  const value=node.nodeValue||"",trimmed=value.trim();
@@ -82,13 +87,19 @@ function init(){
  const select=document.getElementById("dkWebsiteLanguage");if(!select)return;
  const prefers=preferred(navigator.languages?.length?navigator.languages:[navigator.language]);
  let value=prefers;try{const saved=localStorage.getItem(KEY);if(saved==="ru"||saved==="en")value=saved;}catch(_){}
+ // Explicit README links override browser defaults and saved choices.
+ const linkLanguage=requested(root.location?.search);
+ if(linkLanguage){value=linkLanguage;try{localStorage.setItem(KEY,value);}catch(_){}}
  render(document,value);
  select.addEventListener("change",()=>{
   const choice=language(select.value);render(document,choice);
   try{localStorage.setItem(KEY,choice);}catch(_){}
+  // Keep the shared URL in sync when a visitor manually switches languages.
+  try{const url=new URL(root.location.href);url.searchParams.set("lang",choice);
+   root.history?.replaceState?.(root.history.state,"",url.href);}catch(_){}
  });
 }
-const API=Object.freeze({KEY,ICON_EN,ICON_RU,ICON_RU_LOCAL,hash,preferred,language,localized,render,init});
+const API=Object.freeze({KEY,ICON_EN,ICON_RU,ICON_RU_LOCAL,hash,preferred,language,requested,localized,render,init});
 root.DKSiteLocalization=API;
 if(typeof module!=="undefined")module.exports=API;
 if(typeof document!=="undefined")document.addEventListener("DOMContentLoaded",init,{once:true});
