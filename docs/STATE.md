@@ -1,11 +1,11 @@
 # DK Live Block: current engineering state
 
-**Latest repository source: Build 237 / 0.3.207 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
+**Latest repository source: Build 238 / 0.3.208 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
 Historical build sections below remain dated snapshots; this document distinguishes source implementation from browser acceptance and does not claim competitor parity.
 
 ## Current browser acceptance (Build 232, owner-reported)
 - **XNXX PASS:** User confirmed site works in Firefox with the new premium-banner and ad cleanup.
-- **Facebook FAIL in owner Firefox test after Build 236:** Ads still appear automatically; the owner could manually remove a Sponsored label using Block element. Build 237 only makes the inspector movable, without altering automatic filtering.
+- **Facebook FAIL through Build 237; Build 238 owner retest pending:** The owner showed a surviving sponsored feed post that the investigator identified by its explicit sponsored-content menu. The automatic Facebook path now reuses that exact bounded post evidence; this is not yet a real-browser PASS. The right Sponsored rail also still requires confirmation.
 - **CBS News PROVISIONAL:** Playback now runs, but a longer check across commercial breaks remains open.
 - **Prior observed successes:** YouTube, Disney+, 1337x and The Pirate Bay; preserve their existing filtering and popup behavior.
 - **Release remains blocked:** Full current Linux suite, security/performance evaluation, competitor coverage and Mozilla signing/owner release approval are not complete.

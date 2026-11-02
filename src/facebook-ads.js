@@ -208,17 +208,32 @@ function rightRailLinkCard(a,doc,win){
  }
  return best;
 }
+// The owner reproduced a surviving sponsored feed post that the optional
+// Ad Investigator identified via the post menu. Share its bounded card
+// resolver instead of relying only on Facebook's article landmarks and a CSS
+// suffix selector that misses labels with trailing whitespace/formatting.
+function sponsoredFeedCard(menu,doc,win){
+ if(!sponsoredMenu(menu)||menu.closest?.('nav,form,[role="dialog"],[role="navigation"],[role="complementary"]'))return null;
+ const investigator=root.DKAdInvestigation;
+ if(!investigator?.candidateFor||!investigator?.factsFor)return null;
+ const card=investigator.candidateFor(menu,doc,win);
+ if(!card||!card.contains?.(menu)||!safeCard(card,doc))return null;
+ const evidence=investigator.factsFor(card,doc,win);
+ // The synthetic score alone is never an automatic blocking signal.
+ return evidence?.sponsoredMenu&&!evidence.protectedContext?card:null;
+}
 function create(doc,win,max=100){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
  const hidden=new Map(),cache=new Map(),limit=Math.max(1,Math.min(120,max));
+ let menuCursor=0;
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
- function hide(el){
+ function hide(el,trigger=null){
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
-  hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display")});
+  hidden.set(el,{value:el.style.getPropertyValue("display"),priority:el.style.getPropertyPriority("display"),trigger});
   el.style.setProperty("display","none","important");return true;
  }
  function restoreOne(el,old){
@@ -228,7 +243,7 @@ function create(doc,win,max=100){
  function restore(){for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
-  for(const [el,old]of hidden)if(allowed(el)){restoreOne(el,old);hidden.delete(el);}
+  for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
  }
  function remember(el){
   if(!el||el.nodeType!==1)return false;
@@ -288,6 +303,23 @@ function create(doc,win,max=100){
    const card=cards[i];if(seen.has(card))continue;seen.add(card);
    if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card))count++;
   }
+  // Automatic detection now uses the same concrete sponsored-menu fact
+  // and bounded card identification that succeeded in the owner's inspector.
+  // Read labels directly, not only [aria-label$="sponsored content"] (Facebook
+  // can insert trailing whitespace or invisible formatting).
+  const menuNodes=doc.querySelectorAll('[aria-label]');
+  if(menuNodes.length){
+   const limitNodes=Math.min(2200,menuNodes.length),start=menuCursor%menuNodes.length;
+   let evidenceChecks=0;
+   for(let i=0;i<limitNodes&&count<15;i++){
+    const menu=menuNodes[(start+i)%menuNodes.length];
+    if(!sponsoredMenu(menu)||allowed(menu))continue;
+    if(++evidenceChecks>24)break;
+    const card=sponsoredFeedCard(menu,doc,win);
+    if(card&&hide(card,menu))count++;
+   }
+   menuCursor=(start+limitNodes)%menuNodes.length;
+  }
   // Some feed advertisements only show the short "Ad" byline in ordinary
   // spans; require a plausible author-level heading and safe feed card shape.
   const bylines=doc.querySelectorAll('main span,[role="main"] span,main a,[role="main"] a');
@@ -323,7 +355,7 @@ function create(doc,win,max=100){
 
  return {scan,restore,setExceptions,observeMutation,get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

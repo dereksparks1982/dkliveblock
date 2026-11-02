@@ -1,3 +1,12 @@
+## Build 238: Auto-hide Facebook posts recognized by the Ad Investigator (0.3.208)
+- [x] Repair the confirmed mismatch between manually inspected Facebook Sponsored feed posts and automatic detection: share the existing bounded Ad Investigator card resolver and explicit `sponsoredMenu` evidence, **not** the AI score, to select a safe full post.
+- [x] Recognize sponsored-content accessible menus despite trailing spaces or formatting that defeats an exact CSS suffix selector, even without role=article / FeedUnit wrappers.
+- [x] Apply user site exceptions, including matching the sponsored menu itself; restore automatically hidden posts when the owner adds an exception.
+- [x] Limit read-only menu candidate scans and rotate through long feeds. Protect ordinary posts, dialogs, navigation, other sites, existing streaming paths and approved UI.
+- [x] Fifteen isolated existing + new Facebook JS tests passed, including owner-like screenshot fixture, undo, consented exceptions, organic text, protected contexts and long-page rotation.
+- [ ] **OWNER FIREFOX TEST:** After updating the existing extension, reload Facebook and verify sponsored feed posts hide automatically before opening the investigator. Check the right-side Sponsored section independently and preserve ordinary posts, Messenger, Reels, navigation and comments.
+- [ ] Full seven-phase Ubuntu regression suite and independent real Firefox/uBlock comparison remain open. Facebook **NOT YET PASS**.
+
 ## Build 237: Movable Ad Investigator (0.3.207)
 - [x] Grab and hold the investigator title bar to move the instruction or result window away from a Facebook Sponsored label.
 - [x] Keep the panel on-screen; retain its position when viewing results; arrow keys move the focused title (Shift for larger steps).

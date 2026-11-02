@@ -616,3 +616,76 @@ test("Build 235 SVG nested text labels survive external reference and removal",(
  const scanner=FB.create({location:{hostname:"www.facebook.com"}},{location:{hostname:"www.facebook.com"}});
  assert.equal(scanner.observeMutation({type:"childList",removedNodes:[symbol],addedNodes:[]}),true);
 });
+
+
+function facebookInspector238(opts={}){
+ const menuText=opts.label??"Open menu for Best Friends Animal Society sponsored content  ";
+ const body={nodeType:1},style=new Style();
+ const post={nodeType:1,tagName:"DIV",style,isConnected:true,
+  getClientRects:()=>[{}],getBoundingClientRect:()=>({width:520,height:500,left:460,top:180}),
+  matches:()=>false,closest:()=>opts.protected?{}:null,
+  querySelector:q=>q.includes("h2,h3,h4")?{}:null,
+  querySelectorAll:q=>q.includes("span,a")?[menu]:[],
+  contains:n=>n===menu||n===post||n===header,parentElement:body};
+ const header={nodeType:1,style:new Style(),parentElement:post,
+  getBoundingClientRect:()=>({width:520,height:70,left:460,top:180}),
+  matches:()=>false,querySelector:()=>null,querySelectorAll:()=>[]};
+ const menu={nodeType:1,tagName:"DIV",parentElement:header,children:[],childNodes:[],textContent:"",
+  getAttribute:k=>k==="aria-label"?menuText:null,
+  matches:s=>s===".owner-allow-menu",closest:q=>opts.protected?{}:null,
+  querySelector:()=>null,querySelectorAll:()=>[]};
+ const doc={body,documentElement:{},location:{hostname:"www.facebook.com"},
+  querySelectorAll:q=>q==="[aria-label]"?[menu]:[]};
+ const win={location:doc.location,innerWidth:1360};
+ return {menu,post,doc,win};
+}
+test("Build 238 uses Ad Investigator's sponsored-menu fact for a Facebook feed post without article markers",()=>{
+ const I=require("../src/ad-investigation.js"),f=facebookInspector238();
+ assert.equal(FB.sponsoredMenu(f.menu),true);
+ const picked=I.candidateFor(f.menu,f.doc,f.win);
+ assert.equal(picked,f.post);
+ assert.equal(I.factsFor(picked,f.doc,f.win).sponsoredMenu,true);
+ // Older [aria-label$="sponsored content"] misses trailing whitespace, but
+ // the investigator still recognizes the explicit Facebook menu. Mirror it.
+ assert.equal(FB.sponsoredFeedCard(f.menu,f.doc,f.win),f.post);
+ const scan=FB.create(f.doc,f.win);
+ assert.equal(scan.scan(),1);
+ assert.equal(f.post.style.getPropertyValue("display"),"none");
+ scan.restore();assert.equal(f.post.style.getPropertyValue("display"),"");
+});
+test("Build 238 does not hide organic mentions, sponsored suggestions or dialog elements",()=>{
+ for(const label of ["Someone wrote Sponsored in a post",
+  "Open menu for Best Friends Animal Society", "Suggested for you"]){
+  const f=facebookInspector238({label});
+  const scan=FB.create(f.doc,f.win);
+  assert.equal(scan.scan(),0,label);
+  assert.equal(f.post.style.getPropertyValue("display"),"");
+ }
+ const protectedView=facebookInspector238({protected:true});
+ assert.equal(FB.sponsoredFeedCard(protectedView.menu,protectedView.doc,protectedView.win),null);
+ assert.equal(FB.create(protectedView.doc,protectedView.win).scan(),0);
+});
+test("Build 238 respects site-level exact selector exceptions on the sponsored menu and whole card",()=>{
+ const f=facebookInspector238();
+ const scan=FB.create(f.doc,f.win);
+ scan.setExceptions([".owner-allow-menu"]);
+ assert.equal(scan.scan(),0);
+ assert.equal(f.post.style.getPropertyValue("display"),"");
+ scan.setExceptions([]);
+ assert.equal(scan.scan(),1);
+ scan.setExceptions([".owner-allow-menu"]);
+ assert.equal(f.post.style.getPropertyValue("display"),"",
+  "an exception to the ad marker must restore the automatically hidden card");
+ assert.equal(scan.scan(),0);
+ scan.restore();
+});
+test("Build 238 rotates bounded Facebook aria-label scans to find ads after long scrolling",()=>{
+ const f=facebookInspector238();
+ const many=Array.from({length:2300},()=>({getAttribute:()=>""}));
+ many[2290]=f.menu;
+ f.doc.querySelectorAll=q=>q==="[aria-label]"?many:[];
+ const scan=FB.create(f.doc,f.win);
+ assert.equal(scan.scan(),0);
+ assert.equal(scan.scan(),1);
+ assert.equal(f.post.style.getPropertyValue("display"),"none");
+});

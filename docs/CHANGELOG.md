@@ -1,3 +1,12 @@
+## Build 238 (0.3.208): Facebook automatic detection reuses confirmed investigator evidence
+- Fix the owner-observed **strong-evidence-but-ad-visible** mismatch: the automatic Facebook scanner now finds expressly sponsored-content menus and uses the same bounded candidate-for-post and facts-for-post logic as the user-invoked Ad Investigator, rather than depending on an article marker or strict accessible-label suffix.
+- Hide only bounded Facebook feed posts containing a directly verified sponsored-content action menu; synthetic AI score alone never blocks anything. Continue respecting safely bounded structure and protected contexts.
+- Match normalized sponsored-content labels despite trailing whitespace and formatting; rotate a capped accessible-label scan over longer Facebook pages.
+- Preserve owner exceptions on both ad post and sponsoring marker; an exception added to a marker restores a previously hidden whole post. Automatic hiding remains reversible and site-scoped.
+- Added four focused regression tests; fifteen Build 233–238 focused cases passed using repository source in isolated JavaScript execution. Full seven-phase Ubuntu suite and Firefox acceptance not run.
+- No changes to automatic filters on other sites, YouTube/Disney+/CBS/XNXX code, network rules, extension permissions, manual inspector behavior, approved website design or GitHub Actions.
+- **Facebook owner PASS is still pending.** Observed investigator evidence is not proof of already-working automatic filtering.
+
 ## Build 237 (0.3.207): draggable on-page Ad Investigator
 - The on-page Ad Investigator instruction and results windows now support mouse hold-and-drag by the title bar, retaining placement across investigation and clamping to the browser viewport.
 - Added focusable keyboard arrow movement, with Shift for larger increments. Drag movement never saves rules or blocks an element; existing Block element menu and investigator hide/undo remain unchanged.
