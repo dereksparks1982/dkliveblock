@@ -46,6 +46,45 @@ function orderedPieces(el,win){
   return {s:String(child.textContent||""),n:child.classList?.length||0,order,index,hidden};
  }).filter(x=>!x.hidden).sort((a,b)=>a.order-b.order||a.index-b.index);
 }
+// Bounded nested character-span decoder, adapted from the MIT blocker's
+// ordered-leaves strategy. Only attempt on a tiny wrapper containing 4-48
+// leaf spans: ordinary posts and large feed wrappers must never be traversed.
+function nestedLabelVariants(el,win){
+ if(!el||!el.children||el.children.length>3)return [];
+ const raw=String(el.textContent||"");
+ if(raw.length<2||raw.length>88)return [];
+ const spans=el.querySelectorAll?.("span")||[];
+ if(spans.length<4||spans.length>48)return [];
+ const leaves=[];
+ function walk(node,depth){
+  if(depth>4||leaves.length>50)return;
+  const childNodes=Array.from(node?.children||[]).slice(0,50);
+  const parts=childNodes.map((child,index)=>{
+   let order=index,hidden=false;
+   try{
+    const style=win?.getComputedStyle?.(child);
+    const o=Number.parseInt(style?.order,10);
+    if(Number.isFinite(o))order=o;
+    hidden=style?.display==="none"||style?.visibility==="hidden";
+   }catch(_){}
+   return {child,index,order,hidden};
+  }).sort((a,b)=>a.order-b.order||a.index-b.index);
+  for(const part of parts){
+   if(part.hidden)continue;
+   const child=part.child;
+   if(child?.tagName!=="SPAN")return; // Not a split ad label.
+   if((child.children?.length||0)===0){
+    if(String(child.textContent||"").length>3)return;
+    leaves.push({value:String(child.textContent||""),
+     classes:child.classList?.length||0});
+   }else walk(child,depth+1);
+  }
+ }
+ walk(el,0);
+ if(leaves.length<4||leaves.length>48)return [];
+ const make=keep=>leaves.filter(x=>keep(x.classes)).map(x=>x.value).join("");
+ return [make(()=>true),make(x=>x>10),make(x=>x<=10)];
+}
 function labelsOf(el,win){
  if(!el)return [];
  const out=[],direct=ownText(el);
@@ -56,6 +95,8 @@ function labelsOf(el,win){
   const leaves=orderedPieces(split,win);
   for(const keep of [()=>true,x=>x.n>10,x=>x.n<=10])
    out.push(leaves.filter(keep).map(x=>x.s).join(""));
+ }else{
+  out.push(...nestedLabelVariants(el,win));
  }
  try{out.push(el.getAttribute?.("aria-label"));}catch(_){}
  return out.filter(x=>typeof x==="string"&&x.length<=160);
@@ -704,7 +745,7 @@ function create(doc,win,max=100){
    cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
