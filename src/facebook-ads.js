@@ -388,6 +388,30 @@ function create(doc,win,max=100){
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0};
  let menuCursor=0;
+ let mobileFeed=null,revealObserver=null,revealQueued=false;
+ function watchMobileFeed(feed){
+  if(!feed||typeof win?.IntersectionObserver!=="function")return;
+  if(!revealObserver){
+   revealObserver=new win.IntersectionObserver(entries=>{
+    if(!entries.some(entry=>entry.isIntersecting)||revealQueued||!mobileFeed)return;
+    revealQueued=true;
+    const delay=win?.setTimeout||typeof setTimeout==="function"&&setTimeout;
+    if(!delay){revealQueued=false;return;}
+    delay(()=>{
+     revealQueued=false;
+     // A pause or allowlist calls restore(), which disarms the observer.
+     if(mobileFeed&&revealObserver)scan();
+    },180);
+   },{rootMargin:"800px"});
+  }
+  if(feed!==mobileFeed){revealObserver.disconnect();mobileFeed=feed;}
+  const children=feed.children||[];
+  for(let j=Math.max(0,children.length-200);j<children.length;j++)
+   revealObserver.observe(children[j]);
+ }
+ function stopMobileWatch(){
+  revealObserver?.disconnect();revealObserver=null;mobileFeed=null;revealQueued=false;
+ }
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
  function hide(el,trigger=null){
@@ -401,7 +425,7 @@ function create(doc,win,max=100){
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
   if(old.value)el.style.setProperty("display",old.value,old.priority);else el.style.removeProperty("display");
  }
- function restore(){for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
+ function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
   for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
@@ -463,6 +487,47 @@ function create(doc,win,max=100){
    }
   }
   let count=0;
+  // Marketplace is a grid: an advertising label may hide ONE listing tile,
+  // never the results grid, its filters, or ordinary shopping listings.
+  if(marketplacePage(win)){
+   const labels=doc.querySelectorAll('main span,main [aria-label],[role="main"] span,[role="main"] [aria-label]');
+   for(let i=0;i<Math.min(3500,labels.length)&&count<15;i++){
+    const label=labels[i];
+    if((label.children?.length||0)>120)continue;
+    const likely=sponsoredMenu(label)||labelsOf(label,win).some(x=>normalize(x)==="sponsored");
+    if(!likely)continue;
+    stats.lastBylineSignals++;
+    const tile=marketplaceTileFrom(label,doc);
+    if(!tile||!marketplaceSignal(label,tile,win)){stats.lastBylineUnresolved++;continue;}
+    if(hide(tile,label))count++;
+   }
+   stats.lastHidden=count;
+   return count;
+  }
+  // The mobile html-renderer virtualises feed items. Only touch rendered
+  // full-width children, with IntersectionObserver rechecks on reveal.
+  if(mobileLayout(doc)){
+   const nodes=doc.querySelectorAll('span,a,[aria-label],[aria-labelledby],use,text');
+   for(let i=0;i<Math.min(5000,nodes.length)&&count<15;i++){
+    const label=nodes[i],split=splitLabelRoot(label);
+    if((label.children?.length||0)>120||
+       ((label.children?.length||0)>2&&!split))continue;
+    const menu=sponsoredMenu(label);
+    const direct=labelsOf(label,win).some(isAdLabel);
+    const ref=!direct&&referenceLabels(label,doc,cache,win).some(isAdLabel);
+    const explains=String(label.getAttribute?.("href")||"").includes("/ads/about/");
+    if(!menu&&!direct&&!ref&&!explains)continue;
+    stats.lastBylineSignals++;
+    const card=mobilePostFrom(label,doc,win,watchMobileFeed);
+    const first=card?.firstElementChild;
+    if(!card||(!menu&&!explains&&first&&!first.contains?.(label))){
+     stats.lastBylineUnresolved++;continue;
+    }
+    if(hide(card,label))count++;
+   }
+   stats.lastHidden=count;
+   return count;
+  }
   // A role=complementary wrapper is not guaranteed on Facebook's new right rail.
   const headings=doc.querySelectorAll(HEADING);
   for(let i=0;i<Math.min(260,headings.length)&&count<15;i++){
@@ -572,7 +637,7 @@ function create(doc,win,max=100){
    cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
