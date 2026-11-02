@@ -288,8 +288,16 @@ function create(doc,win,max=100){
   if(!r)return false;
   if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet";
   if(r.type==="characterData"){
-   // React sometimes replaces a bare Ad/Sponsored label without adding nodes.
-   return isAdLabel(r.target?.textContent);
+   // Facebook can attach its short Ad label *after* a post has rendered.
+   // Scan a newly changed short label in a feed card even if React kept
+   // invisible formatting or the label lives in its parent span.
+   const target=r.target,parent=target?.parentElement;
+   const raw=String(target?.textContent||"");
+   if(raw.length>48)return false;
+   const inFeed=!!parent?.closest?.(ARTICLE)||
+     !!parent?.closest?.('main,[role="main"]');
+   return inFeed&&(isAdLabel(raw)||
+     (parent&&labelsOf(parent,win).some(isAdLabel)));
   }
   if(r.type!=="childList")return false;
   const removed=r.removedNodes||[],added=r.addedNodes||[];
