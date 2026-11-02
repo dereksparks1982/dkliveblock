@@ -56,8 +56,9 @@ function nestedLabelVariants(el,win){
  const spans=el.querySelectorAll?.("span")||[];
  if(spans.length<4||spans.length>48)return [];
  const leaves=[];
+ let invalid=false;
  function walk(node,depth){
-  if(depth>4||leaves.length>50)return;
+  if(depth>4||leaves.length>50){invalid=true;return;}
   const childNodes=Array.from(node?.children||[]).slice(0,50);
   const parts=childNodes.map((child,index)=>{
    let order=index,hidden=false;
@@ -72,16 +73,16 @@ function nestedLabelVariants(el,win){
   for(const part of parts){
    if(part.hidden)continue;
    const child=part.child;
-   if(child?.tagName!=="SPAN")return; // Not a split ad label.
+   if(child?.tagName!=="SPAN"){invalid=true;return;} // Not a label.
    if((child.children?.length||0)===0){
-    if(String(child.textContent||"").length>3)return;
+    if(String(child.textContent||"").length>3){invalid=true;return;}
     leaves.push({value:String(child.textContent||""),
      classes:child.classList?.length||0});
    }else walk(child,depth+1);
   }
  }
  walk(el,0);
- if(leaves.length<4||leaves.length>48)return [];
+ if(invalid||leaves.length<4||leaves.length>48)return [];
  const make=keep=>leaves.filter(x=>keep(x.classes)).map(x=>x.value).join("");
  return [make(()=>true),make(x=>x>10),make(x=>x<=10)];
 }
