@@ -1,6 +1,6 @@
 # Build 276 / v0.3.246: Russian-language presentation
 
-The user approved a specific USSR-themed Russian banner, `assets/images/ДК Лайв Блок_ Ваши правила.png`. **Do not redraw or replace it.** The English banner remains `assets/images/DK Live Block Neon Banner.png`.
+**Historical note:** Build 276 initially introduced `assets/images/ДК Лайв Блок_ Ваши правила.png`. The owner later rejected and deleted that artwork. Build 278 replaces it with the newly approved simple red/gold/black banner, `assets/images/Metallic Cyrillic Emblem and Gold Live Block Title.png`. Do not restore the former banner. The English banner remains `assets/images/DK Live Block Neon Banner.png`.
 
 ## GitHub Pages
 

@@ -1,4 +1,4 @@
-![ДК Лайв Блок](assets/images/%D0%94%D0%9A%20%D0%9B%D0%B0%D0%B9%D0%B2%20%D0%91%D0%BB%D0%BE%D0%BA_%20%D0%92%D0%B0%D1%88%D0%B8%20%D0%BF%D1%80%D0%B0%D0%B2%D0%B8%D0%BB%D0%B0.png)
+![ДК Лайв Блок](assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png)
 
 **[English](README.md) | Русский**
 

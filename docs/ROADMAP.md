@@ -1,3 +1,10 @@
+## Build 278 / v0.3.248: Approved simple Russian banner replacement
+- [x] Verify the owner-uploaded `Metallic Cyrillic Emblem and Gold Live Block Title.png` matches the accepted image byte-for-byte (Git blob SHA `1ee6d3265a5f29c5d9656f74a0b427120887ffd3`).
+- [x] Point Russian website banner selection and `README.ru.md` at the new approved red/gold/black asset.
+- [x] Preserve the English neon banner, original ДК standalone icon, translations, page layout, buttons, and site controls.
+- [x] Add regression coverage for existence and exact artwork bytes; remove obsolete Russian banner references from active sources and mark historic documentation superseded.
+- [ ] Owner's actual GitHub Pages browser refresh and visual approval are pending.
+
 ## Build 277 / v0.3.247: Natural Russian website introduction and exact company spelling
 - [x] Update only the Russian-facing introduction between the banner and download buttons with natural wording.
 - [x] Preserve the company name as the exact Latin brand `Elderred Softworks` instead of phonetic Cyrillic transliterations in Russian-facing website text and the Russian README.
