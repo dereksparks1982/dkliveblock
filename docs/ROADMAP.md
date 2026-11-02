@@ -1,3 +1,12 @@
+## Build 252 / 0.3.222: first selective MIT detector integration
+- [x] Keep original DK Meta module and Facebook scanner; upstream MIT extension stays vendored but not executed independently.
+- [x] Extend explicit Ad/Sponsored feed header detection to advertiser links, rather than only h2/h3/h4 author headings.
+- [x] Keep safe-card geometry, exact label evidence, exceptions and reversible hiding; do not introduce suggested/unfollowed removal.
+- [x] Add targeted source fixture and verify JavaScript compilation.
+- [ ] Verify feed and right-rail examples from owner screenshot in real Firefox. Facebook still FAIL until retested.
+- [ ] Examine deeper MIT right-rail and whole-post techniques; integrate only testable techniques with no DK behavior regression.
+- [ ] Run full Ubuntu Node suite before acceptance.
+
 ## Build 251 / 0.3.221: complete MIT Facebook source incorporated for integration
 - [x] Copy the complete MIT Facebook Sponsored/Ad blocker source into `src/vendor/facebook-sponsored-upstream.js` with its original license.
 - [x] Compare upstream standalone architecture with DK site pauses, per-site exceptions, Facebook Ad Investigator and Meta adapter.
