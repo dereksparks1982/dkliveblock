@@ -98,7 +98,7 @@ const RU=Object.freeze({
 "Streaming playback diagnostics":"Диагностика потокового видео",
 "Streaming player health (local)":"Состояние видеопроигрывателя (локально)",
 "Temporary streaming playback repair":"Временное исправление воспроизведения",
-"DK Network Recovery / Open Access":"Восстановление сети DK / Открытый доступ",
+"DK Network Recovery / Proxy Settings":"Сетевые настройки DK / Прокси",
 "DNS diagnostics":"Диагностика DNS",
 "Failed images and sites":"Ошибки изображений и сайтов",
 "Custom filters":"Пользовательские фильтры",
