@@ -33,6 +33,9 @@ section{background:var(--panel);border:1px solid #35535a;padding:24px;border-rad
 ol li{margin:10px 0}code{background:#071317;padding:3px 7px;overflow-wrap:anywhere}.note{border-left:4px solid var(--a);padding:10px;background:#0a1e24}
 footer{text-align:center;color:var(--muted);padding:0 24px 35px}
 /* Six full-card educational lessons; preserve the existing three-column grid. */
+/* Both six-card grids share one measured row height so neither group is
+   shorter. The fallback remains content-sized when scripts are disabled. */
+.feature-grid{grid-auto-rows:var(--education-card-height,auto)}
 .feature-intro{color:var(--muted);margin-top:-4px}
 .feature-grid .feature-card{padding:0;min-height:252px;transition:border-color .15s ease,background-color .15s ease}
 .feature-card-link{display:flex;flex-direction:column;gap:0;height:100%;padding:0 15px 17px;color:var(--fg);text-decoration:none;border-radius:9px}
@@ -146,6 +149,29 @@ footer{text-align:center;color:var(--muted);padding:0 24px 35px}
 (function(){
  "use strict";
  let opener=null;
+ // Measure the tallest naturally laid-out card across BOTH separate grids.
+ // Match every row to it, avoiding clipped text at narrow widths or zoom.
+ let layoutQueued=false;
+ function matchCardHeights(){
+  layoutQueued=false;
+  const root=document.documentElement;
+  root.style.removeProperty("--education-card-height");
+  const cards=Array.from(document.querySelectorAll(".feature-grid .feature-card"));
+  if(!cards.length)return;
+  const height=Math.max(252,...cards.map(card=>
+   Math.ceil(card.getBoundingClientRect().height)));
+  root.style.setProperty("--education-card-height",height+"px");
+ }
+ function queueCardHeights(){
+  if(layoutQueued)return;
+  layoutQueued=true;
+  requestAnimationFrame(matchCardHeights);
+ }
+ queueCardHeights();
+ window.addEventListener("resize",queueCardHeights,{passive:true});
+ window.addEventListener("load",queueCardHeights,{once:true});
+ if(document.fonts&&document.fonts.ready)
+  document.fonts.ready.then(queueCardHeights).catch(()=>{});
  document.querySelectorAll(".feature-card-link[data-lesson]").forEach(link=>{
   link.addEventListener("click",event=>{
    const dialog=document.getElementById(link.dataset.lesson);
