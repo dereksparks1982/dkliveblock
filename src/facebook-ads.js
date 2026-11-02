@@ -202,6 +202,70 @@ function feedCardFrom(label,doc){
 }
 
 
+
+/* Selected MIT upstream integration: mobile Facebook uses a virtualised feed
+   with no desktop article markers. A feed is recognized by a wide direct
+   child of a many-child container; never hide an off-screen placeholder. */
+function mobileLayout(doc){
+ return !!doc?.body?.classList?.contains?.("html-renderer");
+}
+function marketplacePage(win){
+ return /^\/marketplace(?:\/|$)/.test(String(win?.location?.pathname||""));
+}
+function marketplaceTileFrom(label,doc){
+ let node=label;
+ for(let depth=0;depth<25&&node?.parentElement;depth++,node=node.parentElement){
+  const parent=node.parentElement;
+  if(parent===doc.body||parent===doc.documentElement||parent.matches?.(ROOTS))break;
+  const cells=parent.children||[];
+  if(cells.length>=6){
+   let listings=0;
+   for(let j=0;j<Math.min(20,cells.length);j++)
+    if(cells[j].querySelector?.('a[href*="/marketplace/item/"]')&&++listings>=2)break;
+   if(listings>=2){
+    const box=node.getBoundingClientRect?.();
+    if(!box||box.width<120||box.width>650||box.height<90||box.height>1250||
+       !node.style?.setProperty||!node.getClientRects?.().length||
+       node.querySelectorAll?.('a[href*="/marketplace/item/"]').length!==1||
+       node.querySelector?.('[role="feed"],[role="dialog"],main'))return null;
+    return node;
+   }
+  }
+ }
+ return null;
+}
+function marketplaceSignal(label,tile,win){
+ if(sponsoredMenu(label))return true;
+ if(!labelsOf(label,win).some(x=>normalize(x)==="sponsored"))return false;
+ if(label.closest?.('p,blockquote,[role="paragraph"],[role="dialog"]'))return false;
+ const labelBox=label.getBoundingClientRect?.(),cardBox=tile.getBoundingClientRect?.();
+ return !!labelBox&&!!cardBox&&labelBox.top>=cardBox.top-8&&
+  labelBox.top<=cardBox.top+Math.min(110,cardBox.height*.32);
+}
+function mobilePostFrom(label,doc,win,onFeed){
+ if(!mobileLayout(doc)||label.closest?.('nav,form,[role="dialog"],[role="navigation"]'))
+  return null;
+ let node=label;
+ for(let depth=0;depth<16&&node?.parentElement;depth++,node=node.parentElement){
+  const parent=node.parentElement;
+  if(parent===doc.body||parent===doc.documentElement||parent.matches?.(ROOTS))return null;
+  if((parent.children?.length||0)>=10){
+   onFeed?.(parent);
+   const minWidth=(parent.clientWidth||parent.getBoundingClientRect?.().width||0)*.6;
+   const box=node.getBoundingClientRect?.();
+   if(!box||box.width<Math.max(190,minWidth)||box.height<90||box.height>2500||
+      !node.getClientRects?.().length||!node.style?.setProperty||
+      (node.offsetWidth===0&&node.offsetHeight===0)||
+      node.querySelector?.('main,[role="main"],[role="feed"],[role="dialog"]'))
+    return null;
+   // A post itself must not be a multi-post grid or a feed wrapper.
+   if(independentPostCount(node)>1)return null;
+   return node;
+  }
+ }
+ return null;
+}
+
 function railSection(label,rail,doc,win){
  let node=label.closest?.(HEADING)||label,best=null;
  if(!node||!rail?.contains?.(node))return null;
@@ -378,7 +442,7 @@ function create(doc,win,max=100){
  }
 
  function scan(){
-  if(!doc?.querySelectorAll||!doc.body||win?.innerWidth<650)return 0;
+  if(!doc?.querySelectorAll||!doc.body)return 0;
   stats.scans++;stats.lastScanAt=Date.now();
   for(const key of ["lastHidden","lastFeedCards","lastRailSignals",
    "lastRailUnresolved","lastMenuSignals","lastMenuUnresolved",
