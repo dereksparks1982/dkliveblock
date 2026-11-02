@@ -1,3 +1,10 @@
+## Build 241 / 0.3.211: manual scriptlet expansion and Facebook scanner independence
+- [x] Add explicit user-authored, domain-bound `abort-on-property-read` scriptlet with reversible teardown and protected-global restrictions; disabled by default everywhere.
+- [x] Remove the generic ad recognizer as a prerequisite for Facebook-specific ad scans.
+- [x] Add focused regression tests and build documentation.
+- [ ] Run the local Node suite and full Ubuntu regressions, then check live Facebook feed and right-rail Sponsored cards in Firefox. **Facebook remains unverified.**
+- [ ] Investigate missing cards using evidence-driven selectors or safe scoped procedural rules; do not apply aggressive GraphQL response rewriting without extensive compatibility tests.
+
 ## Build 240 / 0.3.210: fix oversized Site Dashboard sliders
 - [x] Owner screenshot showed Block switches stretched to roughly 175 pixels in request rows. Diagnosed the old `.site-dashboard .dashboard-line span { flex:1 }` rule affecting nested `.dk-toggle`, its track, and caption.
 - [x] Override only those Site Dashboard nested switch elements: intrinsic wrapper, fixed 48-pixel track, non-growing action caption. Leave destination hostname/description flexible, allow normal wrapping, and preserve 340px popup, all other dashboard geometry, existing checkbox handlers and request scope.
