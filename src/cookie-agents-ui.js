@@ -20,9 +20,9 @@
   $("clear").disabled=!ready||!entries.length;
   const agents=Array.isArray(d.agents)?d.agents:[];
   $("agents").textContent=agents.map(x=>
-   (x.type==="http-response"?"HTTP Cookie Nesty":
-    x.type==="cookie-change"?"Browser Change Nesty":"JavaScript Cookie Nesty")+
-   ": "+(x.armed?"awake when triggered":"standby (not armed)")).join(" · ");
+   (x.title||x.id||"Agent Nesty")+" ("+(x.id||"unassigned")+") · "+
+   (x.role||x.type||"Unknown role")+": "+
+   (x.armed?"armed, waiting for event":"standby, not armed")).join(" · ");
   if(!ready){empty("Local request history is disabled in DK Live Block settings.");return;}
   if(!entries.length){empty("No HTTP Set-Cookie attempts recorded for this website in this session.");return;}
   const frag=document.createDocumentFragment();
@@ -40,14 +40,14 @@
   $("rows").replaceChildren(frag);
  }
  async function refresh(){
-  status("Checking local Agent Nestys…");
-  const r=await request("getCookieAgentNestys");
+  status("Checking local Agent Nesty…");
+  const r=await request("getAgentNestyCookieIntel");
   if(r){render(r);status("Local observations for "+r.site+". HTTP response evidence only.");}
  }
  $("refresh").addEventListener("click",refresh);
  $("clear").addEventListener("click",async()=>{
   if(!ready||!window.confirm("Clear all local cookie attempt observations?"))return;
-  const r=await request("clearCookieAgentNestys");if(r)await refresh();
+  const r=await request("clearAgentNestyCookieIntel");if(r)await refresh();
  });
  refresh();
 })();
