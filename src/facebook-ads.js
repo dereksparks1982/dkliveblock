@@ -117,12 +117,32 @@ function referenceLabels(el,doc,cache,win){
  return out.filter(x=>typeof x==="string"&&x.length<=160);
 }
 
+// MIT upstream approach: treat an exact short Ad/Sponsored label in the
+// author's header as evidence, even when Facebook renders the author as a link
+// rather than h2/h3/h4. Never accept body paragraphs or free-floating labels.
+function explicitHeaderAd(label,card,win){
+ if(!label||!card||!labelsOf(label,win).some(isAdLabel)||
+    label.closest?.("p,blockquote,[role='paragraph'],[role='dialog']"))return false;
+ const cardBox=card.getBoundingClientRect?.(),labelBox=label.getBoundingClientRect?.();
+ if(!cardBox||!labelBox||labelBox.top<cardBox.top-6||
+    labelBox.top>cardBox.top+Math.min(190,cardBox.height*0.36))return false;
+ let n=label;
+ for(let depth=0;depth<6&&n&&n!==card;depth++,n=n.parentElement){
+  const parent=n.parentElement;if(!parent||!card.contains?.(parent))break;
+  const box=parent.getBoundingClientRect?.();
+  if(!box||box.height>190||String(parent.textContent||"").length>350)continue;
+  const author=parent.querySelector?.("h2,h3,h4,[role='heading'],a[role='link'],a[href*='/profile.php'],a[href*='facebook.com/']");
+  if(author&&!author.contains?.(label))return true;
+ }
+ return false;
+}
 function hasAdEvidence(card,doc,win,cache){
  if(card.querySelector?.('a[href*="/ads/about/"],a[href*="/ads/about?"]'))return true;
  const nodes=card.querySelectorAll?.('span,a,[aria-label],[aria-labelledby],use,text')||[];
  for(let i=0;i<Math.min(850,nodes.length);i++){
   const el=nodes[i];
   if(sponsoredMenu(el))return true;
+  if(explicitHeaderAd(el,card,win))return true;
   if(!inByline(el,card))continue;
   if(labelsOf(el,win).some(isAdLabel)||referenceLabels(el,doc,cache,win).some(isAdLabel))return true;
  }
@@ -371,7 +391,7 @@ function create(doc,win,max=100){
    if((el.children?.length||0)>2||String(el.textContent||"").length>45)continue;
    if(!labelsOf(el,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
-   if(card&&inByline(el,card)&&hide(card))count++;
+   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card))count++;
   }
   // A feed byline can reference a portal span or SVG sprite with all the ad
   // text outside the card. Walk ONLY referencing elements in the main feed;
