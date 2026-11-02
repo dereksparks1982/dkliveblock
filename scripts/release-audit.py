@@ -51,8 +51,19 @@ def audit_pages(src: Path):
 def verify():
     issues = []
     workflows = ROOT / ".github" / "workflows"
-    if workflows.exists() and any(p.is_file() for p in workflows.rglob("*")):
-        issues.append("Forbidden GitHub Actions workflow present")
+    if workflows.exists():
+        files = sorted(p for p in workflows.rglob("*") if p.is_file())
+        allowed = workflows / "offline-verification.yml"
+        for file in files:
+            if file != allowed:
+                issues.append("Unreviewed GitHub Actions workflow: " + file.name)
+        if allowed in files:
+            ci = allowed.read_text(encoding="utf-8")
+            if ("  workflow_dispatch:" not in ci or
+                    '      - ".github/workflows/offline-verification.yml"' not in ci or
+                    any(term in ci for term in ("schedule:", "pull_request:",
+                                               "upload-artifact", "secrets."))):
+                issues.append("Offline verification must remain limited and artifact-free")
     try:
         manifest = json.loads((SRC / "manifest.json").read_text(encoding="utf-8"))
     except (ValueError, OSError) as error:
