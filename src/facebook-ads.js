@@ -231,7 +231,6 @@ function marketplaceTileFrom(label,doc){
     return node;
    }
   }
-  node=parent;
  }
  return null;
 }
@@ -263,7 +262,6 @@ function mobilePostFrom(label,doc,win,onFeed){
    if(independentPostCount(node)>1)return null;
    return node;
   }
-  node=parent;
  }
  return null;
 }
@@ -324,9 +322,6 @@ function rightRailLinkCard(a,doc,win){
   const headings=p.querySelectorAll?.(HEADING)||[];
   if(Array.from(headings).some(h=>/^(contacts|birthdays|group chats|friends|your pages|your shortcuts)$/i.test(normalize(h.textContent))))break;
   if(pr.height>=65&&(p.querySelector?.("img")||p.querySelector?.("a")))best=p;
-  // The old loop never advanced node. It inspected the same immediate
-  // <a> parent ten times and missed outer sponsored sidebar cards.
-  node=p;
  }
  return best;
 }
