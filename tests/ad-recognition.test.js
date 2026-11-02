@@ -597,7 +597,9 @@ test("Build 235 uses captured removed portal label and detects text replacement"
  assert.equal(scanner.scan(),1);
  assert.equal(card.style.getPropertyValue("display"),"none");
  scanner.restore();assert.equal(card.style.getPropertyValue("display"),"");
- assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Ad"}}),true);
+ assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Ad",
+   parentElement:{id:"fresh_ad_label",isConnected:true}}}),true);
+  assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Ad"}}),false);
  assert.equal(scanner.observeMutation({type:"characterData",target:{textContent:"Adventure"}}),false);
 });
 
