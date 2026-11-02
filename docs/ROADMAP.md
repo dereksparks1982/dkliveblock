@@ -1,3 +1,13 @@
+## Build 260 / v0.3.230: Facebook pre-test engineering defects and diagnostics
+- [x] Fix byline scan prematurely rejecting supported character-split Sponsored labels.
+- [x] Fix right-rail ad-link resolver repeatedly inspecting only the immediate link parent.
+- [x] Separate generic cosmetic-policy exception from explicit Facebook ad-recognition policy, preserving full element-hide and user allowlist opt-outs.
+- [x] Add count-only Facebook detector checks and safe JSON export in a collapsed Meta Intelligence section (no private content collected).
+- [x] Run isolated feed/rail simulations and add corresponding Node regression fixtures.
+- [ ] Owner Firefox acceptance: visible feed Ad, two right-rail Sponsored ads, scrolling updates, and protection of organic posts/Contacts/Messenger.
+- [ ] If missed ads persist, use exported aggregated scanner diagnostics before proposing another detection patch.
+- [ ] Run full Ubuntu Node test suite and real Firefox performance test before any public release.
+
 ## Build 259 / v0.3.229: Russian-first interface localization
 - [x] Add a persistent **Interface language** selector in both popup and Options/Settings, independent of regional ad filter subscriptions.
 - [x] Ship Russian as the first additional selectable UI locale, with English as baseline/fallback; no remote translators or new permissions.
