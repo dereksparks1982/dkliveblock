@@ -1,5 +1,7 @@
 "use strict";
 const {test}=require("node:test"),assert=require("node:assert/strict");
+require("../src/public-suffix.js");
+require("../src/rules.js");
 const {FilterEngine}=require("../src/engine.js");
 const fs=require("node:fs"),path=require("node:path");
 
