@@ -1,3 +1,11 @@
+## Build 253 / 0.3.223: Elderred project websites and Facebook Sponsored rail fallback
+- [x] Add separate "More from Elderred Softworks" website-link section above the DK Live Block footer in both Pages entrypoint copies, including Hanafi Learning Deck, Folkhold, Nougat Media Plus and Capital & Consequence.
+- [x] Verify three published addresses against official READMEs; Capital & Consequence Pages site requires live availability check and possible main/(root) Pages-source configuration (old homepage metadata still says federalelectric).
+- [x] Add a bounded Facebook right-rail detector for a visible Sponsored label rendered as an ordinary span, preserving DK exceptions and normal sidebar sections.
+- [x] Test sponsored-rail and Contacts fixtures in a JavaScript evaluation, add Node regression fixture files; full suite not executed.
+- [ ] Confirm new Capital & Consequence Pages address is live and update repository About → Website metadata.
+- [ ] Owner Firefox acceptance for sponsored feed posts, right sidebar and ordinary content. Facebook remains unverified.
+
 ## Build 252 / 0.3.222: first selective MIT detector integration
 - [x] Keep original DK Meta module and Facebook scanner; upstream MIT extension stays vendored but not executed independently.
 - [x] Extend explicit Ad/Sponsored feed header detection to advertiser links, rather than only h2/h3/h4 author headings.
