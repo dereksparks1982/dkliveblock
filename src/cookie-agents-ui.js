@@ -21,7 +21,7 @@
   const agents=Array.isArray(d.agents)?d.agents:[];
   const specialist=d.specialist?.title||"Nesty Cookie Watch";
   $("agents").textContent=specialist+" · "+agents.map(x=>
-   (x.title?.split(" · ").pop()||x.type||"Unknown method")+": "+
+   (x.title?.split(" · ").pop()||x.type||x.id||"Unknown method")+": "+
    (x.armed?"armed, waiting for event":"standby, not armed")).join(" · ");
   if(!ready){empty("Local request history is disabled in DK Live Block settings.");return;}
   if(!entries.length){empty("No HTTP Set-Cookie attempts recorded for this website in this session.");return;}
