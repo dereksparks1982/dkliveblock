@@ -13,5 +13,5 @@ test("Build 248 site dashboard offers viewer only for selected Meta hosts",()=>{
  const script=read("site-dashboard.js");
  assert.match(script,/dashboardMetaIntel/);
  assert.match(script,/DKMetaDashboardHost\(d\.site\)/);
- assert.equal(require("../src/manifest.json").version,"0.3.218");
+ assert.equal(require("../src/manifest.json").version,require("../package.json").version);
 });
