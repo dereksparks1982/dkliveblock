@@ -93,14 +93,15 @@ function pruneRecord(doc){
    // records. Retain non-ad data and all unknown response shapes.
    for(const unit of side.nodes){
     if(!object(unit)||!object(unit.new_adverts))continue;
-    removed+=dropFromArray(unit.new_adverts,"nodes",ad=>
-     object(ad)&&(object(ad.sponsored_data)||
-      ad.__typename==="SponsoredData"||ad.__typename==="AdsSideFeedUnit"));
+    removed+=dropFromArray(unit.new_adverts,"nodes",ad=>adNode(ad)||
+     object(ad)&&ad.__typename==="AdsSideFeedUnit");
    }
+   // Preserve unknown side units; only discard explicitly named ad-only
+   // wrappers after their contained ad array has been filtered to empty.
    removed+=dropFromArray(side,"nodes",n=>
     object(n)&&n.__typename==="AdsSideFeedUnit"&&
-    (!object(n.new_adverts)||!Array.isArray(n.new_adverts.nodes)||
-      n.new_adverts.nodes.length===0));
+    object(n.new_adverts)&&Array.isArray(n.new_adverts.nodes)&&
+    n.new_adverts.nodes.length===0);
   }
  }
  const results=data.serpResponse?.results;
@@ -162,7 +163,13 @@ function rewrite(text){
  try{
   const obj=JSON.parse(whitespace[2]);
   const removed=prunePayload(obj);
-  if(removed)result={text:prefix+whitespace[1]+JSON.stringify(obj)+whitespace[3],changed:true,removed};
+  if(removed){
+   const next=prefix+whitespace[1]+JSON.stringify(obj)+whitespace[3];
+   // The input cap is in bytes; the edited UTF-8 body must meet the same
+   // bound before it is passed to Firefox's response writer.
+   if(new TextEncoder().encode(next).byteLength<=MAX_BYTES)
+    result={text:next,changed:true,removed};
+  }
  }catch(_){}
  if(result)return result;
  // Facebook also delivers one JSON record per line, sometimes following
@@ -178,8 +185,10 @@ function rewrite(text){
    if(n){parts[i]=m[1]+JSON.stringify(obj)+m[3];removed+=n;}
   }catch(_){}
  }
- return removed?{text:prefix+parts.join(""),changed:true,removed}:
-  {text,changed:false,removed:0};
+ if(!removed)return {text,changed:false,removed:0};
+ const next=prefix+parts.join("");
+ return new TextEncoder().encode(next).byteLength<=MAX_BYTES?
+  {text:next,changed:true,removed}:{text,changed:false,removed:0};
 }
 function note(tab,kind,removed=0){
  if(!Number.isSafeInteger(tab)||tab<0)return;
