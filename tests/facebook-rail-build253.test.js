@@ -36,5 +36,5 @@ test("Build 253 never activates vendored standalone Facebook blocker",()=>{
  const manifest=require("../src/manifest.json");
  assert.ok(manifest.content_scripts[0].js.includes("facebook-ads.js"));
  assert.ok(!manifest.content_scripts[0].js.includes("vendor/facebook-sponsored-upstream.js"));
- assert.equal(manifest.version,"0.3.223");
+ assert.equal(manifest.version,require("../package.json").version);
 });
