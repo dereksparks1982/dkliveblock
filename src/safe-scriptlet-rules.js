@@ -23,6 +23,8 @@ function parse(raw){
  const body=text.slice(index+mark.length,-1);
  if(exception&&!body)return {site,exception,all:true};
  const args=body.split(",").map(v=>v.trim());
+ if(args[0]==="abort-on-property-read"&&args.length===2&&validPath(args[1]))
+  return {site,exception,name:"abort-on-property-read",path:args[1]};
  if(args.length!==3||args[0]!=="set-constant"||!validPath(args[1])||!VALUES.has(args[2]))return null;
  return {site,exception,name:"set-constant",path:args[1],value:args[2]};
 }
@@ -34,9 +36,9 @@ function select(text,host){
   const r=parse(line);
   if(!r||!(host===r.site||host.endsWith("."+r.site)))continue;
   if(r.all){disabled=true;continue;}
-  const id=r.path+"|"+r.value;
+  const id=r.name+"|"+r.path+"|"+(r.value??"");
   if(r.exception)removed.add(id);
-  else added.set(id,{name:r.name,path:r.path,value:r.value});
+  else added.set(id,r.name==="abort-on-property-read"?{name:r.name,path:r.path}:{name:r.name,path:r.path,value:r.value});
  }
  // Resolve exceptions before applying the 24-shim runtime limit.
  // Otherwise 24 excepted entries can hide later eligible user rules.
