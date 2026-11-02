@@ -651,7 +651,9 @@ function create(doc,win,max=100){
   // heading as an ordinary span rather than h1..h6 or role=heading. Examine
   // short, on-screen right-column labels and hide only a bounded rail section.
   // Unlike a broad text filter this never treats a feed post or Contacts as an ad.
-  const railLabels=doc.querySelectorAll('span,[role="complementary"] div,aside div');
+  // Accessible Sponsored names may sit on a button/link rather than a span.
+  // Keep this strictly inside the right rail; geometry + section guards apply.
+  const railLabels=doc.querySelectorAll('span,[role="complementary"] div,aside div,[role="complementary"] [aria-label],aside [aria-label]');
   for(let i=0;i<Math.min(5500,railLabels.length)&&count<15;i++){
    const label=railLabels[i];
    // The visible right-rail Sponsored label can itself be character-split.
