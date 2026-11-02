@@ -32,5 +32,6 @@ test("Build 258: interface and background use new names, no stale plural",()=>{
   assert.doesNotMatch(read(f),/Agent Nestys|CookieAgentNestys|cookieNestys/);
  }
  assert.match(read("background.js"),/getAgentNestyCookieIntel/);
- assert.match(read("cookie-agents-ui.js"),/agent_nesty_|\.id/);
+ assert.match(read("cookie-agents-ui.js"),/x\.id/);
+ assert.match(read("cookie-agents-ui.js"),/x\.title/);
 });
