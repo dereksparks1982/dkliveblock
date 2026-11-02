@@ -135,3 +135,24 @@ test("Build 239 existing context picker and adjustable investigator remain intac
  assert.match(popup,/id="picker"/);
  assert.match(popup,/id="undo"/);
 });
+
+test("Build 240 dashboard switches keep a 48px track instead of inheriting expanding row spans",()=>{
+ const css=read("style.css");
+ assert.match(css,/\.site-dashboard \.dashboard-line span\{flex:1;/);
+ const parent=css.indexOf(".site-dashboard .allowed-request-line .dk-toggle{");
+ const track=css.indexOf(".site-dashboard .allowed-request-line .dk-toggle-track{");
+ const caption=css.indexOf(".site-dashboard .allowed-request-line .dk-toggle-caption{");
+ assert.ok(parent>0&&track>parent&&caption>track);
+ const selector=css.slice(parent,track);
+ const trackCss=css.slice(track,caption);
+ const captionCss=css.slice(caption);
+ assert.match(selector,/flex:0 0 auto/);
+ assert.match(trackCss,/flex:0 0 48px/);
+ assert.match(trackCss,/max-width:48px/);
+ assert.match(trackCss,/min-width:48px/);
+ assert.match(captionCss,/flex:0 0 auto/);
+ const dash=read("site-dashboard.js");
+ assert.match(dash,/label\.append\(desc,requestSwitch\(checkbox,"Block"\)\)/);
+ assert.match(dash,/label\.append\(desc,requestSwitch\(checkbox,"Allow"\)\)/);
+ assert.match(dash,/checkbox\.addEventListener\("change",/);
+});

@@ -1,7 +1,11 @@
 # DK Live Block: current engineering state
 
-**Latest repository source: Build 239 / 0.3.209 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
+**Latest repository source: Build 240 / 0.3.210 (November 1, 2026), unreleased. Build 203 remains the tagged owner-observed-working YouTube baseline.**
 Historical build sections below remain dated snapshots; this document distinguishes source implementation from browser acceptance and does not claim competitor parity.
+
+## Build 240 / 0.3.210 CSS correction (unreleased)
+- Owner screenshot: request-row Block toggles in Site Dashboard stretched horizontally. Root cause: old row CSS flex:1 affecting nested slider spans. Scoped 48px track override and fixed-action caption now included, without modifying any request permissions or stored rules.
+- Firefox on-screen check still required; same known-good ad blocking and browser compatibility milestones as Build 239.
 
 ## Build 239 / 0.3.209 snapshot (unreleased)
 - Source work: draggable private Ad Investigator now includes bounded DOM ancestry and cosmetic matches plus existing network, rule detail and cosmetic-debug entry points. Owner only. No automatic block from AI scores.

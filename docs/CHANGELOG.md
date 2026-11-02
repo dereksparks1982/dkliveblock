@@ -1,3 +1,9 @@
+## Build 240 (0.3.210): compact request switches in Site Dashboard
+- Corrected dashboard CSS inheritance that made new Allow/Block sliding switch tracks grow with row text (`.dashboard-line span { flex:1 }`).
+- Fixed only nested Site Dashboard switch wrapper/track/caption sizing; 48px track stays compact and host descriptions wrap naturally.
+- Preserved existing checkbox state, keyboard interaction, scopes, persistence, confirmation, undo, Network Monitor, global switch, public site and README unchanged.
+- Added regression check to existing focused inspector suite. Full Linux tests and real Firefox visual acceptance pending; no changes to ad-blocking decisions.
+
 ## Build 239 (0.3.209): integrated defense controls and future one-source browser adapters
 - Completed owner-requested integration of local Ad Investigator with bounded DOM hierarchy and cosmetic selector matches; linked existing network monitor, rule evidence and cosmetic filter debugging without hiding or saving extra items automatically.
 - Grouped only opt-in captured third-party requests by destination hostname and resource type. Linked each to existing request detail search and reversible individually labeled Allow/Block controls.

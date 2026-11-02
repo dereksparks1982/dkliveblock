@@ -1,3 +1,10 @@
+## Build 240 / 0.3.210: fix oversized Site Dashboard sliders
+- [x] Owner screenshot showed Block switches stretched to roughly 175 pixels in request rows. Diagnosed the old `.site-dashboard .dashboard-line span { flex:1 }` rule affecting nested `.dk-toggle`, its track, and caption.
+- [x] Override only those Site Dashboard nested switch elements: intrinsic wrapper, fixed 48-pixel track, non-growing action caption. Leave destination hostname/description flexible, allow normal wrapping, and preserve 340px popup, all other dashboard geometry, existing checkbox handlers and request scope.
+- [x] New focused source regression test verifies that the root cause exists and the fix outranks it. JS syntax validation performed; full Ubuntu and Firefox tests still pending.
+- [ ] Owner Firefox acceptance: Site Dashboard permitted/blocked request controls show compact 48px sliders at desktop and narrow viewport widths. Test mouse, keyboard, confirmation, undo/disable, and monitor switches.
+- [ ] Full Ubuntu seven-phase suite and actual Firefox UI evaluation remain outstanding.
+
 ## Build 239 / 0.3.209: Owner-controlled investigator + browser portability foundation
 - [x] Integrate the **existing** on-page draggable Ad Investigator with read-only bounded DOM hierarchy, outline and cosmetic selector match checks, plus direct links to the original Network Monitor, rule-provenance Site Dashboard and Cosmetic Debugger. Never claim CSS matches prove a hide was applied.
 - [x] Keep manual hide/undo/selector draft, site exception preferences, no-upload privacy, and selected panel position on repeat inspection.
