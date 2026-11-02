@@ -2,8 +2,9 @@
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const FB=require("../src/facebook-ads.js");
 function css(){
- return {value:"",getPropertyValue(){return this.value;},getPropertyPriority(){return "";},
-  setProperty(_,value){this.value=value;},removeProperty(){this.value="";}};
+ return {value:"",priority:"",getPropertyValue(){return this.value;},getPropertyPriority(){return this.priority;},
+  setProperty(_,value,priority){this.value=value;this.priority=priority||"";},
+  removeProperty(){this.value="";this.priority="";}};
 }
 function market(labelText,top=130){
  const doc={body:{},documentElement:{}},
