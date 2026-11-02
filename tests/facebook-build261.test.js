@@ -82,6 +82,22 @@ test("Build 261: quoted/mobile body Sponsored text, hidden virtual posts, and or
   assert.equal(card.style.value,"");
  }
 });
+test("Build 261: removed ephemeral Sponsored text is rescued by referenced ID",()=>{
+ const doc={body:{},documentElement:{},location:{hostname:"www.facebook.com"}};
+ const win={location:{hostname:"www.facebook.com"},innerWidth:1250};
+ const detector=FB.create(doc,win);
+ const target={id:"_ad_label_21",nodeType:1,children:[]};
+ assert.equal(detector.observeMutation({
+  type:"childList",target,
+  removedNodes:[{nodeType:3,textContent:"Sponsored"}],addedNodes:[]
+ }),true);
+ assert.equal(detector.diagnostics().cachedLabels,1);
+ assert.equal(detector.observeMutation({
+  type:"childList",target:{id:"_not_ad",nodeType:1,children:[]},
+  removedNodes:[{nodeType:3,textContent:"My friend's story"}],addedNodes:[]
+ }),false);
+ assert.equal(detector.diagnostics().cachedLabels,1);
+});
 test("Build 261: byte-for-byte upstream MIT reference remains vendored, not activated",()=>{
  const manifest=require("../src/manifest.json");
  assert.equal(manifest.version,"0.3.231");
