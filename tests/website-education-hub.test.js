@@ -20,7 +20,7 @@ test("One maintained GitHub Pages entrypoint contains the complete education hub
 test("Original long form guidance, safety disclaimers and links remain in the information dialogs",()=>{
  const a=site("index.html");
  const required={
-  status:["Development and site-test status","Build 263","Known FAIL / retest pending"],
+  status:["Development and site-test status","Current repository source:","Known FAIL / retest pending"],
   install:["Install for testing in Firefox","about:debugging","Load Temporary Add-on"],
   downloads:["Download options","Source ZIP","unsigned Firefox XPI"],
   license:["Free for everyone","project license","Patreon"],
