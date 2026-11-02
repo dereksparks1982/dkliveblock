@@ -405,6 +405,16 @@
   return true;
  }
  browser.runtime.onMessage.addListener(msg=>{
+  if(msg.action==="getFacebookDetectorStatus"){
+   if(window!==window.top||!/^https?:$/.test(location.protocol)||
+      !(host==="facebook.com"||host.endsWith(".facebook.com")))
+    return Promise.resolve({error:"Facebook top-level page only."});
+   // Only aggregate counts and configuration flags. Never send post text,
+   // cookies, personal profile data, URLs, or DOM elements.
+   return Promise.resolve({ok:true,active,adRecognition,picking,
+    adapterLoaded:!!facebookRecognizer,lastScanAt:lastAdScan,
+    detector:facebookRecognizer?.diagnostics?.()||null});
+  }
   if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});
   if(msg.action==="undoTemporaryHide"){
