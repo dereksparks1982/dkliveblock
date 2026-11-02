@@ -3,6 +3,10 @@
 - [x] Local browser-language default (Russian when requested), saved explicit override, instant reversible switch.
 - [x] Approved Russian ДК banner in repository, language-scoped red/gold/steel theme, unchanged English layout and four buttons.
 - [x] Translate all existing static website copy including dialog lessons and info guides, without a remote translation API.
+- [x] Fix frozen localization API write that blocked all card click listeners; add dark resting cards and distinct hover state.
+- [x] Correct four Russian hero button colors in black/gold/white/red order with safe text wrapping.
+- [x] Create a separate Russian README, clean the English README to features and usage only.
+- [ ] Remove old mirrored `docs/index.html` after verifying active Pages publishing source, without taking down the live website.
 - [ ] Real GitHub Pages manual acceptance and Russian proofreading.
 
 ## Build 275 / v0.3.245: Named Agent Nesty specialists

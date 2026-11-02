@@ -18,3 +18,11 @@ The website and extension cannot directly share local storage due to distinct se
 ## Verification
 
 Local source and translation coverage should be checked before acceptance. No assertion of actual Firefox/GitHub Pages render until explicitly tested.
+
+## Website reliability and documentation corrections
+
+- Removed a write to the frozen localization API that aborted all twelve card-dialog click handlers. Retained the language-change event listener and card-height recalc.
+- Dark feature cards are visible at rest; hover remains distinguishable. No changes to card geometry or dialog behaviors.
+- Russian hero buttons use black, gold, white/steel, red in their existing order, with allowed text wrapping and original target URLs.
+- Replaced README with a short feature/usage summary and added separate `README.ru.md`; build notes remain in `docs/` only.
+- The old `docs/index.html` mirror requires a separate hosting-source check and consolidation before removal; this fix does not delete it blindly.
