@@ -27,7 +27,7 @@
       "package": "zip"
     }
   },
-  "principle": "One shared filtering core. Browser adapters and release manifests may vary. No parity claim before browser testing.",
+  "principle": "One shared source and Nesty coordinator. Browser-specific adapters activate only when supported; unsupported modules stay dormant or are omitted where packaging forbids them. No parity claim before browser tests.",
   "experimental_targets": {
     "orion-ios": {
       "engine": "webkit",
@@ -52,6 +52,22 @@
       "status": "upstream-maintenance-ended-2026-10-02",
       "package": "none",
       "network_backend": "unverified"
+    },
+    "yandex-desktop": {
+      "engine": "chromium",
+      "manifest": 3,
+      "network_backend": "declarative-net-request",
+      "status": "adapter-required-unverified",
+      "package": "zip",
+      "builder": "none-until-tested"
+    },
+    "yandex-android": {
+      "engine": "chromium",
+      "manifest": 3,
+      "network_backend": "unverified-on-mobile",
+      "status": "adapter-required-unverified",
+      "package": "none-until-tested",
+      "builder": "none-until-tested"
     }
   }
 }

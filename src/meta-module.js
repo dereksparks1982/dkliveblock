@@ -8,6 +8,7 @@ function create(doc,win){
  const platform=profile.platform;
  const facebook=platform==="facebook"?root.DKFacebookAds?.create?.(doc,win):null;
  const observer=root.DKAdaptiveDispatcher?.create?.()||null;
+ const intelligence=root.DKNestyIntelligence?.create?.()||null;
  if(observer){
   observer.register("meta-explicit-sponsored",ctx=>{
    const el=ctx?.element;
@@ -22,6 +23,8 @@ function create(doc,win){
   restore:()=>facebook?.restore(),setExceptions:r=>facebook?.setExceptions(r),
   observeMutation:r=>facebook?.observeMutation(r)||false,review,
   investigateDelivery:signals=>root.DKMetaDeliveryCatalog?.inspect?.(signals)||[],
+  inspectSignals:signals=>intelligence?.inspect?.(win.location.hostname,signals)||null,
+  intelligenceProfile:()=>intelligence?.snapshot?.(win.location.hostname,false)||null,
   deliveryMethods:()=>root.DKMetaDeliveryCatalog?.entries||[],
   diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({platform,hidden:0,mode:"observation-only"}),
   get hiddenCount(){return facebook?.hiddenCount||0;}});

@@ -309,6 +309,13 @@ function updateLists(){if(data.updateJob)return data.updateJob;
 // Permitted audit reasons are kept only until Firefox completes/fails the
 // request. Never retain request IDs in exports, URLs, headers or payloads.
 const metaProviderEvidence=DKProviderIntelligence.create();
+// Shared read-only Nesty coordinator; existing block decisions stay authoritative.
+const nestyIntelligence=DKNestyIntelligence.create();
+function noteNestyProvider(site,url,status){
+ if(!data.settings.requestLog||!DKCompanyModules.profileFor(site))return;
+ const destination=host(url);
+ if(destination)nestyIntelligence.observeProvider(site,destination,status,true);
+}
 // Nesty Cookie Watch: three passive input methods, one specialist, with
 // no ability to export cookie values or change network responses.
 const cookieEvidence=DKCookieIntelligence.create();
@@ -406,7 +413,8 @@ browser.webRequest.onCompleted?.addListener(d=>{
  DKNetworkMonitor.transition(data.networkMonitors,d.tabId,d.requestId,"allowed",{statusCode:d.statusCode});
  if(data.ready&&data.settings.requestLog&&Number.isInteger(d.tabId)&&d.tabId>=0){
   const site=data.hosts.get(d.tabId)||"";
-  if(site)noteMetaProvider(site,d.url,"allowed");
+  if(site)noteNestyProvider(site,d.url,"allowed");
+   if(site)noteMetaProvider(site,d.url,"allowed");
   if(site)DKAllowedActivity.observe(data.allowedActivity,d.tabId,site,d.url,d.type,Date.now(),{
    reason:decision?.site===site?decision.reason:"decision-not-recorded",
    method:decision?.site===site?decision.method:d.method,
@@ -522,6 +530,7 @@ function recordBlock(tabId,url,type,rule){
  const rows=data.logs.get(tabId)||[];
  if(DKCompanyModules.companyFor(data.hosts.get(tabId)||"")==="meta")
   noteMetaProvider(data.hosts.get(tabId)||"",url,"blocked");
+ noteNestyProvider(data.hosts.get(tabId)||"",url,"blocked");
  rows.push({host:host(url),type,rule:(rule?.p||"").slice(0,140),
   ruleSource:DKRuleProvenance.identify(rule,data.ruleSources),
   when:Date.now(),sequence:data.counts.get(tabId)});
@@ -1262,6 +1271,15 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    supported:typeof browser.webRequest.filterResponseData==="function",
    stats:DKMetaGraphQL.stats(id)};
  }
+ if(msg.action==="getNestyIntelligence"){
+  if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
+  let liveURL="",site="";
+  try{liveURL=(await browser.tabs.get(id))?.url||"";site=host(liveURL);}
+  catch(_){return {error:"Website tab is unavailable."};}
+  if(!/^https?:\/\//i.test(liveURL)||data.hosts.get(id)!==site||
+     !DKCompanyModules.profileFor(site))return {error:"No recognized company profile for this tab."};
+  return {ok:true,site,profile:nestyIntelligence.snapshot(site,data.settings.requestLog)};
+ }
  if(msg.action==="getMetaProviderIntel"||msg.action==="clearMetaProviderIntel"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
   let liveURL="",site="";
@@ -1271,10 +1289,11 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
      DKCompanyModules.companyFor(site)!=="meta")
    return {error:"Open a Meta website to inspect Meta provider intelligence."};
   if(msg.action==="clearMetaProviderIntel"){
-   metaProviderEvidence.clear();return {ok:true,cleared:true};
+   nestyIntelligence.clear(site);metaProviderEvidence.clear();return {ok:true,cleared:true};
   }
   return {ok:true,site,logged:data.settings.requestLog===true,
-   observations:data.settings.requestLog?metaProviderEvidence.list().slice(0,100):[]};
+   observations:data.settings.requestLog?metaProviderEvidence.list().slice(0,100):[],
+   nesty:nestyIntelligence.snapshot(site,data.settings.requestLog)};
  }
  if(msg.action==="getSiteDashboard"){
   // Only extension pages may inspect private, tab-specific history.
@@ -1960,7 +1979,10 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(Array.isArray(s.popupProtectionPaused))
    data.settings.popupProtectionPaused=[...new Set(s.popupProtectionPaused.filter(x=>DKManualRules.validHost(x)))].slice(0,500);
   if(typeof s.stripTracking==="boolean")data.settings.stripTracking=s.stripTracking;
-  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){metaProviderEvidence.clear();cookieEvidence.clearObservations();data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
+  if(typeof s.requestLog==="boolean"){data.settings.requestLog=s.requestLog;if(!s.requestLog){metaProviderEvidence.clear();
+    for(const name of ["facebook.com","instagram.com","threads.net","whatsapp.com","youtube.com","reddit.com"])
+     nestyIntelligence.clear(name);
+    cookieEvidence.clearObservations();data.allowedActivity.clear();pendingAllowedDecisions.clear();data.logs.clear();data.networkIssues.clear();data.streamingIssues.clear();data.playbackHealth.clear();data.streamingAllowances.clear();data.popupHistory.clear();}}
   if(typeof s.customRules==="string"&&s.customRules.length<=1000000)data.settings.customRules=s.customRules;
   if(Array.isArray(s.paused))
    data.settings.paused=DKSiteAllowlist.normalize(s.paused);

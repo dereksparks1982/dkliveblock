@@ -9,7 +9,10 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
-SHARED = ("company-modules.js", "meta-agent-nesty.js", "facebook-ads.js", "ad-recognition.js", "orion-pause.js", "orion-dom.js")
+SHARED = ("company-modules.js", "provider-intelligence.js", "adaptive-dispatcher.js",
+          "meta-delivery-catalog.js", "nesty-team.js", "meta-agent-nesty.js",
+          "adaptive-model.js", "nesty-intelligence.js", "facebook-ads.js",
+          "ad-recognition.js", "orion-pause.js", "orion-dom.js")
 TARGETS = ("orion-ios", "orion-macos")
 
 def candidate_files(target):

@@ -1,3 +1,15 @@
+# Build 281 integration checkpoint (November 2, 2026)
+
+Shared Nesty coordination is now wired in source: `src/nesty-intelligence.js`
+routes company/platform profiles, bounded review-only evidence, and optional
+provider host/count observations; Firefox background, Meta module, and Orion
+candidate share one codebase. No new blockers or autonomous live learning.
+Reddit is observation-only; Yandex requires an unbuilt Chromium MV3 adapter.
+Russian/English website tab favicons now follow the selected site language.
+See [Build 281](BUILD_281.md) and [Nesty playbook](NESTY_COMPANY_PLAYBOOK.md).
+**Still pending:** full local test suite, owner Firefox retests, false-positive
+checks, and browser acceptance for Orion/Yandex. Do not mark these verified.
+
 # Continuation reference: Agent Nesty, company modules and browser-verified coverage (November 2, 2026)
 
 - Read [Nesty company playbook](NESTY_COMPANY_PLAYBOOK.md), [specialist team roster](AGENT_NESTY_TEAM.md), [company/ad-provider architecture](COMPANY_ADVERTISING_INTELLIGENCE.md), [Meta delivery matrix](META_DELIVERY_MATRIX.md) and [verified-sites ledger](VERIFIED_SITES.md) before further work.

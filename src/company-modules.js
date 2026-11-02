@@ -8,14 +8,16 @@ const profiles=Object.freeze({
   engines:Object.freeze(["facebook-dom"])}),
  youtube:Object.freeze({label:"YouTube",platforms:Object.freeze(["youtube"]),
   signals:Object.freeze(["player-ad-fields","feed-sponsored","playback-health"]),
-  engines:Object.freeze(["youtube-feed","youtube-response","adaptive-youtube"])})
+  engines:Object.freeze(["youtube-feed","youtube-response","adaptive-youtube"])}),
+ reddit:Object.freeze({label:"Reddit",platforms:Object.freeze(["reddit"]),signals:Object.freeze(["sponsored-post","sidebar-ad","promoted-badge"]),engines:Object.freeze([])})
 });
 const domains=Object.freeze({
  facebook:["facebook.com","fb.com","fbcdn.net"],
  instagram:["instagram.com","cdninstagram.com"],
  threads:["threads.net","threads.com"],
  whatsapp:["whatsapp.com","whatsapp.net"],
- youtube:["youtube.com","youtube-nocookie.com","youtu.be","googlevideo.com","ytimg.com"]
+ youtube:["youtube.com","youtube-nocookie.com","youtu.be","googlevideo.com","ytimg.com"],
+ reddit:["reddit.com","redd.it"]
 });
 function cleanHost(value){
  if(typeof value!=="string"||value.length>253)return "";
@@ -31,7 +33,7 @@ function platformFor(hostname){
 }
 function companyFor(hostname){
  const platform=platformFor(hostname);
- return platform==="youtube"?"youtube":platform&&profiles.meta.platforms.includes(platform)?"meta":null;
+ return platform==="youtube"?"youtube":platform==="reddit"?"reddit":platform&&profiles.meta.platforms.includes(platform)?"meta":null;
 }
 function profileFor(hostname){
  const company=companyFor(hostname);
