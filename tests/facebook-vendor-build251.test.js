@@ -12,7 +12,7 @@ test("Build 251 contains complete credited MIT source and license",()=>{
  assert.match(license,/Copyright \(c\) 2026 Inky/);
 });
 test("Build 251 does not silently run second standalone blocker or unsolicited categories",()=>{
- assert.equal(manifest.version,"0.3.221");
+ assert.equal(manifest.version,require("../package.json").version);
  assert.ok(manifest.content_scripts.every(row=>!row.js.includes("vendor/facebook-sponsored-upstream.js")));
  assert.ok(manifest.content_scripts[0].js.includes("meta-module.js"));
 });
