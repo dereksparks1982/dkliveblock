@@ -1,3 +1,13 @@
+## Website educational hub update (post-Build 263, extension stays v0.3.233)
+- [x] Make the entire six feature-card surfaces clickable, each opening a detailed ad-literacy lesson.
+- [x] Add six more full-card, clickable information boxes for development status, installation, downloads, free-use/license, support and the three other project websites.
+- [x] Move existing long-form sections into accessible, independently scrollable native dialogs; preserve their instructions, disclaimers and external links.
+- [x] Preserve the original hero download buttons and footer. Do not reintroduce Nougat Media Plus.
+- [x] Verify both GitHub Pages HTML entrypoints are identical and all 12 cards point to unique, matching dialogs.
+- [x] Add `tests/website-education-hub.test.js` and `docs/WEBSITE_EDUCATION_HUB.md`.
+- [ ] Perform real browser keyboard, Escape, mouse, mobile width and screen-reader checks after Pages publishes the updated files.
+- [ ] Review future site copy against newly verified Facebook GraphQL capabilities; don't describe experimental blocking as proven.
+
 ## Build 263 / v0.3.233: first-party Facebook GraphQL ad-record filter and website buttons
 - [x] Add separate Firefox response-body filter for schema-confirmed Sponsored Facebook GraphQL/JSONL records; preserve ordinary feed data and unknown shapes.
 - [x] Restrict to protected first-party Facebook GraphQL POST XHR responses, known MIME, bounded size/time/concurrency and fail-open stream handling.
