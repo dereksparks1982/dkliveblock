@@ -1,3 +1,10 @@
+## Build 276 / v0.3.246: Bilingual website and extension controls
+- [x] Website language selector in top-right outside the banner.
+- [x] Local browser-language default (Russian when requested), saved explicit override, instant reversible switch.
+- [x] Approved Russian ДК banner in repository, language-scoped red/gold/steel theme, unchanged English layout and four buttons.
+- [x] Translate all existing static website copy including dialog lessons and info guides, without a remote translation API.
+- [ ] Real GitHub Pages manual acceptance and Russian proofreading.
+
 ## Build 275 / v0.3.245: Named Agent Nesty specialists
 - [x] Adopt user-approved role names: Nesty Cookie Watch, Nesty Popup Guard and Nesty Meta Ad Scout.
 - [x] Make a single immutable catalog with canonical names/IDs and backward-compatible numeric aliases for all eleven legacy detector IDs.
