@@ -1,3 +1,12 @@
+## Build 247 / 0.3.217: bounded local Meta provider counters
+- [x] Count allowed and blocked third-party requests by hostname, with 100-host and 100,000-event counter caps.
+- [x] Preserve the unknown/unverified classification regardless of traffic volume; never infer advertising from request counts alone.
+- [x] Support clearing from the existing extension-only command and request-logging-off control.
+- [x] Add focused tests; local execution remains pending.
+- [ ] Connect provider reports to a UI after owner approval of geometry; establish ownership with public evidence.
+- [ ] Investigate genuine ad-specific patterns, build safe cross-site countermeasures, independently validate Meta adapters.
+- [ ] Run Linux/Firefox tests. Facebook success remains unverified.
+
 ## Build 246 / 0.3.216: inspect and clear Meta provider intelligence
 - [x] Add extension-only, active-Meta-tab-gated observation read and explicit clear commands.
 - [x] Suppress returned observations when request logging is disabled; bounded local store only.
