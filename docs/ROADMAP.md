@@ -1,3 +1,9 @@
+## Build 271 / v0.3.241: Nested Meta transport schema guard
+- [x] Reject malformed explicitly named nested RequireJS / __bbox / result fields before any response edits, including late siblings and multi-line JSONL records.
+- [x] Keep unknown ordinary user data untouched and Facebook GraphQL rewriting OFF by default.
+- [x] Add seven new targeted regression cases to the existing registered Meta test file.
+- [ ] Run Node tests and full seven-phase Ubuntu suite, then signed-in Firefox/Orion acceptance. No live success claimed.
+
 ## Build 270 / v0.3.240: Meta GraphQL nested response safety
 - [x] Agent Nesty Meta 05 prevents partial GraphQL/JSONL mutations if any *recognized RequireJS / __bbox / result* envelope reports an error.
 - [x] Abort if the bounded traversal exceeds 1000 nodes, 20 layers or 100 items in a transport collection; fail open to original response.
