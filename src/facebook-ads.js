@@ -216,7 +216,7 @@ function marketplaceTileFrom(label,doc){
  let node=label;
  for(let depth=0;depth<25&&node?.parentElement;depth++,node=node.parentElement){
   const parent=node.parentElement;
-  if(parent===doc.body||parent===doc.documentElement||parent.matches?.(ROOTS))break;
+  if(parent===doc.body||parent===doc.documentElement)break;
   const cells=parent.children||[];
   if(cells.length>=6){
    let listings=0;
@@ -231,6 +231,7 @@ function marketplaceTileFrom(label,doc){
     return node;
    }
   }
+  if(parent.matches?.(ROOTS))break;
  }
  return null;
 }
@@ -250,7 +251,7 @@ function mobilePostFrom(label,doc,win,onFeed){
  let node=label;
  for(let depth=0;depth<16&&node?.parentElement;depth++,node=node.parentElement){
   const parent=node.parentElement;
-  if(parent===doc.body||parent===doc.documentElement||parent.matches?.(ROOTS))return null;
+  if(parent===doc.body||parent===doc.documentElement)return null;
   if((parent.children?.length||0)>=10){
    onFeed?.(parent);
    const minWidth=(parent.clientWidth||parent.getBoundingClientRect?.().width||0)*.6;
@@ -264,6 +265,7 @@ function mobilePostFrom(label,doc,win,onFeed){
    if(independentPostCount(node)>1)return null;
    return node;
   }
+  if(parent.matches?.(ROOTS))return null;
  }
  return null;
 }
