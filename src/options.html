@@ -1,6 +1,11 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Live Block settings</title><link rel="stylesheet" href="style.css"></head>
 <body class="options"><header><strong>DK LIVE BLOCK</strong><small>Privacy first. Everything free.</small></header><main>
 <h1>Protection settings</h1>
+<section id="interfaceLanguage"><h2>Interface language</h2>
+<label class="row" for="dkUiLanguage"><span>Interface language</span> <select id="dkUiLanguage" aria-label="Interface language"><option value="en">English</option><option value="ru">Russian (Русский)</option></select></label>
+<p id="dkLanguageNote">Russian translation is in development; untranslated text remains English.</p>
+<p><small>Coming later: Arabic, Turkish, Urdu, Persian (Farsi).</small></p>
+<p>Interface language is separate from language-specific ad filter lists.</p></section>
 <section id="threat-protection">
 <h2>Threat database &amp; protection</h2>
 <label><input id="threatProtection" type="checkbox"> Block domains listed by the phishing threat feed (recommended, ON by default)</label>
@@ -175,4 +180,4 @@
 <button id="openBugReport" type="button">Prepare a bug report</button>
 <p>You review the draft and decide whether to send it. Avoid passwords, cookies, private links and account details.</p></section>
 <footer>No accounts · No telemetry · No paid features<br><button id="patreonSupport" type="button" class="patreon-button" disabled>Support on Patreon</button><p>Donations are optional. Every feature stays free for everyone.</p></footer>
-</main><script src="support.js"></script><script src="language-lists.js"></script><script src="rules.js"></script><script src="rule-validator.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>
+</main><script src="support.js"></script><script src="language-lists.js"></script><script src="rules.js"></script><script src="rule-validator.js"></script><script src="ui-language.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>
