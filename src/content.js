@@ -26,11 +26,11 @@
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
  const facebookRecognizer=typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
  function inspectAdSlots(){
-  if(!active||!adRecognition||picking||!adRecognizer)return;
-  lastAdScan=Date.now();adRecognizer.scan();facebookRecognizer?.scan();
+  if(!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer))return;
+  lastAdScan=Date.now();adRecognizer?.scan();facebookRecognizer?.scan();
  }
  function queueAdScan(){
-  if(adScanTimer!==null||!active||!adRecognition||picking||!adRecognizer||
+  if(adScanTimer!==null||!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer)||
     typeof setTimeout!=="function")return;
   adScanTimer=setTimeout(()=>{adScanTimer=null;inspectAdSlots();},450);
  }
