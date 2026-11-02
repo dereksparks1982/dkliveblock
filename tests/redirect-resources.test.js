@@ -37,11 +37,19 @@ test("Build 76 output is extension-local only, no data/JS URLs, no media substit
  assert.equal(Redirect.url(rule,"media",runtime),"");
  assert.equal(Redirect.url(rule,"script",{getURL:()=> "https://evil.test/"}),"");
  const manifest=JSON.parse(fs.readFileSync(path.resolve(__dirname,"../src/manifest.json"),"utf8"));
- assert.deepEqual(manifest.web_accessible_resources,["redirect/noop.js","redirect/empty.css"]);
+ // Phishing warning page is also intentionally web-accessible; it is
+ // NOT an inert redirect replacement and must not be held to the 256-byte
+ // no-script rule for redirect assets.
+ assert.deepEqual(manifest.web_accessible_resources,
+  ["redirect/noop.js","redirect/empty.css","blocked.html"]);
  assert.ok(manifest.background.scripts.indexOf("redirect-resources.js")<manifest.background.scripts.indexOf("background.js"));
- for(const file of manifest.web_accessible_resources){
+ for(const file of ["redirect/noop.js","redirect/empty.css"]){
   const source=fs.readFileSync(path.resolve(__dirname,"../src",file),"utf8");
   assert.doesNotMatch(source,/\bfetch\s*\(|XMLHttpRequest|eval\s*\(/);
   assert.ok(source.length<256);
  }
+ const warning=fs.readFileSync(path.resolve(__dirname,"../src/blocked.html"),"utf8");
+ assert.doesNotMatch(warning,/<script(?:\s|>)[^>]*>(?!\s*<\/script>)[\s\S]*?<\/script>/i);
+ assert.match(warning,/<script src="blocked\.js"><\/script>/);
+ assert.doesNotMatch(warning,/javascript\s*:/i);
 });
