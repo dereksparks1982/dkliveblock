@@ -1,3 +1,12 @@
+## Build 273 / v0.3.243: Agent Nesty 4, XNXX popup redirection
+- [x] Next globally numbered agent after Agent Nesty 1–3 cookie observers.
+- [x] Detect XNXX source-linked new tabs and foreign navigation across creation, navigation-target, late tab updates and main-frame requests.
+- [x] Block early foreign request and close confirmed popup child tabs, without ad-domain lists.
+- [x] Keep same-site video tabs, authentication windows, explicit per-tab exceptions and user-disabled protection.
+- [x] Add bounded attribution, source revalidation and regression fixtures.
+- [ ] Full local seven-phase Ubuntu tests and live XNXX Firefox checks remain outstanding.
+- [ ] Expand evidence-driven popup guards to other sources; do not claim all openerless tab mechanisms can be reliably attributed.
+
 ## Build 272 / v0.3.242: Orion storage and page-cache reliability; Agent Nesty Meta 06
 - [x] Make Orion exact-site pause fail conservatively on corrupt, oversized or cleared saved host data, including storage-change events.
 - [x] Prevent late initial storage reads from overriding newer decisions, and stop failed save operations leaving an actionable stale popup.

@@ -8,7 +8,8 @@ async function environment(){
  const reg=name=>({addListener(fn){callbacks[name]=fn;},removeListener(){}});
  let settings={autoUpdate:false,strictPopupSites:true};
  const originalUrls=new Map([[1,"https://thepiratebay.org/search/linux"],
-  [2,"https://news.example.org/"],[3,"https://1337x.to/category/Movies/"]]);
+  [2,"https://news.example.org/"],[3,"https://1337x.to/category/Movies/"],
+  [4,"https://www.xnxx.com/video/"]]);
  const browser={
   tabs:{onCreated:reg("created"),onUpdated:reg("updated"),onRemoved:reg("removed"),
    query:async()=>[...originalUrls].map(([id,url])=>({id,url})),
@@ -174,4 +175,60 @@ test("Build 113 a closed tab cannot keep an old one-time popup grant",async()=>{
  await flush();
  assert.equal(removed.includes(76),false,
   "closed source must not permit or block new tabs without a live protected source");
+});
+
+test("Build 273 XNXX blank popunder foreign main-frame request is cancelled and tab closed",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:210,openerTabId:4,url:"about:blank"});
+ const result=callbacks.request({requestId:"n210",tabId:210,type:"main_frame",url:"https://rotating-ad.test/"});
+ assert.equal(result.cancel,true);
+ await flush();assert.deepEqual(removed,[210]);
+ const status=await callbacks.message({action:"status",tabId:4,url:"https://www.xnxx.com/video/"});
+ assert.equal(status.strictPopupAvailable,true);assert.equal(status.strictPopupBlocked,1);
+});
+test("Build 273 same-site video tab survives",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:211,openerTabId:4,url:"https://www.xnxx.com/video/next"});
+ assert.notEqual(callbacks.request({requestId:"n211",tabId:211,type:"main_frame",url:"https://m.xnxx.com/video/next"}).cancel,true);
+ await flush();assert.deepEqual(removed,[]);
+});
+test("Build 273 delayed foreign URL after XNXX video placeholder is blocked",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:212,openerTabId:4,url:"about:blank"});
+ callbacks.updated(212,{url:"https://www.xnxx.com/video/next"},{url:"https://www.xnxx.com/video/next"});
+ callbacks.updated(212,{url:"https://redirect-ad.test/next"},{url:"https://redirect-ad.test/next"});
+ await flush();assert.equal(removed.includes(212),true);
+});
+test("Build 273 known authentication popup remains permitted",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ callbacks.created({id:213,openerTabId:4,url:"https://accounts.google.com/o/oauth2/auth"});
+ assert.notEqual(callbacks.request({requestId:"n213",tabId:213,type:"main_frame",url:"https://accounts.google.com/o/oauth2/auth"}).cancel,true);
+ await flush();assert.deepEqual(removed,[]);
+});
+test("Build 273 one-time toolbar permission allows exactly one XNXX foreign tab",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ assert.equal((await callbacks.message({action:"permitNextPopupTab",tabId:4})).ok,true);
+ callbacks.created({id:214,openerTabId:4,url:"about:blank"});
+ assert.notEqual(callbacks.request({requestId:"n214",tabId:214,type:"main_frame",url:"https://news.example.net/"}).cancel,true);
+ await flush();assert.equal(removed.length,0);
+ callbacks.created({id:215,openerTabId:4,url:"https://another-redirect.test/"});
+ await flush();assert.equal(removed.includes(215),true);
+});
+test("Build 273 source revalidation prevents closing tab after opener changed site",async()=>{
+ const {callbacks,removed,flush,originalUrls}=await environment();
+ callbacks.created({id:216,openerTabId:4,url:"about:blank"});
+ originalUrls.set(4,"https://news.example.org/");
+ callbacks.updated(216,{url:"https://ad.test/"},{url:"https://ad.test/"});
+ await flush();assert.deepEqual(removed,[]);
+});
+test("Build 273 paused XNXX source leaves new tabs alone",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ await callbacks.message({action:"toggleTabPause",tabId:4,url:"https://www.xnxx.com/",paused:true});
+ callbacks.created({id:217,openerTabId:4,url:"https://ad.test/"});
+ await flush();assert.deepEqual(removed,[]);
+});
+test("Build 273 navigation-target event works without openerTabId",async()=>{
+ const {callbacks,removed,flush}=await environment();
+ await callbacks.navigation({sourceTabId:4,tabId:218,url:"https://redirect.test/"});
+ await flush();assert.equal(removed.includes(218),true);
 });

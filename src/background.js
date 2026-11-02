@@ -118,7 +118,7 @@ function cancelVideoDownload(msg){
  videoJob.state="cancelling";rememberVideoJob();
  return {ok:true,state:"cancelling"};
 }
-const data={threatDB:{hosts:new Set(),count:0,updated:0},threatWarnings:new Map(),threatWarningPending:new Set(),threatUpdateJob:null,threatError:"",settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),originalTabGuard:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
+const data={threatDB:{hosts:new Set(),count:0,updated:0},threatWarnings:new Map(),threatWarningPending:new Set(),threatUpdateJob:null,threatError:"",settings:{...DEFAULT},lists:{},customLists:{},listErrors:{},youtubeRules:null,youtubePrevious:null,youtubeHeldVersion:0,youtubeJob:null,engine:typeof DKHybridEngine!=='undefined'?DKHybridEngine.create(SEED):new DKFilter.FilterEngine(SEED),tempPaused:new Set(),hosts:new Map(),counts:new Map(),logs:new Map(),networkIssues:new Map(),streamingIssues:new Map(),playbackHealth:new Map(),youtubeExperiment:new Map(),youtubeAdaptive:new Map(),streamingAllowances:new Map(),networkMonitors:new Map(),allowedActivity:new Map(),manualBlocks:[],ruleSources:DKRuleProvenance.create([{name:"Built-in fallback",text:SEED}]),requestControls:DKRequestControls.make(),popupCounts:new Map(),popupTrapClaims:new Map(),originalTabGuard:new Map(),nestyPopupLinks:new Map(),popupTrapAllowed:new Map(),popupTrapPermits:new Map(),popupTrapCounts:new Map(),popupHistory:new Map(),ownBlocked:new Set(),proxyErrors:[],networkProbe:null,notificationControl:null,ready:false,updateJob:null,saveTimer:null};
 function host(url){return DKRules.host(url);}
 function enabled(h){return data.settings.enabled&&!data.settings.paused.some(x=>DKRules.sub(h,x));}
 function activeTab(id,h){return enabled(h)&&!data.tempPaused.has(id);}
@@ -218,8 +218,9 @@ function status(id,url){const h=data.hosts.get(id)||host(url);return {ready:data
  distractionPaused:data.settings.distractionPaused.some(x=>DKRules.sub(h,x)),
  mediaRecoveryAvailable:DKVideoAssist.isStreamingHost(h),mediaRecoveryEnabled:data.settings.mediaRecovery.includes(h),networkIssueCount:data.settings.requestLog?(data.networkIssues.get(id)||[]).length:0,streamingIssueCount:data.settings.requestLog?DKStreamingDiagnostics.recent(data.streamingIssues,id).filter(row=>row.pageHost===h).length:0,
  streamingAllowancesCount:DKStreamingRepair.list(data.streamingAllowances,id).length,youtubeRules:DKYouTubeMaintenance.status(data.youtubeRules,data.youtubePrevious,data.youtubeHeldVersion,data.listErrors.youtube,data.settings.autoYouTubeRules),popupHiddenCount:data.popupCounts.get(id)||0,
- strictPopupAvailable:DKPopupTrap.protectedHost(h),
- strictPopupEnabled:DKPopupTrap.shouldBlock(h,data.settings.strictPopupSites,activeTab(id,h)),
+ strictPopupAvailable:DKPopupTrap.protectedHost(h)||DKPopupTrap.xnxxHost(h),
+ strictPopupEnabled:(DKPopupTrap.protectedHost(h)||DKPopupTrap.xnxxHost(h))&&
+   data.settings.strictPopupSites===true&&activeTab(id,h),
  strictPopupBlocked:data.popupTrapCounts.get(id)||0,
  popupPermitActive:DKPopupTrap.permitActive(data.popupTrapPermits,id),
  tabBlocked:data.counts.get(id)||0,totalBlocked:data.settings.blockedTotal,lastUpdate:data.settings.lastUpdate,filterBackend:data.engine.backend,filterDiagnostic:data.engine.diagnostic,filterRevision,networkRules:data.engine.networkCount,cosmeticRules:data.engine.cosmetic.length,unsupportedRules:data.engine.unsupportedCount,settings:data.settings,listState:{...Object.fromEntries(Object.entries(SOURCES).map(([k,s])=>[k,{name:s.name,updated:data.lists[k]?.updated||0,error:data.listErrors[k]||""}])),...Object.fromEntries((data.settings.customSubscriptions||[]).map((u,i)=>["custom"+i,{name:"Custom: "+host(u),updated:data.customLists[u]?.updated||0,error:data.listErrors[u]||""}]))}};}
@@ -580,6 +581,24 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  if(!/^https?:/i.test(d.url))return {};
  // A newly created popunder tab may attempt a navigation before it can close.
  if(d.type==="main_frame"&&popupTrapClaimActive(d.tabId))return {cancel:true};
+ // Agent Nesty 4: block navigation before a redirect tab can load.
+ if(d.type==="main_frame"&&data.ready&&data.settings.enabled===true&&
+    data.settings.strictPopupSites===true){
+  const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,d.tabId);
+  const sourceSite=row?data.hosts.get(row.source)||"":"";
+  if(row&&DKPopupTrap.nestyCandidate(data.nestyPopupLinks,d.tabId,d.url,
+    sourceSite,activeTab(row.source,sourceSite))&&
+    !DKAuthProtection.isAuthPopup(d.url)&&
+    !DKPopupTrap.tabAllowed(data.popupTrapAllowed,d.tabId)){
+   if(DKPopupTrap.consumeOnce(data.popupTrapPermits,row.source)){
+    DKPopupTrap.allowTab(data.popupTrapAllowed,d.tabId);
+    DKPopupTrap.nestyClear(data.nestyPopupLinks,d.tabId);
+   }else{
+    interceptNesty4(d.tabId,d.url).catch(()=>{});
+    return {cancel:true};
+   }
+  }
+ }
  // Only user-started tab captures are recorded; never store raw URLs, headers or payloads.
  DKNetworkMonitor.record(data.networkMonitors,d.tabId,data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||d.url),d);
  if(!data.ready||!data.settings.enabled){
@@ -763,12 +782,54 @@ async function interceptStrictPopup(newTabId,sourceTabId,targetUrl=""){
  }
  return "blocked";
 }
+
+// Agent Nesty 4 acts only on a linked foreign child, not the video source.
+async function interceptNesty4(child,url=""){
+ if(!data.ready||data.settings.strictPopupSites!==true)return "not-applicable";
+ const row=DKPopupTrap.nestyRead(data.nestyPopupLinks,child);
+ if(!row||!DKPopupTrap.nestyCandidate(data.nestyPopupLinks,child,url,
+    data.hosts.get(row.source)||"",activeTab(row.source,data.hosts.get(row.source)||"")))
+  return "not-applicable";
+ if(DKAuthProtection.isAuthPopup(url)){
+  DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "allowed";
+ }
+ if(DKPopupTrap.tabAllowed(data.popupTrapAllowed,child)){
+  DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "allowed";
+ }
+ if(popupTrapClaimActive(child))return "blocked";
+ if(DKPopupTrap.consumeOnce(data.popupTrapPermits,row.source)){
+  DKPopupTrap.allowTab(data.popupTrapAllowed,child);
+  DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "allowed";
+ }
+ // Validate the original source tab from Firefox before destructive removal.
+ let live="";
+ try{live=host((await browser.tabs.get(row.source))?.url||"");}
+ catch(_){DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "not-applicable";}
+ if(!DKPopupTrap.nestyCandidate(data.nestyPopupLinks,child,url,live,
+     activeTab(row.source,live))){
+  DKPopupTrap.nestyClear(data.nestyPopupLinks,child);return "not-applicable";
+ }
+ if(!DKPopupTrap.claim(data.popupTrapClaims,child,row.source))return "blocked";
+ DKPopupTrap.nestyClear(data.nestyPopupLinks,child);
+ try{
+  await browser.tabs.remove(child);
+  data.popupTrapCounts.set(row.source,(data.popupTrapCounts.get(row.source)||0)+1);
+  if(data.settings.requestLog)DKPopupHistory.add(data.popupHistory,row.source,live,child,url,"strict");
+  recordBlock(row.source,url,"popup",{p:"Agent Nesty 4 source-linked foreign popup"});
+ }catch(e){console.warn("Agent Nesty 4 popup:",String(e?.message||e).slice(0,100));}
+ return "blocked";
+}
+
 browser.tabs.onCreated?.addListener(tab=>{
  if(Number.isInteger(tab?.openerTabId)&&tab.openerTabId>=0){
   const source=tab.openerTabId,site=data.hosts.get(source)||"";
-  if(data.ready&&activeTab(source,site))
+  if(data.ready&&activeTab(source,site)){
    DKOriginalTabGuard.note(data.originalTabGuard,source,tab.id,site,tab.url||"");
+   if(data.settings.strictPopupSites===true&&DKPopupTrap.xnxxHost(site))
+    DKPopupTrap.nestyTrack(data.nestyPopupLinks,tab.id,source,site);
+  }
   interceptStrictPopup(tab.id,source,tab.url||"").catch(()=>{});
+  interceptNesty4(tab.id,tab.url||"").catch(()=>{});
  }
 });
 // Rule-based popup filters still cover ordinary sites.
@@ -777,12 +838,17 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  // Browser navigationTarget may fire before or after tabs.onCreated. Capture
  // either order, keeping only site and tab IDs for at most 30 seconds.
  const sourceSite=data.hosts.get(event.sourceTabId)||"";
- if(activeTab(event.sourceTabId,sourceSite))
+ if(activeTab(event.sourceTabId,sourceSite)){
   DKOriginalTabGuard.note(data.originalTabGuard,event.sourceTabId,event.tabId,sourceSite,event.url||"");
+  if(data.settings.strictPopupSites===true&&DKPopupTrap.xnxxHost(sourceSite))
+   DKPopupTrap.nestyTrack(data.nestyPopupLinks,event.tabId,event.sourceTabId,sourceSite);
+ }
  if(data.settings.requestLog)
   DKPopupHistory.enrich(data.popupHistory,event.sourceTabId,event.tabId,event.url||"");
  const strict=await interceptStrictPopup(event.tabId,event.sourceTabId,event.url||"");
  if(strict!=="not-applicable")return;
+ const nesty=await interceptNesty4(event.tabId,event.url||"");
+ if(nesty!=="not-applicable")return;
  if(!/^https?:/i.test(event.url)||DKAuthProtection.isAuthPopup(event.url))return;
  try{
   const origin=await browser.tabs.get(event.sourceTabId);
@@ -798,6 +864,8 @@ browser.webNavigation?.onCreatedNavigationTarget?.addListener(async event=>{
  }catch(error){console.warn("DK Live Block popup check:",error);}
 });
 browser.tabs.onUpdated.addListener((id,info,tab)=>{
+ if(info.url&&DKPopupTrap.nestyRead(data.nestyPopupLinks,id))
+  interceptNesty4(id,info.url).catch(()=>{});
  if(info.url||info.status==="loading"){
   if(info.url&&host(info.url)!==(data.hosts.get(id)||"")){
    DKOriginalTabGuard.clear(data.originalTabGuard,id);
@@ -818,6 +886,7 @@ browser.tabs.onUpdated.addListener((id,info,tab)=>{
 });
 browser.tabs.onRemoved.addListener(id=>{
  DKOriginalTabGuard.clear(data.originalTabGuard,id);
+ DKPopupTrap.nestyClear(data.nestyPopupLinks,id);
  data.youtubeExperiment.delete(id);
  DKAdaptiveYouTube.clear(data.youtubeAdaptive,id);
  DKPopupHistory.clear(data.popupHistory,id);
@@ -887,7 +956,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   try{
    const selected=await browser.tabs.get(id);
    const source=host(selected?.url||"");
-   if(!DKPopupTrap.shouldBlock(source,data.settings.strictPopupSites,activeTab(id,source)))
+   if(!(DKPopupTrap.protectedHost(source)||DKPopupTrap.xnxxHost(source))||
+      data.settings.strictPopupSites!==true||!activeTab(id,source))
     return {error:"Strict new-tab protection is not active for this site."};
    DKPopupTrap.grantOnce(data.popupTrapPermits,id);
    return {ok:true,expiresInSeconds:15};
@@ -1223,8 +1293,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    blocked:sameTab?(data.counts.get(id)||0):0,
    popupHidden:sameTab?(data.popupCounts.get(id)||0):0,
    scamTabsBlocked:sameTab?(data.popupTrapCounts.get(id)||0):0,
-   strictPopupAvailable:DKPopupTrap.protectedHost(site),
-   strictPopupEnabled:DKPopupTrap.shouldBlock(site,data.settings.strictPopupSites,activeTab(id,site)),
+   strictPopupAvailable:DKPopupTrap.protectedHost(site)||DKPopupTrap.xnxxHost(site),
+   strictPopupEnabled:(DKPopupTrap.protectedHost(site)||DKPopupTrap.xnxxHost(site))&&
+     data.settings.strictPopupSites===true&&activeTab(id,site),
    cookieRejectEnabled:data.settings.cookieReject===true,
    cookieRejectPaused:data.settings.cookieRejectPaused.some(h=>DKRules.sub(site,h)),
    distractionEnabled:data.settings.distractionControl===true,

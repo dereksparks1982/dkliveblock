@@ -96,3 +96,35 @@ test("Build 212 permit status matches real one-time consumption window",()=>{
  assert.equal(Trap.consumeOnce(permits,9,2000),false,
   "invalidated permit cannot be resurrected");
 });
+
+test("Build 273 Agent Nesty 4 has numbered identity and strict XNXX domain boundaries",()=>{
+ assert.equal(Trap.NESTY_4.id,"agent_nesty_4");
+ for(const site of ["xnxx.com","www.xnxx.com","m.xnxx.com"])assert.equal(Trap.xnxxHost(site),true);
+ for(const site of ["notxnxx.com","xnxx.com.evil.test","other.com",""])assert.equal(Trap.xnxxHost(site),false);
+});
+test("Agent Nesty 4 recognizes foreign child navigation but preserves real video tabs",()=>{
+ const links=new Map();
+ assert.equal(Trap.nestyTrack(links,40,4,"www.xnxx.com",1000),true);
+ assert.equal(Trap.nestyDestination("about:blank"),"unknown");
+ assert.equal(Trap.nestyCandidate(links,40,"https://advertiser.test/","www.xnxx.com",true,1001),true);
+ assert.equal(Trap.nestyCandidate(links,40,"https://m.xnxx.com/video","www.xnxx.com",true,1001),false);
+ assert.equal(Trap.nestyCandidate(links,40,"https://advertiser.test/","www.xnxx.com",false,1001),false);
+ assert.equal(Trap.nestyCandidate(links,40,"https://advertiser.test/","www.xnxx.com",true,16001),false);
+});
+test("Agent Nesty 4 rejects spoofed origins, unknown navigation and stale claims",()=>{
+ const links=new Map();
+ assert.equal(Trap.nestyTrack(links,42,4,"xnxx.com.attacker.test",1000),false);
+ assert.equal(Trap.nestyTrack(links,42,42,"xnxx.com",1000),false);
+ assert.equal(Trap.nestyTrack(links,42,4,"xnxx.com",1000),true);
+ assert.equal(Trap.nestyTrack(links,42,9,"xnxx.com",1001),false);
+ assert.equal(Trap.nestyCandidate(links,42,"https://advertiser.test/","xnxx.com",true,999),false);
+ for(const url of ["about:blank","javascript:alert(1)","file:///tmp","https://user:pass@attacker.test/"])
+  assert.notEqual(Trap.nestyDestination(url),"foreign");
+});
+test("Agent Nesty 4 cleans linked children on source closure",()=>{
+ const links=new Map();
+ Trap.nestyTrack(links,50,4,"xnxx.com",1000);
+ Trap.nestyTrack(links,51,4,"xnxx.com",1000);
+ Trap.nestyClear(links,50);assert.equal(links.has(50),false);
+ Trap.nestyClear(links,4);assert.equal(links.size,0);
+});

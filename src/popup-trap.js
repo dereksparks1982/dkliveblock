@@ -86,7 +86,57 @@ function tabAllowed(allowed,newTabId,now=Date.now()){
  }
  return true;
 }
-const API=Object.freeze({protectedHost,shouldBlock,grantOnce,consumeOnce,
+
+// Agent Nesty 4: source-linked foreign popup sentinel. No destination ad list.
+const NESTY_4=Object.freeze({id:"agent_nesty_4",title:"Agent Nesty 4",status:"armed",
+ role:"Source-linked unwanted new-tab navigation"});
+const NESTY_TTL_MS=15000,MAX_NESTY_LINKS=256;
+function xnxxHost(host){
+ if(typeof host!=="string")return false;
+ const h=host.toLowerCase().replace(/\.$/,"");
+ return h==="xnxx.com"||h.endsWith(".xnxx.com");
+}
+function nestyDestination(url){
+ if(typeof url!=="string"||url.length>4096)return "unknown";
+ try{
+  const u=new URL(url);
+  if(!["http:","https:"].includes(u.protocol)||u.username||u.password)return "unknown";
+  return xnxxHost(u.hostname)?"same-site":"foreign";
+ }catch(_){return "unknown";}
+}
+function nestyRead(links,child,now=Date.now()){
+ const row=links?.get?.(child);
+ if(!row)return null;
+ if(!Number.isSafeInteger(child)||child<0||!validClock(now,NESTY_TTL_MS)||
+  !validClock(row.when,NESTY_TTL_MS)||now<row.when||now-row.when>NESTY_TTL_MS||
+  !Number.isSafeInteger(row.source)||row.source<0||row.source===child||!xnxxHost(row.site)){
+  links.delete(child);return null;
+ }
+ return row;
+}
+function nestyTrack(links,child,source,site,now=Date.now()){
+ if(!links?.set||!links?.delete||!Number.isSafeInteger(child)||child<0||
+  !Number.isSafeInteger(source)||source<0||source===child||!xnxxHost(site)||
+  !validClock(now,NESTY_TTL_MS))return false;
+ for(const id of links.keys())nestyRead(links,id,now);
+ const prior=nestyRead(links,child,now),clean=site.toLowerCase().replace(/\.$/,"");
+ if(prior)return prior.source===source&&prior.site===clean;
+ if(links.size>=MAX_NESTY_LINKS)links.delete(links.keys().next().value);
+ links.set(child,{source,site:clean,when:now});return true;
+}
+function nestyCandidate(links,child,url,sourceSite,enabled,now=Date.now()){
+ const row=nestyRead(links,child,now);
+ return !!row&&enabled===true&&xnxxHost(sourceSite)&&
+  row.site===sourceSite.toLowerCase().replace(/\.$/,"")&&nestyDestination(url)==="foreign";
+}
+function nestyClear(links,tab){
+ links?.delete?.(tab);
+ if(!Number.isSafeInteger(tab))return;
+ for(const [id,row] of links||[])if(row?.source===tab)links.delete(id);
+}
+
+const API=Object.freeze({NESTY_4,xnxxHost,nestyDestination,nestyTrack,nestyRead,nestyCandidate,nestyClear,
+ protectedHost,shouldBlock,grantOnce,consumeOnce,
  permitActive,revoke,claim,claimActive,allowTab,tabAllowed,
  GRACE_MS,CLAIM_MS,MAX_CLAIMS});
 root.DKPopupTrap=API;
