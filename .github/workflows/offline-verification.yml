@@ -1,5 +1,5 @@
-# Deliberately narrow: second targeted full-suite run following Build 283 fixes;
-# then only explicit manual dispatch. No routine push CI or artifacts.
+# Deliberately narrow: one Build 285 Nesty integration regression checkpoint;
+# after this checkpoint, only explicit dispatch. No routine push CI or artifacts.
 name: DK Live Block offline Linux verification
 on:
   workflow_dispatch:
