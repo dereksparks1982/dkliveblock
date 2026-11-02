@@ -20,6 +20,8 @@ function create(doc,win){
  return Object.freeze({company:"meta",platform,scan:()=>facebook?.scan()||0,
   restore:()=>facebook?.restore(),setExceptions:r=>facebook?.setExceptions(r),
   observeMutation:r=>facebook?.observeMutation(r)||false,review,
+  investigateDelivery:signals=>root.DKMetaDeliveryCatalog?.inspect?.(signals)||[],
+  deliveryMethods:()=>root.DKMetaDeliveryCatalog?.entries||[],
   diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({platform,hidden:0,mode:"observation-only"}),
   get hiddenCount(){return facebook?.hiddenCount||0;}});
 }
