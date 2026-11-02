@@ -111,10 +111,12 @@ test("All website card and button clicks use the bundled Pixabay sound without b
  assert.doesNotMatch(html,/src="https?:\/\/pixabay\./);
 });
 
-test("iPhone site corrections keep all lessons and remove the unwanted intro",()=>{
+test("iPhone site corrections preserve both section headings without instructional intros",()=>{
  const a=site("index.html");
- assert.ok(!a.includes("<h2>What it does</h2>"));
+ assert.ok(a.includes("<h2>What it does</h2>"));
  assert.ok(!a.includes("Select any box to explore the technology"));
+ assert.ok(a.includes('<h2 id="information-hub-title">Guides, updates &amp; projects</h2>'));
+ assert.ok(!a.includes("Choose a box for the full information."));
  assert.ok(a.includes('.feature-card-link h3{margin-bottom:0;padding-bottom:12px;border-bottom:1px solid #426b75}'));
  assert.equal((a.match(/class="close-x-icon"/g)||[]).length,12);
  assert.equal((a.match(/class="feature-card-link"/g)||[]).length,12);

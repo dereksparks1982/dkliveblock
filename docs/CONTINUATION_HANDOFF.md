@@ -1,6 +1,6 @@
 # November 2, 2026: Orion foundation and overdue website corrections
 
-Website fixes committed: 696a11aa51f49cbbd29886820a96da9ea77115f1. Removed unwanted 'What it does' intro; inserted internal dividers on all twelve cards; centered twelve SVG close X marks; enlarged XPI icon/label and made GitHub/Patreon SVG artwork same-color; added approved DK Apple touch icon in root/docs with matching webapp manifests. Firefox iPhone may still show fallback letter; verify on device.
+Website fixes committed: 696a11aa51f49cbbd29886820a96da9ea77115f1. Preserved the 'What it does' and 'Guides, updates & projects' headings but removed both instructional paragraphs; inserted internal dividers on all twelve cards; centered twelve SVG close X marks; enlarged XPI icon/label and made GitHub/Patreon SVG artwork same-color; added approved DK Apple touch icon in root/docs with matching webapp manifests. Firefox iPhone may still show fallback letter; verify on device.
 
 Orion platform study: actual Mac desktop and iPhone browsers exist; Linux beta maintenance ended on 2026-10-02; public OrionBrowser GitHub org has four smaller projects, not complete browser source. iPhone extension API support is partial. This new slice provides a DOM-only Orion candidate package source, NOT a verified fully working Orion blocker. See docs/ORION_COMPATIBILITY.md.
 
