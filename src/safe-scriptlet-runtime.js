@@ -12,24 +12,27 @@ const BAD=new Set(["__proto__","constructor","prototype","document","location","
 const parseLiteral=JSON.parse;
 let active=[],lastSignature="";
 function verified(row){
- if(!row||row.name!=="set-constant"||typeof row.path!=="string"||
-  row.path.length>120||!Object.prototype.hasOwnProperty.call(VALUES,row.value))return null;
+ if(!row||!["set-constant","abort-on-property-read"].includes(row.name)||
+  typeof row.path!=="string"||row.path.length>120||
+  row.name==="set-constant"&&!Object.prototype.hasOwnProperty.call(VALUES,row.value))return null;
  const pieces=row.path.split(".");
  if(!pieces.length||pieces.length>3||pieces.some(s=>!NAME.test(s)||BAD.has(s)))return null;
- return {path:row.path,pieces,value:row.value};
+ return {path:row.path,pieces,value:row.value,name:row.name};
 }
 function objectLike(x){return x!==null&&(typeof x==="object"||typeof x==="function");}
-function node(){return {children:new Map(),value:null};}
+function node(){return {children:new Map(),value:null,operation:null};}
 function tree(rows){
  const root=node();
  for(const r of rows){
   let current=root,blocked=false;
   for(const piece of r.pieces){
-   if(current.value!==null){blocked=true;break;}
+   if(current.operation!==null){blocked=true;break;}
    if(!current.children.has(piece))current.children.set(piece,node());
    current=current.children.get(piece);
   }
-  if(!blocked&&!current.children.size&&current.value===null)current.value=r.value;
+  if(!blocked&&!current.children.size&&current.operation===null){
+   current.operation=r.name;current.value=r.value??null;
+  }
  }
  return root;
 }
@@ -65,7 +68,7 @@ function install(object,name,branch){
   if(!previous&&name in object)return null;
  }catch(_){return null;}
  if(previous&&!Object.prototype.hasOwnProperty.call(previous,"value"))return null;
- const leaf=branch.value!==null;
+ const leaf=branch.operation!==null;
  if(previous&&(!previous.configurable||!previous.writable)){
   // A read-only intermediate may be traversed, never replaced.
   // A writable, locked intermediate might be replaced without notice;
@@ -82,7 +85,9 @@ function install(object,name,branch){
  }
  const link={object,name,previous,installed:false,assigned:false,
   latest:previous?.value,children:[],get:null,set:null};
- link.get=leaf?()=>VALUES[branch.value]:()=>link.latest;
+ link.get=leaf?(branch.operation==="abort-on-property-read"?
+  ()=>{throw new ReferenceError("DK Live Block: blocked scripted property read");}:
+  ()=>VALUES[branch.value]):()=>link.latest;
  link.set=x=>{
   if(!leaf){
    for(let i=link.children.length-1;i>=0;i--)restore(link.children[i]);
@@ -121,7 +126,7 @@ function apply(payload){
  }
  // Event dispatch runs synchronously; identical updates do not reset
  // property descriptors or replay page assignments on SPA refresh.
- const signature=JSON.stringify(rows.map(r=>[r.path,r.value]));
+ const signature=JSON.stringify(rows.map(r=>[r.name,r.path,r.value]));
  // A website may replace its own configurable descriptor during SPA
  // navigation without calling our setter. On a later settings refresh,
  // reattach instead of silently leaving the user's rule ineffective.
