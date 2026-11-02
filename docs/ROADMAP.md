@@ -1,3 +1,11 @@
+## Build 266 / v0.3.236: proactive Agent Nesty Meta slices
+- [x] Integrate Meta-01/02/03 into current Facebook scanner and experimental Orion DOM adapter without adding a second competing engine.
+- [x] Simulate fragmented/ordered Sponsored labels, menu wording changes, CSS-hidden decoys, benign captions/menus and style mutations; 11/11 focused cases passed.
+- [x] Repair previously missing 29 Node test registrations; 169 listed after the new case.
+- [ ] Execute all seven phases of `scripts/test-local.sh` on exact GitHub HEAD and investigate failures instead of assuming inventory repair equals PASS.
+- [ ] Test real Firefox Facebook feed/rail/Marketplace and Orion mobile. No success assertion or GraphQL default-on until actual verification.
+- [ ] Build next Agent Nesty family on evidence-driven GraphQL schema and React feed-card lifecycle changes, one testable family at a time.
+
 ## Post-Build 265: Orion iPhone + Mac compatibility foundation (2026-11-02)
 - [x] Research Orion's official iOS/iPadOS, macOS, Linux beta status and GitHub code availability.
 - [x] Add a separately packaged, DOM-only experimental Orion adapter reusing **original DK Facebook and generic ad recognizers**.

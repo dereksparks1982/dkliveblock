@@ -1,3 +1,10 @@
+# Current build: 266 / v0.3.236 (November 2, 2026)
+
+- Added three **real event-driven, bounded** Agent Nesty Meta detectors on top of existing Facebook recognition. These are not neural-network predictions.
+- Corrected 29 missing Node test registrations and registered the eleventh-case Build 266 fixture; the full Ubuntu suite has not been executed.
+- Orion remains experimental DOM-only, and its network interception remains unverified.
+- Facebook GraphQL interception remains OFF by default until confirmed live and false-positive-safe.
+
 # Current build: 265 / v0.3.235 (November 2, 2026)
 
 - **Unreleased GitHub source:** manifest and package version 0.3.235. No complete local Ubuntu regression or real Firefox Meta acceptance has been recorded.

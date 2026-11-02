@@ -1,3 +1,9 @@
+## Build 266 (v0.3.236): Agent Nesty Meta evasion defenses and test inventory
+- Integrated three local, bounded Meta sentinels into the shared Facebook scanner for segmented Sponsored badges, exact Sponsored action menus and style-change rescans; original post and rail safety guards remain.
+- Repaired 29 previously unregistered Node test files in the seven-phase offline Linux runner; registered the new Meta Nesty regression file (169 total).
+- Ran 11 new focused JavaScript scenarios; full Linux suite and live Firefox/Orion Facebook acceptance remain pending.
+- Kept Facebook GraphQL filtering off by default, current website geometry, and Firefox permissions unchanged.
+
 ## Build 265 (v0.3.235): atomic Meta GraphQL rewriting and Facebook rail controls
 - Implemented transactional JSONL editing: preserve the original response if any record cannot be safely parsed or signals GraphQL/auth errors; no partial ad removal.
 - Rejected nested response modifications when a top-level GraphQL envelope reports errors.

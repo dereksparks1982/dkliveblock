@@ -99,6 +99,8 @@ function labelsOf(el,win){
  }else{
   out.push(...nestedLabelVariants(el,win));
  }
+ // Agent Nesty Meta 01: short, segmented CSS-ordered Sponsored labels.
+ out.push(...(root.DKMetaAgentNesty?.segmentedLabels?.(el,win)||[]));
  try{out.push(el.getAttribute?.("aria-label"));}catch(_){}
  return out.filter(x=>typeof x==="string"&&x.length<=160);
 }
@@ -107,7 +109,8 @@ function sponsoredMenu(el){
  return text.length<=200&&(
   /^(?:open menu for |actions for |more options for )(?:.{1,120} )?sponsored content$/.test(text)||
   text==="sponsored content"&&
-    (el?.getAttribute?.("role")==="button"||el?.getAttribute?.("aria-haspopup")==="menu")
+    (el?.getAttribute?.("role")==="button"||el?.getAttribute?.("aria-haspopup")==="menu")||
+  root.DKMetaAgentNesty?.sponsoredAction?.(el)===true
  );
 }
 
@@ -507,8 +510,9 @@ function create(doc,win,max=100){
   let node=target?.nodeType===3?target.parentElement:target;
   for(let depth=0;node&&depth<32;depth++,node=node.parentElement){
    const old=hidden.get(node);
-   if(old){old.dirty=true;return;}
+   if(old){old.dirty=true;return true;}
   }
+  return false;
  }
  function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
@@ -534,8 +538,9 @@ function create(doc,win,max=100){
  }
  function observeMutation(r){
   if(!r)return false;
-  if(hidden.size)flagChangedContainer(r.target);
-  if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet";
+  const tracked=hidden.size?flagChangedContainer(r.target):false;
+  if(r.type==="attributes")return r.attributeName==="aria-labelledby"||r.attributeName==="aria-label"||r.attributeName==="data-pagelet"||
+   tracked||root.DKMetaAgentNesty?.labelMutation?.(r,win)===true;
   if(r.type==="characterData"){
    // An ephemeral ad-label portal can be OUTSIDE the feed. If its short text
    // changes, cache it and request a re-scan of the referencing post.
@@ -750,7 +755,8 @@ function create(doc,win,max=100){
 
  return {scan,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
-   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,...stats});},
+   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,
+   metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
 const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};

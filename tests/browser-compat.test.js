@@ -84,7 +84,7 @@ test("Orion experiments share DK modules without claiming Firefox network parity
   assert.ok(entry.includes(signal),signal);
  assert.doesNotMatch(entry,/webRequest|declarativeNetRequest|runtime\.sendMessage|fetch\(/);
  const pack=fs.readFileSync(path.join(root,"scripts/package-orion-candidate.py"),"utf8");
- for(const fragment of ["company-modules.js","facebook-ads.js","ad-recognition.js","orion-dom.js","--candidate","--verify"])
+ for(const fragment of ["company-modules.js","meta-agent-nesty.js","facebook-ads.js","ad-recognition.js","orion-dom.js","--candidate","--verify"])
   assert.ok(pack.includes(fragment),fragment);
  assert.ok(pack.includes('"background" in manifest'));
  assert.ok(fs.existsSync(path.join(root,"src/orion-status.html")));
