@@ -1,3 +1,11 @@
+# November 2, 2026: Orion foundation and overdue website corrections
+
+Website fixes committed: 696a11aa51f49cbbd29886820a96da9ea77115f1. Removed unwanted 'What it does' intro; inserted internal dividers on all twelve cards; centered twelve SVG close X marks; enlarged XPI icon/label and made GitHub/Patreon SVG artwork same-color; added approved DK Apple touch icon in root/docs with matching webapp manifests. Firefox iPhone may still show fallback letter; verify on device.
+
+Orion platform study: actual Mac desktop and iPhone browsers exist; Linux beta maintenance ended on 2026-10-02; public OrionBrowser GitHub org has four smaller projects, not complete browser source. iPhone extension API support is partial. This new slice provides a DOM-only Orion candidate package source, NOT a verified fully working Orion blocker. See docs/ORION_COMPATIBILITY.md.
+
+Facebook: Build 265 GraphQL response filter stays default OFF. Continue Agent Nesty evasions and regression fixtures in alternating builds; no definitive live Facebook PASS. New Orion DOM experiment shares current DK Facebook recognizer and MUST NOT claim first-party request blocking.
+
 # DK Live Block: project handoff (November 2, 2026)
 
 Use this file when a ChatGPT thread reaches its length limit. Confirm live GitHub `main` before editing; previous summary notes may lag behind repository content.

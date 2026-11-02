@@ -1,3 +1,18 @@
+## Post-Build 265: Orion iPhone + Mac compatibility foundation (2026-11-02)
+- [x] Research Orion's official iOS/iPadOS, macOS, Linux beta status and GitHub code availability.
+- [x] Add a separately packaged, DOM-only experimental Orion adapter reusing **original DK Facebook and generic ad recognizers**.
+- [x] Keep native Firefox's complete manifest, permissions, runtime and version unchanged; Orion experiment has no unsupported background/response/network claims.
+- [x] Add separate device-specific experimental target manifest, explicit-only packaging script, clear limitations popup, and code-based regression fixtures.
+- [ ] Run actual iPhone Orion file install and real ad/organic-content tests; current source-only work is not verification.
+- [ ] Measure Orion extension APIs and then implement network adapter where supported; no false parity or release.
+- [ ] Review remaining independent security-contract test failures and run full Ubuntu suite before a public package.
+
+## Next Facebook + Agent Nesty simulation slices
+- [ ] Model adversarial variants: CSS order and text-split Sponsored, accessibility reference changes, altered GraphQL paths/JSONL envelope, React recycled feed cards, and Marketplace/rail rearrangement.
+- [ ] Make each Meta specialist independent, local and fail-safe, with explicit evidence, event-only activation and safe undo.
+- [ ] Compare to marked benign posts, Messenger, Contacts, replies, videos and shop listings; false positive means no activation.
+- [ ] Keep existing GraphQL response filter OFF until live Firefox schema and performance acceptance, and collect only consented coarse diagnostics.
+
 ## Build 265 / v0.3.235: Facebook GraphQL streaming safety and right-rail coverage
 - [x] Treat multi-record GraphQL JSONL edits as one transaction. If any line is malformed, unknown transport text, or contains a GraphQL error, preserve the entire original response.
 - [x] Prevent outer error-bearing `require` / `__bbox` envelopes from rewriting nested records.

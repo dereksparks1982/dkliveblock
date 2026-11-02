@@ -27,5 +27,31 @@
       "package": "zip"
     }
   },
-  "principle": "One shared filtering core. Browser adapters and release manifests may vary. No parity claim before browser testing."
+  "principle": "One shared filtering core. Browser adapters and release manifests may vary. No parity claim before browser testing.",
+  "experimental_targets": {
+    "orion-ios": {
+      "engine": "webkit",
+      "manifest": 2,
+      "mode": "dom-only",
+      "network_backend": "unverified",
+      "status": "unverified-experimental",
+      "package": "zip",
+      "builder": "scripts/package-orion-candidate.py"
+    },
+    "orion-macos": {
+      "engine": "webkit",
+      "manifest": 2,
+      "mode": "dom-only",
+      "network_backend": "unverified",
+      "status": "unverified-experimental",
+      "package": "zip",
+      "builder": "scripts/package-orion-candidate.py"
+    },
+    "orion-linux-beta": {
+      "engine": "webkit",
+      "status": "upstream-maintenance-ended-2026-10-02",
+      "package": "none",
+      "network_backend": "unverified"
+    }
+  }
 }

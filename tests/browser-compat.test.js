@@ -72,3 +72,44 @@ test("Build 239: one source, three targets, explicit blocked port gates",()=>{
  assert.ok(scripts.indexOf("browser-compat.js")<scripts.indexOf("background.js"));
  assert.equal(manifest.manifest_version,2);
 });
+
+test("Orion experiments share DK modules without claiming Firefox network parity",()=>{
+ const plan=JSON.parse(fs.readFileSync(path.join(root,"platform/targets.json"),"utf8"));
+ assert.deepEqual(Object.keys(plan.targets).sort(),["chrome","edge","firefox"]);
+ assert.equal(plan.experimental_targets["orion-ios"].mode,"dom-only");
+ assert.equal(plan.experimental_targets["orion-macos"].status,"unverified-experimental");
+ assert.equal(plan.experimental_targets["orion-linux-beta"].package,"none");
+ const entry=fs.readFileSync(path.join(root,"src/orion-dom.js"),"utf8");
+ for(const signal of ["DKFacebookAds","DKAdRecognition","MutationObserver","pagehide","pageshow","restore()"])
+  assert.ok(entry.includes(signal),signal);
+ assert.doesNotMatch(entry,/webRequest|declarativeNetRequest|runtime\.sendMessage|fetch\(/);
+ const pack=fs.readFileSync(path.join(root,"scripts/package-orion-candidate.py"),"utf8");
+ for(const fragment of ["company-modules.js","facebook-ads.js","ad-recognition.js","orion-dom.js","--candidate","--verify"])
+  assert.ok(pack.includes(fragment),fragment);
+ assert.ok(pack.includes('"background" in manifest'));
+ assert.ok(fs.existsSync(path.join(root,"src/orion-status.html")));
+ assert.ok(!pack.includes("shell=True"));
+});
+test("Orion DOM adapter compiles and can run without any browser extension APIs",()=>{
+ const vm=require("node:vm");
+ const src=fs.readFileSync(path.join(root,"src/orion-dom.js"),"utf8");
+ const listeners={},counts={generic:0,facebook:0,restored:0},intervals=[];
+ const win={location:{protocol:"https:",hostname:"facebook.com"},setTimeout:fn=>{fn();return 1;},
+  clearTimeout(){},setInterval:fn=>{intervals.push(fn);return 3;},clearInterval(){},
+  addEventListener:(name,fn)=>{listeners[name]=fn;}};
+ win.top=win;
+ const doc={documentElement:{},visibilityState:"visible"};
+ const env={window:win,document:doc,DKAdRecognition:{
+  create:()=>({scan:()=>{counts.generic++;},restore:()=>{counts.restored++;}})},
+  DKFacebookAds:{create:()=>({scan:()=>{counts.facebook++;},restore:()=>{counts.restored++;}})}};
+ vm.runInNewContext(src,env,{timeout:1000});
+ assert.equal(counts.generic,1);
+ assert.equal(counts.facebook,1);
+ assert.equal(intervals.length,1);
+ listeners.pagehide();
+ assert.equal(counts.restored,2);
+ intervals[0]();
+ assert.equal(counts.generic,1);
+ listeners.pageshow();
+ assert.equal(counts.facebook,2);
+});
