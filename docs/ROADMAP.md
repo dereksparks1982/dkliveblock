@@ -1,3 +1,13 @@
+## Build 283 / v0.3.253: First full native Ubuntu verification (November 2, 2026)
+- [x] Run complete seven-phase offline suite once in a restricted, read-only Linux workflow; observe 1,214/1,232 passing Node cases and record all 18 failures.
+- [x] Address stale version/policy/fixture assertions without weakening live protections.
+- [x] Fix Nesty confirmed-video child tab transition and preserve protection of source tab.
+- [x] Harden resource allowance UI, YouTube filter-source diagnostics and synthetic audit origin validation.
+- [ ] Re-run the full Linux suite after corrections and record actual results.
+- [ ] Provide a genuine npm package lock for independently reproducible AMO review; do not claim Mozilla readiness.
+- [ ] Owner Firefox YouTube, Disney+, Facebook fast scroll/rail and Nesty popup acceptance; no browser PASS inferred from CI.
+- [ ] Experimental Orion actual device review and Chromium/Yandex MV3 port remain unimplemented/unverified.
+
 ## Build 282: integration hardening and acceptance gates (November 2, 2026)
 - [x] Restrict Nesty evidence to vetted catalog signal vocabulary; reject arbitrary text-shaped tokens.
 - [x] Suppress all review candidates for explicitly protected contexts.
