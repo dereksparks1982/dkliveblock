@@ -1,3 +1,18 @@
+## Build 256 / 0.3.226: cookie intelligence and user-directed controls foundation
+- [x] Document a dedicated Cookie Intelligence & Control Center with per-cookie Allow/Block, site+domain+name scope, observed setting attempts, timestamps, metadata, verified ownership/purpose, opt-in collection and cleanup.
+- [x] Add bounded cookie metadata sanitizer and in-memory decision model; no values, account tokens, cookies, full URLs or raw headers persisted.
+- [x] Run isolated model checks and add regression fixtures; no browser cookie permission or enforcement activated.
+- [ ] Implement permission-aware Firefox cookie inspection and request/event evidence, without altering existing consent settings or user logins.
+- [ ] Add scoped, **functional** Allow/Block toggles in a separate viewer with clear/history and user-approved persistent rules; distinguish Set-Cookie interception from removal-after-set.
+- [ ] Test authentication, video streaming and site breakage prior to any default cookie behavior change.
+
+## Build 255 / 0.3.225: literal Sponsored menu and full Facebook post recovery
+- [x] Fix exact "Open menu for Sponsored content" being rejected by an overstrict label regex.
+- [x] Prefer largest safely bounded complete Facebook card over header-only containers; accept advertiser link headers, reject multi-post wrappers and feed boundaries.
+- [x] Synthetic tool run verified literal menu recognition and card selection; committed unrun Node fixture.
+- [ ] Owner browser retest of the Facebook sponsored feed and right rail, plus normal posts, contacts and Messenger. Still no verified PASS.
+- [ ] Full Linux regression suite before release.
+
 ## Build 254 / 0.3.224: Meta delivery matrix and sponsored-post detection
 - [x] Inventory 24 documented ad delivery/advertising-assistance mechanisms, from GraphQL/JSONL through DOM, images, video, canvas, attribution and anti-adblock.
 - [x] Implement a read-only signal + contextual-evidence catalog under the Meta adapter; review/observe only, no speculative auto-blocking.
