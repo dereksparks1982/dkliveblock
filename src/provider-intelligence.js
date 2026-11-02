@@ -14,9 +14,17 @@ function create(){
  const records=new Map();
  function observe(input){
   const row=normalize(input);if(!row)return null;
-  if(records.has(row.host))records.delete(row.host);
+  const previous=records.get(row.host);
+  if(previous)records.delete(row.host);
   if(records.size>=MAX)records.delete(records.keys().next().value);
-  records.set(row.host,row);return row;
+  const blocked=row.evidence.includes("request_blocked");
+  const allowed=row.evidence.includes("request_allowed");
+  // Aggregate only counts; never preserve request IDs, URLs or page content.
+  const aggregate=Object.freeze({...row,
+   allowed:Math.min(100000,(previous?.allowed||0)+(allowed?1:0)),
+   blocked:Math.min(100000,(previous?.blocked||0)+(blocked?1:0)),
+   confidence:row.type==="unknown"?"unverified":row.confidence});
+  records.set(row.host,aggregate);return aggregate;
  }
  function lookup(host){return validHost(host)?records.get(host.toLowerCase())||null:null;}
  function clear(){records.clear();}
