@@ -1,4 +1,4 @@
-# Deliberately narrow: one initial run when this workflow is added/changed,
+# Deliberately narrow: second targeted full-suite run following Build 283 fixes;
 # then only explicit manual dispatch. No routine push CI or artifacts.
 name: DK Live Block offline Linux verification
 on:
