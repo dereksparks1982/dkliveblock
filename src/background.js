@@ -1611,7 +1611,12 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   const adExceptions=active?DKCosmeticExceptions.list(data.settings.customRules,h).slice(0,120):[];const popupAllowed=!data.settings.popupProtectionPaused.some(x=>DKRules.sub(top,x));
   const cookieAllowed=!data.settings.cookieRejectPaused.some(x=>DKRules.sub(top,x));
   const distractionAllowed=!data.settings.distractionPaused.some(x=>DKRules.sub(top,x));
-  return {active,safeScriptlets:active?DKSafeScriptletRules.select(data.settings.customRules,h):[],youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,adRecognition:data.settings.adRecognition&&!policy.elemhide&&!policy.generichide,adRecognitionExceptions:adExceptions,
+  return {active,safeScriptlets:active?DKSafeScriptletRules.select(data.settings.customRules,h):[],youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,// A $generichide exception disables generic cosmetic rules, not DK's
+    // specifically scoped Facebook Sponsored recognizer. $elemhide or
+    // document-level allowlisting still disables it.
+    adRecognition:data.settings.adRecognition&&!policy.elemhide&&
+     (!policy.generichide||DKCompanyModules.profileFor(h)?.platform==="facebook"),
+    adRecognitionExceptions:adExceptions,
    playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    youtubePageAssistEnabled:active&&youtubePolicy(sender.tab?.id??-1,h).bridge&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    youtubePageAssistMode:active&&sender.frameId===0&&DKYouTubeResponse.validPage(h)?
