@@ -6,7 +6,7 @@
 
 **Official project website:** [DK Live Block on GitHub Pages](https://dereksparks1982.github.io/dkliveblock/) has four separate buttons: Google Drive source ZIP, Google Drive Firefox XPI, GitHub repository, and Patreon. **The source ZIP and unsigned Firefox XPI test package have already been uploaded to Google Drive.** The XPI is not yet signed by Mozilla and is not suitable for permanent installation in standard Firefox. Public download access for the XPI has not been verified; a signed, publicly accessible release package is still pending.
 
-> **Availability:** DK Live Block is available to download and use from this GitHub repository. The official Firefox Add-ons listing has not yet been approved by Mozilla. Full compatibility, streaming playback, security review, and feature parity with established blockers still require testing.
+**Build 253 (v0.3.223):** The public website now has a separate section linking directly to the Hanafi Learning Deck, Folkhold, Nougat Media Plus, and Capital & Consequence web pages. Facebook's existing DK scanner gained an MIT-inspired fallback for plain Sponsored labels in the right rail. This is a source-checked candidate; the last owner Facebook screenshot still showed ads, and full Firefox acceptance is pending.\n\n> **Availability:** DK Live Block is available to download and use from this GitHub repository. The official Firefox Add-ons listing has not yet been approved by Mozilla. Full compatibility, streaming playback, security review, and feature parity with established blockers still require testing.
 
 ## What it does
 
