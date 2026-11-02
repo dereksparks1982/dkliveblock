@@ -46,3 +46,17 @@ test("single-label intranet names are never routed through an image proxy",()=>{
  for(const url of ["http://printer/photo","http://nas/file","http://router/config","http://localhost/a"])
   assert.equal(N.route({url,type:"image",documentUrl:"https://blocked.example/story"},img),null,url);
 });
+
+test("Russia-facing proxy disclosure is neutral, local, and opt-in",()=>{
+ const fs=require("node:fs"),path=require("node:path"),root=path.join(__dirname,"..");
+ const options=fs.readFileSync(path.join(root,"src/options.html"),"utf8");
+ const translations=fs.readFileSync(path.join(root,"src/ui-language.js"),"utf8");
+ const russian=fs.readFileSync(path.join(root,"README.ru.md"),"utf8");
+ assert.equal(N.DEFAULT.enabled,false);
+ assert.match(options,/DK Network Recovery \/ Proxy Settings/);
+ assert.match(options,/Off by default/);
+ assert.match(options,/no VPN, proxy or Tor service/);
+ assert.doesNotMatch(options,/routing for restricted websites|recommended for Tor|Open Access/);
+ assert.ok(translations.includes('"DK Network Recovery / Proxy Settings"'));
+ assert.ok(russian.includes("docs/NOTICE_RU.md"));
+});
