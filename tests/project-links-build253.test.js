@@ -10,6 +10,10 @@ test("Build 253 mirrored project pages link to websites, never to project reposi
   assert.ok(area.startsWith('<section id="more-elderred-projects"'));
   for(const p of paths)assert.ok(area.includes('https://dereksparks1982.github.io/'+p+'/'),p);
   assert.equal((area.match(/<article>/g)||[]).length,3);
+  assert.equal((area.match(/class="project-link-button"/g)||[]).length,3);
+  assert.match(html,/#more-elderred-projects \.project-link-button\{display:flex/);
+  assert.match(html,/#more-elderred-projects \.cards article>p:last-child\{margin-top:auto/);
+
   assert.ok(!area.includes("Nougat Media Plus"));
   assert.ok(!area.includes("Nougat-Media-Plus"));
   assert.equal(area.includes("https://github.com/dereksparks1982/"),false);
