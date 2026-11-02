@@ -1,3 +1,10 @@
+## Build 248 / 0.3.218: Meta intelligence viewer
+- [x] Show local third-party hostname observations with allowed/blocked counts in a dedicated extension-only page.
+- [x] Provide refresh/confirmed-clear actions and a Meta-site-only Site Dashboard link, without moving existing controls.
+- [x] Add source regression assertions and document privacy limitations.
+- [ ] Run Linux tests and real Firefox acceptance, especially Facebook Sponsored posts and legitimate Messenger/navigation.
+- [ ] Independently verify actual advertising providers before enabling provider-specific countermeasures.
+
 ## Build 247 / 0.3.217: bounded local Meta provider counters
 - [x] Count allowed and blocked third-party requests by hostname, with 100-host and 100,000-event counter caps.
 - [x] Preserve the unknown/unverified classification regardless of traffic volume; never infer advertising from request counts alone.
