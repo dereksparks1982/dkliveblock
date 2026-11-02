@@ -145,6 +145,17 @@ function referenceTargetLabels(target,win){
  }
  return variants;
 }
+const CACHED_SPONSORED_TTL_MS=15000;
+function cachedSponsored(entry,target,liveVariants,now=Date.now()){
+ // A recently removed label can establish ephemeral ad evidence, but React
+ // may reuse the same ID for a benign post. Live targets are authoritative.
+ const value=typeof entry==="string"?entry:entry?.value;
+ const at=typeof entry==="string"?now:entry?.at;
+ if(!isAdLabel(value)||!Number.isFinite(at)||at>now||now-at>=CACHED_SPONSORED_TTL_MS)return "";
+ if(target&&target.isConnected!==false&&String(target.textContent||"").trim()&&
+    !liveVariants.some(isAdLabel))return "";
+ return normalize(value);
+}
 function referenceLabels(el,doc,cache,win){
  const out=[],ids=String(el?.getAttribute?.("aria-labelledby")||"").split(/\s+/).filter(Boolean).slice(0,10);
  const tag=String(el?.localName||el?.tagName||"").toLowerCase();
@@ -155,7 +166,7 @@ function referenceLabels(el,doc,cache,win){
   if(!/^[\w:-]{1,90}$/.test(id))continue;
   const target=doc?.getElementById?.(id);
   const variants=referenceTargetLabels(target,win);
-  const saved=cache?.get?.(id);
+  const saved=cachedSponsored(cache?.get?.(id),target,variants);
   out.push(...variants);
   if(saved)out.push(saved);
   // Short referenced fragments may concatenate to spell Sponsored or Ad.
@@ -522,7 +533,7 @@ function create(doc,win,max=100){
  function cacheAdId(id,text){
   if(!/^[A-Za-z0-9_:-]{1,90}$/.test(String(id||""))||!isAdLabel(text))return false;
   if(cache.size>=200&&!cache.has(id))cache.delete(cache.keys().next().value);
-  cache.set(id,normalize(text));return true;
+  cache.set(id,Object.freeze({value:normalize(text),at:Date.now()}));return true;
  }
  function remember(el){
   if(!el||el.nodeType!==1)return false;
@@ -574,6 +585,11 @@ function create(doc,win,max=100){
  function scan(){
   if(!doc?.querySelectorAll||!doc.body)return 0;
   stats.scans++;stats.lastScanAt=Date.now();
+  // Bounded evidence expiration: stale IDs must never persist indefinitely.
+  for(const [id,entry] of cache){
+   if(!entry||!Number.isFinite(entry.at)||entry.at>stats.lastScanAt||
+      stats.lastScanAt-entry.at>=CACHED_SPONSORED_TTL_MS)cache.delete(id);
+  }
   for(const key of ["lastHidden","lastFeedCards","lastRailSignals",
    "lastRailUnresolved","lastMenuSignals","lastMenuUnresolved",
    "lastBylineSignals","lastBylineUnresolved"])stats[key]=0;
@@ -759,7 +775,7 @@ function create(doc,win,max=100){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

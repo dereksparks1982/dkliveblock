@@ -5,7 +5,8 @@
 const agents=Object.freeze([
  Object.freeze({id:"agent_nesty_meta_01",status:"armed",job:"Short segmented Sponsored labels"}),
  Object.freeze({id:"agent_nesty_meta_02",status:"armed",job:"Sponsored menu wording variants"}),
- Object.freeze({id:"agent_nesty_meta_03",status:"armed",job:"Event-driven label CSS rechecks"})
+ Object.freeze({id:"agent_nesty_meta_03",status:"armed",job:"Event-driven label CSS rechecks"}),
+ Object.freeze({id:"agent_nesty_meta_04",status:"armed",job:"Expiry and ID-reuse protection for ephemeral Sponsored labels"})
 ]);
 function normalize(t){return String(t||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
 function label(t){const s=normalize(t);return s==="sponsored"||s==="ad";}

@@ -35,3 +35,6 @@ Orion now processes the full bounded 40-record DOM mutation batch to retain late
 
 ## Build 268: local exact-site Pause/Resume
 Experimental Orion popup now has a user-initiated exact-host pause, with up to 100 hostnames stored locally if supported. Existing DOM hiding is restored on pause. When Orion has no storage API the pause is per-page only; a failed stored-preference read suspends cleanup. New candidate needs only tabs/storage in addition to host access. No verified network API or device test, and desktop Firefox remains unaffected.
+
+## Build 269: current-tab binding
+Orion Pause/Resume requires the active tab's current URL and includes the exact hostname in its message. Content scripts reject commands for a different host, preventing stale popups from applying decisions after cross-site navigation. Corrupt saved host settings fail closed. No browser parity claimed; these changes await actual iPhone testing.

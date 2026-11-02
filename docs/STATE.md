@@ -1,4 +1,9 @@
-# Current build: 268 / v0.3.238 (November 2, 2026)
+# Current build: 269 / v0.3.239 (November 2, 2026)
+- Agent Nesty Meta 04 limits remembered disappearing Facebook Sponsored labels to 15 seconds and checks current live labels before relying on old IDs.
+- Orion-only controls reject stale popup commands after navigation and fail closed on corrupt stored site-pause data.
+- Added 13 focused regression cases, initial isolated Meta guard checks passed. The full Ubuntu Node/Python suite and real Orion/Firefox tests remain unverified.
+- Facebook GraphQL response interception stays off by default; the original Firefox UI and website Core Protections cards remain untouched.
+
 Orion experimental iOS/Mac package includes a bounded exact-site Pause/Resume control and local host-only exceptions, restoring hidden content on pause. Unsupported storage uses a page-only setting; failed reads leave protection paused. Firefox UI/permissions unchanged and GraphQL filter OFF. New source checks registered; full Linux suite and real Orion iPhone tests pending.
 
 

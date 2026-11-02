@@ -1,3 +1,6 @@
+# Build 269 / v0.3.239 (Nov 2, 2026)
+Agent Nesty Meta-04: src/facebook-ads.js now stores short-lifetime ID labels as {value,at} and guards current live targets, expiring evidence after 15 sec to avoid false positives when React recycles IDs. src/orion-pause.js rejects commands for a different hostname and corrupt saved settings; src/orion-popup.js requires active tab URL and sends site with every message. 13 synthetic regression cases added to tests/meta-orion-guards-build269.test.js and registered in runner. Full local Linux suite and actual browser/device tests still needed. Core Protections site unchanged. Default Meta GraphQL OFF.
+
 # Build 268 / v0.3.238 (Nov 2, 2026)
 Orion experimental candidate gets src/orion-pause.js (host-only 100-max local pauses, storage failure preserves paused state) and src/orion-popup.js, integrated into src/orion-dom.js and its packaging. Desktop Firefox UI and permissions unchanged. 7 Node test cases registered in the Orion pause fixture, runtime syntax checked; no full Ubuntu test or Orion device verification. Core Protections website unchanged. GraphQL OFF.
 

@@ -33,7 +33,14 @@ function apply(next){paused=next===true;ready=true;listener?.(paused);}
 const control=Object.freeze({register(fn){listener=fn;if(ready)listener(paused);},
  get(){return Object.freeze({ready,paused,site:host,persistent:saved});}});
 root.DKOrionPause=control;
-async function read(){const record=await call(store,"get",[KEY]);return safeList(record?.[KEY]);}
+async function read(){
+ const record=await call(store,"get",[KEY]);
+ // A corrupt saved opt-out cannot silently become an empty allowlist.
+ if(!record||typeof record!=="object"||
+   Object.prototype.hasOwnProperty.call(record,KEY)&&!Array.isArray(record[KEY]))
+  throw Error("Invalid saved Orion site settings");
+ return safeList(record[KEY]);
+}
 async function change(next){
  if(!ready||!valid(host)||typeof next!=="boolean")throw Error("Invalid site setting");
  if(!store){apply(next);return control.get();}
@@ -45,8 +52,13 @@ async function change(next){
 }
 api?.runtime?.onMessage?.addListener?.((message,sender,respond)=>{
  if(!message||typeof message!=="object")return false;
+ if(message.action!=="dk-orion-status"&&message.action!=="dk-orion-set-pause")return false;
+ // An already-open popup can outlive a navigation. Never apply its request
+ // to a different origin that reused the same tab ID.
+ if(message.site!==host||!valid(host)){
+  respond({ok:false,error:"Website changed; reopen DK controls"});return false;
+ }
  if(message.action==="dk-orion-status"){respond({ok:true,...control.get()});return false;}
- if(message.action!=="dk-orion-set-pause")return false;
  if(typeof message.paused!=="boolean"){respond({ok:false,error:"Invalid choice"});return false;}
  queue=queue.then(()=>change(message.paused)).then(state=>respond({ok:true,...state}),
   e=>respond({ok:false,error:String(e?.message||"Settings unavailable")}));

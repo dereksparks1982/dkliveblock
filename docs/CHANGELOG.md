@@ -1,3 +1,9 @@
+## Build 269 (v0.3.239): Agent Nesty Meta 04 and Orion site-safety gates
+- Cache of removed Sponsored label IDs now expires after 15 seconds; the scanner will prefer current benign live label evidence over old cached IDs. Expired entries are pruned each bounded scan.
+- Orion popup binds Pause/Resume to exact hostname obtained from the active tab, and content rejects stale commands after navigation.
+- Orion malformed stored exceptions suspend cleanup instead of being mistaken for an empty pause list.
+- New test fixture covers Meta cache reuse and Orion command/storage contracts. Full Linux and real browser acceptance remain pending.
+
 ## Build 268 / v0.3.238: experimental Orion site pause
 - Orion-only popup and content control support exact-host pause/resume with local persistent host-only storage when available.
 - Keep existing Firefox runtime, display and network protection unchanged; no iPhone DNR claim.

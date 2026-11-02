@@ -43,13 +43,13 @@ test("Build 268 QA: Orion popup retries browser APIs that reject callback argume
  const document={getElementById:id=>id==="site-pause"?button:id==="site-status"?text:null};
  const sends=[];
  const browser={tabs:{
-  query(...args){if(args.length!==1)throw Error("Promise-only query");return Promise.resolve([{id:17}]);},
+  query(...args){if(args.length!==1)throw Error("Promise-only query");return Promise.resolve([{id:17,url:"https://www.facebook.com/feed"}]);},
   sendMessage(...args){if(args.length!==2)throw Error("Promise-only sendMessage");sends.push(args[1]);
    return Promise.resolve(args[1].action==="dk-orion-status"?
     {ok:true,ready:true,site:"www.facebook.com",paused:false,persistent:true}:
     {ok:true,ready:true,site:"www.facebook.com",paused:true,persistent:true});}
  },runtime:{}};
- vm.runInNewContext(source,{browser,document},{timeout:1000});
+ vm.runInNewContext(source,{browser,document,URL:require("node:url").URL},{timeout:1000});
  for(let i=0;i<8;i++)await Promise.resolve();
  assert.equal(button.disabled,false);
  assert.ok(text.textContent.includes("www.facebook.com"));

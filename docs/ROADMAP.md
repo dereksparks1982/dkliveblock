@@ -1,3 +1,12 @@
+## Build 269 / v0.3.239: stale Sponsored ID defense and Orion navigation safety
+- [x] Add Agent Nesty Meta 04: time-limited (15 seconds) removed ad-label evidence, bounded cache expiry, and live-target precedence for reused Facebook element IDs.
+- [x] Harden Orion popup requests with exact active tab hostname matching, so a navigated tab cannot inherit a previous site's pause command.
+- [x] On malformed saved pause settings, refuse to silently resume Orion cleanup; keep site paused and tell the user local persistence is unavailable.
+- [x] Add 13 named regression cases for cache expiry, ID recycling, malformed state and cross-site messages; register test in Linux runner.
+- [ ] Run full local Linux suite and actual signed-in Firefox Facebook testing, including feed, rail, Marketplace and ordinary post recovery.
+- [ ] Test Orion iOS popup navigation, storage and device APIs before calling extension supported.
+- [ ] Continue Agent Nesty simulations of first-party ad delivery, but do not default-enable Meta GraphQL response rewriting before acceptance.
+
 ## Build 268 / v0.3.238: Orion exact-site pause (experimental)
 - [x] Implement active website pause/resume in a dedicated Orion-only popup, using extension messaging.
 - [x] Persist at most 100 exact hostnames via local storage where supported. Session-only if storage unavailable; an unreadable saved preference pauses conservatively.
