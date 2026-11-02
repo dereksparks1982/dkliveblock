@@ -150,16 +150,38 @@ function hasAdEvidence(card,doc,win,cache){
 }
 
 
+// Nested list positions and quoted content are not separate feed posts.
+// Count only independent article/pagelet anchors before hiding an ancestor.
+// Adapted conceptually from the MIT blocker's holdsSeveralCards protections.
+function independentPostCount(card){
+ const descendants=card.querySelectorAll?.(ARTICLE)||[];
+ // An explicit article/FeedUnit is the post boundary. Nested list positions
+ // (comments, cards, quotes) should not disqualify that same post.
+ if(card.matches?.('[role="article"],[data-pagelet^="FeedUnit"]'))return 1;
+ let independent=0;
+ for(let i=0;i<Math.min(100,descendants.length);i++){
+  const item=descendants[i];
+  let p=item?.parentElement,nested=false;
+  while(p&&p!==card){
+   if(p.matches?.(ARTICLE)){nested=true;break;}
+   p=p.parentElement;
+  }
+  if(!nested&&++independent>1)return independent;
+ }
+ return independent;
+}
 function safeCard(c,doc){
  if(!c||c===doc.body||c===doc.documentElement||c.isConnected===false||!c.style?.setProperty||
     c.matches?.(ROOTS)||c.closest?.('[role="dialog"],[role="complementary"],form,nav')||
     c.querySelector?.('main,[role="main"],[role="feed"],[role="navigation"],nav,[role="dialog"]'))return false;
  const r=c.getBoundingClientRect?.();
  return !!r&&r.width>=250&&r.width<=880&&r.height>=90&&r.height<=2500&&
-   (c.querySelectorAll?.(ARTICLE)?.length||0)<=1;
+   independentPostCount(c)<=1;
 }
 function feedCardFrom(label,doc){
- const designated=label.closest?.(ARTICLE);
+ // Prefer a real post container over an aria-posinset used by other lists.
+ const designated=label.closest?.('[role="article"],[data-pagelet^="FeedUnit"]')||
+   label.closest?.('[aria-posinset]');
  if(designated&&safeCard(designated,doc))return designated;
  let node=label,best=null;
  for(let i=0;i<14&&node?.parentElement;i++,node=node.parentElement){
@@ -250,7 +272,8 @@ function sponsoredFeedCard(menu,doc,win){
  }
  // A feed landmark identifies one post without climbing into a surrounding
  // stream. Never hide the feed itself, a dialog, or a multi-post wrapper.
- const landmark=menu.closest?.(ARTICLE);
+ const landmark=menu.closest?.('[role="article"],[data-pagelet^="FeedUnit"]')||
+  menu.closest?.('[aria-posinset]');
  if(landmark&&safeCard(landmark,doc)&&landmark.contains?.(menu))return landmark;
  // Facebook also renders cards without article/pagelet attributes.
  // Anchor on the local author heading, then take the first complete card.
