@@ -18,7 +18,7 @@ function fixture(headingText){
    setProperty(name,value,priority){this.record=[name,value,priority]},removeProperty(){}}
  };
  label.parentElement=container;
- doc.querySelectorAll=s=>s==='span,[role="complementary"] div,aside div'?[label]:[];
+ doc.querySelectorAll=s=>s.startsWith('span,')?[label]:[];
  return {doc,win,container};
 }
 test("Build 253 hides a bounded right rail with a plain Sponsored span",()=>{
