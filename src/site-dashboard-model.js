@@ -56,7 +56,8 @@ function customHosts(data){
 function allowances(data){
  return (Array.isArray(data?.requestAllowances)?data.requestAllowances:[]).slice(0,150).flatMap(row=>{
   const host=hostname(row?.host);
-  if(!host||!RESOURCE_TYPES.has(row.type)||!SCOPES.has(row.scope))return [];
+  if(!host||!RESOURCE_TYPES.has(row.type)||row.type==="popup"||
+    row.type==="main_frame"||!SCOPES.has(row.scope))return [];
   return [{host,type:row.type,scope:row.scope,
    expires:Number.isFinite(row.expires)?row.expires:0}];
  });
