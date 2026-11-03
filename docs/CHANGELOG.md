@@ -1,3 +1,6 @@
+## 0.3.280 / Build 310
+- Added evidence-only Facebook diagnostic triage codes and a safe next-check explanation to the existing exported report. No changes to ad rules, page scanning, settings or permissions. Full browser acceptance pending.
+
 ## 0.3.279 / Build 309
 - Facebook scanInserted now checks first and last four newly added siblings instead of only the first eight. Existing ad evidence and organic-post guards remain. Focused smoke passed; live Firefox verification pending.
 

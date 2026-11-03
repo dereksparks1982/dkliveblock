@@ -1,3 +1,8 @@
+## Build 310 / v0.3.280: actionable, non-affirmative Facebook diagnostics (November 3, 2026)
+- [x] Add fixed offline triage codes to the combined Facebook detector/GraphQL export; explain disabled recognition, no scanner evidence, observed hiding and unresolved cases.
+- [x] Preserve strict redaction and refusal to equate network counters with successful ad removal.
+- [x] Five source tests for positive, negative and malformed evidence; native Firefox acceptance pending.
+
 ## Build 309 / v0.3.279: Facebook child insertion tail coverage (November 3, 2026)
 - [x] Preserve fast scan's eight-child insertion limit while covering the final four nodes of large React childList events.
 - [x] Five offline positive/negative, bounded and restore checks registered; full Ubuntu and Firefox tests pending.
