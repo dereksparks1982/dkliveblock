@@ -1,3 +1,7 @@
+## 0.3.271 / Build 301 (November 3, 2026)
+- Added full static Russian labels and privacy caveats to Network Monitor and the offline YouTube comparison lab. Core blocking, optional capture, diagnostics, modes and exports unchanged.
+- Registered static coverage and separation test; complete Ubuntu and live Firefox acceptance pending.
+
 ## 0.3.270 / Build 300 (November 3, 2026)
 - Russian UI expanded to the saved-video library, downloads, voluntary support reports and the phishing warning. Sensitive hostnames, report fields and consent behavior remain unchanged.
 - Separate local, no-network utility strings from the main Settings dictionary. Static-source checks added; live Firefox and complete Linux tests pending.

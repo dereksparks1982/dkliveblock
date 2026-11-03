@@ -47,3 +47,6 @@ The numbered agent code is a distinct internal feature. The YouTube creator publ
 
 ## Build 300: utility and safety screens
 The video library, downloads, voluntary support form and phishing warning now load an exact-match Russian utility string catalog before the existing translator. Both dictionaries remain local and do not translate websites, hostnames, user-entered report text or backend decisions. Full Firefox visual and language QA are outstanding.
+
+## Build 301: network and YouTube diagnostics
+Network Monitor and the offline YouTube diagnostic comparison lab now use the local utility translation catalog. The chosen interface language does not alter captured traffic, blocked-request history, experiment values, file contents, browser language, or YouTube video state. Dynamic feedback and responsive Russian label layout still need real Firefox testing.

@@ -1,3 +1,9 @@
+## Build 301 / v0.3.271: Russian diagnostic network/YouTube UI (November 3, 2026)
+- [x] Translate static Network Monitor inspection, future-request allowances, warning disclosures and private export labels, retaining English fallback and original values.
+- [x] Translate the offline YouTube diagnostic comparison lab, especially distinct ordinary video versus Free with Ads film outcomes and observation-only caveats.
+- [x] Add local translation scripts without changing network monitoring, experiment modes, playback, exports, storage or permissions; register focused coverage test.
+- [ ] Full native Ubuntu suite and Firefox bilingual visual/live diagnostic checks; dynamic status strings and remaining tool screens still require coverage.
+
 ## Build 300 / v0.3.270: Russian support, library, downloads and phishing warning (November 3, 2026)
 - [x] Extend locally bundled Russian UI to the video library, downloads, voluntary support report and phishing-protection warning.
 - [x] Preserve exact-host security warning acknowledgment, report privacy, browser permissions and existing ad blocking; no geometry changes.
