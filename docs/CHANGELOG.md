@@ -1,3 +1,7 @@
+## 0.3.270 / Build 300 (November 3, 2026)
+- Russian UI expanded to the saved-video library, downloads, voluntary support reports and the phishing warning. Sensitive hostnames, report fields and consent behavior remain unchanged.
+- Separate local, no-network utility strings from the main Settings dictionary. Static-source checks added; live Firefox and complete Linux tests pending.
+
 ## 0.3.269 / Build 299 localization candidate (November 3, 2026)
 - Added local Russian translations across Settings, toolbar popup experiment and Site Dashboard; previously many Settings labels had no translations and the Dashboard did not load the language module.
 - Replaced brown Settings warning background with charcoal/cyan, preserving approved layout and control geometry.

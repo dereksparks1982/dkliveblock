@@ -378,7 +378,9 @@ const RU=Object.freeze({
 function supported(code){return SUPPORTED.includes(code)?code:"en";}
 function translate(text,language){
  if(language!=="ru"||typeof text!=="string")return text;
- return Object.prototype.hasOwnProperty.call(RU,text)?RU[text]:text;
+ if(Object.prototype.hasOwnProperty.call(RU,text))return RU[text];
+ const extra=root.DKUIToolStrings;
+ return extra&&Object.prototype.hasOwnProperty.call(extra,text)?extra[text]:text;
 }
 const nodeOriginals=new WeakMap(),attributeOriginals=new WeakMap();
 const EXCLUDED=new Set(["SCRIPT","STYLE","TEXTAREA","PRE","CODE","INPUT"]);

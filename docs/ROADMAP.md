@@ -1,3 +1,9 @@
+## Build 300 / v0.3.270: Russian support, library, downloads and phishing warning (November 3, 2026)
+- [x] Extend locally bundled Russian UI to the video library, downloads, voluntary support report and phishing-protection warning.
+- [x] Preserve exact-host security warning acknowledgment, report privacy, browser permissions and existing ad blocking; no geometry changes.
+- [x] Cover all existing static interface fragments except brand/path/address names; register an offline regression.
+- [ ] Full Ubuntu suite, owner Firefox visual verification, native-speaker review, and remaining extension diagnostic screens.
+
 ## Build 299 / v0.3.269: Russian extension UI coverage and warning palette (November 3, 2026)
 - [x] Respond to owner's report that selecting Russian leaves most Firefox extension Settings text in English. Add explicit, local, reversible translations for static Settings, popup, and Site Dashboard text.
 - [x] Load the same local interface language module in the Site Dashboard, which has no language dropdown. Use the saved Firefox-local selection and preserve the site's tab and filtering controls.

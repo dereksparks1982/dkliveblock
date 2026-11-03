@@ -44,3 +44,6 @@ This is the **first Russian localization slice**, not a fully verified translati
 
 ## Source of the Agent Nesty nickname
 The numbered agent code is a distinct internal feature. The YouTube creator publicly goes by **Anastasia | Agent Nesty** and describes the brand as an agent-themed community. We have **not** confirmed the origin of the nickname or an alleged spy accusation. Nothing in localization depends on that story.
+
+## Build 300: utility and safety screens
+The video library, downloads, voluntary support form and phishing warning now load an exact-match Russian utility string catalog before the existing translator. Both dictionaries remain local and do not translate websites, hostnames, user-entered report text or backend decisions. Full Firefox visual and language QA are outstanding.
