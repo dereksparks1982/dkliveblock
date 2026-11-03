@@ -1,0 +1,3 @@
+# Build 320: YouTube first-party/media/enforcement triage
+
+Unreleased v0.3.290. The voluntary same-tab YouTube diagnostic export now adds a fixed, private-data-free list of co-observed signals (in-player enforcement, media faults, buffering, blocked media, first-party background request blocks and response modifications). The signals are derived from already collected coarse counters, without new network observers or extra UI clicks. Every result says its root cause and ad-free outcome are unverified and recommends matched regular-video versus movie testing. The text export also names these correlations. Five offline tests added. No changes to stream filtering, player data, site permissions, or geometry. Native Ubuntu and owner Firefox acceptance still required.

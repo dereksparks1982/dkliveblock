@@ -1,3 +1,6 @@
+## 0.3.290 / Build 320
+- Added conservative, read-only multi-signal YouTube troubleshooting to the existing local compatibility report; correlations are never treated as proven causes.
+
 ## 0.3.289 / Build 319
 - Offline YouTube A/B lab now rejects a stale comparison if either local report file changes mid-read and blocks export while reading.
 

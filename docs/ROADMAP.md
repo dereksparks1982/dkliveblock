@@ -1,3 +1,8 @@
+## Build 320 / v0.3.290: YouTube compatibility evidence correlation (November 3, 2026)
+- [x] Extend existing user-initiated YouTube compatibility report with bounded cross-signal advice from in-player refusal, media errors, blocked media and first-party requests.
+- [x] Explicitly refuse causal or ad-free-success assertions from counters. No new browser permissions or playback/network rule changes.
+- [x] Five source/privacy/negative controls registered; full Ubuntu and Firefox comparison pending.
+
 ## Build 319 / v0.3.289: YouTube lab async selection integrity (November 3, 2026)
 - [x] Invalidate pending A/B comparison if chosen local report changes or user clears results during asynchronous file reading.
 - [x] Prevent exporting while comparison is in flight; no report file names, paths or raw contents stored in revision state.

@@ -4,6 +4,7 @@
 const Model=root.DKSiteDashboardModel||typeof require==="function"&&require("./site-dashboard-model.js");
 const Triage=root.DKYouTubeTriage||typeof require==="function"&&require("./youtube-triage.js");
 const Outcome=root.DKYouTubeOutcome||typeof require==="function"&&require("./youtube-outcome.js");
+const Advice=root.DKYouTubeCompatibilityAdvice||typeof require==="function"&&require("./youtube-compatibility-advice.js");
 const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders","attachAttempts","attached"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
@@ -57,6 +58,7 @@ function build(s,now=Date.now()){
  const playback=(Array.isArray(s.playbackDiagnostics)?s.playbackDiagnostics:[])
   .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip","ad-showing"].includes(x?.kind))
   .map(x=>({kind:x.kind,blockedMediaNearby:x.blockedMediaNearby===true}));
+ const playbackAssessment=Outcome.summarize(s),networkEvidence=Triage.summarize(s);
  return {format:"DK Live Block YouTube compatibility report",schemaVersion:1,
   experimentMode:["combined","response-only","bridge-only","observe","player-pass-through"].includes(s.youtubeTestMode)?
    s.youtubeTestMode:"combined",
@@ -65,8 +67,9 @@ function build(s,now=Date.now()){
   temporaryPause:s.temporarilyPaused===true,requestLogEnabled:s.requestLog===true,
   filterBackend:["native","hybrid"].includes(s.filterBackend)?s.filterBackend:"Unknown",
   blockedCount:number(s.blocked),permittedCount:number(s.allowedRequests),
-  responseFiltering:responses,playback,playbackAssessment:Outcome.summarize(s),
-  networkEvidence:Triage.summarize(s),blocked,permitted,
+  responseFiltering:responses,playback,playbackAssessment,networkEvidence,
+  compatibilityAdvice:Advice.assess({playbackAssessment,networkEvidence,responseFiltering:responses}),
+  blocked,permitted,
   limitations:"Counts show local observations, not proof of ad-free playback. An ad-skip event records a button click, not confirmed ad removal. An ad-showing event is a player-state indicator, not independently confirmed ad playback. Does not export URLs, paths, video IDs, titles, cookies, headers, authentication, request bodies or browser history. No upload."};
 }
 function asText(report){
@@ -97,6 +100,9 @@ function asText(report){
   lines.push(x.phase+": "+x.state+" / ad structures "+x.adFields+
    " / refused "+x.refused+" / initial feed data "+x.initialData);
  if(!report.responseFiltering.bootstrap?.length)lines.push("No bootstrap observations recorded.");
+ lines.push("","COMPATIBILITY TRIAGE (CORRELATION, NOT CAUSATION)");
+ for(const code of report.compatibilityAdvice?.signals||[])lines.push("Signal: "+code);
+ lines.push("Root cause independently established: no");
  lines.push("","PLAYBACK HEALTH","Evidence classification: "+report.playbackAssessment.category,
   "Confirmed ad-free playback: no (not established by local diagnostics)");
  for(const x of report.playback)lines.push(x.kind+(x.blockedMediaNearby?" (blocked media nearby)":""));
