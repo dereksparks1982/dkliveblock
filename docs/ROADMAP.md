@@ -1,3 +1,7 @@
+## Build 309 / v0.3.279: Facebook child insertion tail coverage (November 3, 2026)
+- [x] Preserve fast scan's eight-child insertion limit while covering the final four nodes of large React childList events.
+- [x] Five offline positive/negative, bounded and restore checks registered; full Ubuntu and Firefox tests pending.
+
 ## Build 308 / v0.3.278: correct YouTube export snapshot identity (November 3, 2026)
 - [x] Explicit export now fetches fresh background YouTube evidence instead of reusing a stale cached Dashboard object.
 - [x] Validate selected tab and hostname on both sides of the capture, compare exact tab URL transiently to reject same-host video navigation, and serialize buttons while capturing.

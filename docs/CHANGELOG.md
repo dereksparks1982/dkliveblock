@@ -1,3 +1,6 @@
+## 0.3.279 / Build 309
+- Facebook scanInserted now checks first and last four newly added siblings instead of only the first eight. Existing ad evidence and organic-post guards remain. Focused smoke passed; live Firefox verification pending.
+
 ## 0.3.278 / Build 308 (November 3, 2026)
 - The YouTube diagnostic export captures current same-tab background counters, rejects changed video navigation and mismatched tab/site state, and locks concurrent controls during capture.
 - All exact URLs remain ephemeral in browser memory; existing redacted report stays unchanged. No ad or player filtering changes, new permissions or geometry edits. Full Linux and Firefox testing pending.

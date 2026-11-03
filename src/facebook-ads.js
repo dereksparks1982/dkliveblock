@@ -488,6 +488,15 @@ function sponsoredFeedCard(menu,doc,win){
  }
  return best;
 }
+// Review the tail as well as the head of oversized child insertions.
+function sampleAddedNodes(nodes,max=8){
+ const n=nodes?.length;
+ if(!Number.isSafeInteger(n)||n<0||n>1000000||max!==8)return [];
+ const result=[];
+ if(n<=8){for(let i=0;i<n;i++)result.push(nodes[i]);}
+ else{for(let i=0;i<4;i++)result.push(nodes[i]);for(let i=n-4;i<n;i++)result.push(nodes[i]);}
+ return result;
+}
 function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -653,7 +662,7 @@ function create(doc,win,max=100,onEvidence=null){
   // this priority a 32-root cap could discard a sampled late Sponsored post.
   const batch=records.slice(0,40);
   for(const r of batch)if(r?.type==="childList")
-   for(let j=0;j<Math.min(8,r.addedNodes?.length||0);j++)take(r.addedNodes[j]);
+   for(const node of sampleAddedNodes(r.addedNodes))take(node);
   for(const r of batch)if(r?.type==="characterData"||
     r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName))
    take(r.target);
@@ -897,7 +906,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
