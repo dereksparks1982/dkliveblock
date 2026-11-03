@@ -65,7 +65,7 @@ test("Build 294: test inventory, existing permissions and source-only privacy",(
   source=fs.readFileSync(path.join(root,"src/layout-reflow.js"),"utf8"),
   pkg=require("../package.json"),manifest=require("../src/manifest.json");
  assert.equal(pkg.version,manifest.version);
- assert.equal(pkg.version,"0.3.264");
+ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
  assert.ok(runner.includes("tests/layout-identity-build294.test.js"));
  assert.ok(source.includes("samePreviewTargets(originalTargets,afterTargets)"));
  assert.ok(source.includes("samePreviewTargets(originalTargets,previewTargets())"));

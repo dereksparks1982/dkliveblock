@@ -95,7 +95,7 @@ test("Build 296 content hook never hides enforcement or changes network filterin
  assert.match(c,/enforcementProbe\?\.scan\(document\)/);
  assert.match(c,/enforcementProbe\?\.reset\(\)/);
  assert.match(h,/return "enforcement"/);
- assert.equal(manifest.version,"0.3.266");
+ assert.equal(manifest.version,require("../package.json").version);
  assert.equal(pkg.version,manifest.version);
  assert.ok(runner.includes("tests/youtube-player-enforcement-build296.test.js"));
 });

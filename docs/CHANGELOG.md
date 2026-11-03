@@ -1,3 +1,8 @@
+## 0.3.276 / Build 306 (November 3, 2026)
+- Improved Facebook ad-recognizer reaction to React mutation bursts: bounded, chronological head/middle/tail sampling lets late sponsored labels reach the vetted fast scanner before the fallback.
+- Repaired six stale build-specific version assertions in the offline test suite without removing actual functionality checks. Streaming/video, network rules, settings, approved geometry and permissions unchanged.
+- Focused synthetic tests added; complete Ubuntu suite and live Firefox acceptance pending.
+
 ## 0.3.275 / Build 305 (November 3, 2026)
 - Existing Facebook detector report now also contains sanitized GraphQL response-filter counters and saved/on-site status from the already guarded background path. No separate buttons, network changes, telemetry, permissions or blocking alterations.
 - Privacy safeguards whitelist numeric counters, reject raw objects, preserve failure as unavailable, and discard results across tab navigation. Source-level smoke and regression registered; full Linux/Firefox acceptance pending.

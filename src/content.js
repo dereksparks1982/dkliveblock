@@ -311,7 +311,11 @@
     // Delay heavy scanning; avoid loops from our own display style updates.
     let popups=false,ads=false;
     const facebookChanges=[];
-    for(const item of records.slice(0,40)){
+    // Preserve the old 40-record work budget while including late Facebook
+    // React updates, where a newly inserted sponsored label may appear.
+    const inspected=isFacebookHost&&typeof DKMetaModule!=="undefined"?
+     DKMetaModule.sampleMutations(records,40):records.slice(0,40);
+    for(const item of inspected){
      if(!popups&&DKPopupGuard.shouldInspectMutation(item,el=>overlayRecovery.wasHidden(el)))popups=true;
      if(facebookRecognizer?.observeMutation(item)){
       ads=true;facebookChanges.push(item);

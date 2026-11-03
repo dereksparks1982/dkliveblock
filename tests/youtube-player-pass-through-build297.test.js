@@ -87,7 +87,7 @@ test("Build 297: report/lab/outcome retain mode without raw request URLs",()=>{
 });
 test("Build 297: version, test runner and Firefox permissions preserved",()=>{
  const pkg=require("../package.json"),manifest=require("../src/manifest.json");
- assert.equal(pkg.version,"0.3.267");
+ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
  assert.equal(manifest.version,pkg.version);
  const runner=fs.readFileSync(path.join(ROOT,"scripts/test-local.sh"),"utf8");
  assert.ok(runner.includes("tests/youtube-player-pass-through-build297.test.js"));

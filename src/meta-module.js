@@ -2,6 +2,20 @@
    Facebook reuses the proven site-scoped scanner. Other Meta surfaces remain
    observation-only until independently verified with DOM fixtures. */
 (function(root){"use strict";
+// Facebook React can send hundreds of mutations in one callback. Sampling
+// only the beginning delays recognition of a sponsored badge added near the
+// end. Inspect the head, a deterministic spread through the middle, and the
+// tail under the SAME forty-record budget. Preserve chronological order.
+function sampleMutations(records,max=40){
+ if(!Array.isArray(records)||!Number.isInteger(max)||max<8||max>64)return [];
+ if(records.length<=max)return records.slice();
+ const head=Math.floor(max*2/5),tail=head,middle=max-head-tail;
+ const result=records.slice(0,head),span=records.length-head-tail;
+ for(let i=0;i<middle;i++)
+  result.push(records[head+Math.floor((i+.5)*span/middle)]);
+ return result.concat(records.slice(records.length-tail));
+}
+
 function create(doc,win){
  const profile=root.DKCompanyModules?.profileFor?.(win?.location?.hostname||"");
  if(profile?.company!=="meta"||win?.top&&win.top!==win)return null;
@@ -30,7 +44,7 @@ function create(doc,win){
   diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({platform,hidden:0,mode:"observation-only"}),
   get hiddenCount(){return facebook?.hiddenCount||0;}});
 }
-const API=Object.freeze({create});
+const API=Object.freeze({create,sampleMutations});
 root.DKMetaModule=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

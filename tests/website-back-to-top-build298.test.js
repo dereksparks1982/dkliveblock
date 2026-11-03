@@ -52,7 +52,7 @@ test("Build 298: brown backgrounds become charcoal with gold/red accents",()=>{
 test("Build 298: release version and test integration present",()=>{
  const p=require("../package.json"),m=require("../src/manifest.json");
  const runner=fs.readFileSync(path.join(root,"scripts/test-local.sh"),"utf8");
- assert.equal(p.version,"0.3.268");
+ assert.equal(p.version,require("../src/manifest.json").version);
  assert.equal(m.version,p.version);
  assert.ok(runner.includes("tests/website-back-to-top-build298.test.js"));
  assert.ok(runner.includes("tests/facebook-linked-author-build298.test.js"));

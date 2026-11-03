@@ -1,3 +1,11 @@
+## Build 306 / v0.3.276: Facebook late React mutation bursts and regression maintenance (November 3, 2026)
+- [x] With the same forty-record bound, inspect the start, distributed middle and end of a large Facebook MutationObserver callback; previously only the first forty changes were examined.
+- [x] Preserve existing safe Facebook sponsored evidence/whole-card containment checks, immediate scan and periodic fallback. Other sites keep identical first-forty behavior; YouTube response/player code is unchanged.
+- [x] Add tests for 41/80/120/2,000-record bursts, last-record sponsored insertion, ordered unique samples, malformed inputs and normal restores.
+- [x] Repair six historical tests that hard-pinned a prior version, while retaining version consistency and historic behavior assertions.
+- [ ] Full Ubuntu offline regression suite; live owner Firefox verification of ad flash/resurrection and ordinary organic posts.
+- [ ] YouTube ordinary-video anti-blocker root cause remains unconfirmed. Do not invent a fix or change video transport without evidence.
+
 ## Build 305 / v0.3.275: complete Facebook local diagnostic export (November 3, 2026)
 - [x] Join user-clicked Facebook DOM detector status with independently authorized GraphQL response-filter settings and bounded counters in the existing safe diagnostic export. No extra controls or permissions.
 - [x] Whitelist every detector/GraphQL counter; reject arbitrary fields, raw URLs and invalid counts. If GraphQL status is unavailable, report unavailable, not disabled.

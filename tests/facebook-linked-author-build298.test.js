@@ -114,7 +114,7 @@ test("Build 298: fast insertion detects a new ad but not ordinary content",()=>{
 });
 test("Build 298: version and release regression registration",()=>{
  const pkg=require("../package.json"),manifest=require("../src/manifest.json");
- assert.equal(pkg.version,"0.3.268");
+ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
  assert.equal(manifest.version,pkg.version);
  const runner=fs.readFileSync(path.resolve(__dirname,"../scripts/test-local.sh"),"utf8");
  assert.ok(runner.includes("tests/facebook-linked-author-build298.test.js"));

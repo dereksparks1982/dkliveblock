@@ -90,7 +90,7 @@ test("Build 295: actual shipped DK/Ghostery engines evaluate every simulated cas
 test("Build 295: local runner, version and unchanged extension permissions",()=>{
  const pkg=require("../package.json"),manifest=require("../src/manifest.json");
  const script=fs.readFileSync(path.join(ROOT,"scripts/test-local.sh"),"utf8");
- assert.equal(pkg.version,"0.3.265");
+ assert.match(pkg.version,/^\d+\.\d+\.\d+$/);
  assert.equal(manifest.version,pkg.version);
  assert.equal(pkg.scripts["audit:evidence"],"node scripts/nesty-evidence-lab.js");
  assert.ok(script.includes("tests/nesty-evidence-lab-build295.test.js"));
