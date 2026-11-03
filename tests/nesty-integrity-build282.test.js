@@ -172,3 +172,40 @@ test("Build 285: integration status explicitly denies self-learning and automati
  assert.ok(Object.isFrozen(v.integration));
  assert.equal(v.providers.length,0);
 });
+
+test("Build 287 trusted Facebook DOM evidence uses fixed scoped aggregate categories",()=>{
+ const i=create();
+ for(const host of ["instagram.com","youtube.com","reddit.com"])
+  assert.equal(i.observeDecision(host,"feed"),null);
+ for(const bad of ["private_message","__proto__","post_text",null])
+  assert.equal(i.observeDecision("facebook.com",bad),null);
+ for(const kind of ["feed","menu","rail","marketplace"])
+  assert.equal(i.observeDecision("facebook.com",kind).count,1);
+ assert.equal(i.observeDecision("www.facebook.com","feed").count,2);
+ const rows=i.snapshot("m.facebook.com",false).localEvidence;
+ assert.equal(rows.length,4);
+ assert.equal(rows.find(x=>x.kind==="feed").count,2);
+ assert.equal(rows.find(x=>x.kind==="rail").strategy,"facebook-sponsored-rail");
+ assert.equal(rows.find(x=>x.kind==="marketplace").strategy,"facebook-promoted-product");
+ assert.ok(rows.every(x=>x.action==="review-only"&&x.source==="confirmed-dom-hide"));
+ assert.ok(Object.isFrozen(rows)&&rows.every(x=>Object.isFrozen(x)&&Object.isFrozen(x.signals)));
+ assert.deepEqual([...i.snapshot("instagram.com",false).localEvidence],[]);
+ assert.equal(i.clear("facebook.com"),true);
+ assert.equal(i.snapshot("facebook.com",false).localEvidence.length,0);
+});
+test("Build 287 live counters have a cap and leave strategies non-executable",()=>{
+ const i=create();
+ for(let n=0;n<10025;n++)i.observeDecision("facebook.com","menu");
+ assert.equal(i.snapshot("facebook.com",false).localEvidence[0].count,10000);
+ const strategy=i.inspect("facebook.com",["sponsor_label","post_boundary"]).strategies[0];
+ assert.equal(strategy.enabled,false);
+ assert.equal(strategy.executable,false);
+ const scanner=fs.readFileSync(path.resolve(__dirname,"../src/facebook-ads.js"),"utf8");
+ const adapter=fs.readFileSync(path.resolve(__dirname,"../src/meta-module.js"),"utf8");
+ const content=fs.readFileSync(path.resolve(__dirname,"../src/content.js"),"utf8");
+ assert.match(scanner,/onEvidence\(kind\)/);
+ assert.match(scanner,/hide\(tile,label,"marketplace"\)/);
+ assert.match(scanner,/hide\(card,menu,"menu"\)/);
+ assert.match(adapter,/observeDecision\?\.\(win\.location\.hostname,kind\)/);
+ assert.match(content,/nesty:facebookRecognizer\?\.intelligenceProfile\?\.\(\)/);
+});

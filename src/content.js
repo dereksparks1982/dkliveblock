@@ -426,7 +426,8 @@
    // cookies, personal profile data, URLs, or DOM elements.
    return Promise.resolve({ok:true,active,adRecognition,picking,
     adapterLoaded:!!facebookRecognizer,lastScanAt:lastAdScan,
-    detector:facebookRecognizer?.diagnostics?.()||null});
+    detector:facebookRecognizer?.diagnostics?.()||null,
+    nesty:facebookRecognizer?.intelligenceProfile?.()||null});
   }
   if(msg.action==="refresh"){refresh();return Promise.resolve({ok:true});}
   if(msg.action==="startPicker")return Promise.resolve({ok:startPicker()});

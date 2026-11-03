@@ -18,6 +18,7 @@
 | Disney+ (Disney streaming platform) | *CSI: Las Vegas*, owner compared DK off/on | **Owner-observed PASS (scoped)**, Nov 1 | Keep protected playback/login behavior; repeat after major changes |
 | 1337x (website/mirror, not an independently established corporate parent) | Advertising tab/focus takeover, verbally reported `1337x.tw` | **Owner-observed PASS (scoped)**, Nov 1 | Companion export names `1337x.la`; do not falsely conflate mirror hosts or claim every popunder type |
 | The Pirate Bay (website) | Visible advertising overlay and unwanted ad windows/tabs | **Owner-observed PASS (scoped)**, `thepiratebay.org`, Nov 1 | Normal intentional tabs, links, user-permitted exceptions and downloads require protection |
+| Pornhub (website) | Owner confirms DK Live Block working; particular ad surface unspecified | **Owner-observed PASS (scoped general report)**, Nov 2 | Exact hostname, ad placements, video duration, A/B comparison, and installed version not yet supplied |
 
 ## Positive, partial or still in progress
 

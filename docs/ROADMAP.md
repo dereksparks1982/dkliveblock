@@ -1,3 +1,11 @@
+## Build 287 / v0.3.257: local Facebook-to-Nesty integration (November 2, 2026)
+- [x] Connect successful Facebook feed, menu, right-rail and Marketplace DOM hides to Nesty's real local evidence intake; existing scanner owns all decisions.
+- [x] Expose bounded, fixed-category local counts and inert strategy ownership through Facebook diagnostics, without raw content or extra telemetry.
+- [x] Keep existing DOM and GraphQL safeguards, experiment controls and approved UI geometry unchanged.
+- [x] Register two integration tests and record owner-confirmed Pornhub working observation, carefully scoped.
+- [ ] Exact-commit full Ubuntu suite, owner Firefox Facebook fast-scroll, Marketplace, login, false positives, GraphQL rollback and video playback testing.
+- [ ] Independent Instagram/Threads/WhatsApp, Orion and Yandex validation. Adaptive autonomous blocking and uBlock parity not yet established.
+
 ## Build 286 / v0.3.256: Facebook GraphQL experiment, organized Settings and Patreon (November 2, 2026)
 - [x] Enable bounded first-party Facebook GraphQL response filtering for fresh installs, with Agent Nesty Meta 05 ownership. Preserve existing saved OFF user preferences.
 - [x] Fix inert GraphQL checkbox Settings-save path and add an instantly saved, reversible toolbar Experimental switch; reloading Facebook reverses earlier edited responses.

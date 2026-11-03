@@ -1,3 +1,9 @@
+## 0.3.257 / Build 287 (November 2, 2026)
+- Connected successful Facebook DOM safety-checked hiding into Nesty's in-memory, fixed-category evidence coordinator, with bounded counts and non-executable strategy labels.
+- Enhanced existing Facebook diagnostics with local Nesty observations; no telemetry, permission changes or new blocking decisions.
+- Added two registered integration tests; documented scoped owner confirmation that DK Live Block works on Pornhub.
+- Full Ubuntu and live Firefox acceptance remain pending.
+
 ## 0.3.256 / Build 286 (November 2, 2026)
 - Reversible Meta Nesty 05 Facebook GraphQL response experiment enabled for fresh installs, with immediate popup toggle and repaired Settings persistence; preserve stored choices and response safety gates.
 - Reorganized 25 existing Settings sections into eight collapsed black/cyan/white categories, preserving IDs, deep links and approved toolbar geometry.

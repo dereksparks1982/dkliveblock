@@ -29,6 +29,14 @@ function signalsOf(value,catalog){
 // Read-only evidence-to-strategy handoff. Reviewed strategies are NOT filters.
 // Require independent browser verification before any existing engine is touched.
 const MAX_PLANS=6;
+// Fixed metadata from an existing vetted Facebook hide, never site-supplied text.
+const DOM_EVIDENCE=Object.freeze({
+ feed:Object.freeze({strategy:"facebook-sponsored-post",signals:Object.freeze(["sponsor_label","post_boundary"])}),
+ menu:Object.freeze({strategy:"facebook-sponsored-post",signals:Object.freeze(["sponsor_label","post_boundary"])}),
+ rail:Object.freeze({strategy:"facebook-sponsored-rail",signals:Object.freeze(["sponsor_label","rail_section"])}),
+ marketplace:Object.freeze({strategy:"facebook-promoted-product",signals:Object.freeze(["promoted_badge","product_card"])})
+});
+const MAX_DOM_COUNT=10000;
 function planReviews(target,matches,reviews){
  const proposals=[];
  function add(id,owner,evidence,stage){
@@ -65,7 +73,7 @@ function create(deps){
  const env=deps||root,companies=env.DKCompanyModules,team=env.DKNestyTeam,
   catalog=env.DKMetaDeliveryCatalog,dispatcher=env.DKAdaptiveDispatcher,
   providers=env.DKProviderIntelligence,model=env.DKAdaptiveModel;
- const providerMaps=new Map(),acceptedSignals=vocabulary(catalog);
+ const providerMaps=new Map(),domEvents=new Map(),acceptedSignals=vocabulary(catalog);
  const reviewDispatcher=dispatcher?.create?.()||null;
  if(reviewDispatcher){
   reviewDispatcher.register("explicit-sponsored",ctx=>({
@@ -120,6 +128,23 @@ function create(deps){
    specialistIds:target.specialists,mode:target.mode,action:"review-only",
    signals,matches:Object.freeze(matches),reviews:Object.freeze(reviews),strategies,ranking});
  }
+ // Only the trusted in-extension Facebook scanner should invoke this function.
+ function observeDecision(site,kind){
+  const target=route(site);
+  if(target?.platform!=="facebook"||!Object.prototype.hasOwnProperty.call(DOM_EVIDENCE,kind))return null;
+  let counts=domEvents.get(target.platform);
+  if(!counts){counts=new Map();domEvents.set(target.platform,counts);}
+  const count=Math.min(MAX_DOM_COUNT,(counts.get(kind)||0)+1);
+  counts.set(kind,count);return Object.freeze({kind,count});
+ }
+ function localEvidence(site){
+  const target=route(site);
+  const counts=target?.platform==="facebook"?domEvents.get(target.platform):null;
+  return Object.freeze([...counts||[]].map(([kind,count])=>Object.freeze({
+   kind,count,strategy:DOM_EVIDENCE[kind].strategy,owner:"nesty_meta_ad_scout",
+   signals:DOM_EVIDENCE[kind].signals,source:"confirmed-dom-hide",action:"review-only"
+  })));
+ }
  function observeProvider(site,destination,status,loggingEnabled){
   const target=route(site),valid=providers?.validHost;
   if(!target||loggingEnabled!==true||!valid?.(destination)||
@@ -138,18 +163,20 @@ function create(deps){
   if(!target)return null;
   const observed=loggingEnabled===true?
    (providerMaps.get(target.platform)?.list()||[]).slice(0,MAX_PROVIDERS):[];
+  const dom=localEvidence(site);
   return Object.freeze({...target,networkMode:"unknown-until-capability-checked",
    integration:Object.freeze({status:"review-only",selfLearning:false,
     automaticRules:false,browserVerificationRequired:true}),
-   providers:Object.freeze(observed)});
+   providers:Object.freeze(observed),localEvidence:dom});
  }
  function clear(site){
   const target=route(site);
   if(!target)return false;
   providerMaps.get(target.platform)?.clear();
+  domEvents.get(target.platform)?.clear();
   return true;
  }
- return Object.freeze({route,inspect,observeProvider,snapshot,clear});
+ return Object.freeze({route,inspect,observeDecision,observeProvider,snapshot,clear});
 }
 const API=Object.freeze({create,signalsOf});
 root.DKNestyIntelligence=API;

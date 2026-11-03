@@ -448,7 +448,7 @@ function sponsoredFeedCard(menu,doc,win){
  }
  return best;
 }
-function create(doc,win,max=100){
+function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
  const hidden=new Map(),cache=new Map(),limit=Math.max(1,Math.min(120,max));
@@ -486,14 +486,19 @@ function create(doc,win,max=100){
  }
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
- function hide(el,trigger=null){
+ function hide(el,trigger=null,kind=""){
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
   hidden.set(el,{value:el.style.getPropertyValue("display"),
    priority:el.style.getPropertyPriority("display"),trigger,
    hiddenAt:Date.now(),dirty:false,misses:0,lastMiss:0});
-  el.style.setProperty("display","none","important");return true;
+  el.style.setProperty("display","none","important");
+  // Existing vetted hide succeeds before any Nesty observation.
+  // No DOM node, URL, post text or identity crosses this interface.
+  if(typeof onEvidence==="function"&&["feed","menu","rail","marketplace"].includes(kind))
+   try{onEvidence(kind);}catch(_){}
+  return true;
  }
  function restoreOne(el,old){
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
@@ -614,7 +619,7 @@ function create(doc,win,max=100){
   const consider=card=>{
    if(!card||cards.has(card)||cards.size>=28)return;
    cards.add(card);
-   if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card))count++;
+   if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)&&hide(card,null,"feed"))count++;
   };
   for(const rootNode of roots){
    if(inspected>=320||count>=15)break;
@@ -633,21 +638,21 @@ function create(doc,win,max=100){
     if(++inspected>320||count>=15)break;
     if(sponsoredMenu(el)){
      const card=sponsoredFeedCard(el,doc,win);
-     if(card&&hide(card,el))count++;
+     if(card&&hide(card,el,"menu"))count++;
     }
     const values=labelsOf(el,win);
     if(values.some(isAdLabel)){
      const card=feedCardFrom(el,doc);
-     if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,el))count++;
+     if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,el,"feed"))count++;
      // Right-rail handling retains the existing strict geometry/Contacts guard.
      if(values.some(v=>normalize(v)==="sponsored")){
       const rail=rightRailCandidate(el,doc,win);
-      if(rail&&hide(rail,el))count++;
+      if(rail&&hide(rail,el,"rail"))count++;
      }
     }
     if(el.tagName==="A"&&railAdLink(el)){
      const rail=rightRailLinkCard(el,doc,win);
-     if(rail&&hide(rail,el))count++;
+     if(rail&&hide(rail,el,"rail"))count++;
     }
    }
   }
@@ -700,7 +705,7 @@ function create(doc,win,max=100){
     stats.lastBylineSignals++;
     const tile=marketplaceTileFrom(label,doc);
     if(!tile||!marketplaceSignal(label,tile,win)){stats.lastBylineUnresolved++;continue;}
-    if(hide(tile,label))count++;
+    if(hide(tile,label,"marketplace"))count++;
    }
    stats.lastHidden=count;
    return count;
@@ -726,7 +731,7 @@ function create(doc,win,max=100){
     if(!card||!first||!first.contains?.(label)){
      stats.lastBylineUnresolved++;continue;
     }
-    if(hide(card,label))count++;
+    if(hide(card,label,"feed"))count++;
    }
    stats.lastHidden=count;
    return count;
@@ -739,7 +744,7 @@ function create(doc,win,max=100){
    stats.lastRailSignals++;
    const section=rightRailCandidate(h,doc,win);
    if(!section)stats.lastRailUnresolved++;
-   if(section&&hide(section))count++;
+   if(section&&hide(section,null,"rail"))count++;
   }
   // MIT-inspired rail fallback: Facebook can render the visible Sponsored
   // heading as an ordinary span rather than h1..h6 or role=heading. Examine
@@ -763,7 +768,7 @@ function create(doc,win,max=100){
    stats.lastRailSignals++;
    const section=rightRailCandidate(label,doc,win);
    if(!section)stats.lastRailUnresolved++;
-   if(section&&hide(section,label))count++;
+   if(section&&hide(section,label,"rail"))count++;
   }
   // Advertiser-tagged links are detected even when "Sponsored" is obfuscated.
   const railLinks=doc.querySelectorAll('a[target="rhcad2"],a[attributionsrc],a[href*="utm_campaign"]');
@@ -771,14 +776,14 @@ function create(doc,win,max=100){
    const card=rightRailLinkCard(railLinks[i],doc,win);
    if(railAdLink(railLinks[i]))stats.lastRailSignals++;
    if(!card&&railAdLink(railLinks[i]))stats.lastRailUnresolved++;
-   if(card&&hide(card))count++;
+   if(card&&hide(card,null,"rail"))count++;
   }
   const cards=doc.querySelectorAll(ARTICLE),seen=new Set();
   for(let i=0;i<Math.min(240,cards.length)&&count<15;i++){
    const card=cards[i];if(seen.has(card))continue;seen.add(card);
    if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)){
     stats.lastFeedCards++;
-    if(hide(card))count++;
+    if(hide(card,null,"feed"))count++;
    }
   }
   // Automatic detection now uses the same concrete sponsored-menu fact
@@ -796,7 +801,7 @@ function create(doc,win,max=100){
     if(++evidenceChecks>24)break;
     const card=sponsoredFeedCard(menu,doc,win);
     if(!card)stats.lastMenuUnresolved++;
-    if(card&&hide(card,menu))count++;
+    if(card&&hide(card,menu,"menu"))count++;
    }
    menuCursor=(start+limitNodes)%menuNodes.length;
   }
@@ -816,7 +821,7 @@ function create(doc,win,max=100){
    const card=feedCardFrom(el,doc);
    if(!card||!(inByline(el,card)||explicitHeaderAd(el,card,win)))
     stats.lastBylineUnresolved++;
-   else if(hide(card))count++;
+   else if(hide(card,null,"feed"))count++;
   }
   // A feed byline can reference a portal span or SVG sprite with all the ad
   // text outside the card. Walk ONLY referencing elements in the main feed;
@@ -826,7 +831,7 @@ function create(doc,win,max=100){
    const el=refs[i];
    if(!referenceLabels(el,doc,cache,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
-   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card))count++;
+   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,null,"feed"))count++;
   }
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
@@ -834,9 +839,9 @@ function create(doc,win,max=100){
    const el=hard[i];
    if(!sponsoredMenu(el)&&!el.getAttribute?.("href")?.includes("/ads/about"))continue;
    const card=feedCardFrom(el,doc);
-   if(card&&hide(card)){count++;continue;}
+   if(card&&hide(card,null,"feed")){count++;continue;}
    const section=rightRailCandidate(el,doc,win);
-   if(section&&hide(section))count++;
+   if(section&&hide(section,null,"rail"))count++;
   }
   stats.lastHidden=count;
   return count;

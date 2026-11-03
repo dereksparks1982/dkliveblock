@@ -1,3 +1,7 @@
+# Build 287 Nesty live DOM evidence integration (November 2, 2026)
+
+**Version 0.3.257, unreleased.** Successful Facebook DOM hides now flow to the local Nesty coordinator as four fixed aggregate categories. Nesty remains read-only; existing scanner rules and GraphQL experiment preferences stay authoritative. Facebook detector diagnostics include the in-page evidence counts and named inert strategy ownership. Two regression tests added. User confirms DK Live Block working on Pornhub with individual ad formats unspecified. Full native Ubuntu/Firefox suite and user acceptance still pending. See [Build 287](BUILD_287.md).
+
 # Build 285 Nesty strategy coordination checkpoint (November 2, 2026)
 
 **Version 0.3.255; unreleased.** Shared Nesty coordinator now links recognized, corroborated signals to deterministic, named, read-only strategy proposals owned by the relevant existing protection area. New source regressions cover Facebook feed/rail, deliberately disabled GraphQL, YouTube ad-break evidence, popups, Meta sibling-platform isolation and protected-context veto. Every proposal declares `enabled:false` and `executable:false`; automatic responses, self-learning and independent live-browser acceptance remain absent.

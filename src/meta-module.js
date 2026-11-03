@@ -6,9 +6,10 @@ function create(doc,win){
  const profile=root.DKCompanyModules?.profileFor?.(win?.location?.hostname||"");
  if(profile?.company!=="meta"||win?.top&&win.top!==win)return null;
  const platform=profile.platform;
- const facebook=platform==="facebook"?root.DKFacebookAds?.create?.(doc,win):null;
- const observer=root.DKAdaptiveDispatcher?.create?.()||null;
  const intelligence=root.DKNestyIntelligence?.create?.()||null;
+ const facebook=platform==="facebook"?root.DKFacebookAds?.create?.(doc,win,100,
+  kind=>intelligence?.observeDecision?.(win.location.hostname,kind)):null;
+ const observer=root.DKAdaptiveDispatcher?.create?.()||null;
  if(observer){
   observer.register("meta-explicit-sponsored",ctx=>{
    const el=ctx?.element;
