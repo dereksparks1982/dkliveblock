@@ -1,0 +1,3 @@
+# Build 321: protect Facebook text editors and organic content
+
+Source v0.3.291, unreleased. Facebook's whole-card hide guard already rejected dialogs, forms, navigation and multi-post containers but did not explicitly reject a target inside a contenteditable text area, role=textbox or searchbox. It now refuses to hide those editable contexts. Five focused tests cover exact advertising badges versus ordinary words, legitimate feed cards without ad evidence, editors/search, dialogs/multi-post wrappers, and hostile hostname lookalikes. No new ad matching heuristic, GraphQL change, permissions or page UI geometry. Live Firefox and full Ubuntu acceptance pending.

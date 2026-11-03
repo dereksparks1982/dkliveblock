@@ -1,3 +1,6 @@
+## 0.3.291 / Build 321
+- Hardened Facebook's safe-card boundary around editors and search boxes, plus protected ordinary-post and multi-post regressions; no extra blocking heuristics or permissions.
+
 ## 0.3.290 / Build 320
 - Added conservative, read-only multi-signal YouTube troubleshooting to the existing local compatibility report; correlations are never treated as proven causes.
 

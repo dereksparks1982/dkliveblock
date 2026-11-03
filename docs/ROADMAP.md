@@ -1,3 +1,8 @@
+## Build 321 / v0.3.291: protected Facebook editors and organic feed boundaries (November 3, 2026)
+- [x] Exclude editable text, textbox and search-box ancestors from whole-card hiding even when an ad-like label is nearby.
+- [x] Add five organic, multi-post, dialog, false-label and hostname regression checks. Keep confirmed Sponsored behavior otherwise unchanged.
+- [ ] Full Ubuntu runner and real Facebook organic/sponsored co-scroll verification pending.
+
 ## Build 320 / v0.3.290: YouTube compatibility evidence correlation (November 3, 2026)
 - [x] Extend existing user-initiated YouTube compatibility report with bounded cross-signal advice from in-player refusal, media errors, blocked media and first-party requests.
 - [x] Explicitly refuse causal or ad-free-success assertions from counters. No new browser permissions or playback/network rule changes.
