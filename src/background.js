@@ -1774,7 +1774,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
     // specifically scoped Facebook Sponsored recognizer. $elemhide or
     // document-level allowlisting still disables it.
     compactVideoGrids:data.settings.compactVideoGrids===true&&sender.frameId===0&&
-      !policy.elemhide&&/^(?:www\\.)?pornhub\\.com$/.test(h),
+      !policy.elemhide&&/^(?:www\.)?pornhub\.com$/.test(h),
     adRecognition:data.settings.adRecognition&&!policy.elemhide&&
      (!policy.generichide||DKCompanyModules.profileFor(h)?.platform==="facebook"),
     adRecognitionExceptions:adExceptions,

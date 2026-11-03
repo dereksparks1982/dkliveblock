@@ -9,7 +9,7 @@ const CSS=`ul.videos.${GRID}{display:grid!important;grid-template-columns:repeat
 ul.videos.${GRID}>li.videoblock{float:none!important;clear:none!important;width:auto!important;max-width:none!important;min-width:0!important;margin:0!important}
 ul.videos.${GRID}>.${EMPTY}{display:none!important}`;
 const MAX_GRIDS=12,MAX_CHILDREN=120;
-const AD_MARKER=/(?:^|[\\s_-])(?:ad|ads|advert|advertisement|adslot|banner|sponsor|sponsored|promotion)(?:$|[\\s_-])/i;
+const AD_MARKER=/(?:^|[\s_-])(?:ad|ads|advert|advertisement|adslot|banner|sponsor|sponsored|promotion)(?:$|[\s_-])/i;
 function supports(host,path="/"){
  return (host==="pornhub.com"||host==="www.pornhub.com")&&
   (path==="/"||path==="/video"||path.startsWith("/video/search"));
@@ -22,7 +22,8 @@ function videoTile(el){
 function emptyAdSlot(el){
  if(!["LI","DIV"].includes(String(el?.tagName||"").toUpperCase()))return false;
  const marker=[el.id||"",typeof el.className==="string"?el.className:""].join(" ");
- if(marker.length>240||!AD_MARKER.test(marker)||String(el.textContent||"").trim())return false;
+ if(marker.length>240||!AD_MARKER.test(marker)||String(el.textContent||"").trim()||
+    typeof el.querySelector!=="function")return false;
  // Never hide interactive controls, media, thumbnails or unknown ad wrappers
  // whose contents could be legitimate or recover after page updates.
  return !el.querySelector?.('a,button,input,form,video,audio,iframe,img,svg,[role="button"],[contenteditable]');

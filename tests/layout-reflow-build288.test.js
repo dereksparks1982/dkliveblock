@@ -2,7 +2,7 @@
 const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path");
 const R=require("../src/layout-reflow.js");
-function classes(initial=""){const set=new Set(initial.split(/\\s+/).filter(Boolean));return {
+function classes(initial=""){const set=new Set(initial.split(/\s+/).filter(Boolean));return {
  contains:k=>set.has(k),add:k=>set.add(k),remove:k=>set.delete(k)};}
 function video(){return {tagName:"LI",classList:classes("videoblock"),querySelector:q=>
  q.includes('view_video.php')?{href:"/view_video.php?viewkey=test"}:null};}
@@ -85,5 +85,5 @@ test("Build 288: settings are explicit opt-in and original controls unchanged",(
  assert.match(bg,/typeof s.compactVideoGrids==="boolean"/);
  assert.match(settings,/"compactVideoGrids"/);
  assert.equal((options.match(/id="compactVideoGrids"/g)||[]).length,1);
- assert.match(content,/layoutReflow\\?\\.restore\\(\\)/);
+ assert.ok(content.includes("layoutReflow?.restore()"));
 });
