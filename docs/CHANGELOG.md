@@ -1,3 +1,6 @@
+## 0.3.288 / Build 318
+- Nesty Layout Scout refuses comparisons during incomplete rollback and rejects malformed cleanupPending flags, eliminating false successful-spacing claims.
+
 ## 0.3.287 / Build 317
 - Explicitly surface incomplete reversible layout rollback as a read-only Nesty Scout warning, without changing CSS geometry or enabling autonomous page changes.
 

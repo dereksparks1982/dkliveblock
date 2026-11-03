@@ -9,7 +9,8 @@ const MAX_REPEAT=4;
 function supports(host){return typeof host==="string"&&HOSTS.includes(host.toLowerCase());}
 function normalize(raw){
  if(!raw||typeof raw!=="object"||Array.isArray(raw)||
-    typeof raw.supportedPage!=="boolean")return null;
+    typeof raw.supportedPage!=="boolean"||
+    raw.cleanupPending!==undefined&&typeof raw.cleanupPending!=="boolean")return null;
  const result={supportedPage:raw.supportedPage,
   inspectionUnavailable:raw.inspectionUnavailable===true,
   cleanupPending:raw.cleanupPending===true};
@@ -63,7 +64,8 @@ function create(win,team){
  function reset(){last="";repeat=0;checks=0;}
  function compare(rawBefore,rawAfter){
   const before=normalize(rawBefore),after=normalize(rawAfter);
-  if(!before||!after||!before.supportedPage||!after.supportedPage||
+  if(!before||!after||before.cleanupPending||after.cleanupPending||
+     !before.supportedPage||!after.supportedPage||
      before.inspectionUnavailable||after.inspectionUnavailable||
      !before.geometry||!after.geometry)return null;
   // Comparing a restructured or partially loaded page would be deceptive.

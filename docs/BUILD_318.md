@@ -1,0 +1,3 @@
+# Build 318: Nesty Layout Scout rollback comparability
+
+November 3, 2026. Source v0.3.288, not released. Before/after spacing comparisons are now declined if either report indicates the opt-in layout CSS was not fully restored. Malformed boolean diagnostic fields are refused rather than interpreted as safe. The existing historical count-only fixtures remain supported and review-only. Five checks cover clean, pending-before, pending-after, type-confused and original review behavior. No CSS changes, browser permissions, automatic content decisions, telemetry, or request filtering. Native Ubuntu and live visual acceptance pending.

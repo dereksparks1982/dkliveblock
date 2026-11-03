@@ -1,3 +1,8 @@
+## Build 318 / v0.3.288: reject layout comparison during incomplete rollback (November 3, 2026)
+- [x] Reject before/after Nesty layout comparisons with cleanupPending on either snapshot instead of treating as a measured improvement.
+- [x] Enforce strict boolean cleanupPending validation; preserve legacy omitted field as false and all review-only controls.
+- [x] Five targeted comparisons and negative controls; full Ubuntu and Firefox pending.
+
 ## Build 317 / v0.3.287: cleanupPending in Nesty Layout Scout (November 3, 2026)
 - [x] Retain failed layout rollback as cleanupPending; refuse new styling until old rollback completes.
 - [x] On-demand Nesty Layout Scout reports pending cleanup, review-only and not executable.
