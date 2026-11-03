@@ -1,3 +1,9 @@
+## Build 302 / v0.3.272: Russian Meta/Nesty and inspection tools (November 3, 2026)
+- [x] Translate static Meta intelligence, Nesty Cookie Watch, cosmetic debugger and opt-in Firefox Developer Tools network panel.
+- [x] Correct stale Meta experimental-off explanatory text to state the saved switch is authoritative; never change the actual toggle or filtering.
+- [x] Keep original API, selected hostnames, records, permissions, page geometry, local privacy and offline translation; add static regression.
+- [ ] Full Ubuntu test suite, real Firefox/Orion language acceptance, dynamic runtime statuses and remaining Orion popup translation.
+
 ## Build 301 / v0.3.271: Russian diagnostic network/YouTube UI (November 3, 2026)
 - [x] Translate static Network Monitor inspection, future-request allowances, warning disclosures and private export labels, retaining English fallback and original values.
 - [x] Translate the offline YouTube diagnostic comparison lab, especially distinct ordinary video versus Free with Ads film outcomes and observation-only caveats.

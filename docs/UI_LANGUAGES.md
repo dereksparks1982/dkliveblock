@@ -50,3 +50,6 @@ The video library, downloads, voluntary support form and phishing warning now lo
 
 ## Build 301: network and YouTube diagnostics
 Network Monitor and the offline YouTube diagnostic comparison lab now use the local utility translation catalog. The chosen interface language does not alter captured traffic, blocked-request history, experiment values, file contents, browser language, or YouTube video state. Dynamic feedback and responsive Russian label layout still need real Firefox testing.
+
+## Build 302: Nesty and inspection screens
+Meta intelligence, Nesty Cookie Watch, cosmetic debugging and the optional Firefox Developer Tools panel use the local Russian utility dictionary. Dynamic diagnostics remain partly English, and the Orion-only popup has a separate capability path.

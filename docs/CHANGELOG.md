@@ -1,3 +1,7 @@
+## 0.3.272 / Build 302 (November 3, 2026)
+- Russian strings added to Meta and Nesty evidence views, cosmetic rule debugger and optional DevTools panel. No ad-filtering change.
+- Corrected misleading Meta default-off wording to reflect the saved experimental switch. Exact-string coverage registered; full Ubuntu and Firefox tests pending.
+
 ## 0.3.271 / Build 301 (November 3, 2026)
 - Added full static Russian labels and privacy caveats to Network Monitor and the offline YouTube comparison lab. Core blocking, optional capture, diagnostics, modes and exports unchanged.
 - Registered static coverage and separation test; complete Ubuntu and live Firefox acceptance pending.
