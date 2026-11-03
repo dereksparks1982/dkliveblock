@@ -1,3 +1,14 @@
+## Build 299 / v0.3.269: Russian extension UI coverage and warning palette (November 3, 2026)
+- [x] Respond to owner's report that selecting Russian leaves most Firefox extension Settings text in English. Add explicit, local, reversible translations for static Settings, popup, and Site Dashboard text.
+- [x] Load the same local interface language module in the Site Dashboard, which has no language dropdown. Use the saved Firefox-local selection and preserve the site's tab and filtering controls.
+- [x] Localize option captions without translating their underlying values; preserve English fallback and no remote translation requests.
+- [x] Replace the muddy brown Settings development warning with charcoal and cyan, without moving its geometry.
+- [x] Add static translation-coverage regressions and register them in the Ubuntu offline test runner.
+- [ ] Run the complete native Ubuntu offline suite and inspect actual Firefox display of English/Russian settings, popup, dashboard, and options.
+- [ ] Review untranslated runtime-generated strings and remaining extension utility pages before claiming all UI is fully localized.
+- [ ] Owner accepts the visual styling and localization in Firefox; no release yet.
+- [ ] Keep Facebook missed advertising and YouTube ordinary-video playback as separate unresolved issues.
+
 ## Build 298 / v0.3.268: Facebook marked-ad miss, website charcoal theme, site Back to top (November 3, 2026)
 - [x] Address owner screenshot of a clearly marked Facebook feed **Ad** surviving with Meta experimental protections on. Add bounded linked-author byline recognition for deeply nested posts lacking article landmarks, while preserving organic posts, dialogs and multi-post boundaries.
 - [x] Add nine focused Facebook regressions for positive and negative cases, including immediate insertion.
