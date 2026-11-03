@@ -20,3 +20,6 @@ Current potentially involved systems are the DK/Ghostery subscription filter sel
 Never silently hide an in-player refusal, indiscriminately permit first-party media or login requests, disable the blocker universally, or publish video IDs, watch URLs, account data, user browsing exports or playback-response payloads. Release or parity claims require actual browser success.
 
 Current status: **ordinary-video regression confirmed by owner screenshot; root cause and repair unverified.**
+
+### Build 297 additional controlled test
+The original `observe` mode leaves first-party request blocking intact. Build 297's new `player-pass-through` mode is separately confirmed in Site Dashboard: no MAIN-world/response JSON edits, but exact player, get_watch and resolve_url HTTPS POST requests can bypass list blocks when the existing strict first-party origin checks pass. Other ad filtering remains enabled. If behavior differs between these two modes, review relevant block evidence before any permanent rule change; correlation alone does not prove the cause. The mode expires and can be undone by selecting Normal.

@@ -128,6 +128,20 @@ test("Build 202 real background mode routing respects subscription filters",asyn
    expectedSite:"www.youtube.com",mode});
  assert.equal((await select("observe")).ok,true);
  assert.equal(listeners.before(player).cancel,true,"observe-only must not disable network filtering");
+ // Build 297: isolated non-mutating player APIs, but no feed or ad network bypass.
+ assert.equal((await select("player-pass-through")).ok,true);
+ assert.equal(listeners.before(player).cancel,undefined,"player API may pass with explicit choice");
+ assert.equal(listeners.before({...player,url:"https://www.youtube.com/youtubei/v1/browse"}).cancel,true,
+  "feed JSON remains blocked in passthrough");
+ assert.equal(listeners.before({...player,url:"https://www.youtube.com/youtubei/v1/next"}).cancel,true,
+  "next-page API remains blocked in passthrough");
+ assert.equal(listeners.before({...player,documentUrl:"https://youtube.com.attacker.test/watch"}).cancel,true,
+  "foreign origin never qualifies for passthrough");
+ assert.equal(listeners.before({...player,method:"GET"}).cancel,true,
+  "GET requests do not qualify for passthrough");
+ listeners.headers({...player,statusCode:200,
+  responseHeaders:[{name:"Content-Type",value:"application/json"}]});
+ assert.equal(activeFilter,null,"passthrough does not install a response JSON filter");
  assert.equal((await select("bridge-only")).ok,true);
  assert.equal(listeners.before(player).cancel,undefined,"bridge-only must receive player JSON");
  assert.equal((await select("response-only")).ok,true);

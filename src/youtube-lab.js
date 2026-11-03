@@ -4,7 +4,7 @@
 (function(root){"use strict";
 const MAX_BYTES=750000,MAX_EVENTS=30,MAX_COUNTER=1000000000;
 const FORMAT="DK Live Block YouTube compatibility report";
-const MODES=new Set(["combined","response-only","bridge-only","observe"]);
+const MODES=new Set(["combined","response-only","bridge-only","observe","player-pass-through"]);
 const HOSTS=new Set(["youtube.com","youtube-nocookie.com","youtu.be"]);
 const KINDS=new Set(["enforcement","media-error","buffering","ad-skip","ad-showing"]);
 const STAGES=["attach","data","stop","stream"];

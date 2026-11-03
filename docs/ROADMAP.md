@@ -1,3 +1,11 @@
+## Build 297 / v0.3.267: one-tab YouTube player API diagnostic isolation (November 3, 2026)
+- [x] Add explicit, confirmation-gated, temporary player API pass-through mode for exactly three first-party POST JSON endpoints while retaining general ad, media, feed, popup and tracker filtering.
+- [x] Disable both player JSON modification paths and retain read-only page bridge observation in this mode; no browser extensions or new permissions.
+- [x] Add nine new focused native tests and expand actual simulated background request routing coverage; preserve mode in diagnostics and A/B reports.
+- [ ] Run full Ubuntu test suite on the exact commit; verify real Firefox behavior on the screenshot-confirmed regular YouTube video.
+- [ ] Compare Normal, Observe only and Player API passthrough in the same browser/account/test video, recording whether playback and ads work. Determine whether first-party request cancellation is causal, not merely correlated.
+- [ ] Restore known-good ordinary videos while protecting separate Free with Ads movies, Disney+ and login paths; no live fix claim without real acceptance.
+
 ## Build 296 / v0.3.266: read-only recognition of screenshot-confirmed YouTube in-player refusal (November 3, 2026)
 - [x] Confirm owner screenshot shows **ordinary YouTube video** with playback blocked, not an ordinary removable popup; do not conflate this with the separately observed Free with Ads film catalog.
 - [x] Add exact-site, in-player, read-only enforcement event diagnostics based on the existing text recognizer; no popup hiding, content mutation, network allowlisting or bypass of actual player refusal.

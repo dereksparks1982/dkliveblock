@@ -23,7 +23,7 @@ function summarize(snapshot){
 }
 // Compare exported reports without copying site addresses, identities or raw requests.
 // Deltas are observations, not a causal claim that one strategy blocked ads.
-const MODES=new Set(["combined","response-only","bridge-only","observe"]);
+const MODES=new Set(["combined","response-only","bridge-only","observe","player-pass-through"]);
 function compare(before,after){
  const first=summarize(before),second=summarize(after);
  const prevMode=MODES.has(before?.experimentMode)?before.experimentMode:"unknown";

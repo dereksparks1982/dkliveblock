@@ -704,12 +704,21 @@ browser.webRequest.onBeforeRequest.addListener(d=>{
  // Observe-only must preserve normal subscribed network verdicts, and
  // manually selected request blocks remain authoritative above.
  const doc=d.documentUrl||d.originUrl||"";
- if(DKYouTubeExperiment.preserveRequest(youtubeMode(d.tabId,top),data.settings.youtubeResponseFilter,
-     typeof browser.webRequest.filterResponseData==="function")&&
+ const selectedYouTubeMode=youtubeMode(d.tabId,top);
+ const regularPlayerPreserve=DKYouTubeExperiment.preserveRequest(
+   selectedYouTubeMode,data.settings.youtubeResponseFilter,
+   typeof browser.webRequest.filterResponseData==="function");
+ // Only an explicitly selected tab may pass trusted first-party player JSON
+ // without modifying it. Existing threat, manual block, pause and auth gates
+ // run above this point. Feed, ads, media, navigation remain subject to rules.
+ const diagnosticPlayerPass=DKYouTubeExperiment.playerPassThrough(
+   selectedYouTubeMode,d.url,data.settings.youtubeResponseFilter===true);
+ if((regularPlayerPreserve||diagnosticPlayerPass)&&
     DKYouTubeResponse.requestEligible(d,top)){
   if(youtubePolicy(d.tabId,top).response)
    DKYouTubeResponse.observeRequest(d.tabId,d.url);
   DKNetworkMonitor.note(data.networkMonitors,d.tabId,d.requestId,
+   diagnosticPlayerPass?"Temporary player API diagnosis: no response rewrite":
    "YouTube player JSON request kept available during experiment");
   notePermittedDecision(d,top,"youtube-player-preserved");
   return {};

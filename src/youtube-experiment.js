@@ -1,7 +1,7 @@
 /* Build 168: bounded, tab-local YouTube experiment modes.
    Does not store browsing history, persist preferences or modify requests. */
 (function(root){"use strict";
-const MODES=Object.freeze(["combined","response-only","bridge-only","observe"]);
+const MODES=Object.freeze(["combined","response-only","bridge-only","observe","player-pass-through"]);
 const MAX_TABS=40,TTL=3600000;
 function validSite(host){return typeof host==="string"&&
  (host==="youtube.com"||host.endsWith(".youtube.com")||
@@ -28,7 +28,7 @@ function policy(mode,enabled=true){
  return Object.freeze({
   response:active&&(mode==="combined"||mode==="response-only"),
   bridge:active&&(mode==="combined"||mode==="bridge-only"),
-  observe:active&&mode==="observe"
+  observe:active&&(mode==="observe"||mode==="player-pass-through")
  });
 }
 // Passive observation does not bypass network filtering. A bridge-only
@@ -37,7 +37,20 @@ function preserveRequest(mode,enabled,canFilter){
  const selected=policy(mode,enabled);
  return selected.bridge||(selected.response&&canFilter===true);
 }
-const API=Object.freeze({MODES,MAX_TABS,TTL,validSite,get,set,policy,preserveRequest});
+// Explicit, per-tab isolation mode: never a general YouTube exception.
+ // The background also requires the existing validated POST/player-origin gate.
+ const PASS_HOSTS=new Set(["youtube.com","www.youtube.com","m.youtube.com","music.youtube.com"]);
+ const PASS_PATHS=new Set(["/youtubei/v1/player","/youtubei/v1/get_watch","/youtubei/v1/resolve_url"]);
+ function playerPassThrough(mode,url,enabled=true){
+  if(mode!=="player-pass-through"||enabled!==true||typeof url!=="string"||
+     url.length>4096)return false;
+  try{
+   const target=new URL(url);
+   return target.protocol==="https:"&&!target.username&&!target.password&&!target.port&&
+     PASS_HOSTS.has(target.hostname)&&PASS_PATHS.has(target.pathname);
+  }catch(_){return false;}
+ }
+ const API=Object.freeze({MODES,MAX_TABS,TTL,validSite,get,set,policy,preserveRequest,playerPassThrough});
 root.DKYouTubeExperiment=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

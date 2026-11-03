@@ -50,7 +50,7 @@ function build(s,now=Date.now()){
   .slice(0,30).filter(x=>["enforcement","buffering","media-error","ad-skip","ad-showing"].includes(x?.kind))
   .map(x=>({kind:x.kind,blockedMediaNearby:x.blockedMediaNearby===true}));
  return {format:"DK Live Block YouTube compatibility report",schemaVersion:1,
-  experimentMode:["combined","response-only","bridge-only","observe"].includes(s.youtubeTestMode)?
+  experimentMode:["combined","response-only","bridge-only","observe","player-pass-through"].includes(s.youtubeTestMode)?
    s.youtubeTestMode:"combined",
   exportedAt:new Date(now).toISOString(),website:s.site,tabId:s.tabId,
   protectionEnabled:s.globalEnabled===true,siteAllowlisted:s.sitePaused===true,

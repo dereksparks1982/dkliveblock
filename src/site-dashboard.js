@@ -235,6 +235,11 @@ $("dashboardYouTubeApplyMode").addEventListener("click",()=>withAction(async()=>
  const d=current;
  await verifyCurrentTab(d);
  const mode=$("dashboardYouTubeMode").value;
+ if(mode==="player-pass-through"&&!window.confirm(
+   "This one-tab diagnostic permits only known first-party YouTube player API " +
+   "requests that a filter might otherwise block. Other ad and tracker filtering " +
+   "remains active, but a player response can include advertising metadata. " +
+   "This will not hide YouTube's warning. Reload the tab afterward. Continue?"))return;
  const outcome=await browser.runtime.sendMessage({action:"setYouTubeTestMode",
   tabId:d.tabId,expectedSite:d.site,mode});
  if(!outcome?.ok)throw Error(outcome?.error||"Could not change YouTube test mode.");
@@ -626,7 +631,7 @@ function display(d){
  $("dashboardYouTubeExportControls").hidden=!triage.applicable;
  $("dashboardYouTubeExperiment").hidden=!triage.applicable;
  if(triage.applicable){
-  const selectedMode=["combined","response-only","bridge-only","observe"]
+  const selectedMode=["combined","response-only","bridge-only","observe","player-pass-through"]
    .includes(d.youtubeTestMode)?d.youtubeTestMode:"combined";
   $("dashboardYouTubeMode").value=selectedMode;
   $("dashboardYouTubeModeState").textContent="Selected mode: "+selectedMode+
