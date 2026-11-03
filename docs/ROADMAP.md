@@ -1,3 +1,11 @@
+## Build 305 / v0.3.275: complete Facebook local diagnostic export (November 3, 2026)
+- [x] Join user-clicked Facebook DOM detector status with independently authorized GraphQL response-filter settings and bounded counters in the existing safe diagnostic export. No extra controls or permissions.
+- [x] Whitelist every detector/GraphQL counter; reject arbitrary fields, raw URLs and invalid counts. If GraphQL status is unavailable, report unavailable, not disabled.
+- [x] Reject results when the selected Facebook tab navigates during collection. Preserve actual DOM/network filtering unchanged.
+- [x] Register privacy, scope, negative-control and read-only source tests; source smoke passed.
+- [ ] Owner Firefox retest after updating local extension, then export combined diagnostic from Meta intelligence. One screenshot of a visible Ad plus 504 permitted requests is not evidence of the root cause.
+- [ ] Full Ubuntu native suite and real Firefox GraphQL/scanner acceptance.
+
 ## Build 304 / v0.3.274: Russian dynamic status coverage and verified inventory (November 3, 2026)
 - [x] Add exact Russian messages for report feedback, local video-library actions, downloads, phishing warning, network inspector and YouTube diagnostic lab.
 - [x] Fix Build 302 fixture typo: DevTools panel has 12 unique text fragments, not 13. Actual coverage still asserts zero untranslated phrases.

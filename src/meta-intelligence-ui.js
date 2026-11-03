@@ -21,12 +21,15 @@
    const reply=await browser.tabs.sendMessage(tabId,
     {action:"getFacebookDetectorStatus"},{frameId:0});
    if(!reply?.ok)throw Error(reply?.error||"Detector unavailable");
-   facebookReport=Object.freeze({
-    schema:1,kind:"dk-facebook-aggregate-diagnostics",
-    active:reply.active===true,adRecognition:reply.adRecognition===true,
-    picking:reply.picking===true,adapterLoaded:reply.adapterLoaded===true,
-    lastScanAt:Number(reply.lastScanAt)||0,detector:reply.detector||null
-   });
+   // Two independently authorized, read-only sources. A missing GraphQL
+   // reply is explicitly unavailable, never assumed disabled or successful.
+   let graphqlReply=null;
+   try{graphqlReply=await browser.runtime.sendMessage({action:"getMetaGraphqlStats",tabId});}
+   catch(_){/* Scanner evidence is still useful when GraphQL is unavailable. */}
+   const after=await browser.tabs.get(tabId);
+   if(after?.url!==tab.url)throw Error("Facebook tab changed during diagnostic. Retry.");
+   facebookReport=DKFacebookDiagnosticReport.build(reply,graphqlReply);
+   if(!facebookReport)throw Error("Diagnostic report unavailable");
    panel.textContent=JSON.stringify(facebookReport,null,2);
    $("facebookExport").disabled=false;
   }catch(e){
@@ -41,10 +44,11 @@
   try{
    const result=await browser.runtime.sendMessage({action:"getMetaGraphqlStats",tabId});
    if(!result?.ok)throw Error(result?.error||"Unavailable");
-   // Report only configuration flags and bounded local counters.
+   // Share the same fixed-key sanitization with the user-exported report.
+   const clean=DKFacebookDiagnosticReport.graphql(result);
    box.textContent=JSON.stringify({
-    enabled:result.enabled===true,siteActive:result.siteActive===true,
-    supported:result.supported===true,stats:result.stats||{}
+    enabled:clean.enabled,siteActive:clean.siteActive,
+    supported:clean.supported,stats:clean.counters
    },null,2);
   }catch(error){box.textContent=String(error?.message||"Unavailable");}
  });
