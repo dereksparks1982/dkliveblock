@@ -1,3 +1,6 @@
+## 0.3.283 / Build 313
+- Offline YouTube lab now detects watch/embed/short-link site-family mismatch with no raw hostnames or URLs in the projection. Keeps all player and network filters unchanged.
+
 ## 0.3.282 / Build 312
 - Nesty evidence ingestion now bounds input scanning, not only output length; retains stable deduplication and trusted vocabulary. No changes to blocking decisions or website content.
 

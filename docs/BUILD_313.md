@@ -1,0 +1,3 @@
+# Build 313: match YouTube site families in offline comparisons
+
+November 3, 2026; source version 0.3.283. The offline A/B comparison previously stripped the requested hostname entirely, protecting privacy but allowing an uncontrolled comparison between embedded `youtube-nocookie.com`, ordinary YouTube watch and shortlink contexts. The parser now projects only a fixed enum `youtube` / `embedded` / `short-link`, and the comparator warns when two families differ. Never retains a raw hostname, page path, video ID, account data, or arbitrary report fields. Added five bounded positive and false-comparison tests. Browser playback and filtering paths unchanged; full native suite and owner acceptance pending.

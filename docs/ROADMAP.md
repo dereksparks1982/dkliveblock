@@ -1,3 +1,8 @@
+## Build 313 / v0.3.283: YouTube A/B site-family comparability (November 3, 2026)
+- [x] Project exact YouTube hostname to a fixed watch/embed/short-link site family, without retaining actual hostnames or video IDs.
+- [x] Warn when compared reports come from different site families; never claim causal or ad-free success.
+- [x] Five source checks for privacy and negative cases. Native Ubuntu and Firefox testing remain outstanding.
+
 ## Build 312 / v0.3.282: bounded Nesty evidence inputs (November 3, 2026)
 - [x] Bound shared Nesty input signal and catalog traversal before filtering, preserve named-identifier allowlist and 40-signal output cap.
 - [x] Keep review-only evidence handoff; no generated or executable rules, telemetry or browser permissions.

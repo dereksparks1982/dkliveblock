@@ -29,6 +29,13 @@ function isYouTube(value){
      !/^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label)))return false;
  return [...HOSTS].some(h=>value===h||value.endsWith("."+h));
 }
+// A fixed site-family enum, never a page hostname, path, video ID or URL.
+function siteFamily(host){
+ if(!isYouTube(host))return "unknown";
+ if(host==="youtu.be"||host.endsWith(".youtu.be"))return "short-link";
+ if(host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com"))return "embedded";
+ return "youtube";
+}
 function integer(value,label){
  if(value===undefined)return 0;
  if(!Number.isSafeInteger(value)||value<0||value>MAX_COUNTER)
@@ -67,6 +74,7 @@ function parse(text){
  // result. The sole remaining sample is fixed enum/bool/counter evidence.
  const sample={
   format:"DK Live Block local diagnostic projection",
+  siteFamily:siteFamily(report.website),
   mode:report.experimentMode,backend:["native","hybrid"].includes(report.filterBackend)?report.filterBackend:"unknown",
   flags:{enabled:report.protectionEnabled,siteAllowlisted:report.siteAllowlisted,
    tabPaused:report.temporaryPause,requestLog:report.requestLogEnabled,
@@ -91,6 +99,8 @@ function compare(before,after){
     after.format!=="DK Live Block local diagnostic projection")
   throw Error("Choose two valid DK Live Block YouTube diagnostic reports.");
  const warnings=[];
+ if(before.siteFamily!==after.siteFamily)
+  warnings.push("YouTube site families differ. Embedded and watch-page behavior may not be comparable.");
  if(before.flags.enabled!==after.flags.enabled)
   warnings.push("Global protection differs between reports.");
  if(before.flags.siteAllowlisted!==after.flags.siteAllowlisted||
@@ -130,7 +140,7 @@ function compare(before,after){
   caveat:"Counters are truncated event snapshots, not normalized by video duration. Page-world events can be forged. No local report can independently verify ad-free playback or causality."
  });
 }
-const API=Object.freeze({MAX_BYTES,MAX_EVENTS,MAX_COUNTER,FORMAT,METRICS,isYouTube,parse,compare});
+const API=Object.freeze({MAX_BYTES,MAX_EVENTS,MAX_COUNTER,FORMAT,METRICS,isYouTube,siteFamily,parse,compare});
 root.DKYouTubeLab=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
