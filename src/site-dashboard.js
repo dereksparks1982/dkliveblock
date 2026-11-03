@@ -220,14 +220,24 @@ async function exportAllOpenSites(format){
 }
 $("dashboardSessionExportText").addEventListener("click",()=>exportAllOpenSites("txt"));
 $("dashboardSessionExportJSON").addEventListener("click",()=>exportAllOpenSites("json"));
-function exportYouTube(kind){
+async function exportYouTube(kind){
+ if(loading||busy||!current?.ok||!DKYouTubeTriage.isYouTube(current.site)){
+  notice("Select a current YouTube tab before exporting diagnostics.");return;
+ }
+ const expected=current;
+ busy=true;setButtons(current);
  try{
-  if(loading||busy||!current?.ok||!DKYouTubeTriage.isYouTube(current.site))
-   throw Error("Select a current YouTube tab before exporting diagnostics.");
-  const report=DKYouTubeReport.build(current);
-  const saved=DKYouTubeReport.download(report,kind);
-  notice("Saved YouTube diagnostic report as "+saved.filename);
+  const before=await verifyCurrentTab(expected);
+  // The displayed dashboard may predate a video reload or experiment change.
+  const fresh=await browser.runtime.sendMessage({action:"getSiteDashboard",tabId:expected.tabId});
+  const after=await verifyCurrentTab(expected);
+  if(!fresh?.ok||fresh.tabId!==expected.tabId||fresh.site!==expected.site||
+     !DKYouTubeReport.unchangedTab(before,after,expected.tabId))
+   throw Error("YouTube tab changed during capture. Refresh the tab and retry.");
+  const saved=DKYouTubeReport.download(DKYouTubeReport.build(fresh),kind);
+  notice("Saved fresh YouTube diagnostic report as "+saved.filename);
  }catch(error){notice(error?.message||"Could not export YouTube diagnostics.");}
+ finally{busy=false;setButtons(current);}
 }
 $("dashboardYouTubeExportJSON").addEventListener("click",()=>exportYouTube("json"));
 $("dashboardYouTubeExportText").addEventListener("click",()=>exportYouTube("txt"));
@@ -256,6 +266,8 @@ function setButtons(d){
  $("dashboardClearLog").disabled=busy||!d?.ok||!d.requestLog;
  $("dashboardYouTubeMode").disabled=busy||!d?.youtubeTestMode;
  $("dashboardYouTubeApplyMode").disabled=busy||!d?.youtubeTestMode||!d.siteActive;
+ for(const id of ["dashboardYouTubeExportJSON","dashboardYouTubeExportText"])
+  $(id).disabled=busy||!d?.ok||!DKYouTubeTriage.isYouTube(d.site);
  for(const id of ["dashboardAllowedList","dashboardRecent"])
   $(id).querySelectorAll("input[type=checkbox]").forEach(input=>{
    input.disabled=busy||!d?.ok||!d.globalEnabled||d.temporarilyPaused||

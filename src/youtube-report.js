@@ -7,6 +7,14 @@ const Outcome=root.DKYouTubeOutcome||typeof require==="function"&&require("./you
 const COUNTERS=["playerRequests","observed","modified","fields","unchanged","refused","oversized","timedOut","errors","skippedBusy","skippedHeaders","attachAttempts","attached"];
 function number(value){return Number.isSafeInteger(value)&&value>=0?Math.min(value,1e9):0;}
 function cleanSource(s){return typeof s==="string"&&s.length<=80&&/^[\p{L}\p{N} (),.+_-]+$/u.test(s)?s:"Unattributed"; }
+// The Dashboard separately validates the live hostname. Here we check
+// exact tab identity and navigation equality, only in temporary memory.
+// A private watch URL must never enter the exported compatibility report.
+function unchangedTab(before,after,tabId){
+ return Number.isInteger(tabId)&&tabId>=0&&before?.id===tabId&&after?.id===tabId&&
+  typeof before.url==="string"&&before.url.length>0&&before.url.length<=4096&&
+  before.url===after.url;
+}
 function build(s,now=Date.now()){
  if(!s?.ok||!Triage.isYouTube(s.site)||!Number.isSafeInteger(s.tabId)||s.tabId<0)
   throw Error("Select a current YouTube tab.");
@@ -119,7 +127,7 @@ function download(report,kind,env={}){
  finally{a?.remove();timer(()=>Url.revokeObjectURL(url),60000);}
  return {filename:name,bytes:blob.size||payload.length};
 }
-const API=Object.freeze({build,asText,download});
+const API=Object.freeze({build,asText,download,unchangedTab});
 root.DKYouTubeReport=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

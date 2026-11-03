@@ -1,3 +1,7 @@
+## 0.3.278 / Build 308 (November 3, 2026)
+- The YouTube diagnostic export captures current same-tab background counters, rejects changed video navigation and mismatched tab/site state, and locks concurrent controls during capture.
+- All exact URLs remain ephemeral in browser memory; existing redacted report stays unchanged. No ad or player filtering changes, new permissions or geometry edits. Full Linux and Firefox testing pending.
+
 ## 0.3.277 / Build 307 (November 3, 2026)
 - Completed the Facebook React-burst fix: scanInserted now reserves its bounded work budget for newly inserted nodes and ad-label changes before generic style churn. No full DOM walk or weakened organic-post guards.
 - New synthetic regression fixtures cover late ad insertions, delayed labels, non-ads, and a capped sampled-batch handoff. Live Firefox acceptance remains pending.

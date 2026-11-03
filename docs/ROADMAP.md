@@ -1,3 +1,9 @@
+## Build 308 / v0.3.278: correct YouTube export snapshot identity (November 3, 2026)
+- [x] Explicit export now fetches fresh background YouTube evidence instead of reusing a stale cached Dashboard object.
+- [x] Validate selected tab and hostname on both sides of the capture, compare exact tab URL transiently to reject same-host video navigation, and serialize buttons while capturing.
+- [x] Add five unit/contract regressions; do not collect or export private watch URLs, video IDs, account data, new telemetry or permissions.
+- [ ] Full native Ubuntu suite and owner Firefox observation of ordinary-video in-player refusal versus separate Free with Ads movies.
+
 ## Build 307 / v0.3.277: prioritize Facebook late sponsored insertions (November 3, 2026)
 - [x] Fix the second bottleneck exposed by Build 306's new integration fixture: the Facebook scanInserted 32-root budget could be exhausted by earlier irrelevant attributes before processing a late ad.
 - [x] Examine added nodes and exact label/character changes before ordinary targets, within the existing 40-record, 32-root and 320-element limits.

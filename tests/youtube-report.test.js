@@ -36,7 +36,7 @@ test("Build 77 report UI loads only bundled scripts with explicit TXT/JSON actio
  for(const id of ["dashboardYouTubeExportControls","dashboardYouTubeExportJSON","dashboardYouTubeExportText"])
   assert.ok(html.includes('id="'+id+'"'));
  assert.ok(html.includes('src="youtube-report.js"'));
- assert.ok(js.includes("DKYouTubeReport.build(current)"));
+ assert.ok(js.includes("DKYouTubeReport.build(fresh)"));
  assert.doesNotMatch(js,/fetch\(|sendBeacon|innerHTML\s*=/);
 });
 
