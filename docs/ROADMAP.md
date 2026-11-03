@@ -1,3 +1,8 @@
+## Build 325 / v0.3.295: fair Facebook feed scanning (November 3, 2026)
+- [x] Rotate bounded full-scan windows across feed articles (240), short Sponsored bylines (2,400), and portal/SVG references (1,200) rather than permanently rechecking only first nodes.
+- [x] Retain prior ad-evidence gates, exceptions, geometry and 15-hide cap. No new privileges, telemetry or video playback changes.
+- [x] Add five source/negative checks. Full native Ubuntu suite and owner Firefox long-feed verification remain pending.
+
 ## Build 324 / v0.3.294: sixteen-build checkpoint (November 3, 2026)
 - [x] Source-only auditor checks 17 invariants: manifest privileges, dependency script ordering, approved popup/CSS geometry, Nesty review-only status, 16 test registrations and no network sinks in diagnostics.
 - [x] Registered seven audit regression cases and npm run audit:checkpoint for later local Ubuntu execution.

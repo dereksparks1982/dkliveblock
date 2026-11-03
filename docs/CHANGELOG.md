@@ -1,3 +1,6 @@
+## 0.3.295 / Build 325 (2026-11-03)
+- Rotate bounded Facebook feed/article, byline and referenced-label scans to avoid starvation in long pages without loosening ad evidence. Firefox acceptance pending.
+
 ## 0.3.294 / Build 324 (November 3, 2026)
 - Finished sixteen sequential unreleased source builds (309–324) with a local, repeatable integration/source-integrity audit and explicit outstanding Firefox acceptance list. No new browser permissions, GitHub Actions, telemetry or player filter changes.
 

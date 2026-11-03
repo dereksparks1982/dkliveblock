@@ -507,7 +507,7 @@ function create(doc,win,max=100,onEvidence=null){
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
   recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
- let menuCursor=0;
+ let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
   if(!feed||typeof win?.IntersectionObserver!=="function")return;
@@ -839,13 +839,17 @@ function create(doc,win,max=100,onEvidence=null){
    if(card&&hide(card,null,"rail"))count++;
   }
   const cards=doc.querySelectorAll(ARTICLE),seen=new Set();
-  for(let i=0;i<Math.min(240,cards.length)&&count<15;i++){
-   const card=cards[i];if(seen.has(card))continue;seen.add(card);
+  // Rotate the same bounded window; a long feed must not starve late posts.
+  let articleInspected=0;
+  for(;articleInspected<Math.min(240,cards.length)&&count<15;articleInspected++){
+   const card=cards[(articleCursor+articleInspected)%cards.length];
+   if(seen.has(card))continue;seen.add(card);
    if(safeCard(card,doc)&&hasAdEvidence(card,doc,win,cache)){
     stats.lastFeedCards++;
     if(hide(card,null,"feed"))count++;
    }
   }
+  articleCursor=cards.length?(articleCursor+articleInspected)%cards.length:0;
   // Automatic detection now uses the same concrete sponsored-menu fact
   // and bounded card identification that succeeded in the owner's inspector.
   // Read labels directly, not only [aria-label$="sponsored content"] (Facebook
@@ -868,8 +872,9 @@ function create(doc,win,max=100,onEvidence=null){
   // Some feed advertisements only show the short "Ad" byline in ordinary
   // spans; require a plausible author-level heading and safe feed card shape.
   const bylines=doc.querySelectorAll('main span,[role="main"] span,main a,[role="main"] a');
-  for(let i=0;i<Math.min(2400,bylines.length)&&count<15;i++){
-   const el=bylines[i];
+  let bylineInspected=0;
+  for(;bylineInspected<Math.min(2400,bylines.length)&&count<15;bylineInspected++){
+   const el=bylines[(bylineCursor+bylineInspected)%bylines.length];
    // Real Facebook Sponsored labels may contain dozens of single-letter
    // spans (plus decoys). The decoder already supports them, so don't
    // reject the wrapper before it gets a chance to decode its letters.
@@ -883,16 +888,19 @@ function create(doc,win,max=100,onEvidence=null){
     stats.lastBylineUnresolved++;
    else if(hide(card,el,"feed"))count++;
   }
+  bylineCursor=bylines.length?(bylineCursor+bylineInspected)%bylines.length:0;
   // A feed byline can reference a portal span or SVG sprite with all the ad
   // text outside the card. Walk ONLY referencing elements in the main feed;
   // an orphan portal cannot by itself justify hiding a full container.
   const refs=doc.querySelectorAll('main [aria-labelledby],main use,[role="main"] [aria-labelledby],[role="main"] use');
-  for(let i=0;i<Math.min(1200,refs.length)&&count<15;i++){
-   const el=refs[i];
+  let referenceInspected=0;
+  for(;referenceInspected<Math.min(1200,refs.length)&&count<15;referenceInspected++){
+   const el=refs[(referenceCursor+referenceInspected)%refs.length];
    if(!referenceLabels(el,doc,cache,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
    if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))&&hide(card,el,"feed"))count++;
   }
+  referenceCursor=refs.length?(referenceCursor+referenceInspected)%refs.length:0;
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
   for(let i=0;i<Math.min(160,hard.length)&&count<15;i++){
@@ -909,7 +917,7 @@ function create(doc,win,max=100,onEvidence=null){
 
  return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
-   cachedLabels:cache.size,limit,menuCursor,exceptions:exceptions.length,
+   cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
