@@ -1,0 +1,3 @@
+# Build 319: async YouTube A/B selection integrity
+
+v0.3.289, source only. YouTube's offline lab reads two user-selected local JSON files sequentially. Previously a file change or Clear click during pending `File.text()` could allow an obsolete result to render and be exported after selection changed. A small in-memory generation gate now invalidates that asynchronous work and blocks Export while a comparison is underway. It stores only a bounded revision integer, never a file, path, URL, cookies or reports. Five offline gate tests and source wiring checks registered; no network, ad-filtering, playback or UI geometry changes. Full Ubuntu suite and Firefox acceptance pending.

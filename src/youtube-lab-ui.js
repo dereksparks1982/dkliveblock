@@ -3,6 +3,7 @@
    fetched, posted or uploaded. Display only whitelisted fixed-label evidence. */
 const $=id=>document.getElementById(id);
 let comparison=null,projected=null,labBusy=false;
+const selectionGate=DKYouTubeSelectionGate.create();
 function show(message){$("labStatus").textContent=String(message||"").slice(0,250);}
 function choice(id,allowed){
  const s=$(id).value;
@@ -61,7 +62,8 @@ function render(result){
 }
 async function doCompare(){
  if(labBusy)return;
- labBusy=true;$("compareReports").disabled=true;$("exportComparison").disabled=true;
+ labBusy=true;const revision=selectionGate.start();
+ $("compareReports").disabled=true;$("exportComparison").disabled=true;
  $("comparisonResult").hidden=true;comparison=null;projected=null;
  show("Reading two local diagnostic reports…");
  try{
@@ -69,6 +71,7 @@ async function doCompare(){
   // raw copies of both exports in the same application state.
   const baseline=await selectReport("baselineFile");
   const candidate=await selectReport("candidateFile");
+  if(!selectionGate.valid(revision))throw Error("Selected reports changed while reading. Compare again.");
   const result=DKYouTubeLab.compare(baseline,candidate);
   comparison=result;projected={baseline,candidate};
   render(result);
@@ -78,7 +81,7 @@ async function doCompare(){
  finally{labBusy=false;$("compareReports").disabled=false;}
 }
 function exportComparison(){
- if(!comparison||!projected)return;
+ if(labBusy||!comparison||!projected)return;
  // No report hostnames, tab IDs, player URLs, cookies or account data.
  const safe={format:"DK Live Block offline YouTube A/B comparison",schemaVersion:1,
   comparedAt:new Date().toISOString(),
@@ -98,6 +101,7 @@ function exportComparison(){
  finally{link.remove();setTimeout(()=>URL.revokeObjectURL(url),60000);}
 }
 function reset(){
+ selectionGate.invalidate();
  for(const id of ["baselineFile","candidateFile"])$(id).value="";
  comparison=null;projected=null;
  $("comparisonResult").hidden=true;
@@ -113,6 +117,6 @@ for(const id of ["baselineVideoType","candidateVideoType",
  "baselinePlayback","candidatePlayback","baselineAds","candidateAds"])
  $(id).addEventListener("change",()=>{if(comparison)render(comparison);});
 for(const id of ["baselineFile","candidateFile"])
- $(id).addEventListener("change",()=>{comparison=null;projected=null;
+ $(id).addEventListener("change",()=>{selectionGate.invalidate();comparison=null;projected=null;
   $("comparisonResult").hidden=true;$("exportComparison").disabled=true;
   show("Selection changed. Click Compare reports to load local files.");});

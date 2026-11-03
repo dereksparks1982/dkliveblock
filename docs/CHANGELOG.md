@@ -1,3 +1,6 @@
+## 0.3.289 / Build 319
+- Offline YouTube A/B lab now rejects a stale comparison if either local report file changes mid-read and blocks export while reading.
+
 ## 0.3.288 / Build 318
 - Nesty Layout Scout refuses comparisons during incomplete rollback and rejects malformed cleanupPending flags, eliminating false successful-spacing claims.
 

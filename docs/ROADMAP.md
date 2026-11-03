@@ -1,3 +1,8 @@
+## Build 319 / v0.3.289: YouTube lab async selection integrity (November 3, 2026)
+- [x] Invalidate pending A/B comparison if chosen local report changes or user clears results during asynchronous file reading.
+- [x] Prevent exporting while comparison is in flight; no report file names, paths or raw contents stored in revision state.
+- [x] Five tests. Full native Ubuntu/browser acceptance pending.
+
 ## Build 318 / v0.3.288: reject layout comparison during incomplete rollback (November 3, 2026)
 - [x] Reject before/after Nesty layout comparisons with cleanupPending on either snapshot instead of treating as a measured improvement.
 - [x] Enforce strict boolean cleanupPending validation; preserve legacy omitted field as false and all review-only controls.
