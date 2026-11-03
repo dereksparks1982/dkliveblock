@@ -1,3 +1,12 @@
+## November 3, 2026: OWNER-REPORTED regression, ordinary YouTube videos only (urgent, unresolved)
+- [ ] **Regression reported by owner:** ordinary YouTube video playback again triggers ad-blocker detection with DK Live Block. The owner explicitly differentiated regular videos from YouTube "Free with Ads" movies; do **not** label the movies newly broken or newly retested.
+- [ ] Identify exact visible enforcement form (in-player message, dialog, or playback refusal) from a screenshot or the existing sanitized YouTube compatibility report; identify installed Firefox/DK version, extension conflicts, protection and experiment mode. No private media URLs, cookies or account details are needed.
+- [ ] Check real network and page-side evidence before modifying player JSON, request allowlists or DOM behavior. The static YouTube page bridge, response filtering and anti-adblock detector were last changed on November 1 or earlier, so do not attribute this regression to the later Build 295 evidence lab without reproduction.
+- [ ] Compare clean Firefox profile, signed-in/out differences and protected normal video versus explicitly separate Free with Ads movie case. Preserve the 2026-11-01 scoped owner-observed YouTube successes as historical results.
+- [ ] Research current in-player anti-adblock enforcement and false positives; verify a tested, reversible fix without hiding a genuine server-side playback refusal. Do not broadly allowlist the video site, disable all filtering or change previously working streaming paths blindly.
+- [ ] After a targeted fix, run local Ubuntu regression and owner Firefox acceptance with standard videos, movies, playback, login, fast navigation, media and exceptions; only mark resolved with user-observed playback.
+- **Current status:** investigation, not repaired. This entry documents an actual user report, not an independently reproduced root cause. Do not copy build diary to public README.
+
 ## Build 295 / v0.3.265: offline Nesty evidence benchmarking (November 3, 2026)
 - [x] Integrate 35 bounded, self-authored synthetic ad/ordinary network cases with protected player, account, editorials, navigation and checkout negative controls.
 - [x] Compare existing native and embedded Ghostery hybrid engine decisions against identical expected block/allow labels and report false-positive and false-negative metrics by surface/profile.

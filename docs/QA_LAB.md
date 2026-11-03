@@ -137,3 +137,12 @@ Source regression fixture covers the same sponsored-menu signal with trailing wh
 
 ## Build 240 / 0.3.210 owner visual check (pending)
 In Firefox, open Site Dashboard after updating existing extension. Scroll both permitted-request Block toggles and blocked-request Allow toggles. Each switch should show a normal-width, **48px track** with compact thumb and separate action label, not a long stretched horizontal bar. Check long CDN names, small window widths and keyboard Tab/Space interaction. Turning controls on/off must still ask for the existing confirmation when appropriate, honor scope, and roll back failures. Network Monitor and popup protection switch should retain their existing dimensions. The screenshot of oversized controls is a confirmed Build 239 CSS issue; Build 240 is awaiting live verification.
+
+
+## Owner report: recurring adblock detection on ordinary YouTube videos (November 3, 2026)
+
+**Status: OWNER-REPORTED REGRESSION, UNRESOLVED.** The owner reports that YouTube once again recognizes DK Live Block while watching **a regular video**. They expressly distinguish this from the YouTube movie catalog labeled **Free with Ads**. Do not mark the movies as failing, retested or unaffected based on that distinction alone. The earlier November 1 real-browser success on ordinary YouTube videos remains a historical result, now superseded for the reported ordinary-video case by a newer regression report.
+
+The precise text, player state, installed DK revision, Firefox build, full URL and active experiment mode are currently unknown. No real browser reproduction or targeted fix has been verified. Source-history inspection shows the key player-response and MAIN-world page bridge sources last changed November 1, before Builds 288–295, but that alone cannot determine whether server enforcement, list updates, account treatment, browser changes, or another extension caused detection.
+
+**Evidence required when owner chooses to test:** screenshot of the warning or sanitized YouTube compatibility export. Distinguish a dismissible overlay from an in-player playback refusal. Record whether ordinary video actually plays, whether ad media appeared, and whether "Free with Ads" movies work independently. Avoid private URLs, IDs, accounts or cookies in published notes. Do not indiscriminately hide enforcement dialogs or bypass video health safeguards. Preserve the last known working YouTube source tag.
