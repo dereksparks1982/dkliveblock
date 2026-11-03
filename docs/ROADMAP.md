@@ -1,3 +1,12 @@
+## Build 291 / v0.3.261: measured video-spacing gaps (November 2, 2026)
+- [x] Implement bounded, on-demand, read-only horizontal measurements of **already recognized Pornhub video tiles**; never run expensive geometry checks in background/periodic scans.
+- [x] Distinguish wide same-row gaps from ordinary spacing, wrapping, hidden/throwing rectangles and overlaps; return only rounded aggregate counts and approximate largest gap.
+- [x] Feed validated optional geometry to Nesty Layout Scout with fixed non-executable advice for wide gaps before/after the existing opt-in CSS grid.
+- [x] Update the existing collapsed Site Dashboard diagnostics text without adding UI controls or changing approved geometry.
+- [x] Add eight focused regression tests to local Linux test inventory; preserve legacy count-only inputs and all user pause/restore behavior.
+- [ ] Full exact-commit Ubuntu suite and actual Firefox visual test on the owner's Pornhub video-list markup and viewport sizes. **No verified gap closure claimed.**
+- [ ] Use real markup/evidence, not guessed selectors, for a subsequent carefully scoped repair of any unhandled ad-space region; no automatic general-site CSS writing.
+
 ## Build 290 / v0.3.260: read-only Nesty Layout Scout integration (November 2, 2026)
 - [x] Register a fourth responsibility-based specialist, Nesty Layout Scout, with no extra numbered methods or changes to the existing three specialists.
 - [x] Feed only on-demand, bounded Pornhub layout diagnostic counts to a local review-only categorizer; reject malformed and impossible counts and site lookalikes.

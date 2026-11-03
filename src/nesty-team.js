@@ -23,8 +23,8 @@ const specialists=Object.freeze([
  Object.freeze({id:"nesty_layout_scout",key:"layout",title:"Nesty Layout Scout",
   role:"Review bounded page-spacing and empty-slot diagnostics without changing page layout",
   mode:"advisor",legacyIds:Object.freeze([]),
-  methods:Object.freeze(["On-demand layout count review","Repeated-count pattern detection",
-   "Manual-only repair suggestions"])}),
+  methods:Object.freeze(["On-demand layout count review","Coarse same-row spacing measurement",
+   "Repeated-count pattern detection","Manual-only repair suggestions"])}),
 ]);
 function byKey(key){return specialists.find(x=>x.key===key)||null;}
 function byId(id){return specialists.find(x=>x.id===id||x.legacyIds.includes(id))||null;}

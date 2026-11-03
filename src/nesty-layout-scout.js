@@ -20,6 +20,22 @@ function normalize(raw){
     result.oversizedLists>result.scannedLists)return null;
  if(result.videoTiles+result.emptyAdSlots>result.eligibleLists*120)
   return null;
+ // Older diagnostic fixtures omit geometry; in that case retain the
+ // original count-only behavior and NEVER claim a measured wide gap.
+ if(raw.geometry!==undefined){
+  const g=raw.geometry,keys=["sampledTiles","sameRowPairs","widePairs","largestWideGapPx"];
+  if(!g||typeof g!=="object"||Array.isArray(g)||
+     Object.keys(g).some(key=>!keys.includes(key)))return null;
+  for(const [key,max] of [["sampledTiles",1440],["sameRowPairs",1428],
+    ["widePairs",1428],["largestWideGapPx",4096]]){
+   if(!Number.isSafeInteger(g[key])||g[key]<0||g[key]>max)return null;
+  }
+  if(g.sampledTiles>result.videoTiles||g.sameRowPairs>g.sampledTiles||
+     g.widePairs>g.sameRowPairs||
+     (g.widePairs===0&&g.largestWideGapPx!==0)||
+     (g.widePairs>0&&g.largestWideGapPx===0))return null;
+  result.geometry=Object.freeze(Object.fromEntries(keys.map(key=>[key,g[key]])));
+ }
  return Object.freeze(result);
 }
 function kindOf(m,c){
@@ -29,8 +45,10 @@ function kindOf(m,c){
  if(!m.supportedPage)return "unsupported-page";
  if(m.eligibleLists===0)
   return m.mixedLists||m.oversizedLists?"review-unsupported-markup":"no-eligible-grids";
- if(c.enabled&&m.appliedLists>0)return "verify-visible-spacing";
+ if(c.enabled&&m.appliedLists>0)
+  return m.geometry?.widePairs>0?"wide-gap-after-reflow":"verify-visible-spacing";
  if(c.enabled)return "review-application";
+ if(m.geometry?.widePairs>0)return "wide-video-gap-measured";
  if(m.emptyAdSlots>0)return "manual-opt-in-candidate";
  return "review-grid-spacing";
 }
@@ -50,15 +68,19 @@ function create(win,team){
   // Signature contains only approved categories and bounded counters.
   // Repetition indicates identical diagnostics, NOT verified visual gaps.
   const signature=[finding,context.enabled,m.supportedPage,
-   ...Object.keys(BOUNDS).map(k=>k==="scans"?0:m[k])].join(":");
+   ...Object.keys(BOUNDS).map(k=>k==="scans"?0:m[k]),
+   m.geometry?.sameRowPairs??-1,m.geometry?.widePairs??-1,
+   m.geometry?.largestWideGapPx??-1].join(":");
   repeat=signature===last?Math.min(MAX_REPEAT,repeat+1):1;
   last=signature;checks=Math.min(1000000,checks+1);
   return Object.freeze({specialist:specialist.id,title:specialist.title,
    finding,mode:"review-only",source:"on-demand-local-counts",
    checks,repeatCount:repeat,
-   nextStep:finding==="manual-opt-in-candidate"?"consider-existing-setting":
+   nextStep:["manual-opt-in-candidate","wide-video-gap-measured"]
+    .includes(finding)?"consider-existing-setting":
     finding==="review-unsupported-markup"?"inspect-markup-locally":
-    ["review-grid-spacing","verify-visible-spacing","review-application"]
+    ["review-grid-spacing","verify-visible-spacing","review-application",
+     "wide-gap-after-reflow"]
      .includes(finding)?"compare-visual-layout":"no-action",
    visualVerificationRequired:true,trainedModel:false,
    automaticRules:false,executable:false});

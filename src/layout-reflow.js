@@ -1,4 +1,4 @@
-/* DK Live Block: opt-in, reversible video-list reflow. Build 288 and 289.
+/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–291.
    Scope: known Pornhub video-list markup only. Never moves DOM nodes, fetches
    videos, alters playback, reflows other sites, or executes website scripts. */
 (function(root){"use strict";
@@ -45,6 +45,47 @@ function candidate(list){
  }
  return videos>=2?Object.freeze({list,videos,slots:Object.freeze(slots)}):null;
 }
+// Read-only visual-geometry sample, triggered only by an explicit dashboard
+// check. Coordinates are never reported, retained, or used for CSS changes.
+// Each adjacent, valid, same-row video pair contributes at most one sample.
+function measureHorizontalGaps(cards){
+ const output={sampledTiles:0,sameRowPairs:0,widePairs:0,largestWideGapPx:0};
+ let previous=null;
+ for(const tile of (Array.isArray(cards)?cards.slice(0,MAX_CHILDREN):[])){
+  if(!videoTile(tile)||typeof tile.getBoundingClientRect!=="function"){
+   previous=null;continue;
+  }
+  let raw;
+  try{raw=tile.getBoundingClientRect();}catch(_){previous=null;continue;}
+  if(!raw){previous=null;continue;}
+  const {left,right,top,bottom}=raw;
+  if(![left,right,top,bottom].every(Number.isFinite)){
+   previous=null;continue;
+  }
+  const width=right-left,height=bottom-top;
+  if(width<80||width>1200||height<40||height>1200||
+     Math.abs(left)>1000000||Math.abs(top)>1000000){
+   previous=null;continue;
+  }
+  output.sampledTiles++;
+  const current={left,right,top,width};
+  if(previous&&Math.abs(current.top-previous.top)<=12&&
+     current.left>=previous.right-4&&current.left>previous.left){
+   const gap=Math.max(0,current.left-previous.right);
+   // Relative to the narrower card; a fixed pixel threshold alone
+   // would incorrectly flag ordinary responsive card layouts.
+   const wide=gap>Math.max(56,Math.min(previous.width,current.width)*0.4);
+   output.sameRowPairs++;
+   if(wide){
+    output.widePairs++;
+    output.largestWideGapPx=Math.max(output.largestWideGapPx,
+     Math.min(4096,Math.round(gap/8)*8));
+   }
+  }
+  previous=current;
+ }
+ return Object.freeze(output);
+}
 function create(doc,win){
  const host=String(win?.location?.hostname||"").toLowerCase();
  if(!supports(host)||win?.top&&win.top!==win)return null;
@@ -87,9 +128,10 @@ function create(doc,win){
   const report={supportedPage:supports(host,String(win?.location?.pathname||"/")),
    eligibleLists:0,videoTiles:0,emptyAdSlots:0,mixedLists:0,
    shortLists:0,oversizedLists:0,scannedLists:0,
-   appliedLists:grids.size,appliedSlots:slots.size,scans};
+   appliedLists:grids.size,appliedSlots:slots.size,scans,
+   geometry:{sampledTiles:0,sameRowPairs:0,widePairs:0,largestWideGapPx:0}};
   if(!report.supportedPage||!doc?.body||!doc?.querySelectorAll)
-   return Object.freeze(report);
+   return Object.freeze({...report,geometry:Object.freeze(report.geometry)});
   try{
    const lists=doc.querySelectorAll("ul.videos");
    for(let i=0;i<Math.min(lists.length,MAX_GRIDS);i++){
@@ -102,15 +144,24 @@ function create(doc,win){
     report.eligibleLists++;
     report.videoTiles+=Math.min(MAX_CHILDREN,found.videos);
     report.emptyAdSlots+=Math.min(MAX_CHILDREN,found.slots.length);
+    const tiles=Array.from(children).filter(videoTile);
+    const measure=measureHorizontalGaps(tiles);
+    for(const key of Object.keys(report.geometry))
+     report.geometry[key]+=measure[key];
+    report.geometry.largestWideGapPx=Math.max(
+     report.geometry.largestWideGapPx,measure.largestWideGapPx);
    }
-  }catch(_){return Object.freeze({...report,inspectionUnavailable:true});}
+  }catch(_){return Object.freeze({...report,inspectionUnavailable:true,
+   geometry:Object.freeze({...report.geometry})});}
+  report.geometry=Object.freeze(report.geometry);
   return Object.freeze(report);
  }
  function status(){return Object.freeze({site:"pornhub",enabled:!!style&&grids.size>0,
   grids:grids.size,emptySlots:slots.size,scans});}
  return Object.freeze({scan,restore,status,diagnostics});
 }
-const API=Object.freeze({supports,videoTile,emptyAdSlot,candidate,create,CSS,GRID,EMPTY});
+const API=Object.freeze({supports,videoTile,emptyAdSlot,candidate,
+ measureHorizontalGaps,create,CSS,GRID,EMPTY});
 root.DKLayoutReflow=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

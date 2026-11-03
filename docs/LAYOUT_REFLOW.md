@@ -36,6 +36,13 @@ The owner reports DK Live Block working on Pornhub, but the page can show two vi
 - An in-memory counter can note when the **same numeric pattern** appears on successive local dashboard checks, capped at four. Repetition is not evidence that an advertisement was shown or that a visual gap was fixed, and reset occurs on protection pause.
 - Existing Pornhub-only CSS behavior remains strictly opt-in and reversible. Full Ubuntu suite, owner Firefox gap/resize/scroll tests and AI trained-data validation remain outstanding. Next: real observed geometry and verified sample fixtures before extending reflow to new markup or sites.
 
+## Build 291: actual coarse spacing measurements
+- The existing on-demand Site Dashboard probe now samples rectangle positions from the already validated video thumbnails **only when the owner opens or rechecks the Pornhub layout section**. It does not run in ordinary mutation scans.
+- A same-row gap candidate must have two valid adjacent visible-sized cards with nearly matching top positions. It is considered unusually wide when its CSS-pixel size exceeds 56px **and** 40% of the narrower card's width. The extension reports only counts plus the approximate largest gap rounded to an 8px bucket, never precise positions, tile details, URLs or page text.
+- Nesty Layout Scout validates the new optional geometry fields and can recommend trying the existing OFF-by-default compact grid or visually checking a large gap that remains after reflow. These are **suggestions, not AI-authored CSS or new blocking decisions**.
+- Normal columns, different rows, overlapping cards, hidden elements, tiny/very large or malformed rectangles and unsupported/mixed lists fail open. Geometry is approximate and may describe intentional website spacing; it does not prove the gap contained advertising.
+- No new Settings control was added; local acceptance still requires a real Firefox test of the owner's reported two-video layout, including resize and scrolling.
+
 ## Staged integration (one at a time)
 - **Build 289 (after owner screenshot/HTML evidence):** inspect the actual Pornhub layout variant with remaining blank space. Add a narrowly verified grid selector or safe margin/padding adjustment only for that variant. Avoid selectors based on a vague `ad` substring.
 - **Build 290:** optional per-site controls and a reversible live preview/undo for further verified sites. No general-site auto-reflow without user direction and tests.

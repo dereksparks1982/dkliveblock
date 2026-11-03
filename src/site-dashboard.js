@@ -531,6 +531,8 @@ async function updateLayoutReflow(d){
   const r=reply.summary;
   const reasons={
    "manual-opt-in-candidate":"Recognized empty ad placeholders. You may try Compact Video Grids in Settings.",
+   "wide-video-gap-measured":"An unusually wide gap between adjacent video tiles was measured. This does not prove an ad was there. You may try the existing Compact Video Grids setting.",
+   "wide-gap-after-reflow":"Unusually wide spacing remains after CSS reflow. Check the page visually before changing any layout rules.",
    "review-unsupported-markup":"Some thumbnail lists use unsupported markup. Leave them unchanged and inspect before extending rules.",
    "review-grid-spacing":"Existing video tiles recognized, but counts alone cannot establish a visual gap. Check the layout in Firefox.",
    "review-application":"The option is selected, but no grid is reported as compacted. Review the current page before editing rules.",
@@ -558,6 +560,10 @@ async function updateLayoutReflow(d){
    " · "+count(r.mixedLists)+" mixed/unsupported lists"+
    " · "+count(r.oversizedLists)+" oversized lists"+
    " · "+count(r.appliedLists)+" compacted grids."+
+   (r.geometry?" Spacing sample: "+count(r.geometry.sameRowPairs)+
+    " same-row neighbor pairs, "+count(r.geometry.widePairs)+
+    " unusually wide gaps, largest about "+count(r.geometry.largestWideGapPx)+
+    " CSS pixels. Measurements are approximate, not verified ads.":" No spacing sample available.")+
    (reply.configured&&reply.active&&r.appliedLists>0?
     " CSS grid active.":" No layout currently changed.")+
    " A zero eligible count may mean the site uses different markup.";

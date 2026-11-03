@@ -1,3 +1,9 @@
+## 0.3.261 / Build 291 (November 2, 2026)
+- Added on-demand, coarse same-row video-thumbnail gap measurement to existing opt-in Pornhub layout diagnostics. No coordinates, title strings, URLs or tracking history are stored.
+- Nesty Layout Scout can now distinguish abnormally wide adjacent-card gaps before and after reflow using validated bounded numbers, with fixed review-only suggestions.
+- Extended the existing Site Dashboard summary; no new controls, permissions, dependencies or automatic layout changes.
+- Eight regression tests registered; full native Linux suite and actual Firefox visual results pending.
+
 ## 0.3.260 / Build 290 (November 2, 2026)
 - Registered Nesty Layout Scout as a fourth specialist, distinct from Cookie Watch, Popup Guard and Meta Ad Scout.
 - Integrated bounded, manual-request-only video-layout count review with safe fixed recommendations and capped repetition tracking into the existing Pornhub Site Dashboard panel.
