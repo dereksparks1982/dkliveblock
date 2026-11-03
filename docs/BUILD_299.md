@@ -1,7 +1,7 @@
 # Build 299 — Russian extension UI coverage and cyan notice styling
 Date: November 3, 2026
 Version: 0.3.269
-Status: internal candidate on a development branch; not accepted, not released.
+Status: source incorporated into main; not yet accepted in live Firefox, not released.
 
 ## Owner report
 Selecting Russian in the Firefox extension left much of the interface in English. The brown development warning in Settings did not fit the established dark/cyan extension UI. The website localization is a separate implementation and does not translate extension pages.
@@ -34,4 +34,4 @@ Selecting Russian in the Firefox extension left much of the interface in English
 - Facebook ads and ordinary YouTube video anti-blocker regression remain separate urgent issues; no changes to filtering or video transport in this build.
 
 ## Acceptance
-Do not mark the Russian extension experience complete until the owner visually checks Settings, popup, and Site Dashboard after installing the candidate. Promote to main/release only after normal project verification and acceptance requirements.
+Do not mark the Russian extension experience complete until the owner visually checks Settings, popup, and Site Dashboard after installing the candidate. Public release remains subject to project verification and owner approval.
