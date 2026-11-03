@@ -1,3 +1,7 @@
+# Build 289 Pornhub layout diagnostics checkpoint (November 2, 2026)
+
+**Version 0.3.259; unreleased.** The Pornhub video-list CSS experiment has a local, count-only diagnostic visible in the existing Site Dashboard for a selected Pornhub tab. It reports eligible grids, video tiles, empty ad spaces and refused/mixed/oversized groups without collecting text or URLs. The background binds the report to the extension page and current site. Layout stays opt-in and reversible; watch pages remain excluded. Five tests added; full native Ubuntu and Firefox visual acceptance still pending. See [Build 289](BUILD_289.md) and [layout design](LAYOUT_REFLOW.md).
+
 # Build 288 video-list layout repair checkpoint (November 2, 2026)
 
 **Version 0.3.258; unreleased.** First opt-in (default-OFF) cosmetic reflow module targets narrow Pornhub listing pages, using reversible CSS Grid and strict empty ad placeholder checks. It does not touch players or unrelated site layouts. Existing blocking/streaming code remains authoritative. The owner reported widely spaced Pornhub thumbnails after ads were successfully blocked; this new code is **not yet proven to repair that exact page in Firefox**. Tests registered; full native suite and live page checks pending. Read [BUILD_288](BUILD_288.md) and [LAYOUT_REFLOW](LAYOUT_REFLOW.md).

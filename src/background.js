@@ -1282,6 +1282,25 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    supported:typeof browser.webRequest.filterResponseData==="function",
    stats:DKMetaGraphQL.stats(id)};
  }
+ if(msg.action==="getLayoutReflowStatus"){
+  if(fromContent||!ownExtensionPage||!Number.isInteger(id)||id<0)
+   return {error:"Extension interface only."};
+  let page="",site="";
+  try{page=(await browser.tabs.get(id))?.url||"";site=host(page);}
+  catch(_){return {error:"Website tab is unavailable."};}
+  if(!(page.startsWith("https://")||page.startsWith("http://"))||
+     !["pornhub.com","www.pornhub.com"].includes(site)||
+     data.hosts.get(id)!==site)
+   return {error:"Choose the current Pornhub tab."};
+  try{
+   const response=await browser.tabs.sendMessage(id,{action:"getLayoutReflowStatus"},
+    {frameId:0});
+   if(!response?.ok||!response.summary)return {error:"Layout diagnostic unavailable."};
+   return {ok:true,site,settingEnabled:data.settings.compactVideoGrids===true,
+    active:response.active===true,configured:response.configured===true,
+    picking:response.picking===true,summary:response.summary};
+  }catch(_){return {error:"Layout diagnostic unavailable. Reload the tab."};}
+ }
  if(msg.action==="getNestyIntelligence"){
   if(fromContent||!Number.isInteger(id)||id<0)return {error:"Extension interface only."};
   let liveURL="",site="";

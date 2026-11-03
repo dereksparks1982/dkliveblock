@@ -1,3 +1,11 @@
+## Build 289 / v0.3.259: read-only layout diagnosis and safety (November 2, 2026)
+- [x] Add bounded Pornhub layout recognition counts: eligible listing groups, available videos, empty ad placeholders and rejected/oversized lists, without storing or exporting URL/content data.
+- [x] Surface read-only private diagnostic in a collapsed Site Dashboard section, shown only for the selected live Pornhub website tab and guarded against content-page callers.
+- [x] Tighten /video/search path matching and avoid altering placeholders with unrelated accessible labels or active controls.
+- [x] Register five Node regression tests and retain existing reversible, default-OFF compact grid.
+- [ ] Full native Ubuntu suite and real signed-in Firefox Pornhub layout acceptance, including resizing, infinite scrolling, saved settings and site pause; not proven by simulations.
+- [ ] Use observed current markup and reports to refine which real empty spaces can safely be collapsed; later integrate Nesty observations without giving AI removal authority.
+
 ## Build 288 / v0.3.258: opt-in visual layout reflow (November 2, 2026)
 - [x] Document the owner's Pornhub observation: ads suppressed yet video tiles remain far apart; request reflow rather than just cosmetic hiding.
 - [x] Add lightweight local, reversible, exact-site Pornhub video-list CSS Grid repair with strict empty-placeholder and video-tile checks; default OFF.

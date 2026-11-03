@@ -1,3 +1,9 @@
+## 0.3.259 / Build 289 (November 2, 2026)
+- Added read-only Pornhub video-list recognition counters in the existing Site Dashboard, visible only on the selected site and with an explicit Recheck control.
+- Reports only group/slot/tile counts, no URLs, video names, accounts or DOM text. Diagnostic inspection never rearranges content.
+- Strengthened exact listing-path checks and accessible placeholder safety. Original protections and default-OFF experiment remain unchanged.
+- Five focused Node cases registered. Native suite and actual Firefox visual behavior remain unverified.
+
 ## 0.3.258 / Build 288 (November 2, 2026)
 - New experimental, **off-by-default**, Pornhub-only video-thumbnail gap repair: qualified `ul.videos` lists receive a compact responsive CSS grid and strictly empty ad-placeholder collapse.
 - No DOM moves, new video requests, media/player edits, new permissions or popup geometry changes; undo on disable/site pause; unsupported pages fail open.

@@ -286,6 +286,8 @@ function clearDisplay(message){
  $("dashboardYouTubeTriage").hidden=true;
  $("dashboardYouTubeTriage").textContent="";
  $("dashboardYouTubeExperiment").hidden=true;
+ $("dashboardLayoutReflow").hidden=true;
+ $("dashboardLayoutReflowState").textContent="";
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -508,6 +510,34 @@ function blockedLine(row,d){
  label.append(desc,requestSwitch(checkbox,"Allow"));div.append(label,detail);
  return div;
 }
+async function updateLayoutReflow(d){
+ const panel=$("dashboardLayoutReflow");
+ const enabled=d?.ok&&["pornhub.com","www.pornhub.com"].includes(d.site);
+ panel.hidden=!enabled;
+ if(!enabled)return;
+ const node=$("dashboardLayoutReflowState");
+ node.textContent="Reading local video-list recognition…";
+ try{
+  const reply=await browser.runtime.sendMessage({action:"getLayoutReflowStatus",tabId:d.tabId});
+  if(current!==d||selected()!==d.tabId)return;
+  if(!reply?.ok||!reply.summary){node.textContent=reply?.error||"Diagnostic unavailable.";return;}
+  const r=reply.summary;
+  const count=n=>Number.isSafeInteger(n)&&n>=0?Math.min(n,100000):0;
+  node.textContent=!r.supportedPage?
+   "Not a supported thumbnail-list page; no layout changes made.":
+   "Option "+(reply.settingEnabled?"ON":"OFF")+
+   " · "+count(r.scannedLists)+" lists checked"+
+   " · "+count(r.eligibleLists)+" eligible grids"+
+   " · "+count(r.videoTiles)+" existing video tiles"+
+   " · "+count(r.emptyAdSlots)+" empty ad slots"+
+   " · "+count(r.mixedLists)+" mixed/unsupported lists"+
+   " · "+count(r.oversizedLists)+" oversized lists"+
+   " · "+count(r.appliedLists)+" compacted grids."+
+   (reply.configured&&reply.active&&r.appliedLists>0?
+    " CSS grid active.":" No layout currently changed.")+
+   " A zero eligible count may mean the site uses different markup.";
+ }catch(_){if(current===d)node.textContent="Diagnostic unavailable; reload and retry.";}
+}
 function display(d){
  selectedAllowed=null;$("dashboardAllowedDetails").hidden=true;
  if(current&&(current.tabId!==d.tabId||current.site!==d.site))registrationCache.clear();
@@ -613,6 +643,7 @@ function display(d){
     row.kind==="ad-showing"?"YouTube marked the player as showing an ad (not proof it played)":"Video media error")+
     (row.blockedMediaNearby?" · blocked media request nearby":"")));
  $("dashboardMetaIntel").hidden=!DKMetaDashboardHost(d.site);
+ updateLayoutReflow(d).catch(()=>{});
  $("dashboardFilterDetails").textContent=d.filterBackend+" · "+
   Model.number(d.networkRules).toLocaleString()+" network filters · "+
   Model.number(d.cosmeticRules).toLocaleString()+" element-hiding filters · "+
@@ -636,6 +667,9 @@ async function refresh(){
 }
 $("dashboardTab").addEventListener("change",()=>{if(!busy)refresh();});
 $("dashboardRefresh").addEventListener("click",()=>{if(!busy)refresh();});
+$("dashboardLayoutRefresh").addEventListener("click",()=>{
+ if(current?.ok&&!loading&&!busy)updateLayoutReflow(current).catch(()=>{});
+});
 $("dashboardRefreshTabs").addEventListener("click",()=>{if(!busy)selectTabs();});
 $("dashboardAllowlist").addEventListener("click",()=>perform("setSiteAllowed",
  current?.sitePaused?null:"Allowlist "+current?.site+" and its subdomains? Automatic blocking turns OFF; manually selected hostname/type blocks stay enabled.",true));

@@ -1,4 +1,4 @@
-/* DK Live Block: opt-in, reversible video-list reflow. Build 288.
+/* DK Live Block: opt-in, reversible video-list reflow. Build 288 and 289.
    Scope: known Pornhub video-list markup only. Never moves DOM nodes, fetches
    videos, alters playback, reflows other sites, or executes website scripts. */
 (function(root){"use strict";
@@ -12,7 +12,7 @@ const MAX_GRIDS=12,MAX_CHILDREN=120;
 const AD_MARKER=/(?:^|[\s_-])(?:ad|ads|advert|advertisement|adslot|banner|sponsor|sponsored|promotion)(?:$|[\s_-])/i;
 function supports(host,path="/"){
  return (host==="pornhub.com"||host==="www.pornhub.com")&&
-  (path==="/"||path==="/video"||path.startsWith("/video/search"));
+  (path==="/"||path==="/video"||(path==="/video/search"||path.startsWith("/video/search/")));
 }
 function videoTile(el){
  if(String(el?.tagName||"").toUpperCase()!=="LI"||
@@ -22,6 +22,8 @@ function videoTile(el){
 function emptyAdSlot(el){
  if(!["LI","DIV"].includes(String(el?.tagName||"").toUpperCase()))return false;
  const marker=[el.id||"",typeof el.className==="string"?el.className:""].join(" ");
+ const label=String(el.getAttribute?.("aria-label")||"").trim();
+ if(label&&(!AD_MARKER.test(label)||label.length>90))return false;
  if(marker.length>240||!AD_MARKER.test(marker)||String(el.textContent||"").trim()||
     typeof el.querySelector!=="function")return false;
  // Never hide interactive controls, media, thumbnails or unknown ad wrappers
@@ -80,9 +82,33 @@ function create(doc,win){
   scans++;
   return accepted.length;
  }
+ // Read-only, bounded layout inspection. No selectors, titles or URLs returned.
+ function diagnostics(){
+  const report={supportedPage:supports(host,String(win?.location?.pathname||"/")),
+   eligibleLists:0,videoTiles:0,emptyAdSlots:0,mixedLists:0,
+   shortLists:0,oversizedLists:0,scannedLists:0,
+   appliedLists:grids.size,appliedSlots:slots.size,scans};
+  if(!report.supportedPage||!doc?.body||!doc?.querySelectorAll)
+   return Object.freeze(report);
+  try{
+   const lists=doc.querySelectorAll("ul.videos");
+   for(let i=0;i<Math.min(lists.length,MAX_GRIDS);i++){
+    const node=lists[i],children=node?.children||[];
+    report.scannedLists++;
+    if(children.length>MAX_CHILDREN){report.oversizedLists++;continue;}
+    if(children.length<2){report.shortLists++;continue;}
+    const found=candidate(node);
+    if(!found){report.mixedLists++;continue;}
+    report.eligibleLists++;
+    report.videoTiles+=Math.min(MAX_CHILDREN,found.videos);
+    report.emptyAdSlots+=Math.min(MAX_CHILDREN,found.slots.length);
+   }
+  }catch(_){return Object.freeze({...report,inspectionUnavailable:true});}
+  return Object.freeze(report);
+ }
  function status(){return Object.freeze({site:"pornhub",enabled:!!style&&grids.size>0,
   grids:grids.size,emptySlots:slots.size,scans});}
- return Object.freeze({scan,restore,status});
+ return Object.freeze({scan,restore,status,diagnostics});
 }
 const API=Object.freeze({supports,videoTile,emptyAdSlot,candidate,create,CSS,GRID,EMPTY});
 root.DKLayoutReflow=API;

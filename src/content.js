@@ -429,6 +429,14 @@
   return true;
  }
  browser.runtime.onMessage.addListener(msg=>{
+  if(msg.action==="getLayoutReflowStatus"){
+   if(window!==window.top||!["http:","https:"].includes(location.protocol)||
+      !["pornhub.com","www.pornhub.com"].includes(host))
+    return Promise.resolve({error:"Pornhub top-level page only."});
+   return Promise.resolve({ok:true,site:"pornhub",active,
+    configured:compactVideoGrids,picking,
+    summary:layoutReflow?.diagnostics?.()||null});
+  }
   if(msg.action==="getFacebookDetectorStatus"){
    if(window!==window.top||!/^https?:$/.test(location.protocol)||
       !(host==="facebook.com"||host.endsWith(".facebook.com")))
