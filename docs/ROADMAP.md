@@ -1,3 +1,12 @@
+## Build 290 / v0.3.260: read-only Nesty Layout Scout integration (November 2, 2026)
+- [x] Register a fourth responsibility-based specialist, Nesty Layout Scout, with no extra numbered methods or changes to the existing three specialists.
+- [x] Feed only on-demand, bounded Pornhub layout diagnostic counts to a local review-only categorizer; reject malformed and impossible counts and site lookalikes.
+- [x] Provide fixed manual review guidance through the existing Site Dashboard without new buttons, CSS rule generation, model downloads or network telemetry.
+- [x] Track up to four repetitions of an identical numeric pattern in memory, explicitly not a claim that any advertisement or spacing change was visually confirmed.
+- [x] Add native regression cases and preserve the opt-in-only reflow, site pause and video safety.
+- [ ] Full exact-commit Ubuntu suite and real Firefox acceptance for Pornhub layout, current markup, page resizing, scroll/recycled thumbnails and pause/undo.
+- [ ] Obtain real labeled/owner-approved evidence before training actual ML models or expanding to new sites and layouts.
+
 ## Build 289 / v0.3.259: read-only layout diagnosis and safety (November 2, 2026)
 - [x] Add bounded Pornhub layout recognition counts: eligible listing groups, available videos, empty ad placeholders and rejected/oversized lists, without storing or exporting URL/content data.
 - [x] Surface read-only private diagnostic in a collapsed Site Dashboard section, shown only for the selected live Pornhub website tab and guarded against content-page callers.

@@ -1,3 +1,9 @@
+## 0.3.260 / Build 290 (November 2, 2026)
+- Registered Nesty Layout Scout as a fourth specialist, distinct from Cookie Watch, Popup Guard and Meta Ad Scout.
+- Integrated bounded, manual-request-only video-layout count review with safe fixed recommendations and capped repetition tracking into the existing Pornhub Site Dashboard panel.
+- Preserved default-OFF layout experiment, existing blocking and streaming paths, all approved interface geometry, site pause/restore and no-telemetry design. No AI training or autonomous editing is claimed.
+- Added a native regression suite and updated compatibility tests. Full Linux and live Firefox testing remains pending.
+
 ## 0.3.259 / Build 289 (November 2, 2026)
 - Added read-only Pornhub video-list recognition counters in the existing Site Dashboard, visible only on the selected site and with an explicit Recheck control.
 - Reports only group/slot/tile counts, no URLs, video names, accounts or DOM text. Diagnostic inspection never rearranges content.

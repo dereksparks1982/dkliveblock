@@ -288,6 +288,7 @@ function clearDisplay(message){
  $("dashboardYouTubeExperiment").hidden=true;
  $("dashboardLayoutReflow").hidden=true;
  $("dashboardLayoutReflowState").textContent="";
+ $("dashboardLayoutNesty").textContent="";
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -516,12 +517,36 @@ async function updateLayoutReflow(d){
  panel.hidden=!enabled;
  if(!enabled)return;
  const node=$("dashboardLayoutReflowState");
+ const nesty=$("dashboardLayoutNesty");
+ nesty.textContent="Nesty Layout Scout: awaiting local evidence.";
  node.textContent="Reading local video-list recognition…";
  try{
   const reply=await browser.runtime.sendMessage({action:"getLayoutReflowStatus",tabId:d.tabId});
   if(current!==d||selected()!==d.tabId)return;
-  if(!reply?.ok||!reply.summary){node.textContent=reply?.error||"Diagnostic unavailable.";return;}
+  if(!reply?.ok||!reply.summary){
+   node.textContent=reply?.error||"Diagnostic unavailable.";
+   nesty.textContent="Nesty Layout Scout: review unavailable.";
+   return;
+  }
   const r=reply.summary;
+  const reasons={
+   "manual-opt-in-candidate":"Recognized empty ad placeholders. You may try Compact Video Grids in Settings.",
+   "review-unsupported-markup":"Some thumbnail lists use unsupported markup. Leave them unchanged and inspect before extending rules.",
+   "review-grid-spacing":"Existing video tiles recognized, but counts alone cannot establish a visual gap. Check the layout in Firefox.",
+   "review-application":"The option is selected, but no grid is reported as compacted. Review the current page before editing rules.",
+   "verify-visible-spacing":"CSS grid was applied. Verify visually that spacing improved and video links still work.",
+   "no-eligible-grids":"No eligible video grids recognized. The page may use different markup.",
+   "unsupported-page":"Not an approved listing route; no layout action.",
+   "protection-paused":"Protection is paused. No repair should run.",
+   "picker-active":"Element picker is active; review only.",
+   "inspection-unavailable":"Page inspection failed safely; no repair suggested."
+  };
+  const review=reply.review;
+  nesty.textContent=review?.specialist==="nesty_layout_scout"&&
+   review.executable===false&&Object.prototype.hasOwnProperty.call(reasons,review.finding)?
+   "Nesty Layout Scout · review only: "+reasons[review.finding]+
+   (review.repeatCount>=2?" Same count pattern on "+Math.min(4,review.repeatCount)+" local checks.":"")+
+   " No automatic changes.":"Nesty Layout Scout: review unavailable.";
   const count=n=>Number.isSafeInteger(n)&&n>=0?Math.min(n,100000):0;
   node.textContent=!r.supportedPage?
    "Not a supported thumbnail-list page; no layout changes made.":

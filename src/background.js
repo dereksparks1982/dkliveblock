@@ -1298,7 +1298,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    if(!response?.ok||!response.summary)return {error:"Layout diagnostic unavailable."};
    return {ok:true,site,settingEnabled:data.settings.compactVideoGrids===true,
     active:response.active===true,configured:response.configured===true,
-    picking:response.picking===true,summary:response.summary};
+    picking:response.picking===true,summary:response.summary,
+    review:response.review||null};
   }catch(_){return {error:"Layout diagnostic unavailable. Reload the tab."};}
  }
  if(msg.action==="getNestyIntelligence"){

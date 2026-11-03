@@ -6,7 +6,8 @@
 | --- | --- | --- |
 | **Nesty Cookie Watch** (`nesty_cookie_watch`) | Observe cookie-setting attempts without values or automatic deletion | Legacy `agent_nesty_1` HTTP response; `agent_nesty_2` cookie-change; `agent_nesty_3` script-write. Only HTTP response watcher is currently armed. |
 | **Nesty Popup Guard** (`nesty_popup_guard`) | Decide when to stop unwanted new tabs, offsite redirects, and original-tab takeovers, preserving approved exceptions and video tabs | Legacy `agent_nesty_4` source-linked child detector and `agent_nesty_5` original-tab detector, plus older strict-source trap. They are detection **methods**, not separate product-facing agents. |
-| **Nesty Meta Ad Scout** (`nesty_meta_ad_scout`) | Discover highly bounded Facebook Sponsored/ad signals for the existing Facebook filter; cannot independently hide posts | Legacy `agent_nesty_meta_01` through `_06`, each a separate detection/validation technique. Experimental GraphQL filtering remains OFF by default. |
+| **Nesty Meta Ad Scout** (`nesty_meta_ad_scout`) | Discover highly bounded Facebook Sponsored/ad signals for the existing Facebook filter; cannot independently hide posts | Legacy `agent_nesty_meta_01` through `_06`. GraphQL experiment is ON for new installs since Build 286, saved OFF respected. |
+| **Nesty Layout Scout** (`nesty_layout_scout`) | Review bounded local webpage-reflow measurements and recommend manual trials only; cannot apply CSS or remove content | No legacy aliases. Build 290 integration limited to on-demand Pornhub layout diagnostics. |
 
 ## Contract for future specialists
 
@@ -22,13 +23,14 @@ Catalog implementation: `src/nesty-team.js`; legacy underlying detectors: `src/c
 
 ## Inventory and future intelligence work (November 2, 2026)
 
-**Current registered count:** exactly **3 named specialists**, **11 legacy IDs/detection methods** (3 Cookie Watch, 2 Popup Guard, 6 Meta Ad Scout). These are not 11 additional independently deployed agents.
+**Current registered count:** exactly **4 named specialists**, **11 legacy IDs/detection methods** (3 Cookie Watch, 2 Popup Guard, 6 Meta Ad Scout). These are not 11 additional independently deployed agents.
 
 | Status | Specialist responsibility | Notes |
 | --- | --- | --- |
 | Registered | **Nesty Cookie Watch** | Cookie-setting observation only. Only its HTTP-response method is armed; the other two method aliases remain documented, not guaranteed active. |
 | Registered | **Nesty Popup Guard** | One accountable popup/redirect/takeover verdict with multiple input methods and user-permission safeguards. |
-| Registered | **Nesty Meta Ad Scout** | Facebook Sponsored evidence and safe feed/right-rail detection. Does not independently decide to delete posts; Meta GraphQL response rewriting remains off by default. |
+| Registered | **Nesty Meta Ad Scout** | Facebook Sponsored evidence and safe feed/right-rail detection. Does not independently decide to delete posts. GraphQL is an owner-toggleable experiment. |
+| Registered | **Nesty Layout Scout** | Review-only, on-demand analysis of local Pornhub thumbnail/empty-slot counts. No autonomous CSS changes or video manipulation. |
 | Proposed, **not registered** | **Nesty Video Ad Scout** | Distinct responsibility for YouTube/player/feed ad-delivery evidence and existing video-safe engines. Future integration must not replace the working YouTube path without tests. |
 | Proposed, **not registered** | **Nesty Streaming Ad Scout** | Distinct responsibility for streaming ad breaks, media safety, and compatibility on independently verified services. |
 | Potential later, **not registered** | **Nesty Provider Investigator** | Cross-company advertiser/tracker/attribution relationships and evidence quality, not automatic third-party hostname blocking. |

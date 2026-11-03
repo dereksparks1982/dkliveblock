@@ -27,6 +27,7 @@
  const facebookRecognizer=typeof DKMetaModule!=="undefined"?DKMetaModule.create(document,window):
   typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
  const layoutReflow=typeof DKLayoutReflow!=="undefined"?DKLayoutReflow.create(document,window):null;
+ const layoutScout=typeof DKNestyLayoutScout!=="undefined"?DKNestyLayoutScout.create(window):null;
  function inspectAdSlots(){
   if(!active||picking||!(adRecognition&&(adRecognizer||facebookRecognizer)||
      compactVideoGrids&&layoutReflow))return;
@@ -82,6 +83,7 @@
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
    compactVideoGrids=nextActive&&s.compactVideoGrids===true;
    if(!compactVideoGrids)layoutReflow?.restore();
+   if(!nextActive)layoutScout?.reset?.();
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
@@ -433,9 +435,11 @@
    if(window!==window.top||!["http:","https:"].includes(location.protocol)||
       !["pornhub.com","www.pornhub.com"].includes(host))
     return Promise.resolve({error:"Pornhub top-level page only."});
+   const summary=layoutReflow?.diagnostics?.()||null;
    return Promise.resolve({ok:true,site:"pornhub",active,
-    configured:compactVideoGrids,picking,
-    summary:layoutReflow?.diagnostics?.()||null});
+    configured:compactVideoGrids,picking,summary,
+    review:summary&&layoutScout?.review(summary,{
+     active,enabled:compactVideoGrids,picking})||null});
   }
   if(msg.action==="getFacebookDetectorStatus"){
    if(window!==window.top||!/^https?:$/.test(location.protocol)||

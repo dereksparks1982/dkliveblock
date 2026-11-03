@@ -13,9 +13,9 @@ const Compat=require("../src/browser-compat.js");
 const root=path.join(__dirname,"..");
 const env={DKCompanyModules:C,DKNestyTeam:N,DKMetaDeliveryCatalog:Catalog,
  DKAdaptiveDispatcher:Dispatcher,DKProviderIntelligence:Providers,DKAdaptiveModel:Model};
-test("Build 281: existing three specialists and 11 aliases remain canonical",()=>{
+test("Build 281/290: original specialists and eleven aliases remain canonical",()=>{
  assert.deepEqual(N.all().map(x=>x.title),
-  ["Nesty Cookie Watch","Nesty Popup Guard","Nesty Meta Ad Scout"]);
+  ["Nesty Cookie Watch","Nesty Popup Guard","Nesty Meta Ad Scout","Nesty Layout Scout"]);
  assert.equal(N.all().reduce((n,x)=>n+x.legacyIds.length,0),11);
 });
 test("Build 281: one shared company router, no suffix spoofing or Meta overreach",()=>{

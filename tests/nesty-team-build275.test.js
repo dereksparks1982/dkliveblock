@@ -8,11 +8,11 @@ const Meta=require("../src/meta-agent-nesty.js");
 const CookieIntel=require("../src/cookie-intelligence.js");
 const P="..";
 function read(p){return fs.readFileSync(path.join(__dirname,P,p),"utf8");}
-test("Build 275: three named specialists own distinct areas and IDs are unique",()=>{
+test("Build 275/290: original specialists and distinct layout role have unique IDs",()=>{
  assert.deepEqual(TEAM.all().map(x=>x.title),[
-  "Nesty Cookie Watch","Nesty Popup Guard","Nesty Meta Ad Scout"]);
- assert.equal(new Set(TEAM.all().map(x=>x.id)).size,3);
- assert.equal(new Set(TEAM.all().map(x=>x.key)).size,3);
+  "Nesty Cookie Watch","Nesty Popup Guard","Nesty Meta Ad Scout","Nesty Layout Scout"]);
+ assert.equal(new Set(TEAM.all().map(x=>x.id)).size,4);
+ assert.equal(new Set(TEAM.all().map(x=>x.key)).size,4);
  assert.ok(TEAM.all().every(x=>Object.isFrozen(x)&&Object.isFrozen(x.methods)&&Object.isFrozen(x.legacyIds)));
  assert.equal(Object.isFrozen(TEAM.all()),true);
  assert.equal(TEAM.byKey("made-up"),null);

@@ -1,3 +1,7 @@
+# Build 290 Nesty Layout Scout integration checkpoint (November 2, 2026)
+
+**Version 0.3.260; unreleased.** Nesty now has a fourth distinct job, **Layout Scout**, registered in the team catalog and wired to the existing Pornhub Site Dashboard layout report. It interprets count-only observations on explicit dashboard requests, identifies whether the existing compact-grid setting is worth trying and can flag unsupported markup or a repeated numerical pattern. It never modifies a page, sends browsing data, generates CSS, or auto-enables the experiment. Original three Nesty specialists and their eleven aliases are preserved; privacy/reversibility remain unchanged. Source tests added; full Ubuntu suite and actual Firefox layout proof pending. See [BUILD_290](BUILD_290.md) and [LAYOUT_REFLOW](LAYOUT_REFLOW.md).
+
 # Build 289 Pornhub layout diagnostics checkpoint (November 2, 2026)
 
 **Version 0.3.259; unreleased.** The Pornhub video-list CSS experiment has a local, count-only diagnostic visible in the existing Site Dashboard for a selected Pornhub tab. It reports eligible grids, video tiles, empty ad spaces and refused/mixed/oversized groups without collecting text or URLs. The background binds the report to the extension page and current site. Layout stays opt-in and reversible; watch pages remain excluded. Five tests added; full native Ubuntu and Firefox visual acceptance still pending. See [Build 289](BUILD_289.md) and [layout design](LAYOUT_REFLOW.md).
