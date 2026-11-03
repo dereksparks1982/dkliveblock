@@ -11,7 +11,8 @@ function normalize(raw){
  if(!raw||typeof raw!=="object"||Array.isArray(raw)||
     typeof raw.supportedPage!=="boolean")return null;
  const result={supportedPage:raw.supportedPage,
-  inspectionUnavailable:raw.inspectionUnavailable===true};
+  inspectionUnavailable:raw.inspectionUnavailable===true,
+  cleanupPending:raw.cleanupPending===true};
  for(const [key,limit] of Object.entries(BOUNDS)){
   if(!Number.isSafeInteger(raw[key])||raw[key]<0||raw[key]>limit)return null;
   result[key]=raw[key];
@@ -39,6 +40,7 @@ function normalize(raw){
  return Object.freeze(result);
 }
 function kindOf(m,c){
+ if(m.cleanupPending)return "layout-cleanup-pending";
  if(!c.active)return "protection-paused";
  if(c.picking)return "picker-active";
  if(m.inspectionUnavailable)return "inspection-unavailable";
@@ -100,7 +102,8 @@ function create(win,team){
   return Object.freeze({specialist:specialist.id,title:specialist.title,
    finding,mode:"review-only",source:"on-demand-local-counts",
    checks,repeatCount:repeat,
-   nextStep:["manual-opt-in-candidate","wide-video-gap-measured"]
+   nextStep:finding==="layout-cleanup-pending"?"retry-existing-rollback":
+    ["manual-opt-in-candidate","wide-video-gap-measured"]
     .includes(finding)?"consider-existing-setting":
     finding==="review-unsupported-markup"?"inspect-markup-locally":
     ["review-grid-spacing","verify-visible-spacing","review-application",

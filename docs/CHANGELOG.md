@@ -1,3 +1,6 @@
+## 0.3.287 / Build 317
+- Explicitly surface incomplete reversible layout rollback as a read-only Nesty Scout warning, without changing CSS geometry or enabling autonomous page changes.
+
 ## 0.3.286 / Build 316
 - Layout preview now rejects hidden/prerendered tabs, transient search/hash navigation and disconnected video tiles; still uses the same opted-in, reversible CSS and refuses inaccurate comparison claims.
 

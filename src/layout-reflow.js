@@ -90,7 +90,7 @@ function create(doc,win){
  const host=String(win?.location?.hostname||"").toLowerCase();
  if(!supports(host)||win?.top&&win.top!==win)return null;
  const grids=new Set(),slots=new Set();
- let style=null,scans=0;
+ let style=null,scans=0,cleanupPending=false;
  function restore(){
   // A failed removal stays tracked for a future retry; do not report
   // successful cleanup until our classes and stylesheet are really gone.
@@ -116,7 +116,8 @@ function create(doc,win){
     else style=null;
    }catch(_){complete=false;}
   }
-  return complete&&grids.size===0&&slots.size===0&&!style;
+  cleanupPending=!(complete&&grids.size===0&&slots.size===0&&!style);
+  return !cleanupPending;
  }
  function scan(){
   if(!supports(host,String(win?.location?.pathname||"/"))||!doc?.body||!doc?.querySelectorAll){
@@ -127,6 +128,7 @@ function create(doc,win){
   catch(_){restore();return 0;}
   const accepted=[];
   for(const node of inspected){const record=candidate(node);if(record)accepted.push(record);}
+  if(cleanupPending&&!restore())return 0;
   const keepGrids=new Set(accepted.map(x=>x.list));
   const keepSlots=new Set(accepted.flatMap(x=>x.slots));
   let cleanupOK=true;
@@ -171,6 +173,7 @@ function create(doc,win){
    eligibleLists:0,videoTiles:0,emptyAdSlots:0,mixedLists:0,
    shortLists:0,oversizedLists:0,scannedLists:0,
    appliedLists:grids.size,appliedSlots:slots.size,scans,
+   cleanupPending,
    geometry:{sampledTiles:0,sameRowPairs:0,widePairs:0,largestWideGapPx:0}};
   if(!report.supportedPage||!doc?.body||!doc?.querySelectorAll)
    return Object.freeze({...report,geometry:Object.freeze(report.geometry)});
@@ -269,7 +272,7 @@ function create(doc,win){
    appliedLists:applied,before,after,restored:true});
  }
  function status(){return Object.freeze({site:"pornhub",enabled:grids.size>0||slots.size>0||!!style?.isConnected,
-  grids:grids.size,emptySlots:slots.size,scans});}
+  grids:grids.size,emptySlots:slots.size,scans,cleanupPending});}
  return Object.freeze({scan,restore,status,diagnostics,preview});
 }
 const API=Object.freeze({supports,videoTile,emptyAdSlot,candidate,

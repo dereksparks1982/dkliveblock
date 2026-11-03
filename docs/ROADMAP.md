@@ -1,3 +1,8 @@
+## Build 317 / v0.3.287: cleanupPending in Nesty Layout Scout (November 3, 2026)
+- [x] Retain failed layout rollback as cleanupPending; refuse new styling until old rollback completes.
+- [x] On-demand Nesty Layout Scout reports pending cleanup, review-only and not executable.
+- [x] Five synthetic tests; native Ubuntu and live Firefox still pending.
+
 ## Build 316 / v0.3.286: layout preview route and hidden-tab integrity (November 3, 2026)
 - [x] Cancel on-demand reflow previews when tab hidden/prerendered, full query/hash changes, or candidate tiles are detached from DOM.
 - [x] Compare route state transiently, never export search queries. Keep existing grid CSS/rollback intact.
