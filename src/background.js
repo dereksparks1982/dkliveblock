@@ -1282,6 +1282,29 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    supported:typeof browser.webRequest.filterResponseData==="function",
    stats:DKMetaGraphQL.stats(id)};
  }
+ if(msg.action==="previewLayoutReflow"){
+  if(fromContent||!ownExtensionPage||!Number.isInteger(id)||id<0||
+     data.settings.compactVideoGrids===true||!data.ready)
+   return {error:"Extension interface only; preview requires the experimental layout option OFF."};
+  let live="";
+  try{live=(await browser.tabs.get(id))?.url||"";}
+  catch(_){return {error:"Website tab is unavailable."};}
+  const site=host(live);
+  if(!["pornhub.com","www.pornhub.com"].includes(site)||
+     !(live.startsWith("http://")||live.startsWith("https://"))||
+     data.hosts.get(id)!==site||!activeTab(id,site)||
+     data.engine.getPagePolicy(live).elemhide||
+     data.engine.getPagePolicy(live).document)
+   return {error:"Preview requires an active protected Pornhub tab."};
+  try{
+   const output=await browser.tabs.sendMessage(id,{action:"previewLayoutReflow"},{frameId:0});
+   const after=(await browser.tabs.get(id))?.url||"";
+   if(after!==live)return {error:"Website navigated during the preview; result discarded."};
+   if(!output?.ok||output.restored!==true||output.comparison?.executable!==false)
+    return {error:output?.error||"Unable to safely compare layout."};
+   return output;
+  }catch(_){return {error:"Preview unavailable. Reload Pornhub and retry."};}
+ }
  if(msg.action==="getLayoutReflowStatus"){
   if(fromContent||!ownExtensionPage||!Number.isInteger(id)||id<0)
    return {error:"Extension interface only."};

@@ -289,6 +289,7 @@ function clearDisplay(message){
  $("dashboardLayoutReflow").hidden=true;
  $("dashboardLayoutReflowState").textContent="";
  $("dashboardLayoutNesty").textContent="";
+ $("dashboardLayoutComparison").textContent="Comparison not run.";
  $("dashboardFilterDetails").textContent="";
  notice(message);
 }
@@ -515,6 +516,7 @@ async function updateLayoutReflow(d){
  const panel=$("dashboardLayoutReflow");
  const enabled=d?.ok&&["pornhub.com","www.pornhub.com"].includes(d.site);
  panel.hidden=!enabled;
+ $("dashboardLayoutCompare").disabled=!enabled||!d.siteActive;
  if(!enabled)return;
  const node=$("dashboardLayoutReflowState");
  const nesty=$("dashboardLayoutNesty");
@@ -529,6 +531,8 @@ async function updateLayoutReflow(d){
    return;
   }
   const r=reply.summary;
+  $("dashboardLayoutCompare").disabled=!d.siteActive||reply.settingEnabled||
+   !r.supportedPage||r.eligibleLists<1;
   const reasons={
    "manual-opt-in-candidate":"Recognized empty ad placeholders. You may try Compact Video Grids in Settings.",
    "wide-video-gap-measured":"An unusually wide gap between adjacent video tiles was measured. This does not prove an ad was there. You may try the existing Compact Video Grids setting.",
@@ -700,6 +704,39 @@ $("dashboardTab").addEventListener("change",()=>{if(!busy)refresh();});
 $("dashboardRefresh").addEventListener("click",()=>{if(!busy)refresh();});
 $("dashboardLayoutRefresh").addEventListener("click",()=>{
  if(current?.ok&&!loading&&!busy)updateLayoutReflow(current).catch(()=>{});
+});
+$("dashboardLayoutCompare").addEventListener("click",async()=>{
+ const target=current,out=$("dashboardLayoutComparison");
+ if(!target?.ok||!target.siteActive||loading||busy)return;
+ if(!window.confirm("Briefly preview compact video spacing on the selected Pornhub listing, then automatically restore the original layout? No videos are moved or loaded."))return;
+ busy=true;
+ $("dashboardLayoutCompare").disabled=true;
+ out.textContent="Comparing the original and temporary compact layout…";
+ try{
+  await verifyCurrentTab(target);
+  const result=await browser.runtime.sendMessage({action:"previewLayoutReflow",tabId:target.tabId});
+  if(current!==target||selected()!==target.tabId)return;
+  if(!result?.ok||result.restored!==true||result.comparison?.executable!==false){
+   out.textContent=result?.error||"Comparison unavailable. Reload the tab and retry.";
+   return;
+  }
+  const report=result.comparison;
+  const judgments={
+   "fewer-wide-gaps":"Fewer unusually wide gaps in the temporary layout.",
+   "smaller-largest-gap":"Largest wide gap was smaller in the temporary layout.",
+   "more-wide-gaps":"The temporary layout had more unusually wide gaps.",
+   "larger-largest-gap":"Largest wide gap became larger in the temporary layout.",
+   "no-measured-change":"No measurable horizontal gap change.",
+   "inconclusive":"The tile or same-row pair counts changed, so the two states are not directly comparable."
+  };
+  out.textContent="Nesty Layout Scout comparison: "+
+   (Object.prototype.hasOwnProperty.call(judgments,report.outcome)?
+    judgments[report.outcome]:"Result inconclusive.")+
+   " Wide pairs "+report.widePairsBefore+" → "+report.widePairsAfter+
+   "; largest ~"+report.largestGapBeforePx+" → ~"+report.largestGapAfterPx+
+   " CSS px. Original layout restored. Visual verification still required.";
+ }catch(_){if(current===target)out.textContent="Comparison failed safely. Reload the tab to confirm original layout.";}
+ finally{busy=false;if(current===target)updateLayoutReflow(target).catch(()=>{});}
 });
 $("dashboardRefreshTabs").addEventListener("click",()=>{if(!busy)selectTabs();});
 $("dashboardAllowlist").addEventListener("click",()=>perform("setSiteAllowed",

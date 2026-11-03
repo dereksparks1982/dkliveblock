@@ -59,6 +59,30 @@ function create(win,team){
  if(specialist?.id!=="nesty_layout_scout")return null;
  let last="",repeat=0,checks=0;
  function reset(){last="";repeat=0;checks=0;}
+ function compare(rawBefore,rawAfter){
+  const before=normalize(rawBefore),after=normalize(rawAfter);
+  if(!before||!after||!before.supportedPage||!after.supportedPage||
+     before.inspectionUnavailable||after.inspectionUnavailable||
+     !before.geometry||!after.geometry)return null;
+  // Comparing a restructured or partially loaded page would be deceptive.
+  const comparable=before.eligibleLists>0&&
+   before.eligibleLists===after.eligibleLists&&
+   before.videoTiles===after.videoTiles&&
+   before.geometry.sampledTiles===after.geometry.sampledTiles&&
+   before.geometry.sameRowPairs===after.geometry.sameRowPairs&&
+   before.geometry.sameRowPairs>0;
+  const outcome=!comparable?"inconclusive":after.geometry.widePairs<before.geometry.widePairs?
+   "fewer-wide-gaps":after.geometry.widePairs>before.geometry.widePairs?
+   "more-wide-gaps":after.geometry.largestWideGapPx<before.geometry.largestWideGapPx?
+   "smaller-largest-gap":after.geometry.largestWideGapPx>before.geometry.largestWideGapPx?
+   "larger-largest-gap":"no-measured-change";
+  return Object.freeze({specialist:"nesty_layout_scout",mode:"review-only",
+   outcome,comparable,widePairsBefore:before.geometry.widePairs,
+   widePairsAfter:after.geometry.widePairs,
+   largestGapBeforePx:before.geometry.largestWideGapPx,
+   largestGapAfterPx:after.geometry.largestWideGapPx,
+   visualVerificationRequired:true,executable:false,automaticRules:false});
+ }
  function review(raw,opts){
   const m=normalize(raw);
   if(!m)return null;
@@ -85,7 +109,7 @@ function create(win,team){
    visualVerificationRequired:true,trainedModel:false,
    automaticRules:false,executable:false});
  }
- return Object.freeze({review,reset});
+ return Object.freeze({review,compare,reset});
 }
 const API=Object.freeze({supports,normalize,create});
 root.DKNestyLayoutScout=API;

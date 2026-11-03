@@ -1,3 +1,12 @@
+## Build 292 / v0.3.262: explicit temporary before/after comparison (November 2, 2026)
+- [x] Add one-click, confirmation-gated preview to the existing collapsed Pornhub layout panel; OFF by default, requires active protection, never changes persistent settings.
+- [x] Collect coarse before/after gaps on the **same live thumbnail list**, temporarily applying existing CSS and restoring all grid classes/styles even on errors.
+- [x] Gate preview through extension-only exact-tab/top-frame background messaging and website policy checks; abort on navigation or active picker.
+- [x] Nesty assesses comparable samples using fixed, non-executable outcome categories; changed row/card counts are explicitly inconclusive.
+- [x] Register six focused native tests and source safety checks; preserve existing blocking and streaming behavior and approved popup geometry.
+- [ ] Complete exact-commit native Ubuntu test suite, then actual owner's Firefox acceptance for video-grid behavior, warnings and layout preview.
+- [ ] Refine unsupported real page markup only after observed owner browser evidence.
+
 ## Build 291 / v0.3.261: measured video-spacing gaps (November 2, 2026)
 - [x] Implement bounded, on-demand, read-only horizontal measurements of **already recognized Pornhub video tiles**; never run expensive geometry checks in background/periodic scans.
 - [x] Distinguish wide same-row gaps from ordinary spacing, wrapping, hidden/throwing rectangles and overlaps; return only rounded aggregate counts and approximate largest gap.

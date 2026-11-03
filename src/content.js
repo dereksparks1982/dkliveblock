@@ -431,6 +431,19 @@
   return true;
  }
  browser.runtime.onMessage.addListener(msg=>{
+  if(msg.action==="previewLayoutReflow"){
+   if(window!==window.top||!["http:","https:"].includes(location.protocol)||
+      !["pornhub.com","www.pornhub.com"].includes(host)||
+      !active||compactVideoGrids||picking||!layoutReflow||!layoutScout)
+    return Promise.resolve({error:"Preview requires active protection, picker off, and Compact Video Grids OFF."});
+   const result=layoutReflow.preview();
+   if(!result?.ok)return Promise.resolve({error:"Layout preview unavailable: "+(result?.reason||"unsupported")+"."});
+   const review=layoutScout.compare(result.before,result.after);
+   if(!review)return Promise.resolve({error:"Layout comparison unavailable; original page restored."});
+   return Promise.resolve({ok:true,comparison:review,
+    // Return only local count-only summaries; no video links or page markup.
+    before:result.before.geometry,after:result.after.geometry,restored:result.restored===true});
+  }
   if(msg.action==="getLayoutReflowStatus"){
    if(window!==window.top||!["http:","https:"].includes(location.protocol)||
       !["pornhub.com","www.pornhub.com"].includes(host))

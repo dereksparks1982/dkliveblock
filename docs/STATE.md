@@ -1,3 +1,7 @@
+# Build 292 reversible comparison checkpoint (November 2, 2026)
+
+**Version 0.3.262, unreleased.** The Pornhub Site Dashboard layout section has an opt-in, confirmation-gated temporary CSS preview. It samples coarse spacing on the current approved video list, applies the existing compact layout only during measurement and synchronously restores original styles/classes. Nesty compares same-page aggregate measurements; unmatched rows/counts are inconclusive. Extension-origin-only exact-tab permission checks and site protection gates remain mandatory. Tests registered; full native Linux suite and actual Firefox owner acceptance pending. See [Build 292](BUILD_292.md).
+
 # Build 291 on-demand spacing geometry checkpoint (November 2, 2026)
 
 **Version 0.3.261, unreleased.** Builds on Pornhub's default-OFF visual reflow experiment without changing its application logic: the already-present Site Dashboard can now calculate coarse CSS-pixel horizontal separation between adjacent, verified existing thumbnail cards. Geometry is measured only on request, never retained as coordinates, and returned only as capped/quantized aggregate counts. Nesty Layout Scout validates these measurements and issues fixed, review-only advice for unusually wide gaps, including when they appear after reflow. No auto-CSS, new permissions, model training or claimed Firefox layout success. Native full suite and owner's live Firefox acceptance are pending. See [Build 291](BUILD_291.md) and [layout design](LAYOUT_REFLOW.md).

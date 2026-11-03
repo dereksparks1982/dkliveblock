@@ -43,6 +43,13 @@ The owner reports DK Live Block working on Pornhub, but the page can show two vi
 - Normal columns, different rows, overlapping cards, hidden elements, tiny/very large or malformed rectangles and unsupported/mixed lists fail open. Geometry is approximate and may describe intentional website spacing; it does not prove the gap contained advertising.
 - No new Settings control was added; local acceptance still requires a real Firefox test of the owner's reported two-video layout, including resize and scrolling.
 
+## Build 292: explicit temporary before/after comparison
+- From the existing Pornhub Site Dashboard layout panel, **Compare compact layout (temporary preview)** requires an explicit confirmation. It operates only on a live protected Pornhub listing with the persistent **Compact Video Grids setting OFF** and no active element picker.
+- The current tab's already-recognized thumbnails are measured, our existing opt-in CSS grid is applied **only momentarily**, matching coarse spacing metrics are measured again, and all temporary classes/styles are restored within the same operation even when a measurement throws. No new video is loaded or DOM node moved.
+- The extension's background verifies its own extension-origin caller, exact active tab, site policy and unchanged tab URL. Nesty can say a layout had fewer or wider coarse gaps, or that the samples were incomparable; this is **not** a proof that an ad existed or that playback was safe.
+- The new comparison button is confined to the existing collapsed troubleshooting section; nothing else moves, and all protections, allowlists and site-pause controls retain precedence.
+- Next milestone: expand negative control fixtures and perform genuine Firefox owner acceptance to validate actual Pornhub markup before any broad new CSS is introduced.
+
 ## Staged integration (one at a time)
 - **Build 289 (after owner screenshot/HTML evidence):** inspect the actual Pornhub layout variant with remaining blank space. Add a narrowly verified grid selector or safe margin/padding adjustment only for that variant. Avoid selectors based on a vague `ad` substring.
 - **Build 290:** optional per-site controls and a reversible live preview/undo for further verified sites. No general-site auto-reflow without user direction and tests.

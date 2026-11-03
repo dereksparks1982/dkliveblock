@@ -1,3 +1,9 @@
+## 0.3.262 / Build 292 (November 2, 2026)
+- Added an explicit confirmation-gated, temporary Pornhub compact-layout before/after comparison to Site Dashboard.
+- Preserves existing default-OFF experimental setting and restores all temporary CSS/classes synchronously; comparison never modifies blocking rules or loads media.
+- Nesty Layout Scout reports coarse validated improvement, degradation, unchanged or inconclusive measurements; no automatic CSS generation or telemetry.
+- Six focused regressions registered. Full native Linux and real Firefox acceptance remain pending.
+
 ## 0.3.261 / Build 291 (November 2, 2026)
 - Added on-demand, coarse same-row video-thumbnail gap measurement to existing opt-in Pornhub layout diagnostics. No coordinates, title strings, URLs or tracking history are stored.
 - Nesty Layout Scout can now distinguish abnormally wide adjacent-card gaps before and after reflow using validated bounded numbers, with fixed review-only suggestions.

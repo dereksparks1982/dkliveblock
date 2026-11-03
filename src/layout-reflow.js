@@ -1,4 +1,4 @@
-/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–291.
+/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–292.
    Scope: known Pornhub video-list markup only. Never moves DOM nodes, fetches
    videos, alters playback, reflows other sites, or executes website scripts. */
 (function(root){"use strict";
@@ -156,9 +156,36 @@ function create(doc,win){
   report.geometry=Object.freeze(report.geometry);
   return Object.freeze(report);
  }
+ // Only an explicit owner action may compare the original layout against a
+ // temporary grid. It must restore original classes/styles before returning.
+ // Reject an already-enabled grid; never flicker or interfere with it.
+ function preview(){
+  if(!supports(host,String(win?.location?.pathname||"/"))||
+     grids.size>0||style?.isConnected)return Object.freeze({ok:false,reason:"not-eligible"});
+  let before;
+  try{before=diagnostics();}catch(_){return Object.freeze({ok:false,reason:"inspection-unavailable"});}
+  if(before.inspectionUnavailable||before.eligibleLists<1||
+     before.geometry.sameRowPairs<1)
+   return Object.freeze({ok:false,reason:"no-comparable-pairs"});
+  let after=null,applied=0;
+  try{
+   applied=scan();
+   if(applied>0)after=diagnostics();
+  }catch(_){return Object.freeze({ok:false,reason:"preview-failed"});}
+  finally{restore();}
+  if(!after||after.inspectionUnavailable||after.eligibleLists!==before.eligibleLists||
+     after.videoTiles!==before.videoTiles||
+     after.geometry.sampledTiles!==before.geometry.sampledTiles||
+     after.geometry.sameRowPairs!==before.geometry.sameRowPairs)
+   return Object.freeze({ok:false,reason:"page-changed"});
+  // Geometry is an aggregate; even a better number is not a real-user
+  // screenshot result or proof of suppressed ads.
+  return Object.freeze({ok:true,source:"temporary-css-preview",
+   appliedLists:applied,before,after,restored:true});
+ }
  function status(){return Object.freeze({site:"pornhub",enabled:!!style&&grids.size>0,
   grids:grids.size,emptySlots:slots.size,scans});}
- return Object.freeze({scan,restore,status,diagnostics});
+ return Object.freeze({scan,restore,status,diagnostics,preview});
 }
 const API=Object.freeze({supports,videoTile,emptyAdSlot,candidate,
  measureHorizontalGaps,create,CSS,GRID,EMPTY});
