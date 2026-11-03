@@ -1,3 +1,7 @@
+## 0.3.277 / Build 307 (November 3, 2026)
+- Completed the Facebook React-burst fix: scanInserted now reserves its bounded work budget for newly inserted nodes and ad-label changes before generic style churn. No full DOM walk or weakened organic-post guards.
+- New synthetic regression fixtures cover late ad insertions, delayed labels, non-ads, and a capped sampled-batch handoff. Live Firefox acceptance remains pending.
+
 ## 0.3.276 / Build 306 (November 3, 2026)
 - Improved Facebook ad-recognizer reaction to React mutation bursts: bounded, chronological head/middle/tail sampling lets late sponsored labels reach the vetted fast scanner before the fallback.
 - Repaired six stale build-specific version assertions in the offline test suite without removing actual functionality checks. Streaming/video, network rules, settings, approved geometry and permissions unchanged.

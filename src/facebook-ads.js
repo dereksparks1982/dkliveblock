@@ -647,14 +647,18 @@ function create(doc,win,max=100,onEvidence=null){
       node===doc.body||node===doc.documentElement)return;
    roots.add(node);
   };
-  for(let i=0;i<Math.min(40,records.length);i++){
-   const r=records[i];
-   if(r?.type==="childList"){
-    for(let j=0;j<Math.min(8,r.addedNodes?.length||0);j++)take(r.addedNodes[j]);
-   }
-   if(r?.type==="attributes"||r?.type==="characterData"||r?.type==="childList")
-    take(r.target);
-  }
+  // React often reports unimportant class/style churn before a new ad.
+  // Reserve the bounded root budget for insertions and changed ad labels
+  // FIRST; only then inspect ordinary attribute/child-list targets. Without
+  // this priority a 32-root cap could discard a sampled late Sponsored post.
+  const batch=records.slice(0,40);
+  for(const r of batch)if(r?.type==="childList")
+   for(let j=0;j<Math.min(8,r.addedNodes?.length||0);j++)take(r.addedNodes[j]);
+  for(const r of batch)if(r?.type==="characterData"||
+    r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName))
+   take(r.target);
+  for(const r of batch)if(r?.type==="attributes"||r?.type==="characterData"||r?.type==="childList")
+   take(r.target);
   let count=0,inspected=0;
   const consider=card=>{
    if(!card||cards.has(card)||cards.size>=28)return;

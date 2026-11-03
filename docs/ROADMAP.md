@@ -1,3 +1,10 @@
+## Build 307 / v0.3.277: prioritize Facebook late sponsored insertions (November 3, 2026)
+- [x] Fix the second bottleneck exposed by Build 306's new integration fixture: the Facebook scanInserted 32-root budget could be exhausted by earlier irrelevant attributes before processing a late ad.
+- [x] Examine added nodes and exact label/character changes before ordinary targets, within the existing 40-record, 32-root and 320-element limits.
+- [x] Add fast-path positive/negative regression tests and make Build 306 late-ad fixture pass without loosening evidence safeguards.
+- [ ] Full native Ubuntu suite; owner Firefox retest of late sponsored posts, organic cards, repeated scroll and diagnostic export.
+- [ ] YouTube ordinary-video refusal still needs real player evidence before transport rule changes.
+
 ## Build 306 / v0.3.276: Facebook late React mutation bursts and regression maintenance (November 3, 2026)
 - [x] With the same forty-record bound, inspect the start, distributed middle and end of a large Facebook MutationObserver callback; previously only the first forty changes were examined.
 - [x] Preserve existing safe Facebook sponsored evidence/whole-card containment checks, immediate scan and periodic fallback. Other sites keep identical first-forty behavior; YouTube response/player code is unchanged.
