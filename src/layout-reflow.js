@@ -129,9 +129,29 @@ function create(doc,win){
   for(const node of inspected){const record=candidate(node);if(record)accepted.push(record);}
   const keepGrids=new Set(accepted.map(x=>x.list));
   const keepSlots=new Set(accepted.flatMap(x=>x.slots));
-  for(const grid of grids)if(!keepGrids.has(grid)){grid.classList?.remove(GRID);grids.delete(grid);}
-  for(const slot of slots)if(!keepSlots.has(slot)){slot.classList?.remove(EMPTY);slots.delete(slot);}
-  if(!accepted.length){style?.remove?.();style=null;scans++;return 0;}
+  let cleanupOK=true;
+  for(const grid of grids)if(!keepGrids.has(grid)){
+   try{grid.classList?.remove(GRID);
+    if(grid.classList?.contains(GRID))cleanupOK=false;
+    else grids.delete(grid);
+   }catch(_){cleanupOK=false;}
+  }
+  for(const slot of slots)if(!keepSlots.has(slot)){
+   try{slot.classList?.remove(EMPTY);
+    if(slot.classList?.contains(EMPTY))cleanupOK=false;
+    else slots.delete(slot);
+   }catch(_){cleanupOK=false;}
+  }
+  if(!cleanupOK){restore();return 0;}
+  if(!accepted.length){
+   if(style){
+    try{style.remove();
+     if(style.isConnected){restore();return 0;}
+     style=null;
+    }catch(_){restore();return 0;}
+   }
+   scans++;return 0;
+  }
   try{
    if(!style||style.isConnected===false){
     style=doc.createElement("style");style.id=STYLE_ID;style.textContent=CSS;
@@ -241,7 +261,7 @@ function create(doc,win){
   return Object.freeze({ok:true,source:"temporary-css-preview",
    appliedLists:applied,before,after,restored:true});
  }
- function status(){return Object.freeze({site:"pornhub",enabled:!!style&&grids.size>0,
+ function status(){return Object.freeze({site:"pornhub",enabled:grids.size>0||slots.size>0||!!style?.isConnected,
   grids:grids.size,emptySlots:slots.size,scans});}
  return Object.freeze({scan,restore,status,diagnostics,preview});
 }

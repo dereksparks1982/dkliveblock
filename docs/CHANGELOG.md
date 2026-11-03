@@ -1,3 +1,6 @@
+## 0.3.285 / Build 315
+- Hardened opt-in Pornhub list reflow cleanup: class and style-removal failures remain tracked and retryable instead of falsely reporting a complete reset. Grid CSS and opt-in behavior unchanged.
+
 ## 0.3.284 / Build 314
 - The offline YouTube report-comparison tool now differentiates failed playback from observed no-ad sessions. Explicit caveats prevent a black screen from masquerading as successful ad blocking.
 

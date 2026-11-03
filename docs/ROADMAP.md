@@ -1,3 +1,9 @@
+## Build 315 / v0.3.285: durable layout rollback after page changes (November 3, 2026)
+- [x] Preserve tracked CSS classes and styles when a site refuses cleanup; retry reversible rollback instead of losing references.
+- [x] Make current layout status recognize connected leftover styles even without tracked grids.
+- [x] Five source tests for route changes, class/style failures, retry and no new permissions.
+- [ ] Live Pornhub layout acceptance and full Ubuntu suite pending; no CSS geometry alteration.
+
 ## Build 314 / v0.3.284: offline manual YouTube playback outcome classification (November 3, 2026)
 - [x] Classify visible ads, refused videos, buffering and no-observed-ad playback as different unverified outcomes, with warnings for mixed ordinary versus ad-funded film cases.
 - [x] Keep manually entered information enumerated, scrub arbitrary fields and include a conservative interpretation in the export.
