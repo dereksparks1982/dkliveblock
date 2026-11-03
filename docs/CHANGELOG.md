@@ -1,3 +1,6 @@
+## 0.3.292 / Build 322
+- Russian UI coverage extended to composed YouTube lab results, warnings and progress messages, including runtime language switching; exported evidence and filters remain language-neutral.
+
 ## 0.3.291 / Build 321
 - Hardened Facebook's safe-card boundary around editors and search boxes, plus protected ordinary-post and multi-post regressions; no extra blocking heuristics or permissions.
 

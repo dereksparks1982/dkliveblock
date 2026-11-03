@@ -2,9 +2,11 @@
 /* Only a user clicking Compare reads local File objects. Nothing is stored,
    fetched, posted or uploaded. Display only whitelisted fixed-label evidence. */
 const $=id=>document.getElementById(id);
+// Translate fixed UI phrases only; never translate selected files or export payloads.
+const local=s=>DKUILanguage.translate(String(s),document.documentElement?.lang||"en");
 let comparison=null,projected=null,labBusy=false;
 const selectionGate=DKYouTubeSelectionGate.create();
-function show(message){$("labStatus").textContent=String(message||"").slice(0,250);}
+function show(message){$("labStatus").textContent=local(message||"").slice(0,250);}
 function choice(id,allowed){
  const s=$(id).value;
  return allowed.includes(s)?s:allowed[0];
@@ -29,20 +31,20 @@ async function selectReport(id){
 }
 function addWarning(message){
  const p=document.createElement("p");
- p.textContent=message;
+ p.textContent=local(message);
  $("comparisonWarnings").appendChild(p);
 }
 function render(result){
  $("comparisonRows").replaceChildren();
  $("comparisonWarnings").replaceChildren();
- $("comparisonSummary").textContent="Baseline: "+result.baselineMode+
-  " | Candidate: "+result.candidateMode+". "+result.interpretation;
+ $("comparisonSummary").textContent=local("Baseline: ")+result.baselineMode+
+  local(" | Candidate: ")+result.candidateMode+". "+local(result.interpretation);
  for(const warning of result.warnings)addWarning(warning);
  if(!result.warnings.length)addWarning("No mismatch was detected in the exported protection flags. This does NOT prove the test runs were equivalent.");
  for(const row of result.rows){
   const tr=document.createElement("tr");
   for(const value of [row.label,row.baseline,row.candidate,row.delta>0?"+"+row.delta:String(row.delta)]){
-   const td=document.createElement("td");td.textContent=String(value);
+   const td=document.createElement("td");td.textContent=local(value);
    tr.appendChild(td);
   }
   $("comparisonRows").appendChild(tr);
@@ -50,14 +52,14 @@ function render(result){
  const observed=observations();
  const manual=DKYouTubeManualOutcome.assess(observed);
  for(const warning of manual.warnings)addWarning(warning);
- const playback={unknown:"not recorded",works:"played normally",refused:"refused / black screen",stalled:"stalled / buffered"};
- const ads={unknown:"not recorded",seen:"an ad visibly played","none-seen":"no ad observed during test"};
- $("manualSummary").textContent="Manual observation: baseline "+observed.baselineVideoType+" "+
+ const playback={unknown:local("not recorded"),works:local("played normally"),refused:local("refused / black screen"),stalled:local("stalled / buffered")};
+ const ads={unknown:local("not recorded"),seen:local("an ad visibly played"),"none-seen":local("no ad observed during test")};
+ $("manualSummary").textContent=local("Manual observation: baseline ")+observed.baselineVideoType+" "+
   playback[observed.baselinePlayback]+", "+ads[observed.baselineAds]+
-  "; candidate "+observed.candidateVideoType+" "+playback[observed.candidatePlayback]+", "+ads[observed.candidateAds]+
-  ". These are user-entered observations, not verified measurements. Results: "+manual.baseline+" / "+manual.candidate+".";
- $("comparisonCaveat").textContent=result.caveat+
-  " Treat 'no ad observed' as inconclusive when the video did not successfully play.";
+  local("; candidate ")+observed.candidateVideoType+" "+playback[observed.candidatePlayback]+", "+ads[observed.candidateAds]+
+  local(". These are user-entered observations, not verified measurements. Results: ")+local(manual.baseline)+" / "+local(manual.candidate)+".";
+ $("comparisonCaveat").textContent=local(result.caveat)+
+  local(" Treat 'no ad observed' as inconclusive when the video did not successfully play.");
  $("comparisonResult").hidden=false;
 }
 async function doCompare(){
@@ -120,3 +122,10 @@ for(const id of ["baselineFile","candidateFile"])
  $(id).addEventListener("change",()=>{selectionGate.invalidate();comparison=null;projected=null;
   $("comparisonResult").hidden=true;$("exportComparison").disabled=true;
   show("Selection changed. Click Compare reports to load local files.");});
+
+// The translation service repaints static DOM text, but composed summary
+// sentences must be rendered again when the saved UI language changes.
+if(typeof browser!=="undefined")browser.storage.onChanged?.addListener((changes,area)=>{
+ if(area==="local"&&changes.dkUiLanguage&&comparison)
+  queueMicrotask(()=>{if(comparison)render(comparison);});
+});

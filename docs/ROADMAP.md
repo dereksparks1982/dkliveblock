@@ -1,3 +1,8 @@
+## Build 322 / v0.3.292: Russian dynamic YouTube lab results (November 3, 2026)
+- [x] Localize composed A/B summary labels, warnings, outcome states, metric headings and local-only progress messages using the saved English/Russian preference.
+- [x] Rerender user-visible strings on language switch; keep exported diagnostic schema, values and user-entered observations unchanged.
+- [x] Five static/runtime privacy regressions; full Ubuntu and native Russian visual review pending.
+
 ## Build 321 / v0.3.291: protected Facebook editors and organic feed boundaries (November 3, 2026)
 - [x] Exclude editable text, textbox and search-box ancestors from whole-card hiding even when an ad-like label is nearby.
 - [x] Add five organic, multi-post, dialog, false-label and hostname regression checks. Keep confirmed Sponsored behavior otherwise unchanged.
