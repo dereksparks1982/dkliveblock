@@ -8,6 +8,8 @@
 
 **[Official website and downloads](https://dereksparks1982.github.io/dkliveblock/?lang=en)**. Choose English or Русский using the language selector at the top. The extension has its own language setting.
 
+**Build 299 localization candidate (v0.3.269, not released):** The Firefox Settings, toolbar popup, and Site Dashboard now have expanded local Russian translations. The Settings development warning uses the approved charcoal/cyan palette. Other extension tools and live Firefox rendering still need verification.
+
 ## What it does
 
 - **Blocks ads and trackers:** Uses bundled native and Ghostery-based filtering with configurable subscriptions, including EasyList and EasyPrivacy. Some advanced filter rules are not yet supported.
