@@ -292,7 +292,88 @@ const RU=Object.freeze({
 "No accounts · No telemetry · No paid features":"Без учётных записей · Без телеметрии · Без платных функций",
 "Donations are optional. Every feature stays free for everyone.":"Пожертвования добровольны. Все функции бесплатны для всех.",
 "Facebook GraphQL ad filtering":"Фильтрация рекламы Facebook GraphQL",
-"Agent Nesty Meta 05 · Facebook only. Reload Facebook after switching. Turn off to reverse the experiment.":"Агент Nesty Meta 05 · Только Facebook. После переключения перезагрузите Facebook. Отключите функцию, чтобы отменить эксперимент."
+"Agent Nesty Meta 05 · Facebook only. Reload Facebook after switching. Turn off to reverse the experiment.":"Агент Nesty Meta 05 · Только Facebook. После переключения перезагрузите Facebook. Отключите функцию, чтобы отменить эксперимент.",
+"Local site dashboard · No accounts":"Локальная панель сайта · Без учётных записей",
+"Site Dashboard":"Панель сайта",
+"See what DK Live Block does on a selected website, which destinations were blocked, and which exceptions you approved. This page stays inside Firefox.":"Посмотрите, как DK Live Block работает на выбранном сайте, какие адреса были заблокированы и какие исключения вы разрешили. Эта страница работает внутри Firefox.",
+"Website tab":"Вкладка сайта",
+"Choose a website tab":"Выберите вкладку сайта",
+"Refresh tabs":"Обновить вкладки",
+"Refresh status":"Обновить состояние",
+"Export open websites (.txt)":"Экспорт открытых сайтов (.txt)",
+"Export open websites (.json)":"Экспорт открытых сайтов (.json)",
+"Combined export is voluntary and includes up to 25 currently open website tabs. It records only privacy-limited hostnames and available request summaries, not page addresses or browsing history.":"Общий экспорт выполняется добровольно и охватывает до 25 открытых вкладок сайтов. Записываются только ограниченные ради конфиденциальности доменные имена и доступные сводки запросов, но не адреса страниц или история посещений.",
+"Choose a website tab.":"Выберите вкладку сайта.",
+"No site selected":"Сайт не выбран",
+"No website selected":"Сайт не выбран",
+"Nothing is being changed.":"Никакие настройки не изменяются.",
+"Blocked requests":"Заблокированные запросы",
+"Permitted requests":"Разрешённые запросы",
+"Overlays suppressed":"Скрытые наложения",
+"Unwanted tabs stopped":"Остановлено лишних вкладок",
+"Pause cookie rejection here":"Приостановить отклонение cookie здесь",
+"Pause distraction cleanup here":"Приостановить очистку лишних элементов здесь",
+"Allowlisting disables automatic filtering for this site and its subdomains. Any selective host/type blocks you switch on remain effective. Pausing just this tab suspends both. Cookie and distraction settings do not switch off network ad blocking.":"Добавление в список разрешённых отключает автоматическую фильтрацию сайта и его поддоменов. Выбранные вручную блокировки по домену и типу запроса сохраняются. Пауза в одной вкладке приостанавливает и то и другое. Настройки cookie и очистки элементов не выключают сетевую блокировку рекламы.",
+"Permitted requests on this tab":"Разрешённые запросы в этой вкладке",
+"Completed HTTP(S) subresource requests that DK Live Block did not block, grouped by destination hostname and request type. The count is requests, not distinct companies. An allowed request is not automatically safe or advertising. No URLs, paths, cookies, or request contents are recorded. The list resets when this tab reloads and only tracks activity while private request logging is enabled.":"Завершённые HTTP(S)-запросы к ресурсам, которые DK Live Block не заблокировал, сгруппированы по домену назначения и типу. Счётчик показывает запросы, а не число компаний. Разрешённый запрос не обязательно безопасен и не обязательно рекламный. URL, пути, cookie и содержимое запросов не записываются. Список очищается при перезагрузке вкладки и работает только при включённом приватном журнале.",
+"completed permitted requests;":"завершённых разрешённых запросов;",
+"destination/type groups;":"групп по домену и типу;",
+"manual blocking choices.":"ручных правил блокировки.",
+"Export permitted details (.txt)":"Экспорт разрешённых запросов (.txt)",
+"Export permitted details (.json)":"Экспорт разрешённых запросов (.json)",
+"Permitted request details":"Сведения о разрешённом запросе",
+"Permitted means the request completed without DK Live Block cancelling it. It does not mean the destination is safe or that its contents were inspected.":"«Разрешён» означает, что запрос завершился и DK Live Block его не отменил. Это не означает, что адрес безопасен или что содержимое было проверено.",
+"Export this destination (.txt)":"Экспорт этого адреса (.txt)",
+"Export this destination (.json)":"Экспорт этого адреса (.json)",
+"Close details":"Закрыть подробности",
+"Turn a switch ON to block future requests to that exact hostname and resource type on this website. Turn it OFF to allow them again. Changes are remembered, but already loaded resources cannot be undone; refresh the website to test. Sign-in-critical requests and main page navigation are never blocked by these switches. The global protection switch and Pause this tab override manual blocks.":"Включите переключатель, чтобы блокировать будущие запросы к точно указанному домену и типу ресурса на этом сайте. Выключите его, чтобы вновь разрешить такие запросы. Изменения запоминаются, но уже загруженные ресурсы нельзя отменить; перезагрузите сайт для проверки. Запросы, необходимые для входа, и переходы на главную страницу этими переключателями никогда не блокируются. Главная защита и пауза вкладки имеют приоритет над ручными блокировками.",
+"Blocked requests for this tab":"Заблокированные запросы этой вкладки",
+"Shows up to the last 250 blocked requests for this tab, including repeated blocks. Only destination hostnames, resource types and coarse timestamps are retained, never private URLs or payloads. The counter can exceed this history; an empty list means request logging is disabled or no events have been retained. Export saves these details locally; domain registration data is included only for lookups you explicitly performed in this dashboard session.":"Показывает до 250 последних заблокированных запросов этой вкладки, включая повторы. Сохраняются только домены назначения, типы ресурсов и примерное время, без приватных URL и содержимого. Счётчик может превышать размер журнала; пустой список означает, что запись выключена или событий ещё нет. Экспорт сохраняет сведения локально; регистрационные данные доменов включаются только для запросов, которые вы сами проверили в этом сеансе.",
+"Allow switches affect future requests with the same destination hostname and request type on this website, not individual historical URLs. Allowing a first-party request type may also permit advertising or tracking.":"Переключатели «Разрешить» действуют на будущие запросы к тому же домену и типу ресурса на этом сайте, а не на отдельные прошлые URL. Разрешение запросов к собственному домену сайта может также пропустить рекламу или отслеживание.",
+"Export all details (.txt)":"Экспорт всех сведений (.txt)",
+"Export all details (.json)":"Экспорт всех сведений (.json)",
+"Open detailed Network Monitor":"Открыть подробный монитор сети",
+"Clear recent blocked-request log":"Очистить журнал недавних блокировок",
+"Individual blocked request":"Отдельный заблокированный запрос",
+"Details reflect what Firefox observed, not a malware verdict.":"Сведения показывают наблюдения Firefox, а не заключение о вредоносности.",
+"Domain investigation and supporting evidence":"Исследование домена и подтверждающие сведения",
+"Registrant, registrar, hosting-network owner and service operator can be different. Investigation runs only when requested: the registered domain is sent to a public RDAP service, Firefox resolves the hostname, and a sampled public IP may be sent for network registration lookup. No browsing page URL is transmitted.":"Владелец домена, регистратор, владелец хостинговой сети и оператор сервиса могут быть разными. Проверка запускается только по запросу: зарегистрированный домен передаётся публичной службе RDAP, Firefox разрешает доменное имя, а выборочный публичный IP может передаваться для проверки регистрации сети. Адрес посещаемой страницы не отправляется.",
+"Investigate domain: registration, DNS, hosting & threats":"Исследовать домен: регистрация, DNS, хостинг и угрозы",
+"Export this request (.txt)":"Экспорт этого запроса (.txt)",
+"Export this request (.json)":"Экспорт этого запроса (.json)",
+"Coarse observations only. YouTube enforcement means the site refused playback; buffering and media errors describe separate problems. These events do not prove that a blocked request caused the failure. No video addresses or account information are collected.":"Только общие наблюдения. Ограничение YouTube означает, что сайт отказал в воспроизведении; буферизация и ошибки медиаданных относятся к другим проблемам. Эти события не доказывают, что причиной был заблокированный запрос. Адреса видео и сведения об аккаунтах не собираются.",
+"Export YouTube diagnostics (.json)":"Экспорт диагностики YouTube (.json)",
+"Export YouTube diagnostics (.txt)":"Экспорт диагностики YouTube (.txt)",
+"Compare two YouTube reports in the offline diagnostic lab":"Сравнить два отчёта YouTube в автономной диагностической лаборатории",
+"YouTube compatibility test modes (temporary, optional)":"Режимы проверки совместимости YouTube (временные, необязательные)",
+"Compare two independent filtering methods. Change only the selected YouTube tab. Reload the video tab after applying a mode. Resets after one hour, when the tab closes, or when you leave YouTube.":"Сравните два независимых метода фильтрации. Изменения затрагивают только выбранную вкладку YouTube. После применения режима перезагрузите вкладку с видео. Режим сбрасывается через час, при закрытии вкладки или выходе с YouTube.",
+"Test mode":"Режим проверки",
+"Normal (both methods)":"Обычный (оба метода)",
+"Response filter only":"Только фильтр ответов",
+"Page bridge only":"Только взаимодействие со страницей",
+"Observe only (no player JSON changes)":"Только наблюдение (без изменений JSON проигрывателя)",
+"Player API passthrough (test only)":"Пропуск запросов API проигрывателя (только тест)",
+"Apply to selected tab":"Применить к выбранной вкладке",
+"Video layout repair · Pornhub (experimental)":"Исправление размещения видео · Pornhub (эксперимент)",
+"Read-only local counts of recognized video grids and empty ad spaces. No video URLs, titles, account information or uploads. The experimental setting is off by default and can be changed in Settings.":"Локальный подсчёт распознанных сеток видео и пустых рекламных мест без изменений страницы. URL видео, названия, данные аккаунта и содержимое не передаются. Эксперимент выключен по умолчанию, его можно включить в настройках.",
+"Select a Pornhub tab to inspect.":"Выберите вкладку Pornhub для проверки.",
+"Nesty Layout Scout: awaiting a local review.":"Агент Nesty Layout Scout: ожидается локальная проверка.",
+"Recheck video layout":"Перепроверить размещение видео",
+"Compare compact layout (temporary preview)":"Сравнить уплотнённую компоновку (временный просмотр)",
+"Comparison not run. Preview does not enable the setting and always restores the original layout.":"Сравнение ещё не запущено. Предпросмотр не включает настройку и всегда восстанавливает исходную компоновку.",
+"Recently blocked popups":"Недавно заблокированные всплывающие окна",
+"Firefox may not reveal a destination if a tab was stopped while blank. No URLs, paths or query strings are displayed.":"Firefox может не сообщить адрес назначения, если вкладку остановили до появления содержимого. URL, пути и параметры запроса не показываются.",
+"Allowed destinations":"Разрешённые адреса",
+"Review exceptions that could allow advertising or tracking. Each exception can be revoked without disabling the whole website.":"Проверьте исключения, которые могут пропустить рекламу или отслеживание. Каждое из них можно отозвать, не отключая весь сайт.",
+"Custom website hostname allowances":"Пользовательские разрешения доменов сайтов",
+"Hostname and resource-type allowances":"Разрешения по домену и типу ресурса",
+"Temporary permissions automatically expire; remembered permissions apply only to this website. Grant new exceptions from the detailed Network Monitor after observing an actually blocked request.":"Временные разрешения истекают автоматически; сохранённые действуют только для этого сайта. Создавайте новые исключения в подробном мониторе сети, предварительно изучив действительно заблокированный запрос.",
+"Filter coverage":"Охват фильтрации",
+"No filter information loaded.":"Данные о фильтрах не загружены.",
+"Settings and filter lists":"Настройки и списки фильтров",
+"Meta advertising intelligence":"Анализ рекламы Meta",
+"Agent Nesty · Cookie Watch":"Агент Nesty · Наблюдение за cookie",
+"Local display only · no telemetry · no automatic new network monitoring · no Acceptable Ads":"Только локальное отображение · без телеметрии · без автоматического мониторинга новых сетевых событий · без «допустимой рекламы»"
 });
 function supported(code){return SUPPORTED.includes(code)?code:"en";}
 function translate(text,language){
@@ -300,7 +381,7 @@ function translate(text,language){
  return Object.prototype.hasOwnProperty.call(RU,text)?RU[text]:text;
 }
 const nodeOriginals=new WeakMap(),attributeOriginals=new WeakMap();
-const EXCLUDED=new Set(["SCRIPT","STYLE","TEXTAREA","PRE","CODE","OPTION","INPUT"]);
+const EXCLUDED=new Set(["SCRIPT","STYLE","TEXTAREA","PRE","CODE","INPUT"]);
 function eligible(node){
  let p=node?.parentElement||null;
  while(p){if(EXCLUDED.has(p.tagName)||p.isContentEditable)return false;p=p.parentElement;}
@@ -353,11 +434,10 @@ function apply(rootNode,language){
 function init(){
  if(typeof document==="undefined"||typeof browser==="undefined")return;
  const select=document.getElementById("dkUiLanguage");
- if(!select)return;
  let current="en",observer=null;
  const redraw=()=>apply(document,current);
- function activate(value){current=supported(value);select.value=current;redraw();}
- select.addEventListener("change",()=>{
+ function activate(value){current=supported(value);if(select)select.value=current;redraw();}
+ if(select)select.addEventListener("change",()=>{
   const value=supported(select.value);
   activate(value);
   browser.storage.local.set({[KEY]:value}).catch(error=>console.warn("Unable to save interface language preference:",error));
