@@ -1,4 +1,4 @@
-/* DK Live Block Build 259: local interface language controls.
+/* DK Live Block Builds 259–299: local interface language controls.
    Russian is the first translated UI. English remains the safe fallback.
    This never changes network filters, user locale, websites or cookie data. */
 (function(root){"use strict";
