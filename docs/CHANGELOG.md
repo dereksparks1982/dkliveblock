@@ -1,3 +1,6 @@
+## 0.3.294 / Build 324 (November 3, 2026)
+- Finished sixteen sequential unreleased source builds (309–324) with a local, repeatable integration/source-integrity audit and explicit outstanding Firefox acceptance list. No new browser permissions, GitHub Actions, telemetry or player filter changes.
+
 ## 0.3.293 / Build 323
 - Facebook diagnostic triage now displays human-readable fixed guidance in the selected English/Russian UI language, without changing underlying exported evidence.
 

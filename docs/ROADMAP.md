@@ -1,3 +1,8 @@
+## Build 324 / v0.3.294: sixteen-build checkpoint (November 3, 2026)
+- [x] Source-only auditor checks 17 invariants: manifest privileges, dependency script ordering, approved popup/CSS geometry, Nesty review-only status, 16 test registrations and no network sinks in diagnostics.
+- [x] Registered seven audit regression cases and npm run audit:checkpoint for later local Ubuntu execution.
+- [ ] Full native Linux suite, real Facebook/YouTube streaming tests, Pornhub visual reflow and Russian Firefox acceptance remain pending. No public release.
+
 ## Build 323 / v0.3.293: Russian Facebook triage status (November 3, 2026)
 - [x] Add Russian labels for all fixed Facebook diagnostic triage categories, suggested user checks and errors; rerender results after saved language changes.
 - [x] Preserve unchanged underlying developer JSON and export, no changed ad filtering, permissions or UI geometry.
