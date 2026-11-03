@@ -1,3 +1,9 @@
+## Build 304 / v0.3.274: Russian dynamic status coverage and verified inventory (November 3, 2026)
+- [x] Add exact Russian messages for report feedback, local video-library actions, downloads, phishing warning, network inspector and YouTube diagnostic lab.
+- [x] Fix Build 302 fixture typo: DevTools panel has 12 unique text fragments, not 13. Actual coverage still asserts zero untranslated phrases.
+- [x] Verify dynamic text translation/English restoration in isolated source smoke, register offline tests; do not translate hostnames, user-entered content or arbitrary diagnostic strings.
+- [ ] Full Ubuntu offline run, real Firefox Russian accessibility/layout checks, Orion compatibility, user review and remaining templated statuses.
+
 ## Build 303 / v0.3.273: connect Russian utility dictionary to real renderer (November 3, 2026)
 - [x] Fix Builds 300–302 integration gap: renderer checked only Settings dictionary despite successful extra dictionary lookups.
 - [x] Translate recognized input placeholders, newly changed ARIA labels and titles while keeping entered values and website content untouched.

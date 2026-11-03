@@ -4,7 +4,7 @@ require("../src/ui-language-tools.js");const UI=require("../src/ui-language.js")
 const src=n=>fs.readFileSync(path.join(__dirname,"..","src",n),"utf8");
 const extract=h=>{const b=h.slice(h.indexOf("<body")+5).replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"").replace(/<style\b[^>]*>[\s\S]*?<\/style>/gi,"");return [...new Set([...b.matchAll(/>([^<>]+)</g)].map(m=>m[1].replace(/&amp;/g,"&").replace(/&nbsp;/g," ").replace(/&quot;/g,'"').trim()).filter(s=>s&&/[A-Za-z]/.test(s)))];};
 test("Build 302: Meta, Cookie, cosmetic, and DevTools static Russian coverage",()=>{
- const min={"cookie-agents":19,"cosmetic-debug":10,"meta-intelligence":24,"devtools-panel":13};
+ const min={"cookie-agents":19,"cosmetic-debug":10,"meta-intelligence":24,"devtools-panel":12};
  for(const [p,n] of Object.entries(min)){const h=src(p+".html");assert.ok(extract(h).length>=n);assert.deepEqual(extract(h).filter(s=>s!=="DK LIVE BLOCK"&&UI.translate(s,"ru")===s),[],p+" untranslated");assert.ok(h.includes('<script src="ui-language-tools.js"></script><script src="ui-language.js"></script>'));}});
 test("Build 302: Meta experiment copy describes the saved switch accurately",()=>{
  const h=src("meta-intelligence.html");assert.ok(h.includes("The saved experimental switch controls this filter; full Firefox acceptance is pending."));

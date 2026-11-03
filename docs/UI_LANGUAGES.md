@@ -56,3 +56,6 @@ Meta intelligence, Nesty Cookie Watch, cosmetic debugging and the optional Firef
 
 ## Build 303: essential runtime integration correction
 Builds 300–302 had valid extra string dictionaries, but the DOM text/attribute rewriter still checked only the earlier Settings dictionary. Build 303 fixes the integration, adds safe placeholder translation, and watches a bounded whitelist of changing UI attributes. Tested with an isolated synthetic DOM; real Firefox acceptance remains required.
+
+## Build 304: known dynamic messages
+Fixed runtime messages produced by the support form, library, downloads, phishing warning, Network Monitor and YouTube lab have exact local Russian translations. Strings that include hostnames, user notes, numeric counters or arbitrary errors do not receive broad pattern substitutions, avoiding corruption of private data or misleading labels. Translation remains partial until native Firefox visual QA and all dynamic messages are reviewed.

@@ -1,3 +1,7 @@
+## 0.3.274 / Build 304 (November 3, 2026)
+- Expanded exact-match Russian runtime status messages for support, saved videos, download scan, phishing warning, network monitor and YouTube lab. Dynamic messages with private identifiers remain intentionally untranslated.
+- Fixed an incorrect static DevTools test count (12 rather than 13); real coverage assertion remains strict. Focused source smoke passed; full Linux and Firefox tests pending.
+
 ## 0.3.273 / Build 303 (November 3, 2026)
 - Critical fix: utility dictionaries now drive actual DOM translation rather than passing only static lookup checks. Runtime labels and placeholders have safe retranslation and English rollback.
 - No user-entered input, request data, website content, filtering, telemetry or permissions changed. Focused synthetic DOM smoke passed; native/full browser tests pending.
