@@ -1,7 +1,7 @@
 "use strict";
 /* DK Live Block page-side cleanup. No stream rewriting, no remote scripts. */
 (function(){
- let temporarySelectors=[],active=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
+ let temporarySelectors=[],active=false,compactVideoGrids=false,css="",youtubeSkip=true,rememberVideos=false,lastRememberAt=0,cookieReject=false,adRecognition=true,antiAdblock=true,paywallPopups=true,distractionControl=true,playbackHealthEnabled=false,youtubeDiagnosticsEnabled=false,style=null,pickerStyle=null,picking=false,selected=null,banner=null,procedural=[],lastProc=0,lastAnti=0,lastPaywall=0,lastOverlayScan=0,lastAdScan=0,overlayTimer=null,overlayObserver=null,refreshSequence=0;
  const clickedRejectButtons=new WeakSet(),clickedRejectRoots=new WeakSet();
  let lastConsentScan=0,lastEnforcementReport=0,adScanTimer=null;
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
@@ -26,12 +26,17 @@
  const adRecognizer=typeof DKAdRecognition!=="undefined"?DKAdRecognition.create(document,window):null;
  const facebookRecognizer=typeof DKMetaModule!=="undefined"?DKMetaModule.create(document,window):
   typeof DKFacebookAds!=="undefined"?DKFacebookAds.create(document,window):null;
+ const layoutReflow=typeof DKLayoutReflow!=="undefined"?DKLayoutReflow.create(document,window):null;
  function inspectAdSlots(){
-  if(!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer))return;
-  lastAdScan=Date.now();adRecognizer?.scan();facebookRecognizer?.scan();
+  if(!active||picking||!(adRecognition&&(adRecognizer||facebookRecognizer)||
+     compactVideoGrids&&layoutReflow))return;
+  lastAdScan=Date.now();
+  if(adRecognition){adRecognizer?.scan();facebookRecognizer?.scan();}
+  if(compactVideoGrids)layoutReflow?.scan();
  }
  function queueAdScan(){
-  if(adScanTimer!==null||!active||!adRecognition||picking||(!adRecognizer&&!facebookRecognizer)||
+  if(adScanTimer!==null||!active||picking||!(adRecognition&&(adRecognizer||facebookRecognizer)||
+     compactVideoGrids&&layoutReflow)||
     typeof setTimeout!=="function")return;
   // Facebook receives an immediate bounded subtree pass from the observer.
   // Keep a coalesced broad scan for late labels and DOM formats we cannot resolve early.
@@ -75,6 +80,8 @@
    if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
    playbackHealthEnabled=nextHealth;
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
+   compactVideoGrids=nextActive&&s.compactVideoGrids===true;
+   if(!compactVideoGrids)layoutReflow?.restore();
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
@@ -304,7 +311,11 @@
     // references that disappear before the scheduled rescan.
     }
     if(popups)queueOverlayScan();
-    if(ads){
+    // Only a video-list child insertion can schedule additional reflow work;
+    // the existing 450ms debounce bounds repeated site mutations.
+    const listChanged=compactVideoGrids&&!!layoutReflow&&records.slice(0,40).some(
+     r=>r.type==="childList"&&((r.addedNodes?.length||0)||(r.removedNodes?.length||0)));
+    if(ads||listChanged){
      // Run the small Facebook mutation pass before paint, not 450ms later.
      // A separate coalesced broad scan still handles delayed/portal labels.
      if(isFacebookHost&&active&&adRecognition&&!picking&&facebookChanges.length)

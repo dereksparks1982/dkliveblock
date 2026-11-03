@@ -10,7 +10,7 @@ const SOURCES={
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","||n2j9y0x0.bxcdn.net^$media,domain=xnxx.com","##.adsbygoogle","##ins.adsbygoogle","##amp-ad","##amp-auto-ads","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com##ytd-in-feed-ad-layout-renderer","youtube.com##ytd-display-ad-renderer","youtube.com##ytd-promoted-sparkles-web-renderer","youtube.com##ytm-ad-slot-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,threatProtection:true,threatOverrides:[],paused:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
- ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeResponseFilter:true,youtubeSkip:true,adRecognition:true,metaGraphqlFilter:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+ ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeResponseFilter:true,youtubeSkip:true,adRecognition:true,compactVideoGrids:false,metaGraphqlFilter:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -1773,6 +1773,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {active,safeScriptlets:active?DKSafeScriptletRules.select(data.settings.customRules,h):[],youtubeSkip:data.settings.youtubeSkip,rememberVideos:data.settings.rememberVideos,cookieReject:data.settings.cookieReject&&cookieAllowed,distractionControl:data.settings.distractionControl&&distractionAllowed,// A $generichide exception disables generic cosmetic rules, not DK's
     // specifically scoped Facebook Sponsored recognizer. $elemhide or
     // document-level allowlisting still disables it.
+    compactVideoGrids:data.settings.compactVideoGrids===true&&sender.frameId===0&&
+      !policy.elemhide&&/^(?:www\\.)?pornhub\\.com$/.test(h),
     adRecognition:data.settings.adRecognition&&!policy.elemhide&&
      (!policy.generichide||DKCompanyModules.profileFor(h)?.platform==="facebook"),
     adRecognitionExceptions:adExceptions,
@@ -1976,6 +1978,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    if(!s.strictPopupSites)data.popupTrapPermits.clear();
   }
   if(typeof s.adRecognition==="boolean")data.settings.adRecognition=s.adRecognition;
+  if(typeof s.compactVideoGrids==="boolean")data.settings.compactVideoGrids=s.compactVideoGrids;
   if(typeof s.metaGraphqlFilter==="boolean")data.settings.metaGraphqlFilter=s.metaGraphqlFilter;
   if(Array.isArray(s.mediaRecovery))
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&

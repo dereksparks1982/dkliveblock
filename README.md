@@ -11,7 +11,7 @@
 ## What it does
 
 - **Blocks ads and trackers:** Uses bundled native and Ghostery-based filtering with configurable subscriptions, including EasyList and EasyPrivacy. Some advanced filter rules are not yet supported.
-- **Cleans up pages:** Cosmetic filtering and an optional page-only element picker can hide ads, overlays, newsletter prompts, and other distractions without permanently modifying the site.
+- **Cleans up pages:** Cosmetic filtering and an optional page-only element picker can hide ads, overlays, newsletter prompts, and other distractions without permanently modifying the site. An experimental, reversible, off-by-default setting can compact supported Pornhub video-thumbnail grids when blocked ads leave empty gaps.
 - **Uses specialist Agent Nesty protections:** Separate, purpose-built checks watch for cookie-setting activity, unwanted navigation and Facebook advertising signals. Not every detection method is active on every site.
 - **Stops unwanted popups and redirects:** Detects selected intrusive new-tab and redirect patterns while aiming to preserve legitimate login windows, payments, and ordinary links. Coverage varies by website.
 - **Puts you in control:** Pause or allowlist individual sites, configure narrow exceptions, add custom rules, and allow or block eligible site-scoped requests.

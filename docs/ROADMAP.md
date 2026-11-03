@@ -1,11 +1,20 @@
+## Build 288 / v0.3.258: opt-in visual layout reflow (November 2, 2026)
+- [x] Document the owner's Pornhub observation: ads suppressed yet video tiles remain far apart; request reflow rather than just cosmetic hiding.
+- [x] Add lightweight local, reversible, exact-site Pornhub video-list CSS Grid repair with strict empty-placeholder and video-tile checks; default OFF.
+- [x] Add a single experimental Settings checkbox, preserve approved popup geometry and all existing blockers and video players.
+- [x] Register offline regression tests for safe candidate detection, non-duplication, restoration, setting/manifest wiring.
+- [ ] Full Ubuntu suite and signed-in Firefox page acceptance, including current video-list selectors, two-video spacing, resizing, fast scrolling and normal click/playback. Real visual success **unverified**.
+- [ ] If needed, iterate on owner-observed DOM markup only, then add per-site preview and conservative Nesty outcome metrics. See [layout repair design](LAYOUT_REFLOW.md).
+- [ ] AI Evidence Lab and validated local ML work remain planned; earlier provisional Build 288 numbering is superseded by this owner-prioritized layout build.
+
 ## AI / open-source integration research queue (November 2, 2026; documentation only)
 - [x] Audit actual Build 287 AI readiness: Nesty is largely review-only; two small synthetic offline classifiers are not calibrated real-world AI.
 - [x] Compare Ghostery, Brave adblock-rust, uAssets, AdGuard scriptlets, Privacy Badger, DuckDuckGo metadata, ml.js, ONNX Runtime Web and Transformers.js including major license constraints; see [research audit](AI_OPEN_SOURCE_INTEGRATION_AUDIT.md).
-- [ ] **Next candidate Build 288:** deterministic real-label evidence fixtures and DK/Ghostery compatibility/false-positive benchmark, with optional comparison against Brave outside the shipping extension.
-- [ ] Build 289: validated local Nesty ML lab using real positives/negatives and offline training, opt-in review-only inference with measurable added value.
-- [ ] Build 290: in-page Nesty drift analysis and evidence-backed provider investigation, clear company/platform scope and no automatic host blocking.
-- [ ] Build 291: improve safe scriptlet, extended cosmetic, exception and redirect compatibility using our existing engine; audit all third-party license risks.
-- [ ] Build 292: separate Video/Streaming responsibilities and browser-specific Orion/iOS and Chromium/Yandex capability experiments with real-device verification.
+- [ ] **Next AI evidence-lab milestone (number TBD):** deterministic real-label evidence fixtures and DK/Ghostery compatibility/false-positive benchmark, with optional comparison against Brave outside the shipping extension.
+- [ ] Subsequent: validated local Nesty ML lab using real positives/negatives and offline training, opt-in review-only inference with measurable added value.
+- [ ] Subsequent: in-page Nesty drift analysis and evidence-backed provider investigation, clear company/platform scope and no automatic host blocking.
+- [ ] Subsequent: improve safe scriptlet, extended cosmetic, exception and redirect compatibility using our existing engine; audit all third-party license risks.
+- [ ] Subsequent: separate Video/Streaming responsibilities and browser-specific Orion/iOS and Chromium/Yandex capability experiments with real-device verification.
 - [ ] Keep release gate honest: current Build 287 full Ubuntu suite not run; missing genuine npm lockfile blocks prior release audit; live Firefox acceptance still required.
 
 ## Build 287 / v0.3.257: local Facebook-to-Nesty integration (November 2, 2026)

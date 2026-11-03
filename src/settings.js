@@ -1,7 +1,7 @@
 /* DK Live Block: defensive restoration of local settings and cached filter data. */
 (function(root){"use strict";
 const Threat=root.DKThreatDB||typeof require==="function"&&require("./threat-database.js");
-const BOOLEAN=["threatProtection","enabled","autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","metaGraphqlFilter","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
+const BOOLEAN=["threatProtection","enabled","autoUpdate","autoYouTubeRules","youtubeResponseFilter","youtubeSkip","adRecognition","compactVideoGrids","metaGraphqlFilter","cookieReject","distractionControl","antiAdblock","paywallPopups","stripTracking","requestLog","rememberVideos","strictPopupSites","showContextMenu","showBadge","showDevtoolsPanel","blockNotificationPrompts"];
 function object(x){return x&&typeof x==="object"&&!Array.isArray(x)?x:{};}
 function restoreSettings(raw,defaults,keys){
  const src=object(raw),value={...defaults,listEnabled:{...defaults.listEnabled},paused:[],mediaRecovery:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[]};

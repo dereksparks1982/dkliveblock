@@ -1,3 +1,7 @@
+# Build 288 video-list layout repair checkpoint (November 2, 2026)
+
+**Version 0.3.258; unreleased.** First opt-in (default-OFF) cosmetic reflow module targets narrow Pornhub listing pages, using reversible CSS Grid and strict empty ad placeholder checks. It does not touch players or unrelated site layouts. Existing blocking/streaming code remains authoritative. The owner reported widely spaced Pornhub thumbnails after ads were successfully blocked; this new code is **not yet proven to repair that exact page in Firefox**. Tests registered; full native suite and live page checks pending. Read [BUILD_288](BUILD_288.md) and [LAYOUT_REFLOW](LAYOUT_REFLOW.md).
+
 # Build 287 Nesty live DOM evidence integration (November 2, 2026)
 
 **Version 0.3.257, unreleased.** Successful Facebook DOM hides now flow to the local Nesty coordinator as four fixed aggregate categories. Nesty remains read-only; existing scanner rules and GraphQL experiment preferences stay authoritative. Facebook detector diagnostics include the in-page evidence counts and named inert strategy ownership. Two regression tests added. User confirms DK Live Block working on Pornhub with individual ad formats unspecified. Full native Ubuntu/Firefox suite and user acceptance still pending. See [Build 287](BUILD_287.md).

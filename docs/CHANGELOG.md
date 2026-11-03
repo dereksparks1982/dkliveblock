@@ -1,3 +1,8 @@
+## 0.3.258 / Build 288 (November 2, 2026)
+- New experimental, **off-by-default**, Pornhub-only video-thumbnail gap repair: qualified `ul.videos` lists receive a compact responsive CSS grid and strictly empty ad-placeholder collapse.
+- No DOM moves, new video requests, media/player edits, new permissions or popup geometry changes; undo on disable/site pause; unsupported pages fail open.
+- Existing Settings page receives a single checkbox; tests and layout-refactor design documented. Browser behavior is unverified until owner acceptance.
+
 ## 0.3.257 / Build 287 (November 2, 2026)
 - Connected successful Facebook DOM safety-checked hiding into Nesty's in-memory, fixed-category evidence coordinator, with bounded counts and non-executable strategy labels.
 - Enhanced existing Facebook diagnostics with local Nesty observations; no telemetry, permission changes or new blocking decisions.
