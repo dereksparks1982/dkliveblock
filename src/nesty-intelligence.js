@@ -2,7 +2,8 @@
    cancels requests, installs rules, calls the network, or sends telemetry.
    Platform modules keep all blocking decisions in existing tested engines. */
 (function(root){"use strict";
-const TOKEN=/^[a-z][a-z0-9_]{2,47}$/,MAX_SIGNALS=40,MAX_PROVIDERS=60;
+const TOKEN=/^[a-z][a-z0-9_]{2,47}$/,MAX_SIGNALS=40,MAX_SIGNAL_INPUT=160,
+ MAX_CATALOG_INPUT=160,MAX_PROVIDERS=60;
 // Only known detector vocabulary enters the shared coordinator. A plausible
 // token such as "private_message_123" is NOT technical evidence.
 const BASE_SIGNALS=Object.freeze(["sponsor_label","post_boundary",
@@ -11,7 +12,7 @@ const BASE_SIGNALS=Object.freeze(["sponsor_label","post_boundary",
  "author_ad_byline","protected_context","normal_post","author_name"]);
 function vocabulary(catalog){
  const allowed=new Set(BASE_SIGNALS);
- for(const row of Array.isArray(catalog?.entries)?catalog.entries:[]){
+ for(const row of Array.isArray(catalog?.entries)?catalog.entries.slice(0,MAX_CATALOG_INPUT):[]){
   if(TOKEN.test(row?.signal||""))allowed.add(row.signal);
   if(TOKEN.test(row?.context||""))allowed.add(row.context);
  }
@@ -19,8 +20,15 @@ function vocabulary(catalog){
 }
 function filterSignals(value,known){
  if(!Array.isArray(value))return Object.freeze([]);
- return Object.freeze([...new Set(value.filter(v=>typeof v==="string"&&
-  TOKEN.test(v)&&known.has(v)).slice(0,MAX_SIGNALS))]);
+ const signals=[],seen=new Set();
+ // Inspect at most 160 inputs. A hostile or noisy page must not cause
+ // unbounded work before the forty-signal output cap is applied.
+ for(const v of value.slice(0,MAX_SIGNAL_INPUT)){
+  if(typeof v!=="string"||!TOKEN.test(v)||!known.has(v)||seen.has(v))continue;
+  seen.add(v);signals.push(v);
+  if(signals.length>=MAX_SIGNALS)break;
+ }
+ return Object.freeze(signals);
 }
 function signalsOf(value,catalog){
  return filterSignals(value,vocabulary(catalog||root.DKMetaDeliveryCatalog));

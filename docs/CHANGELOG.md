@@ -1,3 +1,6 @@
+## 0.3.282 / Build 312
+- Nesty evidence ingestion now bounds input scanning, not only output length; retains stable deduplication and trusted vocabulary. No changes to blocking decisions or website content.
+
 ## 0.3.281 / Build 311
 - Facebook fast scanner reserves its bounded work for late high-signal label changes before generic child insertion storms. Corrected malformed input acceptance in the Build 309 sampler. No broader ad heuristics, player changes or permissions.
 

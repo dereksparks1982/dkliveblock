@@ -1,3 +1,8 @@
+## Build 312 / v0.3.282: bounded Nesty evidence inputs (November 3, 2026)
+- [x] Bound shared Nesty input signal and catalog traversal before filtering, preserve named-identifier allowlist and 40-signal output cap.
+- [x] Keep review-only evidence handoff; no generated or executable rules, telemetry or browser permissions.
+- [x] Register five data and privacy tests; full native Ubuntu suite and Firefox acceptance pending.
+
 ## Build 311 / v0.3.281: protect high-signal Facebook label changes (November 3, 2026)
 - [x] Reserve at most 12 existing fast-scan roots for changed Facebook text and exact ad-label attributes before child insertion churn fills the 32-root cap.
 - [x] Fix Build 309's malformed string acceptance in the node sampler; retain its 8-child budget and fast restore behavior.
