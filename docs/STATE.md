@@ -1,3 +1,7 @@
+# Build 293 rollback integrity checkpoint (November 2, 2026)
+
+**Version 0.3.263; internal.** The temporary Pornhub layout comparison now verifies full CSS/class rollback, retains failed cleanup references, refuses fullscreen and does not falsely claim successful restoration after an error. Source tests are registered. Native full Ubuntu suite and actual owner Firefox page acceptance remain outstanding. See [Build 293](BUILD_293.md).
+
 # Build 292 reversible comparison checkpoint (November 2, 2026)
 
 **Version 0.3.262, unreleased.** The Pornhub Site Dashboard layout section has an opt-in, confirmation-gated temporary CSS preview. It samples coarse spacing on the current approved video list, applies the existing compact layout only during measurement and synchronously restores original styles/classes. Nesty compares same-page aggregate measurements; unmatched rows/counts are inconclusive. Extension-origin-only exact-tab permission checks and site protection gates remain mandatory. Tests registered; full native Linux suite and actual Firefox owner acceptance pending. See [Build 292](BUILD_292.md).

@@ -1,4 +1,4 @@
-/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–292.
+/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–293.
    Scope: known Pornhub video-list markup only. Never moves DOM nodes, fetches
    videos, alters playback, reflows other sites, or executes website scripts. */
 (function(root){"use strict";
@@ -92,9 +92,31 @@ function create(doc,win){
  const grids=new Set(),slots=new Set();
  let style=null,scans=0;
  function restore(){
-  for(const grid of grids)try{grid.classList?.remove(GRID);}catch(_){}
-  for(const slot of slots)try{slot.classList?.remove(EMPTY);}catch(_){}
-  grids.clear();slots.clear();style?.remove?.();style=null;
+  // A failed removal stays tracked for a future retry; do not report
+  // successful cleanup until our classes and stylesheet are really gone.
+  let complete=true;
+  for(const grid of grids){
+   try{
+    grid.classList?.remove(GRID);
+    if(grid.classList?.contains(GRID)){complete=false;continue;}
+    grids.delete(grid);
+   }catch(_){complete=false;}
+  }
+  for(const slot of slots){
+   try{
+    slot.classList?.remove(EMPTY);
+    if(slot.classList?.contains(EMPTY)){complete=false;continue;}
+    slots.delete(slot);
+   }catch(_){complete=false;}
+  }
+  if(style){
+   try{
+    style.remove();
+    if(style.isConnected)complete=false;
+    else style=null;
+   }catch(_){complete=false;}
+  }
+  return complete&&grids.size===0&&slots.size===0&&!style;
  }
  function scan(){
   if(!supports(host,String(win?.location?.pathname||"/"))||!doc?.body||!doc?.querySelectorAll){
@@ -162,17 +184,20 @@ function create(doc,win){
  function preview(){
   if(!supports(host,String(win?.location?.pathname||"/"))||
      grids.size>0||style?.isConnected)return Object.freeze({ok:false,reason:"not-eligible"});
+  if(doc?.fullscreenElement)return Object.freeze({ok:false,reason:"fullscreen-active"});
   let before;
   try{before=diagnostics();}catch(_){return Object.freeze({ok:false,reason:"inspection-unavailable"});}
   if(before.inspectionUnavailable||before.eligibleLists<1||
      before.geometry.sameRowPairs<1)
    return Object.freeze({ok:false,reason:"no-comparable-pairs"});
-  let after=null,applied=0;
+  let after=null,applied=0,error=null,restored=false;
   try{
    applied=scan();
    if(applied>0)after=diagnostics();
-  }catch(_){return Object.freeze({ok:false,reason:"preview-failed"});}
-  finally{restore();}
+  }catch(_){error="preview-failed";}
+  finally{restored=restore();}
+  if(!restored)return Object.freeze({ok:false,reason:"restoration-incomplete"});
+  if(error)return Object.freeze({ok:false,reason:error});
   if(!after||after.inspectionUnavailable||after.eligibleLists!==before.eligibleLists||
      after.videoTiles!==before.videoTiles||
      after.geometry.sampledTiles!==before.geometry.sampledTiles||

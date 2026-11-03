@@ -1301,7 +1301,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    const after=(await browser.tabs.get(id))?.url||"";
    if(after!==live)return {error:"Website navigated during the preview; result discarded."};
    if(!output?.ok||output.restored!==true||output.comparison?.executable!==false)
-    return {error:output?.error||"Unable to safely compare layout."};
+    return {error:output?.error||"Unable to safely compare layout. Reload the page if its appearance changed."};
    return output;
   }catch(_){return {error:"Preview unavailable. Reload Pornhub and retry."};}
  }

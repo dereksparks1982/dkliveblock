@@ -717,7 +717,7 @@ $("dashboardLayoutCompare").addEventListener("click",async()=>{
   const result=await browser.runtime.sendMessage({action:"previewLayoutReflow",tabId:target.tabId});
   if(current!==target||selected()!==target.tabId)return;
   if(!result?.ok||result.restored!==true||result.comparison?.executable!==false){
-   out.textContent=result?.error||"Comparison unavailable. Reload the tab and retry.";
+   out.textContent=result?.error||"Comparison unavailable. Reload the tab to confirm the original layout.";
    return;
   }
   const report=result.comparison;
@@ -735,7 +735,7 @@ $("dashboardLayoutCompare").addEventListener("click",async()=>{
    " Wide pairs "+report.widePairsBefore+" → "+report.widePairsAfter+
    "; largest ~"+report.largestGapBeforePx+" → ~"+report.largestGapAfterPx+
    " CSS px. Original layout restored. Visual verification still required.";
- }catch(_){if(current===target)out.textContent="Comparison failed safely. Reload the tab to confirm original layout.";}
+ }catch(_){if(current===target)out.textContent="Comparison failed. Reload the tab to confirm the original layout.";}
  finally{busy=false;if(current===target)updateLayoutReflow(target).catch(()=>{});}
 });
 $("dashboardRefreshTabs").addEventListener("click",()=>{if(!busy)selectTabs();});

@@ -1,3 +1,8 @@
+## 0.3.263 / Build 293 (November 2, 2026)
+- Strengthened experimental layout preview rollback verification. Successful comparison now requires verified removal of temporary styles and classes.
+- Failed cleanup retains ownership for another attempt and reports restoration incomplete; active fullscreen rejects preview.
+- Seven focused regression cases registered. Native Ubuntu and real Firefox visual acceptance still pending.
+
 ## 0.3.262 / Build 292 (November 2, 2026)
 - Added an explicit confirmation-gated, temporary Pornhub compact-layout before/after comparison to Site Dashboard.
 - Preserves existing default-OFF experimental setting and restores all temporary CSS/classes synchronously; comparison never modifies blocking rules or loads media.

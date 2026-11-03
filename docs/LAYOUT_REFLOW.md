@@ -50,6 +50,11 @@ The owner reports DK Live Block working on Pornhub, but the page can show two vi
 - The new comparison button is confined to the existing collapsed troubleshooting section; nothing else moves, and all protections, allowlists and site-pause controls retain precedence.
 - Next milestone: expand negative control fixtures and perform genuine Firefox owner acceptance to validate actual Pornhub markup before any broad new CSS is introduced.
 
+## Build 293: preview restoration verification and browser gate
+- Preview may declare `restored:true` only after every temporary CSS class and stylesheet was actually removed. A failed removal retains tracked references for a future retry and reports `restoration-incomplete` with reload guidance.
+- No layout preview runs in fullscreen. Original default-OFF behavior, exact-host scope, user pause and video-player protections remain unchanged.
+- Automated regressions cover failure and recovery paths. **Further expansion of real Pornhub selectors requires owner Firefox evidence**, since source simulations cannot establish the live page's current markup.
+
 ## Staged integration (one at a time)
 - **Build 289 (after owner screenshot/HTML evidence):** inspect the actual Pornhub layout variant with remaining blank space. Add a narrowly verified grid selector or safe margin/padding adjustment only for that variant. Avoid selectors based on a vague `ad` substring.
 - **Build 290:** optional per-site controls and a reversible live preview/undo for further verified sites. No general-site auto-reflow without user direction and tests.

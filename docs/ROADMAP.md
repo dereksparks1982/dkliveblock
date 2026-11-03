@@ -1,3 +1,11 @@
+## Build 293 / v0.3.263: layout preview rollback integrity (November 2, 2026)
+- [x] Verify removal of temporary CSS grid/ad-slot classes and stylesheet before reporting a successful before/after preview.
+- [x] Retain references to any page elements that prevent class removal so restoration can be retried; never falsely claim safe cleanup.
+- [x] Refuse preview while fullscreen is active; preserve global/site pause, opt-in-only layout and original media protections.
+- [x] Add seven registered negative-control tests and recovery guidance for incomplete restoration.
+- [ ] Full Ubuntu exact-commit suite and owner Firefox Pornhub acceptance. Live DOM compatibility, responsive CSS and player click behavior remain unknown.
+- [ ] Do not broaden selectors or auto-enable layout repair until actual browser evidence shows exactly what needs changing.
+
 ## Build 292 / v0.3.262: explicit temporary before/after comparison (November 2, 2026)
 - [x] Add one-click, confirmation-gated preview to the existing collapsed Pornhub layout panel; OFF by default, requires active protection, never changes persistent settings.
 - [x] Collect coarse before/after gaps on the **same live thumbnail list**, temporarily applying existing CSS and restoring all grid classes/styles even on errors.
