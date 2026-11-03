@@ -10,7 +10,7 @@ const SOURCES={
 };
 const SEED=["! Local fallback rules","||doubleclick.net^","||googlesyndication.com^","||googleadservices.com^","||adsrvr.org^","||adnxs.com^","||criteo.com^","||taboola.com^","||outbrain.com^","||scorecardresearch.com^","||n2j9y0x0.bxcdn.net^$media,domain=xnxx.com","##.adsbygoogle","##ins.adsbygoogle","##amp-ad","##amp-auto-ads","youtube.com##ytd-ad-slot-renderer","youtube.com##ytd-promoted-video-renderer","youtube.com##ytd-in-feed-ad-layout-renderer","youtube.com##ytd-display-ad-renderer","youtube.com##ytd-promoted-sparkles-web-renderer","youtube.com##ytm-ad-slot-renderer","youtube.com###player-ads"].join("\n");
 const DEFAULT={enabled:true,threatProtection:true,threatOverrides:[],paused:[],popupProtectionPaused:[],cookieRejectPaused:[],distractionPaused:[],mediaRecovery:[],listEnabled:{easylist:true,easyprivacy:true,cookies:true,annoyances:true,social:true,
- ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeResponseFilter:true,youtubeSkip:true,adRecognition:true,metaGraphqlFilter:false,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
+ ...Object.fromEntries(DKLanguageLists.catalog.map(item=>[item.key,false]))},autoUpdate:true,autoYouTubeRules:true,youtubeResponseFilter:true,youtubeSkip:true,adRecognition:true,metaGraphqlFilter:true,cookieReject:true,distractionControl:true,antiAdblock:true,paywallPopups:true,stripTracking:true,requestLog:true,rememberVideos:false,strictPopupSites:true,showContextMenu:true,showBadge:true,showDevtoolsPanel:false,blockNotificationPrompts:true,network:{...DKNetwork.DEFAULT},customRules:"",customSubscriptions:[],blockedTotal:0,lastUpdate:0};
 let lastCompiledRules=SEED,filterRevision=1;
 let videoLibraryQueue=Promise.resolve();
 const autoVideoTimes=new Map();
@@ -555,8 +555,7 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
 // Do not share player filters, capture credentials, or touch other Meta sites.
 // Unknown schemas, content types and streaming errors pass through unchanged.
 browser.webRequest.onHeadersReceived?.addListener(d=>{
- if(!data.ready||!data.settings.enabled||data.settings.adRecognition!==true||
-    data.settings.metaGraphqlFilter!==true||
+ if(!data.ready||!data.settings.enabled||data.tempPaused.has(d.tabId)||
     typeof browser.webRequest.filterResponseData!=="function")return;
  const site=data.hosts.get(d.tabId)||host(d.documentUrl||d.originUrl||"");
  if(!activeTab(d.tabId,site))return;
@@ -564,7 +563,7 @@ browser.webRequest.onHeadersReceived?.addListener(d=>{
  const policy=data.engine.getPagePolicy(page);
  if(policy?.document||policy?.elemhide)return;
  const request={...d,pageHost:site};
- if(!DKMetaGraphQL.eligible(request,site))return;
+ if(!DKMetaGraphQL.experimentEnabled(data.settings,request,site))return;
  DKMetaGraphQL.attach(request,browser.webRequest);
 },{urls:["https://www.facebook.com/api/graphql*",
          "https://web.facebook.com/api/graphql*"],
@@ -1257,6 +1256,17 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    agents:agentNestyTeam.handlers(),
    observations:data.settings.requestLog?
     cookieEvidence.listObservations().filter(row=>row.site===site).slice(-150):[]};
+ }
+ if(msg.action==="setMetaGraphqlExperiment"){
+  if(fromContent||!ownExtensionPage)return {error:"Extension interface only."};
+  if(typeof msg.enabled!=="boolean")return {error:"Choose on or off."};
+  const previous=data.settings.metaGraphqlFilter;
+  data.settings.metaGraphqlFilter=msg.enabled;
+  try{await persistSettings();}catch(_){
+   data.settings.metaGraphqlFilter=previous;
+   return {error:"Unable to save experiment preference."};
+  }
+  return {ok:true,enabled:msg.enabled,owner:DKMetaGraphQL.EXPERIMENT_OWNER};
  }
  if(msg.action==="getMetaGraphqlStats"){
   // Extension pages only, bound to the currently selected live Facebook tab.
@@ -1966,6 +1976,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    if(!s.strictPopupSites)data.popupTrapPermits.clear();
   }
   if(typeof s.adRecognition==="boolean")data.settings.adRecognition=s.adRecognition;
+  if(typeof s.metaGraphqlFilter==="boolean")data.settings.metaGraphqlFilter=s.metaGraphqlFilter;
   if(Array.isArray(s.mediaRecovery))
    data.settings.mediaRecovery=[...new Set(s.mediaRecovery.filter(h=>typeof h==="string"&&
     DKVideoAssist.isStreamingHost(h)&&DKManualRules.validHost(h)))].slice(0,12);

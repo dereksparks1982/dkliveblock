@@ -69,13 +69,10 @@ const RU=Object.freeze({
 "Settings, privacy and logs":"Настройки, конфиденциальность и журналы",
 "No account · No telemetry · No paywall":"Без учётной записи · Без телеметрии · Без платных ограничений",
 "GitHub Repository":"Репозиторий GitHub",
-"Support on Patreon":"Поддержать на Patreon",
+"Patreon":"Patreon",
 "Interface language":"Язык интерфейса",
 "English":"Английский",
-"Russian (Русский)":"Русский",
-"Coming later: Arabic, Turkish, Urdu, Persian (Farsi).":"Позже: арабский, турецкий, урду и персидский (фарси).",
-"Interface language is separate from language-specific ad filter lists.":"Язык интерфейса не влияет на языковые списки рекламных фильтров.",
-"Russian translation is in development; untranslated text remains English.":"Русский перевод разрабатывается; непереведённый текст остаётся на английском.",
+"Russian":"Русский",
 "Privacy first. Everything free.":"Конфиденциальность прежде всего. Всё бесплатно.",
 "Protection settings":"Настройки защиты",
 "Threat database & protection":"База угроз и защита",
@@ -206,10 +203,7 @@ function init(){
  select.addEventListener("change",()=>{
   const value=supported(select.value);
   activate(value);
-  browser.storage.local.set({[KEY]:value}).catch(()=>{
-   const label=document.getElementById("dkLanguageNote");
-   if(label)label.textContent="Could not save language preference.";
-  });
+  browser.storage.local.set({[KEY]:value}).catch(error=>console.warn("Unable to save interface language preference:",error));
  });
  browser.storage.local.get(KEY).then(data=>activate(data?.[KEY])).catch(()=>activate("en"));
  browser.storage.onChanged?.addListener((changes,area)=>{

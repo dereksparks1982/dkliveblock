@@ -17,7 +17,7 @@ test("Build 259: language selector exists in popup and Settings, never changes f
  for(const page of ["popup.html","options.html"]){
   const html=read(page);
   assert.match(html,/<select id="dkUiLanguage"/);
-  assert.match(html,/<option value="ru">Russian \(Русский\)<\/option>/);
+  assert.match(html,/<option value="ru">Russian<\/option>/);
   assert.match(html,/<option value="en">English<\/option>/);
   assert.match(html,/<script src="ui-language.js"><\/script>/);
  }
@@ -33,4 +33,21 @@ test("Build 259: only extension UI loads language module",()=>{
   assert.ok(!row.js.includes("ui-language.js"));
  for(const row of manifest.background.scripts)
   assert.ok(row!=="ui-language.js");
+});
+
+test("Build 286: language selector is minimal and Settings groups are color-coded",()=>{
+ const popup=read("popup.html"),options=read("options.html");
+ for(const html of [popup,options]){
+  assert.match(html,/id="dkUiLanguage"/);
+  assert.doesNotMatch(html,/Coming later:|Russian translation is in development|dkLanguageNote/);
+  assert.match(html,/<option value="ru">Russian<\/option>/);
+ }
+ assert.doesNotMatch(read("ui-language.js"),/Coming later:|dkLanguageNote/);
+ assert.equal((options.match(/class="settings-group tone-/g)||[]).length,8);
+ for(const color of ["black","white","cyan"])assert.ok(options.includes("tone-"+color));
+ for(const id of ["filterListManager","network-recovery","dependencies","meta-graphql","help","allowedWebsites"])
+  assert.ok(options.includes('id="'+id+'"'));
+ assert.match(popup,/id="popupExperiments"/);
+ assert.match(popup,/id="metaGraphqlQuick"/);
+ assert.match(read("options.js"),/openSettingsDeepLink/);
 });

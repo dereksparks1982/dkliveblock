@@ -103,6 +103,7 @@ async function load(){
  $("mediaRecovery").textContent=current.mediaRecoveryEnabled?"Disable media rescue":"Enable media rescue";
  $("mediaRecovery").disabled=!current.siteActive;
  $("enabled").checked=current.enabled;
+ $("metaGraphqlQuick").checked=current.settings?.metaGraphqlFilter===true;
  $("siteCookieReject").textContent=current.cookieRejectPaused?"Enable cookie rejection here":"Disable cookie rejection here";
  $("siteDistraction").textContent=current.distractionPaused?"Enable distraction cleanup here":"Disable distraction cleanup here";
  $("siteCookieReject").disabled=!current.siteActive||!current.settings?.cookieReject;
@@ -123,6 +124,21 @@ async function load(){
  $("info").textContent=(current.networkRules||0).toLocaleString()+" network rules · "+(current.cosmeticRules||0).toLocaleString()+" cosmetic filters";
  showVideoTools();
 }
+$("metaGraphqlQuick").addEventListener("change",async()=>{
+ const control=$("metaGraphqlQuick"),enabled=control.checked;
+ control.disabled=true;
+ try{
+  const result=await browser.runtime.sendMessage({action:"setMetaGraphqlExperiment",enabled});
+  if(!result?.ok)throw Error(result?.error||"Could not save experiment.");
+  await load();
+  $("metaGraphqlNotice").textContent=enabled?
+   "GraphQL experiment ON. Reload Facebook to test. Agent Nesty Meta 05 is active.":
+   "GraphQL experiment OFF. Reload Facebook to restore ordinary responses.";
+ }catch(error){
+  await load().catch(()=>{});
+  $("metaGraphqlNotice").textContent=String(error.message||error).slice(0,140);
+ }finally{control.disabled=false;}
+});
 $("enabled").addEventListener("change",async()=>{await browser.runtime.sendMessage({action:"setGlobal",enabled:$("enabled").checked,tabId:tab.id,url:tab.url});await load();});
 $("toggle").addEventListener("click",async()=>{
  $("toggle").disabled=true;

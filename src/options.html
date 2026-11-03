@@ -1,11 +1,24 @@
 <!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>DK Live Block settings</title><link rel="stylesheet" href="style.css"></head>
 <body class="options"><header><strong>DK LIVE BLOCK</strong><small>Privacy first. Everything free.</small></header><main>
 <h1>Protection settings</h1>
-<section id="interfaceLanguage"><h2>Interface language</h2>
-<label class="row" for="dkUiLanguage"><span>Interface language</span> <select id="dkUiLanguage" aria-label="Interface language"><option value="en">English</option><option value="ru">Russian (Русский)</option></select></label>
-<p id="dkLanguageNote">Russian translation is in development; untranslated text remains English.</p>
-<p><small>Coming later: Arabic, Turkish, Urdu, Persian (Farsi).</small></p>
-<p>Interface language is separate from language-specific ad filter lists.</p></section>
+<p class="warning">Development build. Full Firefox compatibility, reproducible packaging, and Adblock Plus feature parity are still pending. Video ad blocking varies by site.</p>
+<details class="settings-group tone-white"><summary>Interface & Tools</summary><div class="settings-group-body">
+<section id="interfaceLanguage">
+<label class="row" for="dkUiLanguage"><span>Interface language</span> <select id="dkUiLanguage" aria-label="Interface language"><option value="en">English</option><option value="ru">Russian</option></select></label>
+
+
+</section>
+<section id="advanced-tools"><h2>Advanced browser tools</h2>
+<p>These options control how you interact with the blocker. They do not reduce blocking coverage. <strong>DK Live Block never shows paid promotions, sponsor messages, Acceptable Ads or upgrade nags.</strong> There is no marketing switch to hunt down.</p>
+<label><input id="showBadge" type="checkbox"> Show the number of blocked requests on the Firefox toolbar icon</label>
+<label><input id="showContextMenu" type="checkbox"> Add a right-click "Block element with DK Live Block" command</label>
+<p>The right-click command starts the existing visual element picker on the current website. It never acts on browser-internal or file pages, does not upload page contents, and won't run when DK Live Block is paused. Firefox may ask for context-menu access when installing this development version.</p>
+<label><input id="showDevtoolsPanel" type="checkbox"> Show DK Live Block's optional network inspection panel inside Firefox Developer Tools</label>
+<p>Firefox may ask for additional Developer Tools access when you enable the panel. It stays disabled until you approve the permission and save Settings. Reopen Firefox Developer Tools to show it. This panel displays local, opt-in hostname-level request capture only, without sending browsing data anywhere.</p>
+<p>A non-destructive element-hiding debug overlay is still a separate outstanding feature and is not claimed as complete.</p>
+</section>
+</div></details>
+<details class="settings-group tone-black"><summary>Core Protections</summary><div class="settings-group-body">
 <section id="threat-protection">
 <h2>Threat database &amp; protection</h2>
 <label><input id="threatProtection" type="checkbox"> Block domains listed by the phishing threat feed (recommended, ON by default)</label>
@@ -22,65 +35,32 @@
 <p>Enabled by default. This stops new tabs opened from these sites even when the destination is blank or uses a constantly changing ad domain. It may also block a legitimate link you intentionally open in another tab. Magnet downloads and normal same-tab navigation are not targeted.</p>
 <p>When you actually need a new tab from one of these sites, click DK Live Block's <strong>Allow next new tab (15 seconds)</strong> button, then open it. Only one new tab is permitted. A scam tab could consume that one-time allowance first, so use this only when needed.</p>
 <p>This does not disable Firefox's own popup blocking. Site variants and new attack techniques still require real browser verification.</p></section>
-<p class="warning">Development build. Full Firefox compatibility, reproducible packaging, and Adblock Plus feature parity are still pending. Video ad blocking varies by site.</p>
-<section id="dependencies">
-<h2>Dependencies &amp; Applications</h2>
-<p>Basic ad blocking works without any of these programs. Optional tools extend what a future DK companion can do. Recommended applications are not dependencies. Links go to the official project websites only.</p>
-<p><strong>Linux dependency folder:</strong> <code id="dependencyPath">~/.local/share/dk-live-block/dependencies/</code></p>
-<div class="network-buttons"><button id="checkDependencies" type="button">Check installed tools</button>
-<a id="companionHelp" class="dependency-link" href="https://github.com/dereksparks1982/dkliveblock/blob/main/docs/COMPANION.md" target="_blank" rel="noopener noreferrer">About the optional Linux companion</a></div>
-<p id="dependencyStatus" role="status">Optional companion not checked. The Firefox add-on cannot create system directories without the companion.</p>
-<h3>Optional integration tools</h3>
-<p>Build 23 supports one managed install: <strong>yt-dlp for Linux x86_64</strong>, pinned to the official 2026.10.26 release. Check the companion first, then confirm installation. Installation and removal never affect basic ad blocking. Other tools still have official links only.</p>
-<div id="dependencyTools" class="dependency-list"></div>
-<h3>Recommended applications</h3><p>These editors and IDEs are independent applications. Installing them does not change ad blocking.</p>
-<div id="recommendedApplications" class="dependency-list"></div>
-<p><strong>Privacy:</strong> Checking tools requests optional native-messaging permission. The read-only companion detects selected executable locations; it does not launch third-party programs, install packages, or send results to a server.</p>
-</section>
-<section id="advanced-tools"><h2>Advanced browser tools</h2>
-<p>These options control how you interact with the blocker. They do not reduce blocking coverage. <strong>DK Live Block never shows paid promotions, sponsor messages, Acceptable Ads or upgrade nags.</strong> There is no marketing switch to hunt down.</p>
-<label><input id="showBadge" type="checkbox"> Show the number of blocked requests on the Firefox toolbar icon</label>
-<label><input id="showContextMenu" type="checkbox"> Add a right-click "Block element with DK Live Block" command</label>
-<p>The right-click command starts the existing visual element picker on the current website. It never acts on browser-internal or file pages, does not upload page contents, and won't run when DK Live Block is paused. Firefox may ask for context-menu access when installing this development version.</p>
-<label><input id="showDevtoolsPanel" type="checkbox"> Show DK Live Block's optional network inspection panel inside Firefox Developer Tools</label>
-<p>Firefox may ask for additional Developer Tools access when you enable the panel. It stays disabled until you approve the permission and save Settings. Reopen Firefox Developer Tools to show it. This panel displays local, opt-in hostname-level request capture only, without sending browsing data anywhere.</p>
-<p>A non-destructive element-hiding debug overlay is still a separate outstanding feature and is not claimed as complete.</p>
-</section>
 <section id="default-protections"><h2>Protection-first defaults</h2>
 <p>Advertising, tracking, cookie-notice, annoyance and social-widget filter lists are enabled for new installations. Explicit cookie rejection and conservative distraction protection are enabled too. <strong>There is no Acceptable Ads program or paid protection tier.</strong> You may turn individual protections off, and your saved choices are respected. A list only protects you once downloaded; use the status below to check downloads.</p>
-</section>
-<section id="siteCleanupExceptions"><h2>Website cleanup exceptions</h2>
-<p>Cookie rejection and newsletter/distraction cleanup can be turned off for individual websites without disabling advertisement or tracker blocking. The toolbar changes the current site; you can remove saved exceptions below. A parent hostname affects its subdomains.</p>
-<div class="network-buttons"><button id="cleanupExceptionsRefresh" type="button">Refresh site exceptions</button></div>
-<p id="cleanupExceptionsNotice" role="status">Loading site exceptions…</p>
-<div id="cookieRejectExceptions"></div><div id="distractionExceptions"></div>
 </section>
 <section id="notificationProtection"><h2>Website notification requests</h2>
 <label><input id="blockNotificationPrompts" type="checkbox"> Block new website notification permission prompts across Firefox</label>
 <p>On by default. This changes Firefox's browser-wide default notification permission to Deny, not just the current website. It does not override a website you explicitly allowed earlier. Turning it off releases DK Live Block's override without changing another extension's settings. Firefox may require permission for this browser-wide feature.</p>
 <p id="notificationControlStatus" role="status">Checking Firefox notification permission setting…</p>
 </section>
+<section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
+<label><input id="rememberVideos" type="checkbox"> Remember unfinished YouTube videos automatically (local only, off by default)</label>
+<p>When enabled, DK Live Block saves your position in ordinary YouTube videos after you've watched at least one minute, and periodically updates it while you watch. It never syncs your viewing history or contacts DK servers. Turn it off to stop new automatic saves; already saved videos remain in your library until you remove them. The library's Erase saved-video history action clears the saved list and last download status, and switches automatic remembering off.</p>
+<label><input id="adRecognition" type="checkbox"> Automatically hide clearly identified advertising containers (reversible, conservative)</label>
+<label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists (on by default)</label>
+<label><input id="distractionControl" type="checkbox"> Hide confidently identified newsletter, survey and floating corner-ad overlays (on by default; never hide active video players)</label>
+<label><input id="antiAdblock" type="checkbox"> Hide popups asking me to disable DK Live Block (includes YouTube notices where possible)</label>
+<label><input id="paywallPopups" type="checkbox"> Hide subscription popups covering already-loaded articles (Wall Street Journal, BBC and other sites where possible)</label>
+<p>This does not create access to missing articles or unlock server-side subscriptions. Turn this off per preference, or pause DK Live Block on an affected site.</p>
+<label><input id="stripTracking" type="checkbox"> Remove marketing tracking parameters from website addresses (never video or API requests)</label></section>
+</div></details>
+<details class="settings-group tone-cyan"><summary>Filters & Subscriptions</summary><div class="settings-group-body">
 <section id="filterListManager"><h2>Filter subscriptions</h2>
 <p>Every list can be turned on or off and updated individually. Existing downloaded rules remain cached if an update fails. Never let a failed list turn advertising protection off silently.</p>
 <div id="filterListRows"></div>
 <p id="filterListNotice" role="status">Loading built-in filter lists…</p>
 <label><input id="autoUpdate" type="checkbox"> Daily automatic updates</label>
 <p id="updated"></p><button id="update" type="button">Update all enabled lists</button></section>
-<section id="meta-graphql"><h2>Facebook GraphQL advertising data</h2>
-<label><input id="metaGraphqlFilter" type="checkbox"> Filter verified Sponsored entries in first-party Facebook GraphQL and JSONL responses</label>
-<p>Off by default until Firefox verification. When enabled, only known Facebook advertising records are removed. Unknown responses, ordinary posts, login/session data, media, and unrelated Meta sites are left unchanged. This complements the existing Facebook page scanner. If Facebook features stop working, turn this off; the other ad-blocking protections stay active.</p>
-</section>
-<section id="youtube-player-response"><h2>YouTube player advertising metadata</h2>
-<label><input id="youtubeResponseFilter" type="checkbox"> Remove known ad placements from eligible YouTube player JSON responses</label>
-<p>On by default. Firefox-only, limited to first-party YouTube player/get_watch JSON. Does not change video bytes, DRM, login, or unrecognized responses. It may stop working if YouTube changes its format and can be turned off if playback breaks. A response modification is not proof that a video played without ads.</p>
-</section>
-<section id="youtube-maintenance"><h2>YouTube compatibility updates</h2>
-<p>Data-only YouTube rule packs can update without requiring a new extension version. Downloads come from the DK Live Block public GitHub repository. Firefox add-on updates remain necessary for changes to executable code.</p>
-<label><input id="autoYouTubeRules" type="checkbox"> Automatically check DK's YouTube compatibility pack when updating filters</label>
-<p id="youtubeRulesStatus" role="status">Built-in protection is active. No remote pack installed.</p>
-<button id="youtubeUpdate" type="button">Check YouTube rules now</button>
-<button id="youtubeRollback" type="button">Roll back YouTube rules</button>
-<p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
 <section id="languageFilterLists"><h2>Language-specific filter lists</h2>
 <p>Supplementary filters for websites in other languages. None are downloaded until you enable them. Clicking the recommendation button reads your Firefox language preferences locally.</p>
 <button id="languageRecommend" type="button">Enable lists matching my Firefox languages</button>
@@ -94,16 +74,50 @@
 <label for="customSubscriptions">Custom list URLs (advanced editor)</label>
 <textarea id="customSubscriptions" class="short" spellcheck="false" placeholder="https://filters.example.org/blocking.txt"></textarea>
 <p id="customListNotice" role="status">No additional lists installed.</p></section>
-<section><h2>Video and cookies</h2><label><input id="youtubeSkip" type="checkbox"> Click available YouTube Skip Ad buttons</label>
-<label><input id="rememberVideos" type="checkbox"> Remember unfinished YouTube videos automatically (local only, off by default)</label>
-<p>When enabled, DK Live Block saves your position in ordinary YouTube videos after you've watched at least one minute, and periodically updates it while you watch. It never syncs your viewing history or contacts DK servers. Turn it off to stop new automatic saves; already saved videos remain in your library until you remove them. The library's Erase saved-video history action clears the saved list and last download status, and switches automatic remembering off.</p>
-<label><input id="adRecognition" type="checkbox"> Automatically hide clearly identified advertising containers (reversible, conservative)</label>
-<label><input id="cookieReject" type="checkbox"> Reject optional cookies only when a clearly identified button exists (on by default)</label>
-<label><input id="distractionControl" type="checkbox"> Hide confidently identified newsletter, survey and floating corner-ad overlays (on by default; never hide active video players)</label>
-<label><input id="antiAdblock" type="checkbox"> Hide popups asking me to disable DK Live Block (includes YouTube notices where possible)</label>
-<label><input id="paywallPopups" type="checkbox"> Hide subscription popups covering already-loaded articles (Wall Street Journal, BBC and other sites where possible)</label>
-<p>This does not create access to missing articles or unlock server-side subscriptions. Turn this off per preference, or pause DK Live Block on an affected site.</p>
-<label><input id="stripTracking" type="checkbox"> Remove marketing tracking parameters from website addresses (never video or API requests)</label></section>
+<section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
+<textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea>
+<div class="network-buttons"><button id="validateCustomRules" type="button">Check custom filter syntax</button></div>
+<p id="customRuleValidationStatus" role="status">Custom rules have not been checked. Checking is local and does not save or change any filters.</p>
+<div id="customRuleValidationRows"></div>
+<p>Syntax checking recognizes a supported subset of Adblock Plus filtering. Unsupported or duplicated rules are identified by line number, without uploading the rules or displaying their contents in diagnostics. Save Settings remains a separate, explicit action.</p>
+</section>
+</div></details>
+<details class="settings-group tone-white"><summary>Website Exceptions</summary><div class="settings-group-body">
+<section id="siteCleanupExceptions"><h2>Website cleanup exceptions</h2>
+<p>Cookie rejection and newsletter/distraction cleanup can be turned off for individual websites without disabling advertisement or tracker blocking. The toolbar changes the current site; you can remove saved exceptions below. A parent hostname affects its subdomains.</p>
+<div class="network-buttons"><button id="cleanupExceptionsRefresh" type="button">Refresh site exceptions</button></div>
+<p id="cleanupExceptionsNotice" role="status">Loading site exceptions…</p>
+<div id="cookieRejectExceptions"></div><div id="distractionExceptions"></div>
+</section>
+<section id="allowedWebsites"><h2>Allowed Websites</h2>
+<p>Allowlist a website if you want DK Live Block to stop blocking there. An entry covers that hostname and its subdomains; every other website remains protected. No ads are allowed globally and there is no paid whitelist.</p>
+<label for="allowedSiteInput">Website to allowlist</label>
+<div class="network-buttons"><input id="allowedSiteInput" type="text" spellcheck="false" placeholder="example.org or https://example.org/page">
+<button type="button" id="allowedSiteAdd">Add website</button></div>
+<p id="allowedSitesStatus" role="status">Loading allowed websites…</p>
+<div id="allowedSitesRows"></div>
+<details><summary>Advanced: edit allowed hostnames manually</summary>
+<p>One hostname per line. Manual edits take effect after clicking Save Settings. No URLs or wildcards.</p>
+<textarea id="paused" class="short" spellcheck="false"></textarea>
+</details>
+</section>
+<section><h2>Website repair and exceptions</h2>
+<p>Review requests you allowed on an individual website and revoke only the permission causing a problem. Revocation restores the normal filtering rules without disabling the whole blocker.</p>
+<button id="siteExceptions" type="button">Show allowances for recent website</button>
+<div id="siteExceptionRows"></div></section>
+</div></details>
+<details class="settings-group tone-black"><summary>Video & Streaming</summary><div class="settings-group-body">
+<section id="youtube-player-response"><h2>YouTube player advertising metadata</h2>
+<label><input id="youtubeResponseFilter" type="checkbox"> Remove known ad placements from eligible YouTube player JSON responses</label>
+<p>On by default. Firefox-only, limited to first-party YouTube player/get_watch JSON. Does not change video bytes, DRM, login, or unrecognized responses. It may stop working if YouTube changes its format and can be turned off if playback breaks. A response modification is not proof that a video played without ads.</p>
+</section>
+<section id="youtube-maintenance"><h2>YouTube compatibility updates</h2>
+<p>Data-only YouTube rule packs can update without requiring a new extension version. Downloads come from the DK Live Block public GitHub repository. Firefox add-on updates remain necessary for changes to executable code.</p>
+<label><input id="autoYouTubeRules" type="checkbox"> Automatically check DK's YouTube compatibility pack when updating filters</label>
+<p id="youtubeRulesStatus" role="status">Built-in protection is active. No remote pack installed.</p>
+<button id="youtubeUpdate" type="button">Check YouTube rules now</button>
+<button id="youtubeRollback" type="button">Roll back YouTube rules</button>
+<p>Only simple ad-specific cosmetic selectors are accepted. If a bad update causes problems, roll it back. That version stays disabled until a newer version is published. Remote scripts are never downloaded or executed.</p></section>
 <section id="streaming-diagnostics"><h2>Streaming playback diagnostics</h2>
 <p>When local request logging is enabled, DK Live Block keeps a short, private record of blocked <strong>media and XHR/other requests</strong> on YouTube and Disney+. These are potential troubleshooting clues, <strong>not evidence that video playback was broken or that the request was legitimate</strong>. Blocking advertisements can produce the same records.</p>
 <p>Only hostnames, request types, counts and times are retained in memory (up to 60 groups per tab for 30 minutes). No full URLs, paths, cookies, account IDs or raw filter rules. Nothing is uploaded or automatically allowed.</p>
@@ -124,6 +138,8 @@
 <div id="streamRepairRows"></div>
 <p>If playback fails, inspect the hostnames and verify that a blocked request is necessary before using a repair allowance. Requests to advertising hosts should generally stay blocked.</p>
 </section>
+</div></details>
+<details class="settings-group tone-cyan"><summary>Network & Diagnostics</summary><div class="settings-group-body">
 <section id="network-recovery"><h2>DK Network Recovery / Proxy Settings</h2>
 <p>Optional routing through a proxy you configure for selected websites or image troubleshooting. <strong>Off by default.</strong> DK Live Block provides no VPN, proxy or Tor service, and this is not an anonymity or access guarantee. Your proxy can see connection metadata; direct connections may still occur.</p>
 <label><input id="netEnabled" type="checkbox"> Enable selective proxy routing</label>
@@ -145,43 +161,44 @@
 <p>Only failed request hostnames and error categories are kept temporarily in this browser session, never full URLs. A failure does not prove government or ISP blocking. Click to inspect; no automatic proxy routing is applied.</p>
 <div class="network-buttons"><button id="issueRefresh" type="button">Show recent failures</button><button id="issueClear" type="button">Clear failures</button><button id="netReload" type="button">Reload selected website</button></div>
 <div id="networkIssues"></div></section>
-<section><h2>Custom filters</h2><p>Some ABP syntax is supported. Advanced scriptlets and redirects are not.</p>
-<textarea id="customRules" spellcheck="false" placeholder="||ads.example.net^"></textarea>
-<div class="network-buttons"><button id="validateCustomRules" type="button">Check custom filter syntax</button></div>
-<p id="customRuleValidationStatus" role="status">Custom rules have not been checked. Checking is local and does not save or change any filters.</p>
-<div id="customRuleValidationRows"></div>
-<p>Syntax checking recognizes a supported subset of Adblock Plus filtering. Unsupported or duplicated rules are identified by line number, without uploading the rules or displaying their contents in diagnostics. Save Settings remains a separate, explicit action.</p>
-</section>
-<section id="allowedWebsites"><h2>Allowed Websites</h2>
-<p>Allowlist a website if you want DK Live Block to stop blocking there. An entry covers that hostname and its subdomains; every other website remains protected. No ads are allowed globally and there is no paid whitelist.</p>
-<label for="allowedSiteInput">Website to allowlist</label>
-<div class="network-buttons"><input id="allowedSiteInput" type="text" spellcheck="false" placeholder="example.org or https://example.org/page">
-<button type="button" id="allowedSiteAdd">Add website</button></div>
-<p id="allowedSitesStatus" role="status">Loading allowed websites…</p>
-<div id="allowedSitesRows"></div>
-<details><summary>Advanced: edit allowed hostnames manually</summary>
-<p>One hostname per line. Manual edits take effect after clicking Save Settings. No URLs or wildcards.</p>
-<textarea id="paused" class="short" spellcheck="false"></textarea>
-</details>
-</section>
-<section><h2>Website repair and exceptions</h2>
-<p>Review requests you allowed on an individual website and revoke only the permission causing a problem. Revocation restores the normal filtering rules without disabling the whole blocker.</p>
-<button id="siteExceptions" type="button">Show allowances for recent website</button>
-<div id="siteExceptionRows"></div></section>
 <section><h2>Network Monitor</h2>
 <p>See requests made by a selected Firefox tab, including what DK blocks, allows or redirects and which requests fail. The toolbar icon's number is your blocked-request count for that tab. Detailed capture is optional, local-only and starts only after you click Start capture.</p>
 <button id="openNetworkMonitor" type="button">Open Network Monitor</button></section>
 <section><h2>Private request log</h2><label><input id="requestLog" type="checkbox"> Keep a temporary in-memory list of blocked request domains</label><p>Temporary in-memory log, limited to 250 records per tab. Domain and rule only, not full request URLs.</p>
 <button id="logRefresh">Show most recent website log</button> <button id="clearLog">Clear current site log</button><div id="log"></div></section>
 <section><h2>Statistics</h2><p>Blocked-request counters are stored locally. Reset removes counts and temporary logs.</p><button id="resetStats">Reset statistics</button></section>
+</div></details>
+<details class="settings-group tone-cyan"><summary>Experimental</summary><div class="settings-group-body">
+<section id="meta-graphql"><h2>Facebook GraphQL advertising data</h2>
+<label><input id="metaGraphqlFilter" type="checkbox"> Filter verified Sponsored entries in first-party Facebook GraphQL and JSONL responses</label>
+<p>Experimental and enabled by default for new installations. Agent Nesty Meta 05 owns the bounded Facebook filter. When enabled, only known Facebook advertising records are removed. Unknown responses, ordinary posts, login/session data, media, and unrelated Meta sites are left unchanged. This complements the existing Facebook page scanner. If Facebook features stop working, turn this off; the other ad-blocking protections stay active.</p>
+</section>
+</div></details>
+<details class="settings-group tone-white"><summary>Dependencies & Support</summary><div class="settings-group-body">
+<section id="dependencies">
+<h2>Dependencies &amp; Applications</h2>
+<p>Basic ad blocking works without any of these programs. Optional tools extend what a future DK companion can do. Recommended applications are not dependencies. Links go to the official project websites only.</p>
+<p><strong>Linux dependency folder:</strong> <code id="dependencyPath">~/.local/share/dk-live-block/dependencies/</code></p>
+<div class="network-buttons"><button id="checkDependencies" type="button">Check installed tools</button>
+<a id="companionHelp" class="dependency-link" href="https://github.com/dereksparks1982/dkliveblock/blob/main/docs/COMPANION.md" target="_blank" rel="noopener noreferrer">About the optional Linux companion</a></div>
+<p id="dependencyStatus" role="status">Optional companion not checked. The Firefox add-on cannot create system directories without the companion.</p>
+<h3>Optional integration tools</h3>
+<p>Build 23 supports one managed install: <strong>yt-dlp for Linux x86_64</strong>, pinned to the official 2026.10.26 release. Check the companion first, then confirm installation. Installation and removal never affect basic ad blocking. Other tools still have official links only.</p>
+<div id="dependencyTools" class="dependency-list"></div>
+<h3>Recommended applications</h3><p>These editors and IDEs are independent applications. Installing them does not change ad blocking.</p>
+<div id="recommendedApplications" class="dependency-list"></div>
+<p><strong>Privacy:</strong> Checking tools requests optional native-messaging permission. The read-only companion detects selected executable locations; it does not launch third-party programs, install packages, or send results to a server.</p>
+</section>
 <section><h2>Settings backup</h2><button id="export">Export JSON</button>
 <label class="import">Import JSON <input id="import" type="file" accept="application/json,.json"></label></section>
-<div class="actions"><button id="save">Save settings</button><span id="message" role="status"></span></div>
 <section id="help"><h2>Help and bug reports</h2>
 <p>If an ad slips through, a site stops working, or DK Live Block needs an update, please tell us. Reports are never sent automatically.</p>
 <p><strong>Project homepage and source:</strong> <a class="repo-link" href="https://github.com/dereksparks1982/dkliveblock" target="_blank" rel="noopener noreferrer" title="View DK Live Block source and support on GitHub">GitHub Repository</a></p>
 <p><strong>Developer support:</strong> <a href="mailto:elderredsoftworks@proton.me">elderredsoftworks@proton.me</a></p>
 <button id="openBugReport" type="button">Prepare a bug report</button>
 <p>You review the draft and decide whether to send it. Avoid passwords, cookies, private links and account details.</p></section>
-<footer>No accounts · No telemetry · No paid features<br><button id="patreonSupport" type="button" class="patreon-button" disabled>Support on Patreon</button><p>Donations are optional. Every feature stays free for everyone.</p></footer>
+</div></details>
+<div class="actions"><button id="save">Save settings</button><span id="message" role="status"></span></div>
+
+<footer>No accounts · No telemetry · No paid features<br><button id="patreonSupport" type="button" class="patreon-button" disabled>Patreon</button><p>Donations are optional. Every feature stays free for everyone.</p></footer>
 </main><script src="support.js"></script><script src="language-lists.js"></script><script src="rules.js"></script><script src="rule-validator.js"></script><script src="ui-language.js"></script><script src="options.js"></script><script src="dependency-catalog.js"></script><script src="dependencies.js"></script></body></html>

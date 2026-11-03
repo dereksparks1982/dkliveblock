@@ -29,7 +29,7 @@ test("owner-approved default Patreon link only opens after a user click",()=>{
  const b=fakeButton(),opened=[];
  S.installButton(b,{browserApi:{tabs:{create:info=>{opened.push(info);return Promise.resolve();}}}});
  assert.equal(b.disabled,false);
- assert.match(b.textContent,/Support DK Live Block on Patreon/);
+ assert.equal(b.textContent,"Patreon");
  assert.equal(opened.length,0,"no donation tab opens during initialization");
  b.click();
  assert.deepEqual(opened,[{url:"https://www.patreon.com/c/dkliveblock"}]);
@@ -59,7 +59,16 @@ test("both interfaces load support code before their controllers",()=>{
   assert.match(html,/id="patreonSupport"/);
   assert.ok(html.indexOf('src="support.js"')<html.indexOf('src="'+script+'"'));
   assert.match(js,/DKSupport\.installButton/);
-  assert.match(html,/id="patreonSupport"[^>]*disabled>Support on Patreon<\/button>/);
+  assert.match(html,/id="patreonSupport"[^>]*disabled>Patreon<\/button>/);
   assert.match(html,/Every feature stays free|No paywall/);
  }
+});
+
+test("Build 286: Patreon has burgundy button and local symbol",()=>{
+ const css=fs.readFileSync(path.join(__dirname,"../src/style.css"),"utf8");
+ const popup=fs.readFileSync(path.join(__dirname,"../src/popup.html"),"utf8");
+ assert.match(css,/\.patreon-button::before\{/);
+ assert.match(css,/background:#7f2940/);
+ assert.match(popup,/data-tone="burgundy" id="patreonSupport"/);
+ assert.doesNotMatch(popup,/Support DK Live Block on Patreon/);
 });

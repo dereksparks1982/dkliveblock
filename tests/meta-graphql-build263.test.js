@@ -109,7 +109,7 @@ test("Build 263: extension settings are independent and no new permissions requi
  const bg=fs.readFileSync(path.join(ROOT,"src/background.js"),"utf8"),
   opts=fs.readFileSync(path.join(ROOT,"src/options.html"),"utf8"),
   settings=fs.readFileSync(path.join(ROOT,"src/settings.js"),"utf8");
- assert.match(bg,/metaGraphqlFilter:false/);
+ assert.match(bg,/metaGraphqlFilter:true/);
  assert.match(bg,/DKMetaGraphQL\.attach/);
  assert.match(bg,/activeTab\(d\.tabId,site\)/);
  assert.match(bg,/policy\?\.document\|\|policy\?\.elemhide/);
@@ -118,4 +118,17 @@ test("Build 263: extension settings are independent and no new permissions requi
  assert.equal(manifest.version,require("../package.json").version);
  assert.ok(manifest.background.scripts.includes("meta-graphql.js"));
  assert.ok(!manifest.content_scripts.some(x=>x.js.includes("meta-graphql.js")));
+});
+
+test("Build 286: Meta Nesty 05 runs only under active Facebook experiment",()=>{
+ assert.equal(Meta.EXPERIMENT_OWNER,"agent_nesty_meta_05");
+ const s={enabled:true,adRecognition:true,metaGraphqlFilter:true};
+ assert.equal(Meta.experimentEnabled(s,request,"www.facebook.com"),true);
+ for(const v of [{...s,metaGraphqlFilter:false},{...s,enabled:false},{...s,adRecognition:false}])
+  assert.equal(Meta.experimentEnabled(v,request,"www.facebook.com"),false);
+ assert.equal(Meta.experimentEnabled(s,{...request,url:"https://www.instagram.com/api/graphql/"},"www.instagram.com"),false);
+ const bg=fs.readFileSync(path.join(ROOT,"src/background.js"),"utf8");
+ assert.match(bg,/if\(typeof s\.metaGraphqlFilter==="boolean"\)data\.settings\.metaGraphqlFilter=s\.metaGraphqlFilter/);
+ assert.match(bg,/msg.action==="setMetaGraphqlExperiment"/);
+ assert.match(bg,/DKMetaGraphQL\.experimentEnabled\(data.settings,request,site\)/);
 });

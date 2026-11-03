@@ -472,6 +472,14 @@ $("youtubeRollback").addEventListener("click",async()=>{
 });
 
 DKSupport.installButton($("patreonSupport"));
+function openSettingsDeepLink(){
+ const key=location.hash.slice(1);if(!key)return;
+ let id;try{id=decodeURIComponent(key);}catch(_){return;}
+ if(!/^[a-zA-Z][a-zA-Z0-9_-]{0,79}$/.test(id))return;
+ document.getElementById(id)?.closest("details.settings-group")?.setAttribute("open","");
+}
+window.addEventListener("hashchange",openSettingsDeepLink);
+openSettingsDeepLink();
 
 /* Build 31: manually requested private streaming playback diagnostics. */
 function streamingHostname(url){

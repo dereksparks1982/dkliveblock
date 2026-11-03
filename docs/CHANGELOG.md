@@ -1,3 +1,10 @@
+## 0.3.256 / Build 286 (November 2, 2026)
+- Reversible Meta Nesty 05 Facebook GraphQL response experiment enabled for fresh installs, with immediate popup toggle and repaired Settings persistence; preserve stored choices and response safety gates.
+- Reorganized 25 existing Settings sections into eight collapsed black/cyan/white categories, preserving IDs, deep links and approved toolbar geometry.
+- Removed language notices; interface-language dropdown now offers only English and Russian.
+- Compact locally rendered Patreon icon + label, muted burgundy #7f2940 and unchanged click-only creator link.
+- Updated registered tests. Full Ubuntu regression and live signed-in Firefox browser acceptance remain outstanding.
+
 ## 0.3.255 / Build 285 (November 2, 2026)
 - Nesty integrated evidence-to-strategy *review* handoff: bounded named candidate plans for Facebook feed/rail, optional GraphQL ad-data handling, YouTube ad breaks and unwanted tab navigation.
 - Explicit no-execution metadata and company/platform ownership limits; protect user content and never activate unverified models or filtering.

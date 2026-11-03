@@ -61,7 +61,7 @@ function installButton(button,{browserApi=typeof browser!=="undefined"?browser:n
  if(!button)return;
  const destination=validPatreonUrl(url);
  button.disabled=!destination;
- button.textContent=destination?"Support DK Live Block on Patreon":"Patreon · Coming soon";
+ button.textContent=destination?"Patreon":"Patreon · Coming soon";
  button.title=destination?"Open our optional Patreon support page in a new tab.":"Our Patreon page will be linked after it is created.";
  if(destination)button.addEventListener("click",()=>{
   if(!browserApi?.tabs?.create)return;

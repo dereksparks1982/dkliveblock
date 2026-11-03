@@ -350,7 +350,13 @@ function attach(d,webRequest,clock=root){
  }
  return true;
 }
-const API=Object.freeze({MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
+// Agent Nesty Meta 05 owns the reversible Facebook-only GraphQL experiment.
+const EXPERIMENT_OWNER="agent_nesty_meta_05";
+function experimentEnabled(settings,request,site){
+ return settings?.enabled===true&&settings?.adRecognition===true&&
+  settings?.metaGraphqlFilter===true&&eligible(request,site);
+}
+const API=Object.freeze({EXPERIMENT_OWNER,experimentEnabled,MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
  validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;

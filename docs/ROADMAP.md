@@ -1,3 +1,12 @@
+## Build 286 / v0.3.256: Facebook GraphQL experiment, organized Settings and Patreon (November 2, 2026)
+- [x] Enable bounded first-party Facebook GraphQL response filtering for fresh installs, with Agent Nesty Meta 05 ownership. Preserve existing saved OFF user preferences.
+- [x] Fix inert GraphQL checkbox Settings-save path and add an instantly saved, reversible toolbar Experimental switch; reloading Facebook reverses earlier edited responses.
+- [x] Group all 25 Settings sections into eight collapsed black/cyan/white accordion sections; preserve controls and deep links.
+- [x] Simplify popup and Settings interface-language selector to English and Russian without planned-language or translation warnings.
+- [x] Replace Patreon footer action with compact white symbol + "Patreon", burgundy #7f2940, same position/creator URL/click-only behavior.
+- [x] Precommit JavaScript syntax and source checks with adjusted registered regression tests.
+- [ ] Full exact-commit Ubuntu test suite and signed-in Firefox Facebook visual, feed, login, errors, rollback and performance verification pending. No ad-flash success claim without observed evidence.
+
 ## Build 285 / v0.3.255: Nesty evidence-to-strategy coordination (November 2, 2026)
 - [x] Bind verified-vocabulary Nesty evidence to deterministic **review-only** named strategy proposals for Facebook post cards, Facebook rail, experimental GraphQL ad records, YouTube ad-break evidence, and unwanted navigation.
 - [x] Keep strategies explicitly inert: `enabled:false`, `executable:false`; no automatic subscriptions, rule installation, content hiding, video response mutation, or tab closure from strategy advice.
