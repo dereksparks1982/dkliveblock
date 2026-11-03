@@ -18,7 +18,14 @@ Hebrew, Spanish, Greek, and French are not in the current localization plan. Thi
 - Strings are translated by a local `src/ui-language.js` dictionary; no remote translator, internet service, telemetry, or added permissions.
 - The translator preserves elements and attributes and rewrites only exact-known text nodes, including dynamically added popup strings. English is the fallback if a translation is missing or a locale is unsupported.
 - The interface remains left-to-right for Russian and English. Arabic, Urdu and Persian will need separate right-to-left QA before activation.
-- No interface localization is injected into websites. The localization engine loads only in the popup and Options pages.
+- No interface localization is injected into websites. The localization engine loads in the popup, Options, and Site Dashboard pages.
+
+## Build 299 (November 3, 2026): extension-wide priority and coverage
+- Owner found that the Settings page looked mostly English despite choosing Русский. Audit identified 204 distinct static English text fragments on the Settings page, only 46 initially translated. The Site Dashboard had 86 fragments and only 4 translated, and did not load the language module.
+- Build 299 expands the explicit Russian dictionary to cover the visible text on these two pages and the toolbar popup. Proper names, product branding, executable paths, and support addresses remain unchanged. Both dropdown choices use their translated labels while retaining their original option values.
+- The Site Dashboard reads the existing saved interface-language choice without requiring an additional selector. Switching to Russian never changes network rules, website locale or browser language.
+- Added offline regression coverage of all static text fragments in the three pages. This does not validate runtime-generated JavaScript status strings or other extension utility pages. Full offline suite and live Firefox visual testing are still pending.
+- The Settings development warning now uses charcoal/cyan rather than brown; other approved controls and geometry are untouched.
 
 ## Coverage limitations
 This is the **first Russian localization slice**, not a fully verified translation. Main popup labels/actions and Settings headings are translated. Complex dynamic feedback, verbose Settings descriptions, secondary tools (dashboard, agent viewers, network monitor), and error strings may remain English. Do not claim full Russian support until a UI text audit and Firefox acceptance pass.
