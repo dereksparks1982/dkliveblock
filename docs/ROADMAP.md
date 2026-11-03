@@ -1,3 +1,11 @@
+## Build 296 / v0.3.266: read-only recognition of screenshot-confirmed YouTube in-player refusal (November 3, 2026)
+- [x] Confirm owner screenshot shows **ordinary YouTube video** with playback blocked, not an ordinary removable popup; do not conflate this with the separately observed Free with Ads film catalog.
+- [x] Add exact-site, in-player, read-only enforcement event diagnostics based on the existing text recognizer; no popup hiding, content mutation, network allowlisting or bypass of actual player refusal.
+- [x] Add eight bounded privacy, visibility, negative-control, rate-limit and SPA regression tests; update the local test runner and developer triage.
+- [ ] Root cause **not established**. Collect sanitized existing YouTube diagnostic report from the affected tab, inspect response/bridge/filter evidence and compare existing tab-local compatibility modes with network blocking still active.
+- [ ] Verify targeted repair in real Firefox on ordinary videos and separately on Free with Ads movies; protect working streaming/login/Disney+ scenarios. No auto-success claims.
+- [ ] Run exact-commit native Ubuntu full suite and record results.
+
 ## November 3, 2026: OWNER-REPORTED regression, ordinary YouTube videos only (urgent, unresolved)
 - [ ] **Regression reported by owner:** ordinary YouTube video playback again triggers ad-blocker detection with DK Live Block. The owner explicitly differentiated regular videos from YouTube "Free with Ads" movies; do **not** label the movies newly broken or newly retested.
 - [ ] Identify exact visible enforcement form (in-player message, dialog, or playback refusal) from a screenshot or the existing sanitized YouTube compatibility report; identify installed Firefox/DK version, extension conflicts, protection and experiment mode. No private media URLs, cookies or account details are needed.

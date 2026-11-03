@@ -52,6 +52,54 @@ function createAdProbe(){
  function reset(){showing=false;last=-Infinity;trackedVideo=null;}
  return {scan,reset};
 }
+// Build 296: observe actual YouTube player refusal text without removing or
+// changing it. Only bounded text inside the known player root is inspected,
+// never exported. A positive result means "enforcement observed", not "fixed".
+function createEnforcementProbe(recognizer){
+ let present=false,last=-Infinity;
+ const selectors=[
+  "#movie_player .ytp-error",
+  "#movie_player .ytp-error-content",
+  "#movie_player .ytp-playability-error",
+  "#movie_player yt-playability-error-supported-renderer",
+  "#movie_player yt-player-error-message-view-model",
+  "#movie_player ytd-enforcement-message-view-model",
+  "#movie_player"
+ ];
+ function scan(document,now=Date.now()){
+  if(!Number.isFinite(now)||!document||document.hidden===true||
+     document.visibilityState==="hidden"||typeof recognizer!=="function"){
+   present=false;return null;
+  }
+  let found=false;
+  try{
+   // Deliberately do not inspect page body, comments, video description, or
+   // non-player dialogs. Each selector resolves at most one node.
+   for(const selector of selectors){
+    const element=document.querySelector?.(selector);
+    if(!element||element.isConnected===false||
+       typeof element.getClientRects!=="function"||
+       !element.getClientRects().length)continue;
+    const view=document.defaultView;
+    if(typeof view?.getComputedStyle==="function"){
+     const css=view.getComputedStyle(element);
+     if(css?.display==="none"||css?.visibility==="hidden")continue;
+    }
+    const raw=element.textContent;
+    if(typeof raw!=="string"||raw.length<25||raw.length>1800)continue;
+    if(recognizer(raw)){found=true;break;}
+   }
+  }catch(_){return null;}
+  if(!found){present=false;return null;}
+  if(present)return null;
+  present=true;
+  if(now-last<REPORT_INTERVAL)return null;
+  last=now;
+  return "enforcement";
+ }
+ function reset(){present=false;last=-Infinity;}
+ return Object.freeze({scan,reset});
+}
 function createProbe(){
  let bufferingSince=null,lastReport=-Infinity,lastError=0,trackedVideo=null;
  function scan(video,document,now=Date.now()){
@@ -101,7 +149,7 @@ function recent(store,tab,siteHost,now=Date.now()){
 }
 function clear(store,tab){store.delete(tab);}
 const api=Object.freeze({BUFFER_MS,REPORT_INTERVAL,TTL_MS,MAX,isYouTube,platform,supportsHost,
- createProbe,createAdProbe,record,recent,clear,isAdBreak,isUnavailable});
+ createProbe,createAdProbe,createEnforcementProbe,record,recent,clear,isAdBreak,isUnavailable});
 root.DKPlaybackHealth=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

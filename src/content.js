@@ -12,6 +12,8 @@
  const cbsAutoplay=typeof DKCBSAutoplay!=="undefined"?DKCBSAutoplay.create(document,window):null;
  const healthProbe=isHealthSite?DKPlaybackHealth.createProbe():null;
  const adProbe=isYouTube&&isHealthSite?DKPlaybackHealth.createAdProbe():null;
+ const enforcementProbe=isYouTube&&isHealthSite?
+  DKPlaybackHealth.createEnforcementProbe(DKAntiAdblock.isPlaybackEnforcement):null;
  function samplePlaybackHealth(){
   if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
   const player=document.querySelector("video.html5-main-video, #movie_player video, video");
@@ -20,6 +22,10 @@
   // Observable player state, not proof of a played/blocked advertisement.
   const adState=adProbe?.scan(player,document);
   if(adState)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:adState}).catch(()=>{});
+  // Detect an in-player playback refusal independently of popup hiding.
+  // Never suppress or modify the refusal; store only its fixed event kind.
+  const enforcement=enforcementProbe?.scan(document);
+  if(enforcement)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:enforcement}).catch(()=>{});
  }
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
@@ -78,7 +84,9 @@
    adRecognizer?.setExceptions(s.adRecognitionExceptions);
    facebookRecognizer?.setExceptions(s.adRecognitionExceptions);
    const nextHealth=!!s.playbackHealthEnabled;
-   if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth)healthProbe?.reset();
+   if(!nextActive||!nextHealth||!playbackHealthEnabled&&nextHealth){
+    healthProbe?.reset();enforcementProbe?.reset();
+   }
    playbackHealthEnabled=nextHealth;
    youtubeDiagnosticsEnabled=!!s.youtubeDiagnosticsEnabled;
    compactVideoGrids=nextActive&&s.compactVideoGrids===true;
@@ -528,7 +536,8 @@
  // YouTube single-page navigation does not necessarily reload the document.
  if(typeof window.addEventListener==="function"){
   const onNavigate=()=>{
-   healthProbe?.reset();adProbe?.reset();videoController.reset?.();refresh();videoWatcher?.poke();
+   healthProbe?.reset();adProbe?.reset();enforcementProbe?.reset();
+   videoController.reset?.();refresh();videoWatcher?.poke();
   };
   window.addEventListener("yt-navigate-finish",onNavigate,false);
   window.addEventListener("popstate",onNavigate,false);

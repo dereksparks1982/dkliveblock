@@ -12,7 +12,7 @@
 
 | Platform/company profile | Site and surface observed | Status and evidence | Limits / next check |
 | --- | --- | --- | --- |
-| YouTube (Google-owned platform) | Ordinary YouTube videos; ads suppressed in owner's Firefox session | **Historical owner-observed PASS (scoped), Nov 1; NEW REGRESSION REPORTED Nov 3** | Owner now reports regular videos again recognize DK Live Block. Current failure mode, installed version and cause unknown; unresolved. Keep working-source tag and investigate before claiming repair. |
+| YouTube (Google-owned platform) | Ordinary YouTube videos; ads suppressed in owner's Firefox session | **Historical owner-observed PASS (scoped), Nov 1; IN-PLAYER REFUSAL CONFIRMED BY SCREENSHOT Nov 3** | Owner screenshot confirms YouTube refuses ordinary-video playback inside the player. Root cause, installed revision and repair still unknown. Keep working-source tag and investigate before claiming repair. |
 | YouTube (Google-owned platform) | YouTube movies labeled **Free with Ads** | **Owner-observed PASS (scoped)**, Nov 1 | No blanket guarantee for new movie/video advertising methods |
 | Disney+ (Disney streaming platform) | Movie playback with DK protection on; ads not shown | **Owner-observed PASS (scoped)**, Nov 1 | Separate request logs support specific network blocks, not a guarantee for every title or ad break |
 | Disney+ (Disney streaming platform) | *CSI: Las Vegas*, owner compared DK off/on | **Owner-observed PASS (scoped)**, Nov 1 | Keep protected playback/login behavior; repeat after major changes |
