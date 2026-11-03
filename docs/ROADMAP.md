@@ -1,3 +1,13 @@
+## AI / open-source integration research queue (November 2, 2026; documentation only)
+- [x] Audit actual Build 287 AI readiness: Nesty is largely review-only; two small synthetic offline classifiers are not calibrated real-world AI.
+- [x] Compare Ghostery, Brave adblock-rust, uAssets, AdGuard scriptlets, Privacy Badger, DuckDuckGo metadata, ml.js, ONNX Runtime Web and Transformers.js including major license constraints; see [research audit](AI_OPEN_SOURCE_INTEGRATION_AUDIT.md).
+- [ ] **Next candidate Build 288:** deterministic real-label evidence fixtures and DK/Ghostery compatibility/false-positive benchmark, with optional comparison against Brave outside the shipping extension.
+- [ ] Build 289: validated local Nesty ML lab using real positives/negatives and offline training, opt-in review-only inference with measurable added value.
+- [ ] Build 290: in-page Nesty drift analysis and evidence-backed provider investigation, clear company/platform scope and no automatic host blocking.
+- [ ] Build 291: improve safe scriptlet, extended cosmetic, exception and redirect compatibility using our existing engine; audit all third-party license risks.
+- [ ] Build 292: separate Video/Streaming responsibilities and browser-specific Orion/iOS and Chromium/Yandex capability experiments with real-device verification.
+- [ ] Keep release gate honest: current Build 287 full Ubuntu suite not run; missing genuine npm lockfile blocks prior release audit; live Firefox acceptance still required.
+
 ## Build 287 / v0.3.257: local Facebook-to-Nesty integration (November 2, 2026)
 - [x] Connect successful Facebook feed, menu, right-rail and Marketplace DOM hides to Nesty's real local evidence intake; existing scanner owns all decisions.
 - [x] Expose bounded, fixed-category local counts and inert strategy ownership through Facebook diagnostics, without raw content or extra telemetry.
