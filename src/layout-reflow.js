@@ -16,7 +16,7 @@ function supports(host,path="/"){
 }
 function videoTile(el){
  if(String(el?.tagName||"").toUpperCase()!=="LI"||
-    !el.classList?.contains?.("videoblock"))return false;
+    el.isConnected===false||!el.classList?.contains?.("videoblock"))return false;
  return !!el.querySelector?.('a[href*="view_video.php"],a[href^="/video/"]');
 }
 function emptyAdSlot(el){
@@ -228,8 +228,12 @@ function create(doc,win){
  function preview(){
   if(!supports(host,String(win?.location?.pathname||"/"))||
      grids.size>0||style?.isConnected)return Object.freeze({ok:false,reason:"not-eligible"});
+ if(doc?.visibilityState==="hidden"||doc?.prerendering===true)
+  return Object.freeze({ok:false,reason:"hidden-tab"});
   if(doc?.fullscreenElement)return Object.freeze({ok:false,reason:"fullscreen-active"});
   const pathBefore=String(win?.location?.pathname||"/");
+  const searchBefore=String(win?.location?.search||"");
+  const hashBefore=String(win?.location?.hash||"");
   const originalTargets=previewTargets();
   let before;
   try{before=diagnostics();}catch(_){return Object.freeze({ok:false,reason:"inspection-unavailable"});}
@@ -249,7 +253,10 @@ function create(doc,win){
   // inconclusive, not a measured improvement.
   if(!samePreviewTargets(originalTargets,afterTargets)||
      !samePreviewTargets(originalTargets,previewTargets())||
-     String(win?.location?.pathname||"/")!==pathBefore||doc?.fullscreenElement)
+     String(win?.location?.pathname||"/")!==pathBefore||
+     String(win?.location?.search||"")!==searchBefore||
+     String(win?.location?.hash||"")!==hashBefore||
+     doc?.visibilityState==="hidden"||doc?.prerendering===true||doc?.fullscreenElement)
    return Object.freeze({ok:false,reason:"page-changed"});
   if(!after||after.inspectionUnavailable||after.eligibleLists!==before.eligibleLists||
      after.videoTiles!==before.videoTiles||

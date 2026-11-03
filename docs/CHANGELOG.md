@@ -1,3 +1,6 @@
+## 0.3.286 / Build 316
+- Layout preview now rejects hidden/prerendered tabs, transient search/hash navigation and disconnected video tiles; still uses the same opted-in, reversible CSS and refuses inaccurate comparison claims.
+
 ## 0.3.285 / Build 315
 - Hardened opt-in Pornhub list reflow cleanup: class and style-removal failures remain tracked and retryable instead of falsely reporting a complete reset. Grid CSS and opt-in behavior unchanged.
 

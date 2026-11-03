@@ -1,0 +1,3 @@
+# Build 316: layout preview route integrity
+
+November 3, 2026. Source v0.3.286, not released. Temporary opt-in Pornhub grid previews already rejected pathname transitions and DOM identity changes, but same-page search/hash navigation and hidden tab transitions could still invalidate layout measurements. Build 316 verifies query and hash only in memory, rejects hidden/prerendered tabs before preview and after measuring, and declines disconnected thumbnail elements. Five tests cover navigation races, background tab, detached tiles and an unchanged successful preview. No query strings or coordinates exported; no CSS geometry, network rules or video playback altered. Full native Ubuntu and live visual acceptance outstanding.

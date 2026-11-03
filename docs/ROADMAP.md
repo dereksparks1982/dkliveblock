@@ -1,3 +1,8 @@
+## Build 316 / v0.3.286: layout preview route and hidden-tab integrity (November 3, 2026)
+- [x] Cancel on-demand reflow previews when tab hidden/prerendered, full query/hash changes, or candidate tiles are detached from DOM.
+- [x] Compare route state transiently, never export search queries. Keep existing grid CSS/rollback intact.
+- [x] Add five route, hidden-tab, stable-preview and negative-control cases; native Ubuntu/Firefox tests pending.
+
 ## Build 315 / v0.3.285: durable layout rollback after page changes (November 3, 2026)
 - [x] Preserve tracked CSS classes and styles when a site refuses cleanup; retry reversible rollback instead of losing references.
 - [x] Make current layout status recognize connected leftover styles even without tracked grids.
