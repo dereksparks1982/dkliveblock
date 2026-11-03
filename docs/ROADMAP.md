@@ -1,3 +1,8 @@
+## Build 311 / v0.3.281: protect high-signal Facebook label changes (November 3, 2026)
+- [x] Reserve at most 12 existing fast-scan roots for changed Facebook text and exact ad-label attributes before child insertion churn fills the 32-root cap.
+- [x] Fix Build 309's malformed string acceptance in the node sampler; retain its 8-child budget and fast restore behavior.
+- [x] Five new source/positive/negative regression tests; full Ubuntu and live Firefox still pending.
+
 ## Build 310 / v0.3.280: actionable, non-affirmative Facebook diagnostics (November 3, 2026)
 - [x] Add fixed offline triage codes to the combined Facebook detector/GraphQL export; explain disabled recognition, no scanner evidence, observed hiding and unresolved cases.
 - [x] Preserve strict redaction and refusal to equate network counters with successful ad removal.

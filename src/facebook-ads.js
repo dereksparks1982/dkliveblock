@@ -491,7 +491,7 @@ function sponsoredFeedCard(menu,doc,win){
 // Review the tail as well as the head of oversized child insertions.
 function sampleAddedNodes(nodes,max=8){
  const n=nodes?.length;
- if(!Number.isSafeInteger(n)||n<0||n>1000000||max!==8)return [];
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||n<0||n>1000000||max!==8)return [];
  const result=[];
  if(n<=8){for(let i=0;i<n;i++)result.push(nodes[i]);}
  else{for(let i=0;i<4;i++)result.push(nodes[i]);for(let i=n-4;i<n;i++)result.push(nodes[i]);}
@@ -661,11 +661,18 @@ function create(doc,win,max=100,onEvidence=null){
   // FIRST; only then inspect ordinary attribute/child-list targets. Without
   // this priority a 32-root cap could discard a sampled late Sponsored post.
   const batch=records.slice(0,40);
+  // Reserve twelve of thirty-two roots for changed text and explicit label
+  // attributes. An insertion storm must not crowd out a late Ad label.
+  let priorityRoots=0;
+  for(const r of batch)if(r?.type==="characterData"||
+    r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName)){
+   if(priorityRoots>=12)break;
+   const previous=roots.size;
+   take(r.target);
+   if(roots.size>previous)priorityRoots++;
+  }
   for(const r of batch)if(r?.type==="childList")
    for(const node of sampleAddedNodes(r.addedNodes))take(node);
-  for(const r of batch)if(r?.type==="characterData"||
-    r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName))
-   take(r.target);
   for(const r of batch)if(r?.type==="attributes"||r?.type==="characterData"||r?.type==="childList")
    take(r.target);
   let count=0,inspected=0;

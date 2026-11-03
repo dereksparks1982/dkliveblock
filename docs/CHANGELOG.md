@@ -1,3 +1,6 @@
+## 0.3.281 / Build 311
+- Facebook fast scanner reserves its bounded work for late high-signal label changes before generic child insertion storms. Corrected malformed input acceptance in the Build 309 sampler. No broader ad heuristics, player changes or permissions.
+
 ## 0.3.280 / Build 310
 - Added evidence-only Facebook diagnostic triage codes and a safe next-check explanation to the existing exported report. No changes to ad rules, page scanning, settings or permissions. Full browser acceptance pending.
 
