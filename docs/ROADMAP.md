@@ -1,3 +1,12 @@
+## Build 295 / v0.3.265: offline Nesty evidence benchmarking (November 3, 2026)
+- [x] Integrate 35 bounded, self-authored synthetic ad/ordinary network cases with protected player, account, editorials, navigation and checkout negative controls.
+- [x] Compare existing native and embedded Ghostery hybrid engine decisions against identical expected block/allow labels and report false-positive and false-negative metrics by surface/profile.
+- [x] Reject real website URLs, query strings, credentials, unknown fixture fields and unsupported provenance; never call Ghostery's raw match a production verdict.
+- [x] Register local `npm run audit:evidence` command, eight Node tests and existing local release-check invocation. No runtime Nesty automation or extra permissions.
+- [ ] Run the full exact-commit Ubuntu test suite and investigate any actual synthetic audit disagreements without treating the synthetic score as verified live performance.
+- [ ] Obtain independently labeled, sanitized, owner-approved real evidence before any supervised model experiment, real-data schema, source compatibility claim, or automatic strategy activation.
+- [ ] Continue owner Firefox acceptance of Facebook sponsored placements, Pornhub layout reflow, streaming and Orion behavior.
+
 ## Build 294 / v0.3.264: refuse same-count thumbnail swaps in temporary layout comparisons (November 3, 2026)
 - [x] Compare ephemeral, local DOM node identities and direct-child ordering for the same approved Pornhub lists before, during and after the owner-triggered temporary preview.
 - [x] Return `page-changed` when a virtualized feed replaces or reorders thumbnails, a listing changes, a supported in-page route changes, or fullscreen begins while comparing, even if aggregate geometry counts still match.
