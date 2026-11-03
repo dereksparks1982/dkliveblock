@@ -1,4 +1,4 @@
-/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–293.
+/* DK Live Block: opt-in, reversible video-list reflow. Builds 288–294.
    Scope: known Pornhub video-list markup only. Never moves DOM nodes, fetches
    videos, alters playback, reflows other sites, or executes website scripts. */
 (function(root){"use strict";
@@ -178,6 +178,30 @@ function create(doc,win){
   report.geometry=Object.freeze(report.geometry);
   return Object.freeze(report);
  }
+ // Temporary DOM node identity is checked only inside this synchronous
+ // owner-requested preview. Never export tile references, URLs or content.
+ // Equal aggregate card counts are insufficient on virtualized feeds.
+ function previewTargets(){
+  try{
+   const records=[];
+   const lists=Array.from(doc.querySelectorAll("ul.videos")).slice(0,MAX_GRIDS);
+   for(const node of lists){
+    if(candidate(node))
+     records.push({list:node,children:Array.from(node.children)});
+   }
+   return records.length?records:null;
+  }catch(_){return null;}
+ }
+ function samePreviewTargets(a,b){
+  if(!a||!b||a.length!==b.length)return false;
+  for(let i=0;i<a.length;i++){
+   if(a[i].list!==b[i].list||a[i].children.length!==b[i].children.length)
+    return false;
+   for(let j=0;j<a[i].children.length;j++)
+    if(a[i].children[j]!==b[i].children[j])return false;
+  }
+  return true;
+ }
  // Only an explicit owner action may compare the original layout against a
  // temporary grid. It must restore original classes/styles before returning.
  // Reject an already-enabled grid; never flicker or interfere with it.
@@ -185,19 +209,28 @@ function create(doc,win){
   if(!supports(host,String(win?.location?.pathname||"/"))||
      grids.size>0||style?.isConnected)return Object.freeze({ok:false,reason:"not-eligible"});
   if(doc?.fullscreenElement)return Object.freeze({ok:false,reason:"fullscreen-active"});
+  const pathBefore=String(win?.location?.pathname||"/");
+  const originalTargets=previewTargets();
   let before;
   try{before=diagnostics();}catch(_){return Object.freeze({ok:false,reason:"inspection-unavailable"});}
   if(before.inspectionUnavailable||before.eligibleLists<1||
      before.geometry.sameRowPairs<1)
    return Object.freeze({ok:false,reason:"no-comparable-pairs"});
-  let after=null,applied=0,error=null,restored=false;
+  let after=null,afterTargets=null,applied=0,error=null,restored=false;
   try{
    applied=scan();
-   if(applied>0)after=diagnostics();
+   if(applied>0){after=diagnostics();afterTargets=previewTargets();}
   }catch(_){error="preview-failed";}
   finally{restored=restore();}
   if(!restored)return Object.freeze({ok:false,reason:"restoration-incomplete"});
   if(error)return Object.freeze({ok:false,reason:error});
+  // Identity must survive the temporary CSS change AND final restoration.
+  // A same-count thumbnail swap, list replacement or in-page navigation is
+  // inconclusive, not a measured improvement.
+  if(!samePreviewTargets(originalTargets,afterTargets)||
+     !samePreviewTargets(originalTargets,previewTargets())||
+     String(win?.location?.pathname||"/")!==pathBefore||doc?.fullscreenElement)
+   return Object.freeze({ok:false,reason:"page-changed"});
   if(!after||after.inspectionUnavailable||after.eligibleLists!==before.eligibleLists||
      after.videoTiles!==before.videoTiles||
      after.geometry.sampledTiles!==before.geometry.sampledTiles||

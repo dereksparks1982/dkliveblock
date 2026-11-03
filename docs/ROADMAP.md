@@ -1,3 +1,10 @@
+## Build 294 / v0.3.264: refuse same-count thumbnail swaps in temporary layout comparisons (November 3, 2026)
+- [x] Compare ephemeral, local DOM node identities and direct-child ordering for the same approved Pornhub lists before, during and after the owner-triggered temporary preview.
+- [x] Return `page-changed` when a virtualized feed replaces or reorders thumbnails, a listing changes, a supported in-page route changes, or fullscreen begins while comparing, even if aggregate geometry counts still match.
+- [x] Keep identifiers entirely inside the synchronous preview; return only the existing coarse numerical report, never raw elements, titles, links or video data.
+- [x] Add five focused source/fixture assertions and register the test suite. Preserve OFF-by-default CSS, exact hostname restrictions, owner confirmation and all established protections.
+- [ ] Run full exact-commit native Ubuntu suite and verify the owner's real Firefox Pornhub page layout, scrolling, sizing, video clicks, and rollback. No visual success or universal ad-space repair is claimed.
+
 ## Build 293 / v0.3.263: layout preview rollback integrity (November 2, 2026)
 - [x] Verify removal of temporary CSS grid/ad-slot classes and stylesheet before reporting a successful before/after preview.
 - [x] Retain references to any page elements that prevent class removal so restoration can be retried; never falsely claim safe cleanup.

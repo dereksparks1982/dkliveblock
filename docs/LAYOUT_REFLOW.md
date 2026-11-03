@@ -55,6 +55,12 @@ The owner reports DK Live Block working on Pornhub, but the page can show two vi
 - No layout preview runs in fullscreen. Original default-OFF behavior, exact-host scope, user pause and video-player protections remain unchanged.
 - Automated regressions cover failure and recovery paths. **Further expansion of real Pornhub selectors requires owner Firefox evidence**, since source simulations cannot establish the live page's current markup.
 
+## Build 294: same-content integrity for temporary layout comparison
+- The local preview now compares the identities and ordering of already eligible video-list containers and their direct child elements before, immediately after the CSS treatment, and after restoration. Equal numeric counts do not prove the same thumbnails survived fast/virtualized-feed updates.
+- The comparison refuses a positive result when list/card objects were replaced or reordered, a same-site in-page route changed, or fullscreen started while sampling. All page nodes remain in transient function-local memory and are never included in the Site Dashboard report.
+- Existing CSS classes and stylesheet are still restored in a `finally` path. A failed cleanup takes priority over a changed-page result, with the prior reload guidance. The opt-in setting remains OFF on new installs.
+- This prevents one category of misleading test result. It does not establish actual visual layout improvement; real Firefox checks remain required.
+
 ## Staged integration (one at a time)
 - **Build 289 (after owner screenshot/HTML evidence):** inspect the actual Pornhub layout variant with remaining blank space. Add a narrowly verified grid selector or safe margin/padding adjustment only for that variant. Avoid selectors based on a vague `ad` substring.
 - **Build 290:** optional per-site controls and a reversible live preview/undo for further verified sites. No general-site auto-reflow without user direction and tests.
