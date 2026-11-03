@@ -199,13 +199,53 @@ function explicitHeaderAd(label,card,win){
  }
  return false;
 }
+// Build 298: Facebook can render the advertiser's name as a nested link,
+// with a tiny "Ad" badge directly below it and no heading/article semantics.
+// Require an exact badge, a real adjacent author link, and the upper portion
+// of one bounded post. Do NOT trust the advertiser name, image or Meta domain.
+function linkedAuthorAdByline(label,card,win){
+ if(!label||!card||!labelsOf(label,win).some(isAdLabel)||
+    label.closest?.('p,blockquote,[role="paragraph"],[role="dialog"],[role="complementary"],nav,form'))return false;
+ const cardBox=card.getBoundingClientRect?.();
+ const badge=label.getBoundingClientRect?.();
+ if(!cardBox||!badge||!card.contains?.(label)||
+    !Number.isFinite(cardBox.top)||!Number.isFinite(cardBox.height)||
+    !Number.isFinite(badge.top)||!Number.isFinite(badge.left)||
+    badge.top<cardBox.top-5||badge.top>cardBox.top+Math.min(130,cardBox.height*.34)||
+    badge.height>38||badge.width>150||badge.left<cardBox.left-6||
+    badge.left>cardBox.left+Math.min(240,cardBox.width*.52))return false;
+ let ancestor=label;
+ for(let depth=0;ancestor&&ancestor!==card&&depth<17;depth++,ancestor=ancestor.parentElement){
+  const parent=ancestor.parentElement;
+  if(!parent||!card.contains?.(parent))break;
+  const rect=parent.getBoundingClientRect?.();
+  if(!rect||rect.height>165||rect.height<15||String(parent.textContent||"").length>480)continue;
+  const links=parent.querySelectorAll?.('a[role="link"],a[href]')||[];
+  for(let i=0;i<Math.min(12,links.length);i++){
+   const author=links[i];
+   if(author===label||author.contains?.(label)||!card.contains?.(author)||
+      author.closest?.('p,blockquote,[role="paragraph"],[role="dialog"],nav,form'))continue;
+   const name=normalize(author.textContent);
+   if(name.length<2||name.length>90||isAdLabel(name))continue;
+   const ar=author.getBoundingClientRect?.();
+   // The author text must actually sit just above the ad marker in the
+   // same left-aligned byline column, not in the post body or actions.
+   if(!ar||!Number.isFinite(ar.top)||!Number.isFinite(ar.left)||
+      ar.height<8||ar.height>55||ar.width<12||ar.width>300||
+      ar.top>badge.top+2||ar.top<badge.top-62||
+      ar.left>badge.left+38||ar.right<badge.left-38)continue;
+   return true;
+  }
+ }
+ return false;
+}
 function hasAdEvidence(card,doc,win,cache){
  if(card.querySelector?.('a[href*="/ads/about/"],a[href*="/ads/about?"]'))return true;
  const nodes=card.querySelectorAll?.('span,a,[aria-label],[aria-labelledby],use,text')||[];
  for(let i=0;i<Math.min(850,nodes.length);i++){
   const el=nodes[i];
   if(sponsoredMenu(el))return true;
-  if(explicitHeaderAd(el,card,win))return true;
+  if(explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))return true;
   if(!inByline(el,card))continue;
   if(labelsOf(el,win).some(isAdLabel)||referenceLabels(el,doc,cache,win).some(isAdLabel))return true;
  }
@@ -262,7 +302,7 @@ function feedCardFrom(label,doc){
    label.closest?.('[aria-posinset]');
  if(designated&&safeCard(designated,doc))return designated;
  let node=label,best=null;
- for(let i=0;i<14&&node?.parentElement;i++,node=node.parentElement){
+ for(let i=0;i<22&&node?.parentElement;i++,node=node.parentElement){
   const p=node.parentElement;
   if(p===doc.body||p===doc.documentElement||p.matches?.(ROOTS)||p.closest?.('[role="dialog"],[role="complementary"]'))break;
   if(!safeCard(p,doc))continue;
@@ -643,7 +683,7 @@ function create(doc,win,max=100,onEvidence=null){
     const values=labelsOf(el,win);
     if(values.some(isAdLabel)){
      const card=feedCardFrom(el,doc);
-     if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,el,"feed"))count++;
+     if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))&&hide(card,el,"feed"))count++;
      // Right-rail handling retains the existing strict geometry/Contacts guard.
      if(values.some(v=>normalize(v)==="sponsored")){
       const rail=rightRailCandidate(el,doc,win);
@@ -819,9 +859,9 @@ function create(doc,win,max=100,onEvidence=null){
    if(!labelsOf(el,win).some(isAdLabel))continue;
    stats.lastBylineSignals++;
    const card=feedCardFrom(el,doc);
-   if(!card||!(inByline(el,card)||explicitHeaderAd(el,card,win)))
+   if(!card||!(inByline(el,card)||explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win)))
     stats.lastBylineUnresolved++;
-   else if(hide(card,null,"feed"))count++;
+   else if(hide(card,el,"feed"))count++;
   }
   // A feed byline can reference a portal span or SVG sprite with all the ad
   // text outside the card. Walk ONLY referencing elements in the main feed;
@@ -831,7 +871,7 @@ function create(doc,win,max=100,onEvidence=null){
    const el=refs[i];
    if(!referenceLabels(el,doc,cache,win).some(isAdLabel))continue;
    const card=feedCardFrom(el,doc);
-   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win))&&hide(card,null,"feed"))count++;
+   if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))&&hide(card,el,"feed"))count++;
   }
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
@@ -853,7 +893,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,isFacebook,isAdLabel,labelsOf,inByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -1,3 +1,14 @@
+## Build 298 / v0.3.268: Facebook marked-ad miss, website charcoal theme, site Back to top (November 3, 2026)
+- [x] Address owner screenshot of a clearly marked Facebook feed **Ad** surviving with Meta experimental protections on. Add bounded linked-author byline recognition for deeply nested posts lacking article landmarks, while preserving organic posts, dialogs and multi-post boundaries.
+- [x] Add nine focused Facebook regressions for positive and negative cases, including immediate insertion.
+- [x] Recolor previously brown Russian website panels/background to charcoal/black while preserving the approved metallic banner PNG, gold/red accents, English theme, fixed button positions and existing geometry.
+- [x] Add a mobile-safe, keyboard-accessible, bilingual main-page Back to top button that appears only after scrolling; retain modal Back to top controls and reduced-motion handling.
+- [x] Add eight website tests and update original pinned Russian background-color assertions.
+- [ ] Run full native Ubuntu offline tests on exact GitHub commit; ensure no unrelated regression.
+- [ ] Owner Firefox retest on actual ordinary Facebook feed with Meta experimental options, fast scroll, and nearby organic feed/comment/menu/Contacts. Do not mark Facebook fixed from synthetic fixtures.
+- [ ] Owner visual acceptance of Russian charcoal page and site Back to top at desktop/mobile sizes.
+- [ ] Resume isolated YouTube ordinary-video playback regression after collecting sanitized evidence.
+
 ## Build 297 / v0.3.267: one-tab YouTube player API diagnostic isolation (November 3, 2026)
 - [x] Add explicit, confirmation-gated, temporary player API pass-through mode for exactly three first-party POST JSON endpoints while retaining general ad, media, feed, popup and tracker filtering.
 - [x] Disable both player JSON modification paths and retain read-only page bridge observation in this mode; no browser extensions or new permissions.

@@ -24,7 +24,7 @@
 
 | Platform/site | Status | Evidence / next gate |
 | --- | --- | --- |
-| Facebook / Meta, `facebook.com` | **PARTIAL** | Owner saw right-side Sponsored ads flash and disappear, plus feed ads that remain briefly clickable then vanish, replaced by ordinary posts. Build 280 fast path was added, but its real Firefox speed has not been retested. Do not promote until rapid scrolling shows no persistent or clickable ad and normal posts, menus and Contacts remain intact. |
+| Facebook / Meta, `facebook.com` | **PARTIAL, MISSED FEED AD CONFIRMED NOV 3** | Owner screenshot shows an explicitly labeled feed Ad still visible with experimental protections enabled and 0 network blocks. Build 298 adds strict linked-author Ad byline detection (synthetic checks only). Needs real Firefox retest, rapid scrolling and normal nearby organic posts, menus, Marketplace and Contacts before any successful claim. |
 | XNXX | **Positive owner-observed behavior, additional regression needed** | Owner earlier confirmed visible advertising cleanup and popup improvements. Several later video/preroll compatibility changes need site-specific retest. Historical observations are not erased; no universal PASS claim here. |
 | CBS News | **PROVISIONAL** | Advertising cleanup/playback improved; long playback across ad breaks and article/home video behavior still need owner retest. |
 | Meta Instagram | **UNVERIFIED** | Profile/routing exists, but Facebook's DOM hider is not automatically applied to Instagram. Separate fixtures and browser checks required. |
