@@ -1,3 +1,8 @@
+## Build 326 / v0.3.296: late Facebook portal label caching (November 3, 2026)
+- [x] Check both ends of added/removed React node lists when retaining short-lived, referenced Sponsored labels; preserve 12-node work budget.
+- [x] Confirm ordinary text cannot create an ad label and a cache hit alone never deletes a post.
+- [x] Five offline regression cases registered. Ubuntu/Firefox owner verification outstanding.
+
 ## Build 325 / v0.3.295: fair Facebook feed scanning (November 3, 2026)
 - [x] Rotate bounded full-scan windows across feed articles (240), short Sponsored bylines (2,400), and portal/SVG references (1,200) rather than permanently rechecking only first nodes.
 - [x] Retain prior ad-evidence gates, exceptions, geometry and 15-hide cap. No new privileges, telemetry or video playback changes.

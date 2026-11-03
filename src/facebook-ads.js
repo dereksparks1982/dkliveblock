@@ -497,6 +497,17 @@ function sampleAddedNodes(nodes,max=8){
  else{for(let i=0;i<4;i++)result.push(nodes[i]);for(let i=n-4;i<n;i++)result.push(nodes[i]);}
  return result;
 }
+// Observe both ends of React child-list churn to retain ephemeral labels
+// without increasing the original twelve-node cache work limit.
+function sampleChangedNodes(nodes,max=12){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==12)return [];
+ const out=[];
+ if(n<=12){for(let i=0;i<n;i++)out.push(nodes[i]);}
+ else{for(let i=0;i<6;i++)out.push(nodes[i]);for(let i=n-6;i<n;i++)out.push(nodes[i]);}
+ return out;
+}
 function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -628,14 +639,12 @@ function create(doc,win,max=100,onEvidence=null){
   if(r.type!=="childList")return false;
   const removed=r.removedNodes||[],added=r.addedNodes||[];
   let changed=false;
-  for(let i=0;i<Math.min(12,removed.length);i++){
-   const node=removed[i];
+  for(const node of sampleChangedNodes(removed)){
    if(node?.nodeType===3&&r.target?.id)
     changed=cacheAdId(r.target.id,node.textContent)||changed;
    else changed=remember(node)||changed;
   }
-  for(let i=0;i<Math.min(12,added.length);i++){
-   const node=added[i];
+  for(const node of sampleChangedNodes(added)){
    if(node?.nodeType===3&&r.target?.id)
     changed=cacheAdId(r.target.id,node.textContent)||changed;
    else changed=remember(node)||changed;
@@ -921,7 +930,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

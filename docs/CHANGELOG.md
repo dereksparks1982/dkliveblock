@@ -1,3 +1,6 @@
+## 0.3.296 / Build 326 (2026-11-03)
+- React mutation portal label cache inspects both head and tail of large node lists under the same work cap.
+
 ## 0.3.295 / Build 325 (2026-11-03)
 - Rotate bounded Facebook feed/article, byline and referenced-label scans to avoid starvation in long pages without loosening ad evidence. Firefox acceptance pending.
 
