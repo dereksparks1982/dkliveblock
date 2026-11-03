@@ -1,3 +1,7 @@
+## 0.3.273 / Build 303 (November 3, 2026)
+- Critical fix: utility dictionaries now drive actual DOM translation rather than passing only static lookup checks. Runtime labels and placeholders have safe retranslation and English rollback.
+- No user-entered input, request data, website content, filtering, telemetry or permissions changed. Focused synthetic DOM smoke passed; native/full browser tests pending.
+
 ## 0.3.272 / Build 302 (November 3, 2026)
 - Russian strings added to Meta and Nesty evidence views, cosmetic rule debugger and optional DevTools panel. No ad-filtering change.
 - Corrected misleading Meta default-off wording to reflect the saved experimental switch. Exact-string coverage registered; full Ubuntu and Firefox tests pending.

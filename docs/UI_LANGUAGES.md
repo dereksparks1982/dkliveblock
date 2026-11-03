@@ -53,3 +53,6 @@ Network Monitor and the offline YouTube diagnostic comparison lab now use the lo
 
 ## Build 302: Nesty and inspection screens
 Meta intelligence, Nesty Cookie Watch, cosmetic debugging and the optional Firefox Developer Tools panel use the local Russian utility dictionary. Dynamic diagnostics remain partly English, and the Orion-only popup has a separate capability path.
+
+## Build 303: essential runtime integration correction
+Builds 300–302 had valid extra string dictionaries, but the DOM text/attribute rewriter still checked only the earlier Settings dictionary. Build 303 fixes the integration, adds safe placeholder translation, and watches a bounded whitelist of changing UI attributes. Tested with an isolated synthetic DOM; real Firefox acceptance remains required.

@@ -1,3 +1,9 @@
+## Build 303 / v0.3.273: connect Russian utility dictionary to real renderer (November 3, 2026)
+- [x] Fix Builds 300–302 integration gap: renderer checked only Settings dictionary despite successful extra dictionary lookups.
+- [x] Translate recognized input placeholders, newly changed ARIA labels and titles while keeping entered values and website content untouched.
+- [x] Test round-trip, modified runtime labels and source safety; register regression in Ubuntu runner.
+- [ ] Full Ubuntu exact-commit run and real Firefox Russian visual and accessibility verification; Orion remains separate.
+
 ## Build 302 / v0.3.272: Russian Meta/Nesty and inspection tools (November 3, 2026)
 - [x] Translate static Meta intelligence, Nesty Cookie Watch, cosmetic debugger and opt-in Firefox Developer Tools network panel.
 - [x] Correct stale Meta experimental-off explanatory text to state the saved switch is authoritative; never change the actual toggle or filtering.

@@ -398,14 +398,15 @@ function rewrite(node,language){
  if(original&&actual.trim()!==original&&actual.trim()!==translate(original,"ru"))
   original=null; // Host UI re-rendered a different message.
  if(!original){
-  if(!Object.prototype.hasOwnProperty.call(RU,m[2]))return;
+  if(translate(m[2],"ru")===m[2])return;
   original=m[2];nodeOriginals.set(node,original);
  }
  const desired=m[1]+translate(original,language)+m[3];
  if(actual!==desired)node.nodeValue=desired;
 }
+const ATTRIBUTE_EXCLUDED=new Set(["SCRIPT","STYLE","PRE","CODE"]);
 function attributes(el,language){
- if(!el?.getAttribute||!eligible({parentElement:el}))return;
+ if(!el?.getAttribute||ATTRIBUTE_EXCLUDED.has(el.tagName)||el.isContentEditable||!eligible({parentElement:el.parentElement}))return;
  for(const attr of ["aria-label","title","placeholder"]){
   const current=el.getAttribute(attr);if(!current)continue;
   let entries=attributeOriginals.get(el);
@@ -413,7 +414,7 @@ function attributes(el,language){
   let original=entries.get(attr);
   if(original&&current!==original&&current!==translate(original,"ru"))original=null;
   if(!original){
-   if(!Object.prototype.hasOwnProperty.call(RU,current))continue;
+   if(translate(current,"ru")===current)continue;
    original=current;entries.set(attr,original);
   }
   const desired=translate(original,language);
@@ -454,12 +455,13 @@ function init(){
    for(const r of records){
     if(scanned++>150)break;
     if(r.type==="characterData")rewrite(r.target,current);
+    else if(r.type==="attributes")attributes(r.target,current);
     else if(r.type==="childList"){
      for(const n of Array.from(r.addedNodes||[]).slice(0,40))apply(n,current);
     }
    }
   });
-  observer.observe(document.body,{subtree:true,childList:true,characterData:true});
+  observer.observe(document.body,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:["aria-label","title","placeholder"]});
  }
 }
 const API=Object.freeze({KEY,SUPPORTED,PLANNED,supported,translate,apply,init});
