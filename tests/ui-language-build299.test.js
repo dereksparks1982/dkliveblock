@@ -6,7 +6,7 @@ const path=require("node:path");
 const UI=require("../src/ui-language.js");
 
 const src=name=>fs.readFileSync(path.join(__dirname,"..","src",name),"utf8");
-const exempt=new Set(["DK LIVE BLOCK","LIVE BLOCK","elderredsoftworks@proton.me","~/.local/share/dk-live-block/dependencies/"]);
+const exempt=new Set(["DK LIVE BLOCK","LIVE BLOCK","Patreon","elderredsoftworks@proton.me","~/.local/share/dk-live-block/dependencies/"]);
 function displayedEnglish(html){
   const body=html.slice(html.indexOf("<body")+5)
     .replace(/<script\b[^>]*>[\s\S]*?<\/script>/gi,"")
