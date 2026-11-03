@@ -1,4 +1,4 @@
-/* DK Live Block Builds 300-322: offline exact-match Russian extension UI dictionary. */
+/* DK Live Block Builds 300-323: offline Russian extension UI strings. */
 (function(root){"use strict";root.DKUIToolStrings=Object.freeze({
  "Local video library": "Локальная библиотека видео",
  "Saved videos": "Сохранённые видео",
@@ -324,5 +324,25 @@
  "Selected reports changed while reading. Compare again.": "Выбранные отчёты изменились во время чтения. Повторите сравнение.",
  "Sanitized comparison saved locally; no reports uploaded.": "Очищенная сводка сохранена локально; отчёты никуда не отправлялись.",
  "Reports cleared from the comparison lab.": "Отчёты удалены из лаборатории сравнения.",
- "Selection changed. Click Compare reports to load local files.": "Выбор изменился. Нажмите «Сравнить отчёты», чтобы загрузить локальные файлы."
+ "Selection changed. Click Compare reports to load local files.": "Выбор изменился. Нажмите «Сравнить отчёты», чтобы загрузить локальные файлы.",
+ "Facebook diagnostic: ": "Диагностика Facebook: ",
+ "invalid-evidence": "неверные диагностические данные",
+ "protection-inactive": "защита неактивна",
+ "recognition-disabled": "распознавание рекламы выключено",
+ "scanner-unavailable": "сканер недоступен",
+ "picker-active": "активен выбор элементов",
+ "no-scans-recorded": "нет записанных сканирований",
+ "dom-hide-observed": "зафиксировано скрытие элемента",
+ "graphql-modification-observed": "замечено изменение ответа GraphQL",
+ "no-hides-recorded": "скрытие рекламы не зафиксировано",
+ "Collect a fresh Facebook diagnostic report.": "Соберите новый диагностический отчёт Facebook.",
+ "Enable DK Live Block on this tab, then repeat the check.": "Включите DK Live Block на этой вкладке и повторите проверку.",
+ "Review the saved ad recognition setting.": "Проверьте сохранённую настройку распознавания рекламы.",
+ "Reload the Facebook tab and inspect whether the content script initialized.": "Перезагрузите вкладку Facebook и проверьте запуск сканера расширения.",
+ "Exit the element picker before comparing scans.": "Выйдите из режима выбора элементов перед сравнением сканирований.",
+ "Scroll a Facebook feed once and check the scanner again.": "Прокрутите ленту Facebook и снова проверьте сканер.",
+ "Verify the specific Sponsored card disappeared while nearby ordinary posts stayed visible.": "Убедитесь, что исчезла именно рекламная публикация, а соседние обычные записи остались видимыми.",
+ "Response modifications alone do not prove a sponsored post disappeared. Compare with the actual feed.": "Изменения ответов сами по себе не доказывают исчезновение рекламы. Проверьте настоящую ленту.",
+ "If a marked Ad remains visible, save this report and a screenshot. Do not infer that permitted requests were ads.": "Если публикация с пометкой Ad остаётся, сохраните отчёт и снимок экрана. Разрешённые запросы не обязательно содержали рекламу.",
+ "Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. ": "Не удалось получить сведения сканера Facebook. Перезагрузите вкладку и DK Live Block. "
 });if(typeof module!=="undefined")module.exports=root.DKUIToolStrings;})(typeof globalThis!=="undefined"?globalThis:this);

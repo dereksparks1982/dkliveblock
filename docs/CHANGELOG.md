@@ -1,3 +1,6 @@
+## 0.3.293 / Build 323
+- Facebook diagnostic triage now displays human-readable fixed guidance in the selected English/Russian UI language, without changing underlying exported evidence.
+
 ## 0.3.292 / Build 322
 - Russian UI coverage extended to composed YouTube lab results, warnings and progress messages, including runtime language switching; exported evidence and filters remain language-neutral.
 

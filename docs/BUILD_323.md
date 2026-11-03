@@ -1,0 +1,3 @@
+# Build 323: localize Facebook Meta triage guidance
+
+Unreleased source v0.3.293. The Meta Intelligence page now presents a short human-readable diagnosis before the untouched, whitelisted scanner/GraphQL JSON. All existing nine triage categories and their next-check instructions have exact-match Russian translations, with refresh after changes to the saved interface language. The JSON schema, counters, private-data safeguards and export byte content remain stable and language-neutral. Five regression checks added. No new browser permissions, CSS, network requests, blocking techniques or telemetry. Full Ubuntu and owner Firefox bilingual validation pending.

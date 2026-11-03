@@ -1,3 +1,8 @@
+## Build 323 / v0.3.293: Russian Facebook triage status (November 3, 2026)
+- [x] Add Russian labels for all fixed Facebook diagnostic triage categories, suggested user checks and errors; rerender results after saved language changes.
+- [x] Preserve unchanged underlying developer JSON and export, no changed ad filtering, permissions or UI geometry.
+- [x] Five source/negative/translation checks; full native Linux and Firefox accessibility QA pending.
+
 ## Build 322 / v0.3.292: Russian dynamic YouTube lab results (November 3, 2026)
 - [x] Localize composed A/B summary labels, warnings, outcome states, metric headings and local-only progress messages using the saved English/Russian preference.
 - [x] Rerender user-visible strings on language switch; keep exported diagnostic schema, values and user-entered observations unchanged.

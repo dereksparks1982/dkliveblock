@@ -6,6 +6,17 @@
  const tabId=idText!==null&&/^\d+$/.test(idText)?Number(idText):null;
  let ready=false;
  let facebookReport=null;
+ // Human-readable triage follows the saved English/Russian preference.
+ // Keep the underlying JSON source report unchanged and safe for export.
+ const local=s=>DKUILanguage.translate(String(s),document.documentElement?.lang||"en");
+ function renderFacebook(){
+  if(!facebookReport)return;
+  const state=facebookReport.triage;
+  $("facebookDiagnostics").textContent=local("Facebook diagnostic: ")+
+   local(state.code)+"\n"+local(state.next)+"\n\n"+
+   JSON.stringify(facebookReport,null,2);
+ }
+
  // Explicit read-only inspection: no page text, cookies or individual URLs.
  async function checkFacebook(){
   const panel=$("facebookDiagnostics");
@@ -30,10 +41,10 @@
    if(after?.url!==tab.url)throw Error("Facebook tab changed during diagnostic. Retry.");
    facebookReport=DKFacebookDiagnosticReport.build(reply,graphqlReply);
    if(!facebookReport)throw Error("Diagnostic report unavailable");
-   panel.textContent=JSON.stringify(facebookReport,null,2);
+   renderFacebook();
    $("facebookExport").disabled=false;
   }catch(e){
-   panel.textContent="Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. "+String(e?.message||"");
+   panel.textContent=local("Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. ")+String(e?.message||"");
   }
  }
  $("graphqlCheck").addEventListener("click",async()=>{
@@ -53,6 +64,11 @@
   }catch(error){box.textContent=String(error?.message||"Unavailable");}
  });
  $("facebookCheck").addEventListener("click",()=>checkFacebook());
+ browser.storage.onChanged?.addListener((changes,area)=>{
+  if(area==="local"&&changes.dkUiLanguage&&facebookReport)
+   queueMicrotask(()=>{if(facebookReport)renderFacebook();});
+ });
+
  $("facebookExport").addEventListener("click",()=>{
   if(!facebookReport)return;
   const blob=new Blob([JSON.stringify(facebookReport,null,2)+"\n"],{type:"application/json"});
