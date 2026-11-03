@@ -47,14 +47,14 @@ function render(result){
   $("comparisonRows").appendChild(tr);
  }
  const observed=observations();
- if(observed.baselineVideoType!==observed.candidateVideoType)
-  addWarning("The video types differ. This can explain changed ads or playback and is not a controlled A/B test.");
+ const manual=DKYouTubeManualOutcome.assess(observed);
+ for(const warning of manual.warnings)addWarning(warning);
  const playback={unknown:"not recorded",works:"played normally",refused:"refused / black screen",stalled:"stalled / buffered"};
  const ads={unknown:"not recorded",seen:"an ad visibly played","none-seen":"no ad observed during test"};
  $("manualSummary").textContent="Manual observation: baseline "+observed.baselineVideoType+" "+
   playback[observed.baselinePlayback]+", "+ads[observed.baselineAds]+
   "; candidate "+observed.candidateVideoType+" "+playback[observed.candidatePlayback]+", "+ads[observed.candidateAds]+
-  ". These are user-entered observations, not verified measurements.";
+  ". These are user-entered observations, not verified measurements. Results: "+manual.baseline+" / "+manual.candidate+".";
  $("comparisonCaveat").textContent=result.caveat+
   " Treat 'no ad observed' as inconclusive when the video did not successfully play.";
  $("comparisonResult").hidden=false;
@@ -83,7 +83,7 @@ function exportComparison(){
  const safe={format:"DK Live Block offline YouTube A/B comparison",schemaVersion:1,
   comparedAt:new Date().toISOString(),
   baselineMode:comparison.baselineMode,candidateMode:comparison.candidateMode,
-  observations:observations(),contentTypesMatched:
+  observations:observations(),manualAssessment:DKYouTubeManualOutcome.assess(observations()),contentTypesMatched:
    observations().baselineVideoType===observations().candidateVideoType,comparison:{
    rows:comparison.rows,warnings:comparison.warnings,
    interpretation:comparison.interpretation,caveat:comparison.caveat,

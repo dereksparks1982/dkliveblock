@@ -1,3 +1,6 @@
+## 0.3.284 / Build 314
+- The offline YouTube report-comparison tool now differentiates failed playback from observed no-ad sessions. Explicit caveats prevent a black screen from masquerading as successful ad blocking.
+
 ## 0.3.283 / Build 313
 - Offline YouTube lab now detects watch/embed/short-link site-family mismatch with no raw hostnames or URLs in the projection. Keeps all player and network filters unchanged.
 

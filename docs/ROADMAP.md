@@ -1,3 +1,9 @@
+## Build 314 / v0.3.284: offline manual YouTube playback outcome classification (November 3, 2026)
+- [x] Classify visible ads, refused videos, buffering and no-observed-ad playback as different unverified outcomes, with warnings for mixed ordinary versus ad-funded film cases.
+- [x] Keep manually entered information enumerated, scrub arbitrary fields and include a conservative interpretation in the export.
+- [x] Register five standalone checks without touching player, network, video HTML or permissions.
+- [ ] Actual Firefox playback tests and full native Ubuntu suite still required.
+
 ## Build 313 / v0.3.283: YouTube A/B site-family comparability (November 3, 2026)
 - [x] Project exact YouTube hostname to a fixed watch/embed/short-link site family, without retaining actual hostnames or video IDs.
 - [x] Warn when compared reports come from different site families; never claim causal or ad-free success.

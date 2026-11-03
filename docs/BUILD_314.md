@@ -1,0 +1,3 @@
+# Build 314: manual YouTube observation safety
+
+Version 0.3.284. Unreleased source only. A locally bundled classifier evaluates the user's fixed-choice test observations without requesting URLs or changing playback. Its categories distinguish refused video, buffering, visibly played ads, no ad observed while video played, and unknown playback. The lab displays warnings when Free with Ads movies are compared with ordinary videos or when playback never started, and records a sanitized enum-only assessment alongside the optional comparison export. Five tests cover misclassification, false-positive evidence and privacy. No request, player, browser permission or website geometry changes. Full Linux and Firefox validation pending.
