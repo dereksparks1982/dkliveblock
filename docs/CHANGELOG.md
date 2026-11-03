@@ -1,3 +1,8 @@
+## 0.3.269 / Build 299 localization candidate (November 3, 2026)
+- Added local Russian translations across Settings, toolbar popup experiment and Site Dashboard; previously many Settings labels had no translations and the Dashboard did not load the language module.
+- Replaced brown Settings warning background with charcoal/cyan, preserving approved layout and control geometry.
+- Added offline static translation-coverage tests. Full Ubuntu run and real Firefox display remain unverified. No release.
+
 ## 0.3.263 / Build 293 (November 2, 2026)
 - Strengthened experimental layout preview rollback verification. Successful comparison now requires verified removal of temporary styles and classes.
 - Failed cleanup retains ownership for another attempt and reports restoration incomplete; active fullscreen rejects preview.
