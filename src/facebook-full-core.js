@@ -3002,10 +3002,6 @@ const observer = new MutationObserver((mutations) => {
   // read it, which means collecting it in the build people actually install.
   const observerStartedAt = performance.now();
   for (const mutation of mutations) {
-    if (mutation.type === "characterData") {
-      noteInlineAdTextEdit(mutation.target);
-      continue;
-    }
     if (mutation.type === "attributes") {
       if (mutation.attributeName === "aria-labelledby") {
         noteLabelledByChange(mutation.target);
@@ -3119,7 +3115,7 @@ function startObserving() {
   // number.
   // aria-labelledby too, and only that attribute - see noteLabelledByChange.
   observer.observe(document.documentElement, {
-    childList: true, subtree: true, attributes: true, characterData: true,
+    childList: true, subtree: true, attributes: true,
     attributeFilter: ["aria-labelledby", "aria-label"],
   });
   cacheLabelTargets(document.body);
@@ -3277,6 +3273,13 @@ function dkSetExceptions(list) {
     !/[\r\n{};]/.test(s)).slice(0,120) : [];
   for (const card of Array.from(hiddenPosts.keys())) if (dkExcluded(card)) restorePost(card);
 }
+// The DK content controller already observes characterData at document
+// scope. Reuse its bounded mutation sampling instead of attaching another
+// document-wide characterData observer in this Facebook engine.
+function dkObserveMutation(mutation) {
+  return mutation?.type==="characterData" &&
+    noteInlineAdTextEdit(mutation.target);
+}
 function dkScan() {
   if (!dkEnabled || !document.body) return 0;
   const now=Date.now(); if (now-dkFallbackAt<3500) return 0; dkFallbackAt=now;
@@ -3308,7 +3311,7 @@ function dkDiagnostics() {
 const dkApi=Object.freeze({
  installed:true,create:()=>dkApi,setEnabled:dkSetEnabled,
  setExceptions:dkSetExceptions,restore:()=>dkSetEnabled(false),
- scan:dkScan,scanInserted:()=>0,scanVisible:()=>0,observeMutation:()=>false,
+ scan:dkScan,scanInserted:()=>0,scanVisible:()=>0,observeMutation:dkObserveMutation,
  diagnostics:dkDiagnostics,get hiddenCount(){return hiddenPosts.size;}
 });
 globalThis.DKFacebookFullCore=dkApi;
