@@ -734,6 +734,10 @@ function findPostContainer(label, reason) {
 
 // container element -> { reason, originalDisplay, placeholder, label }
 const hiddenPosts = new Map();
+// Cumulative hide operations, not unique Facebook posts. Stored only in this
+// page's content-script memory; no Page names, URLs, DOM nodes or post IDs.
+const dkHideReasons = {label:0,shape:0,marked:0,suggested:0,unfollowed:0,section:0,other:0};
+let dkRestoreOperations = 0;
 
 // Sending a runtime message crosses a process boundary (content script ->
 // background), which has real fixed overhead — batching rapid-fire
@@ -1164,6 +1168,10 @@ function hidePost(container, reason, label, via) {
   const hide = applyHide(container);
   hide.marker.dataset.fbsbHidden = reason;
   hiddenPosts.set(container, { reason, originalDisplay, placeholder, label, hide, via: via || "label" });
+  const bucket = via === "shape" ? "shape" : via === "marked" ? "marked" :
+    reason === "suggested" ? "suggested" : reason === "unfollowed" ? "unfollowed" :
+    via === "section" ? "section" : reason === "sponsored" ? "label" : "other";
+  dkHideReasons[bucket] = Math.min(1000000,dkHideReasons[bucket]+1);
   if (isPostReason(reason)) reportCount(1);
 }
 
@@ -1173,6 +1181,7 @@ function restorePost(container) {
   undoHide(info);
   if (info.placeholder) info.placeholder.remove();
   hiddenPosts.delete(container);
+  dkRestoreOperations=Math.min(1000000,dkRestoreOperations+1);
   if (isPostReason(info.reason)) reportCount(-1);
 }
 
@@ -3227,6 +3236,10 @@ function dkDiagnostics() {
     scanCostMs:duration(stats.ms),observerCostMs:duration(stats.observerMs),
     retryCostMs:duration(stats.retryMs),scanElements:Math.min(1000000,stats.elements),
     labelsUnanchored:Math.max(0,labelsClassified-labelsAnchored-labelsDeferred),
+    hideByLabel:dkHideReasons.label,hideByShape:dkHideReasons.shape,
+    hideByMarked:dkHideReasons.marked,hideBySuggested:dkHideReasons.suggested,
+    hideByUnfollowed:dkHideReasons.unfollowed,hideBySection:dkHideReasons.section,
+    hideByOther:dkHideReasons.other,restoreOperations:dkRestoreOperations,
     retryTicks:stats.retryTicks,pending:pendingLabels.size,
     labelsClassified,labelsAnchored,labelsDeferred,
     rescuedLabels,lateTextLabels,lateLabelRefs,unlabeledAdsHidden,

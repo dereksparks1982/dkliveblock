@@ -1,3 +1,6 @@
+## 0.3.335 / Build 365 (2026-11-04)
+- Add privacy-safe aggregate counts of Facebook hide reasons and restores to isolate unlabeled-ad inference from explicit labels.
+
 ## 0.3.334 / Build 364 (2026-11-04)
 - Expose bounded private-safe Facebook scan/observer/retry cost metrics and dedicated observer-inactive diagnosis.
 

@@ -1,3 +1,9 @@
+## Build 365 / v0.3.335: complete Facebook hide/restore reason counters (November 4, 2026)
+- [x] Distinguish explicit Ad labels, unlabeled shape inference, manually marked advertisers and optional non-ad cleanup with success-only aggregate buckets.
+- [x] Count restores separately; preserve fixed-key privacy export and user control of all ten integrated capabilities.
+- [x] Five regressions registered. No browser-success claims.
+- [ ] Verify counters in live Firefox while timing Facebook feed ad disappearance.
+
 ## Build 364 / v0.3.334: Facebook observer costs and unresolved label diagnostics (November 4, 2026)
 - [x] Expose capped aggregate scan/observer/retry cost, inspected elements and unanchored label counts from the complete original engine.
 - [x] Distinguish an authorized engine whose observer is unexpectedly inactive; strip all page identities/content.
