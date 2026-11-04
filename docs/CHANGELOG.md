@@ -1,3 +1,6 @@
+## 0.3.314 / Build 344 (2026-11-03)
+- Prevent whole Facebook right-rail hides around active editors, while retaining original attributed link and geometry evidence.
+
 ## 0.3.313 / Build 343 (2026-11-03)
 - Reserve existing fast-scan capacity for the newest Sponsored card after noisy Facebook React child insertions.
 

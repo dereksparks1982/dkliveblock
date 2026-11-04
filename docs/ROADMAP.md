@@ -1,3 +1,8 @@
+## Build 344 / v0.3.314: right-rail interactive content preservation (November 3, 2026)
+- [x] Protect active editor/input descendants in Facebook right-rail Sponsored sections and attributed-link cards.
+- [x] Exclude contenteditable/textbox/searchbox ancestors before right-rail candidacy while retaining exact attribution, geometry and Contacts safeguards.
+- [x] Five tests registered; native Ubuntu and live right-rail Facebook acceptance pending.
+
 ## Build 343 / v0.3.313: newest Facebook insertion priority (November 3, 2026)
 - [x] Reserve eight of the same 32 fast-scan root positions for the *newest* of the last four React child insertions before ordinary earlier insertion traversal.
 - [x] Keep independent exact-ad, organic and editor safeguards, as well as the original first/middle/tail sampling and bounded loop.

@@ -399,7 +399,8 @@ function railSection(label,rail,doc,win){
   const r=p.getBoundingClientRect?.();
   if(!r||r.width<180||r.width>480||r.height>900||r.height<1||
      r.left<Math.max(480,(win?.innerWidth||1200)*0.57))break;
-  if(p.querySelector?.(ROOTS)||p.querySelector?.('video[controls]'))break;
+  if(p.querySelector?.(ROOTS)||p.querySelector?.('video[controls]')||
+    p.querySelector?.('[contenteditable="true"],[role="textbox"],[role="searchbox"],textarea,input:not([type="hidden"])'))break;
   const headers=p.querySelectorAll?.(HEADING)||[];
   if(headers.length>8)break;
   if(Array.from(headers).some(h=>h!==label&&!label.contains?.(h)&&
@@ -410,7 +411,7 @@ function railSection(label,rail,doc,win){
  return best&&best!==rail&&best!==doc.body?best:null;
 }
 function rightRailCandidate(label,doc,win){
- if(label.closest?.('main,[role="main"],[role="feed"],[role="article"],[data-pagelet^="FeedUnit"],[role="dialog"],form,nav'))return null;
+ if(label.closest?.('main,[role="main"],[role="feed"],[role="article"],[data-pagelet^="FeedUnit"],[role="dialog"],form,nav,[contenteditable="true"],[role="textbox"],[role="searchbox"]'))return null;
  const r=label.getBoundingClientRect?.();
  if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57))return null;
  const rail=label.closest?.('[role="complementary"]')||doc.body;
@@ -442,7 +443,8 @@ function rightRailLinkCard(a,doc,win){
   const pr=p.getBoundingClientRect?.();
   if(!pr||pr.width<160||pr.width>480||pr.height>560||
      pr.left<Math.max(480,(win?.innerWidth||1200)*0.57))break;
-  if(p.querySelector?.(ROOTS)||p.querySelector?.('video[controls]'))break;
+  if(p.querySelector?.(ROOTS)||p.querySelector?.('video[controls]')||
+     p.querySelector?.('[contenteditable="true"],[role="textbox"],[role="searchbox"],textarea,input:not([type="hidden"])'))break;
   const headings=p.querySelectorAll?.(HEADING)||[];
   if(Array.from(headings).some(h=>/^(contacts|birthdays|group chats|friends|your pages|your shortcuts)$/i.test(normalize(h.textContent))))break;
   if(pr.height>=65&&(p.querySelector?.("img")||p.querySelector?.("a")))best=p;
