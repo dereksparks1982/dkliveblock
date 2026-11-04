@@ -75,6 +75,7 @@ const RU=Object.freeze({
 "Russian":"Русский",
 "Privacy first. Everything free.":"Конфиденциальность прежде всего. Всё бесплатно.",
 "Protection settings":"Настройки защиты",
+"Back to top":"Наверх",
 "Threat database & protection":"База угроз и защита",
 "Threat protection overrides":"Исключения для защиты от угроз",
 "Strict popunder and scam-tab protection":"Строгая защита от нежелательных вкладок и мошенничества",
