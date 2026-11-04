@@ -34,7 +34,7 @@ test("Build 382: legacy scanner is reachable only behind bounded Nesty evidence"
  assert.match(source,/DKFacebookFullCore\?\.create/);
  assert.match(source,/root\.DKMetaStrategyNesty\?\.create/);
  assert.match(source,/if\(!legacy\)legacy=root\.DKFacebookAds\?\.create/);
- assert.match(source,/if\(enabled!==true\)\{supervisor\?\.reset\(\);stopFallback\(\);\}/);
+ assert.match(source,/if\(enabled!==true\)\{supervisor\?\.reset\(\);stopFallback\(\);lastSupervisorAt=-Infinity;\}/);
 });
 test("Build 367: package matches manifest and core is injected first",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
