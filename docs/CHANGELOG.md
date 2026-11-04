@@ -1,3 +1,6 @@
+## 0.3.309 / Build 339 (2026-11-03)
+- Protect late explicit Facebook ad label changes from starvation behind earlier aria-label churn, without increasing scan work.
+
 ## 0.3.308 / Build 338 (2026-11-03)
 - Rotate capped Marketplace sponsored-listing inspection to cover later tiles, without broadening the hide surface.
 

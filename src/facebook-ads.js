@@ -693,9 +693,14 @@ function create(doc,win,max=100,onEvidence=null){
   const batch=records.slice(0,40);
   // Reserve twelve of thirty-two roots for changed text and explicit label
   // attributes. An insertion storm must not crowd out a late Ad label.
+  const priorityRecords=batch.filter(r=>r?.type==="characterData"||
+    r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName));
+  // When more than twelve label changes arrive, reserve six slots for the
+  // tail instead of letting the first twelve changes starve the newest ad.
+  const urgent=priorityRecords.length<=12?priorityRecords:
+   [...priorityRecords.slice(0,6),...priorityRecords.slice(-6)];
   let priorityRoots=0;
-  for(const r of batch)if(r?.type==="characterData"||
-    r?.type==="attributes"&&["aria-label","aria-labelledby","data-pagelet"].includes(r.attributeName)){
+  for(const r of urgent){
    if(priorityRoots>=12)break;
    const previous=roots.size;
    take(r.target);

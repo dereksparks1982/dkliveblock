@@ -1,3 +1,8 @@
+## Build 339 / v0.3.309: late Facebook label priority under mutation storms (November 3, 2026)
+- [x] Reserve half the twelve urgent fast-scan roots for tail label changes when more than twelve text/aria-label changes arrive together.
+- [x] Keep original 32-root, 320-descendant and evidence/exception bounds; normal posts stay visible.
+- [x] Five source and positive/negative regressions registered; full native Ubuntu and live Facebook tests outstanding.
+
 ## Build 338 / v0.3.308: long Marketplace listing coverage (November 3, 2026)
 - [x] Rotate the existing 3,500-label Marketplace check across oversized search/result DOMs, retaining prior exact promoted badge and single-tile checks.
 - [x] Include safe bounded numeric position in the user-requested local-only Facebook report.
