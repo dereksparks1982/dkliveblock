@@ -14,7 +14,7 @@ function functionSource(name){
 test("Build 377: late ARIA sponsorship labels are exact and bounded",()=>{
  const f=new Function("labelKey","INVISIBLE_CHARS_RE","SPONSORED_TEXTS","SPONSORED_ARIA_RE",
   functionSource("sponsoredAriaCandidate")+";return sponsoredAriaCandidate;")(
-   s=>s.replace(/^[\\s·•|]+|[\\s·•|]+$/g,""),/[\\p{Cf}\\p{Mn}\\p{Co}]/gu,
+   s=>s.replace(/^[\s·•|]+|[\s·•|]+$/g,""),/[\p{Cf}\p{Mn}\p{Co}]/gu,
    new Set(["Sponsored","Ad","Реклама"]),/sponsored content$/i);
  for(const s of ["Sponsored","Ad","Ad ·","Sponsored ·","Реклама","Sponsored content"])
   assert.equal(f(s),true,s);
