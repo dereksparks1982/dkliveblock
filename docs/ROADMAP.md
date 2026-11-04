@@ -1,3 +1,9 @@
+## Build 369 / v0.3.339: bounded YouTube refusal recovery (November 4, 2026)
+- [x] On observed regular YouTube in-player enforcement, retry once per tab with existing player-pass-through isolation for ten minutes, while network ad filtering remains enabled.
+- [x] Avoid retry loops, preserve site-pause and user-selected experiment precedence; do not suppress YouTube refusal overlays.
+- [x] Add regression coverage for one-shot recovery, expiry, tab/host isolation, mode policy and background retry gate.
+- [ ] Native Ubuntu suite and live Firefox A/B required; retry is not a guaranteed anti-adblock workaround.
+
 ## Build 368 / v0.3.338: YouTube enforcement-aware compatibility triage (November 4, 2026)
 - [x] Classify observed in-player anti-adblock refusal separately from buffering/media faults in the private local report.
 - [x] Recommend the existing tab-local player-pass-through isolation test for the SAME ordinary video; preserve all network blocking and do not conceal YouTube's refusal screen.
