@@ -70,11 +70,16 @@ test("Build 382: Meta adapter stays full-first and creates legacy only after Nes
  module.setEnabled(true);module.scan();
  assert.equal(state.counts.create,0);
  state.diag=healthy({labelsUnanchored:3});
+ // Advance VM time past the 120ms diagnostic debounce. The first miss
+ // needs a sampled baseline before the 1.5s persistent-miss timer.
+ const oldDate=ctx.Date;
+ ctx.Date=class extends oldDate{
+  static offset=150;
+  static now(){return oldDate.now()+this.offset;}
+ };
  module.scan();
  assert.equal(state.counts.create,0,"first sighting must not start the old engine");
- // Replace Date.now in the module's VM (not host test clock) to mature the evidence.
- const oldDate=ctx.Date;
- ctx.Date=class extends oldDate{static now(){return oldDate.now()+2500;}};
+ ctx.Date.offset=2650;
  module.scan();
  assert.equal(state.counts.create,1,"dormant legacy scanner should wake after persistent misses");
  assert.equal(state.counts.legacyScan,1);
