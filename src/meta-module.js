@@ -28,13 +28,35 @@ function create(doc,win){
  // Nesty supervisor sees repeated full-engine misses. A missing full engine
  // remains an explicit failure, never silent replacement.
  const supervisor=facebook?root.DKMetaStrategyNesty?.create?.()||null:null;
- let legacy=null,exceptions=[],fallbackTimer=null,lastSupervisorAt=-Infinity;
- const SUPERVISOR_SAMPLE_MS=120;
- function stopFallback(){
+ let legacy=null,exceptions=[],fallbackTimer=null,auditTimer=null,lastSupervisorAt=-Infinity;
+ const SUPERVISOR_SAMPLE_MS=120,DORMANT_AUDIT_MS=5000;
+ function stopDormantAudit(){
+  if(auditTimer!==null){
+   (win?.clearTimeout||clearTimeout)(auditTimer);auditTimer=null;
+  }
+ }
+ function scheduleDormantAudit(){
+  if(auditTimer!==null||!legacy?.hiddenCount)return;
+  auditTimer=(win?.setTimeout||setTimeout)(()=>{
+   auditTimer=null;
+   // No new ad-search work while dormant; only check already hidden cards.
+   if(!supervisor?.snapshot?.().active&&facebook?.diagnostics?.().coreEnabled===1){
+    try{legacy?.auditHidden?.(30);}catch(_){}
+    if(legacy?.hiddenCount>0)scheduleDormantAudit();
+   }
+  },DORMANT_AUDIT_MS);
+ }
+ function stopFallback(restore=true){
   if(fallbackTimer!==null){
    (win?.clearTimeout||clearTimeout)(fallbackTimer);fallbackTimer=null;
   }
-  legacy?.restore?.();
+  stopDormantAudit();
+  if(restore)legacy?.restore?.();
+  else {
+   // Keep vetted ad hides across strategy expiry. Turning protection OFF
+   // still calls restore() and immediately reveals the original content.
+   legacy?.park?.();scheduleDormantAudit();
+  }
  }
  function updateSupervisor(signal=false){
   if(!supervisor)return false;
@@ -46,8 +68,9 @@ function create(doc,win){
   lastSupervisorAt=now;
   const was=supervisor.snapshot().active;
   const next=supervisor.update(facebook?.diagnostics?.(),signal,now);
-  if(was&&!next.active)stopFallback();
+  if(was&&!next.active)stopFallback(next.reason!=="expired");
   if(next.changed&&next.active){
+   stopDormantAudit();
    // Keep the old implementation available for site reversions without
    // burdening ordinary Facebook mutations with two parallel scanners.
    // A fallback may only run when the primary engine authorizes the
