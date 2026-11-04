@@ -5,6 +5,10 @@
 const MAX_TABS=40,WINDOW_MS=2*60*1000,MIN_GAP_MS=20000,FALLBACK_MS=10*60*1000;
 const BAD=new Set(["buffering","media-error"]);
 const REFUSAL_MS=10*60*1000;
+// A retry must not restart on every enforcement event after its policy
+// window. Retain only the bounded tab/host retry guard until navigation
+// clears it or the background session ends.
+const RETRY_GUARD_MS=60*60*1000;
 const CONTEXT=new Set(["enforcement","ad-skip","ad-showing"]);
 const Model=typeof root.DKAdaptiveModel!=="undefined"?root.DKAdaptiveModel:
  typeof require==="function"?require("./adaptive-model.js"):null;
@@ -19,7 +23,8 @@ function entry(store,id,site,now){
  const x=store.get(id);
  if(!x)return null;
  if(x.site!==site||!Number.isFinite(x.last)||now<x.last||
-    (x.refusalUntil?now>=x.refusalUntil:
+    (x.refusalGuardUntil?now>=x.refusalGuardUntil:
+     x.refusalUntil?now>=x.refusalUntil:
      (x.until&&now>=x.until)||(!x.until&&now-x.first>WINDOW_MS))){
   store.delete(id);return null;
  }
@@ -44,11 +49,13 @@ function status(store,id,site,now=Date.now()){
 function recoverRefusal(store,id,site,now=Date.now()){
  if(!valid(id,site,now))return {changed:false};
  const old=entry(store,id,site,now);
- if(old?.refusalUntil&&old.refusalUntil>now)return {changed:false};
+ if(old?.refusalGuardUntil&&old.refusalGuardUntil>now)
+  return {changed:false};
  const x=old||{site,first:now,last:now,count:0,nearby:false,until:0,
   sawMediaError:false,sawBuffering:false,sawEnforcement:false,
   sawAdSkip:false,sawAdShowing:false};
- x.last=now;x.until=0;x.refusalUntil=now+REFUSAL_MS;x.sawEnforcement=true;
+ x.last=now;x.until=0;x.refusalUntil=now+REFUSAL_MS;
+ x.refusalGuardUntil=now+RETRY_GUARD_MS;x.sawEnforcement=true;
  store.delete(id);store.set(id,x);
  if(store.size>MAX_TABS)store.delete(store.keys().next().value);
  return {changed:true,mode:"player-pass-through",expires:x.refusalUntil};
@@ -58,7 +65,7 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  if(!valid(id,site,now)||(!BAD.has(kind)&&!CONTEXT.has(kind))||
     typeof blockedMediaNearby!=="boolean")return unchanged;
  let x=entry(store,id,site,now);
- if(x?.until||x?.refusalUntil)return unchanged;
+ if(x?.until||x?.refusalGuardUntil)return unchanged;
  if(!x||now-x.first>WINDOW_MS){
   x={site,first:now,last:now,count:0,nearby:false,until:0,
    sawMediaError:false,sawBuffering:false,sawEnforcement:false,
@@ -102,7 +109,7 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  return unchanged;
 }
 const API=Object.freeze({validSite,clear,mode,status,note,recoverRefusal,
- MAX_TABS,WINDOW_MS,MIN_GAP_MS,FALLBACK_MS,REFUSAL_MS});
+ MAX_TABS,WINDOW_MS,MIN_GAP_MS,FALLBACK_MS,REFUSAL_MS,RETRY_GUARD_MS});
 root.DKAdaptiveYouTube=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
