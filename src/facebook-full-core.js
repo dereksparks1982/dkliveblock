@@ -1482,17 +1482,20 @@ const MOBILE_SHALLOW_DEPTH_LIMIT = 4;
 // already inside a concrete post landmark. Portal spans remain excluded.
 let shallowPostLabelsRecovered = 0;
 function isImplausiblyShallow(el) {
-  if (el?.closest?.('[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]') &&
-      !el.closest('[role="dialog"],[role="navigation"]')) {
-    shallowPostLabelsRecovered = Math.min(1000000,shallowPostLabelsRecovered+1);
-    return false;
-  }
   const limit = isMobileLayout() ? MOBILE_SHALLOW_DEPTH_LIMIT : SHALLOW_DEPTH_LIMIT;
   let node = el;
   for (let depth = 0; depth < limit; depth++) {
     node = node && node.parentElement;
     if (!node) return false;
-    if (node === document.body) return true;
+    if (node !== document.body) continue;
+    // A genuine feed landmark is stronger evidence than a depth heuristic.
+    // Count only real recoveries, not ordinary deep feed labels.
+    if (el?.closest?.('[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]') &&
+        !el.closest('[role="dialog"],[role="navigation"]')) {
+      shallowPostLabelsRecovered = Math.min(1000000,shallowPostLabelsRecovered+1);
+      return false;
+    }
+    return true;
   }
   return false;
 }
