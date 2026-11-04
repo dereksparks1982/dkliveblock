@@ -1,3 +1,9 @@
+## Build 373 / v0.3.343: prevent stale YouTube SPA refusals (November 4, 2026)
+- [x] Require a current-video ID match against the live Firefox tab before automatic recovery.
+- [x] Reject delayed refusal signals after watch-page navigation; transient video ID is never stored or exported.
+- [x] Add exact-URL, mismatch, duplicate-ID, and source-wiring regression coverage.
+- [ ] Run full Ubuntu suite and confirm SPA switching in live Firefox.
+
 ## Build 372 / v0.3.342: YouTube recovery works with request history disabled (November 4, 2026)
 - [x] Allow exact in-player YouTube refusal to trigger bounded recovery without private diagnostic logging.
 - [x] Keep buffering, ad-state and media-error histories behind the existing logging switch; no new persistent storage, host allowances or telemetry.
