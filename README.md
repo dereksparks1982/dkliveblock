@@ -4,6 +4,8 @@
 
 # DK Live Block
 
+**Build 380 candidate (draft, not released):** Removed the automatic reload triggered by YouTube's in-player refusal warning. Tightened warning detection to visible error components and requires two stable observations instead of reading the whole player. Added regression tests. This does not resolve the original YouTube detection problem; live Firefox playback remains unverified. The changes are isolated in draft PR #3.
+
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
 **Build 379 / v0.3.349 (Facebook runtime evidence):** Added a collapsed, opt-in Facebook Runtime Diagnostics section to Facebook's own settings page. It reads aggregate live detector and GraphQL counters, identifies disabled/missing/unanchored engines, and exports a private local JSON report only on request. No new blocking changes or telemetry; use this to isolate why visible ads remain. YouTube refusal remains open.
