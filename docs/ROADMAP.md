@@ -1,3 +1,8 @@
+## Build 353 / v0.3.323: source audit for Facebook tail-scan guardrails (November 3, 2026)
+- [x] Extend source-only checkpoint with bounded tail-sampler, fast mutation root budget and editor/independent-post guard invariants.
+- [x] Add five mutation-based negative tests to ensure unsafe future edits are caught before owner acceptance.
+- [x] Preserve original Firefox permissions, all diagnostics local and explicit false flags for unverified browser/release outcomes.
+
 ## Build 352 / v0.3.322: multi-post anchor safety for oversized Facebook DOM wrappers (November 3, 2026)
 - [x] Inspect first and last fifty article descendants for independent posts when the parent is not itself a designated article.
 - [x] Prevent whole-wrapper hiding if independent organic posts appear after the former 100-anchor prefix; retain original 100-anchor budget and nested comment distinction.

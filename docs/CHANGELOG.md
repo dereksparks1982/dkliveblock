@@ -1,3 +1,6 @@
+## 0.3.323 / Build 353 (2026-11-03)
+- Expand source-integrity checks to enforce Facebook bounded tail sampling, root caps and organic/editor safety invariants.
+
 ## 0.3.322 / Build 352 (2026-11-03)
 - Safeguard late independent article anchors in oversized Facebook wrappers using the same 100-node detection cap.
 
