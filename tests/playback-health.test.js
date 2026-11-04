@@ -229,3 +229,34 @@ test("Build 380 transient and stale error candidates expire without a report",()
  assert.equal(p.scan(page,17000),null,"stale sample cannot confirm itself");
  assert.equal(p.scan(page,17800),"enforcement");
 });
+
+
+test("Build 383: continuous confirmed player refusal emits one follow-up, then stops",()=>{
+ const p=H.createEnforcementProbe(t=>t.includes("Ad blockers violate YouTube"));
+ const error={textContent:"Ad blockers violate YouTube's Terms of Service. Playback blocked.",
+   isConnected:true,getClientRects:()=>[1]};
+ const doc={hidden:false,visibilityState:"visible",querySelector:()=>error};
+ assert.equal(p.scan(doc,1000),null);
+ assert.equal(p.scan(doc,2000),"enforcement");
+ assert.equal(p.scan(doc,22500),null);
+ assert.equal(p.scan(doc,24000),"enforcement","persisting refusal should activate bounded strategy check");
+ assert.equal(p.scan(doc,50000),null,"no unlimited reminder loop");
+ assert.equal(p.scan(doc,150000),null);
+});
+test("Build 383: a normal warning which disappears never triggers sustained recovery",()=>{
+ const p=H.createEnforcementProbe(t=>t.includes("Ad blockers violate YouTube"));
+ const error={textContent:"Ad blockers violate YouTube's Terms of Service. Playback blocked.",
+  isConnected:true,getClientRects:()=>[1]};
+ let showing=true;
+ const doc={hidden:false,visibilityState:"visible",querySelector:()=>showing?error:null};
+ assert.equal(p.scan(doc,1000),null);
+ assert.equal(p.scan(doc,2000),"enforcement");
+ showing=false;assert.equal(p.scan(doc,3000),null);
+ assert.equal(p.scan(doc,50000),null,"absent error cannot count a second time");
+ showing=true;assert.equal(p.scan(doc,51000),null);
+ assert.equal(p.scan(doc,51800),"enforcement");
+ doc.hidden=true;
+ assert.equal(p.scan(doc,100000),null);
+ doc.hidden=false;
+ assert.equal(p.scan(doc,101000),null);
+});
