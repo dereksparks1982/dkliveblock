@@ -1,1 +1,7 @@
 .facebook-full-settings details{padding:12px;margin:14px 0;background:#11171e;border:1px solid #19cce1;border-radius:6px;color:#fff}.facebook-full-settings summary{cursor:pointer;font-weight:700}.fb-grid{display:grid;gap:12px;padding:12px 0}.fb-line{display:flex;align-items:flex-start;gap:10px}.fb-line input{margin-top:5px;flex:none}.fb-text{display:flex;flex-direction:column;gap:6px}.fb-text textarea{box-sizing:border-box;width:100%;background:#080b10;border:1px solid #19cce1;border-radius:4px;color:#fff;font:inherit;padding:8px}
+/* Build 379: diagnostics remain collapsed until explicitly requested. */
+.fb-runtime-actions{display:flex;gap:10px;flex-wrap:wrap;margin:12px 0}
+.facebook-full-settings #fbRuntimeStatus{white-space:pre-wrap;overflow-wrap:anywhere;
+ font:13px/1.6 monospace;color:#e0ffff;background:#071c1d;
+ border:1px solid #19cce1;border-radius:6px;padding:12px;max-height:320px;overflow:auto}
+.facebook-full-settings #fbExportRuntime:disabled{opacity:.45;cursor:not-allowed}
