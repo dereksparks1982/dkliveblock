@@ -28,7 +28,8 @@ function create(doc,win){
  // Nesty supervisor sees repeated full-engine misses. A missing full engine
  // remains an explicit failure, never silent replacement.
  const supervisor=facebook?root.DKMetaStrategyNesty?.create?.()||null:null;
- let legacy=null,exceptions=[],fallbackTimer=null;
+ let legacy=null,exceptions=[],fallbackTimer=null,lastSupervisorAt=-Infinity;
+ const SUPERVISOR_SAMPLE_MS=120;
  function stopFallback(){
   if(fallbackTimer!==null){
    (win?.clearTimeout||clearTimeout)(fallbackTimer);fallbackTimer=null;
@@ -37,8 +38,14 @@ function create(doc,win){
  }
  function updateSupervisor(signal=false){
   if(!supervisor)return false;
+  const now=Date.now();
+  // The primary core already observes the feed. Avoid rebuilding its heavy
+  // diagnostic snapshot for every class/style mutation in the page.
+  if(!Number.isFinite(now)||now-lastSupervisorAt<SUPERVISOR_SAMPLE_MS)
+   return supervisor.snapshot().active&&!!legacy;
+  lastSupervisorAt=now;
   const was=supervisor.snapshot().active;
-  const next=supervisor.update(facebook?.diagnostics?.(),signal);
+  const next=supervisor.update(facebook?.diagnostics?.(),signal,now);
   if(was&&!next.active)stopFallback();
   if(next.changed&&next.active){
    // Keep the old implementation available for site reversions without
@@ -76,13 +83,13 @@ function create(doc,win){
  }
  function setEnabled(enabled){
   facebook?.setEnabled?.(enabled);
-  if(enabled!==true){supervisor?.reset();stopFallback();}
+  if(enabled!==true){supervisor?.reset();stopFallback();lastSupervisorAt=-Infinity;}
  }
  function setExceptions(r){
   exceptions=Array.isArray(r)?r.slice(0,120):[];
   facebook?.setExceptions?.(exceptions);legacy?.setExceptions?.(exceptions);
  }
- function restore(){supervisor?.reset();stopFallback();facebook?.restore?.();}
+ function restore(){supervisor?.reset();stopFallback();lastSupervisorAt=-Infinity;facebook?.restore?.();}
  function observeMutation(r){
   const full=facebook?.observeMutation?.(r)===true;
   const exact=root.DKMetaStrategyNesty?.explicitLabelMutation?.(r)===true;
