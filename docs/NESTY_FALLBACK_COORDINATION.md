@@ -38,3 +38,11 @@ The user-triggered Facebook diagnostics return bounded aggregate `legacyActive`,
 ## Test and release gate
 
 Regression checks added for threshold, debounce, expiry, stale and spoofed watches, ownership restoration, disabled states and privacy. JS syntax and focused behavior were checked in a simulated V8 harness. Native Ubuntu suite and an actual Firefox watch-page A/B test remain outstanding. Do not merge or publish as a working YouTube/Facebook adblocking fix until those checks and user acceptance are complete.
+
+## Builds 386–388 safeguards
+
+The full Facebook core now grants per-card authority to the dormant old scanner. This gate checks the active core, loaded preferences, live observer, valid connected post, saved selector exceptions, clicked Show decisions, kept authors/Pages, dialog/viewer context, and unsafe page-wide or oversized containers. A missing authorization function or a thrown guard means no dormant hide. The Nesty supervisor also samples aggregate diagnostics at most once every 120 milliseconds, not for every React mutation. No additional MutationObserver is created.
+
+The historical YouTube Build 296 test fixtures were aligned to the newer 800ms visible-player-error threshold while retaining recognition of the exact refusal text. Independently comparing the Build 203 Git tag to this branch showed that the player response and MAIN-world bridge ad-field deletion logic remains largely unchanged and their substantive differences are diagnostic counters. This comparison does not prove what caused YouTube's server-side refusal or that DK currently defeats it.
+
+The exceptional Ubuntu workflow run 41919483430 reported 1,672/1,725 Node cases passing and three of seven phases failing. Some historical fixture and source-audit assumptions were already out of date (for example, assuming the all-URLs content-script entry remains at index zero even after the Facebook full-core entry was introduced). Do not weaken browser-security protections or report the build as ready while the native suite is red.
