@@ -682,13 +682,18 @@ function create(doc,win,max=100,onEvidence=null,canHide=null){
  // post hide. Releasing every hidden card at the end of the strategy window
  // caused ads to reappear. Only restore() (site pause or exception) reveals.
  function park(){stopMobileWatch();}
+ let auditCursor=0;
  function auditHidden(max=30){
   // A dormant scanner only maintains its own previously hidden cards.
-  // Never scan new content while parked. Bound each pass and restore stale
-  // recycled cards only after two independent negative evidence checks.
-  let visited=0,released=0;
-  for(const [el,old] of hidden){
-   if(visited++>=max)break;
+  // Never scan new content while parked. Rotate through the bounded list
+  // so later hidden cards cannot starve behind the first thirty.
+  // Restore recycled cards only after two independent negative checks.
+  let released=0;
+  const rows=[...hidden.entries()],budget=Math.max(1,Math.min(30,max));
+  const start=rows.length?auditCursor%rows.length:0;
+  for(let i=0;i<Math.min(rows.length,budget);i++){
+   const [el,old]=rows[(start+i)%rows.length];
+   if(!hidden.has(el))continue;
    if(el.isConnected===false){hidden.delete(el);released++;continue;}
    if(allowed(el)||old.trigger&&allowed(old.trigger)){
     restoreOne(el,old);hidden.delete(el);released++;continue;
@@ -699,9 +704,10 @@ function create(doc,win,max=100,onEvidence=null,canHide=null){
     restoreOne(el,old);hidden.delete(el);released++;
    }else{old.misses++;old.lastMiss=now;}
   }
+  auditCursor=rows.length?(start+Math.min(rows.length,budget))%rows.length:0;
   return released;
  }
- function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
+ function restore(){auditCursor=0;stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
   for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
