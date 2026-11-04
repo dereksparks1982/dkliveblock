@@ -1,6 +1,6 @@
-# Deliberately narrow: consolidated Builds 380-385 Nesty integration checkpoint.
-# Triggered once by this reviewed workflow-file edit, then manual dispatch only.
-# No routine push CI or artifacts.
+# Deliberately narrow: second and final consolidated Builds 386-388 checkpoint.
+# Run after the earlier Ubuntu suite exposed regressions; no routine push CI.
+# Manual dispatch remains available for explicitly approved future checkpoints.
 name: DK Live Block offline Linux verification
 on:
   workflow_dispatch:
