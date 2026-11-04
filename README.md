@@ -6,6 +6,8 @@
 
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
+**Build 378 / v0.3.348 (Facebook feed compatibility):** Improved complete Facebook ad detection for shallow post layouts and labels updated directly as text, with bounded scans and privacy-preserving counters. The existing YouTube player code is unchanged while its refusal remains under investigation. Live browser behavior still requires verification.
+
 **Build 377 / v0.3.347 (Facebook late-label recovery):** Fixed the full Facebook engine's false-success bookkeeping when a detected ad cannot be safely hidden. The detector now handles late-arriving exact `Ad`/`Sponsored` accessibility labels with a bounded targeted scan, preserving protections against hiding entire feeds and preserving user-kept Pages. Firefox validation with the reported visible Facebook ad is still pending.
 
 **Build 376 / v0.3.346 (Settings navigation):** Added a compact, accessible Back to Top button to the Firefox settings page. It appears only after scrolling a long page, respects reduced motion, and leaves the protection engine and approved page layout unchanged. Includes English/Russian labels and regression checks.
