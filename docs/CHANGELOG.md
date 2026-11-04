@@ -1,3 +1,6 @@
+## 0.3.312 / Build 342 (2026-11-03)
+- Prevent Marketplace and mobile Facebook hides containing active input fields; finish regression test version cleanup.
+
 ## 0.3.311 / Build 341 (2026-11-03)
 - Finish post-324 test-version normalization and extend the offline source-integrity checkpoint across the new run.
 

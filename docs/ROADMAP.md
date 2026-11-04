@@ -1,3 +1,8 @@
+## Build 342 / v0.3.312: protect mobile and Marketplace editing (November 3, 2026)
+- [x] Add active editor/input descendant veto to Marketplace promoted tile and mobile virtualized post resolution, preserving previous geometry and ad-evidence checks.
+- [x] Fix final detected historical SemVer assertion in Build339 and register safety tests in extended source-only audit.
+- [x] Five focused tests registered. Native Ubuntu and real Firefox/mobile validation still pending.
+
 ## Build 341 / v0.3.311: expanded regression suite and checkpoint (November 3, 2026)
 - [x] Finish cross-version test pin cleanup and extend the original source-integrity audit registration from Builds 325 to 341.
 - [x] Add live-file and historical registration invariants without touching working YouTube, Disney+, Facebook filtering, permissions, approved UX geometry or release status.

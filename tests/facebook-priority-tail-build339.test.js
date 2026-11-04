@@ -31,5 +31,5 @@ test("Build 339: short label bursts keep natural ordering",()=>{
 });
 test("Build 339: version and rule privileges unchanged",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.309");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
 });

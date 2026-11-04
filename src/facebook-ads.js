@@ -345,7 +345,8 @@ function marketplaceTileFrom(label,doc){
     if(!box||box.width<120||box.width>650||box.height<90||box.height>1250||
        !node.style?.setProperty||!node.getClientRects?.().length||
        node.querySelectorAll?.('a[href*="/marketplace/item/"]').length!==1||
-       node.querySelector?.('[role="feed"],[role="dialog"],main'))return null;
+       node.querySelector?.('[role="feed"],[role="dialog"],main')||
+     node.querySelector?.('[contenteditable="true"],[role="textbox"],[role="searchbox"],textarea,input:not([type="hidden"])'))return null;
     return node;
    }
   }
@@ -377,7 +378,8 @@ function mobilePostFrom(label,doc,win,onFeed){
    if(!box||box.width<Math.max(190,minWidth)||box.height<90||box.height>2500||
       !node.getClientRects?.().length||!node.style?.setProperty||
       (node.offsetWidth===0&&node.offsetHeight===0)||
-      node.querySelector?.('main,[role="main"],[role="feed"],[role="dialog"]'))
+      node.querySelector?.('main,[role="main"],[role="feed"],[role="dialog"]')||
+      node.querySelector?.('[contenteditable="true"],[role="textbox"],[role="searchbox"],textarea,input:not([type="hidden"])'))
     return null;
    // A post itself must not be a multi-post grid or a feed wrapper.
    if(independentPostCount(node)>1)return null;
