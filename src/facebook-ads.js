@@ -700,9 +700,9 @@ function create(doc,win,max=100,onEvidence=null){
  // before the next paint. Do not traverse the entire feed on every mutation:
  // full scan() remains the bounded fallback for late/split labels and portals.
  function scanInserted(records){
-  if(!doc?.body||!Array.isArray(records)||!records.length||marketplacePage(win))return 0;
-  // Marketplace is a tile grid, not a feed. Only scan() may hide one
-  // independently proven promoted listing using Marketplace-specific bounds.
+  if(!doc?.body||!Array.isArray(records)||!records.length||marketplacePage(win)||mobileLayout(doc))return 0;
+  // Marketplace grids and mobile html-renderer feeds have specialized
+  // article/author boundaries. Only their dedicated scan() may hide content.
   stats.fastScans++;
   const roots=new Set(),cards=new Set();
   const take=node=>{

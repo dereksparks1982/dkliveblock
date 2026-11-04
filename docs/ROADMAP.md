@@ -1,3 +1,8 @@
+## Build 349 / v0.3.319: mobile Facebook scanning isolation (November 3, 2026)
+- [x] Make the desktop Facebook insertion fast scanner decline mobile html-renderer posts, allowing only the existing mobile-specific author-row/content safety resolver to hide.
+- [x] Retain full automatic mobile scanning and desktop immediate Sponsored removal; no unverified broad mobile hides.
+- [x] Five focused regressions registered. Native Ubuntu, live Firefox/Orion mobile verification pending.
+
 ## Build 348 / v0.3.318: tail-aware Facebook article fast scanning (November 3, 2026)
 - [x] Sample first and last nine article descendants in large inserted subtrees, retaining the existing eighteen-article work cap.
 - [x] Keep original strict Sponsored evidence, 32-root budget and ordinary post protection.

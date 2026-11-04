@@ -1,3 +1,6 @@
+## 0.3.319 / Build 349 (2026-11-03)
+- Prevent Facebook desktop fast-feed scanning from bypassing mobile html-renderer post boundaries.
+
 ## 0.3.318 / Build 348 (2026-11-03)
 - Preserve late Sponsored articles in large Facebook inserted subtrees without enlarging the fast scan budget.
 
