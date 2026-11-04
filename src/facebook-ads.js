@@ -245,11 +245,22 @@ function linkedAuthorAdByline(label,card,win){
  }
  return false;
 }
+// The author ad disclosure is normally near the start, but React can place
+// a referenced Sponsored menu after a large subtree. Preserve most of the
+// original 850-element prefix and reserve 200 places for the newest tail.
+function sampleEvidenceNodes(nodes,max=850){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==850)return [];
+ const out=[];
+ if(n<=850){for(let i=0;i<n;i++)out.push(nodes[i]);}
+ else{for(let i=0;i<650;i++)out.push(nodes[i]);for(let i=n-200;i<n;i++)out.push(nodes[i]);}
+ return out;
+}
 function hasAdEvidence(card,doc,win,cache){
  if(card.querySelector?.('a[href*="/ads/about/"],a[href*="/ads/about?"]'))return true;
- const nodes=card.querySelectorAll?.('span,a,[aria-label],[aria-labelledby],use,text')||[];
- for(let i=0;i<Math.min(850,nodes.length);i++){
-  const el=nodes[i];
+ const nodes=sampleEvidenceNodes(card.querySelectorAll?.('span,a,[aria-label],[aria-labelledby],use,text')||[]);
+ for(const el of nodes){
   if(sponsoredMenu(el))return true;
   if(explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))return true;
   if(!inByline(el,card))continue;
@@ -1003,7 +1014,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,sampleFastArticles,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,sampleFastArticles,sampleEvidenceNodes,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

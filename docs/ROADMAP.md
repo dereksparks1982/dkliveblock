@@ -1,3 +1,8 @@
+## Build 350 / v0.3.320: late Facebook ad evidence in long cards (November 3, 2026)
+- [x] Keep 650 early and reserve 200 final descendants within the same 850-element evidence scan when React renders unusually large cards.
+- [x] Preserve exact sponsored action, author-row, card and organic evidence gates; no broad text detection.
+- [x] Five regressions registered. Full Ubuntu and live Firefox confirmation still pending.
+
 ## Build 349 / v0.3.319: mobile Facebook scanning isolation (November 3, 2026)
 - [x] Make the desktop Facebook insertion fast scanner decline mobile html-renderer posts, allowing only the existing mobile-specific author-row/content safety resolver to hide.
 - [x] Retain full automatic mobile scanning and desktop immediate Sponsored removal; no unverified broad mobile hides.

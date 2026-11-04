@@ -1,3 +1,6 @@
+## 0.3.320 / Build 350 (2026-11-03)
+- Include late Sponsored action labels in bounded Facebook card evidence scans without increasing the existing 850-node cap.
+
 ## 0.3.319 / Build 349 (2026-11-03)
 - Prevent Facebook desktop fast-feed scanning from bypassing mobile html-renderer post boundaries.
 
