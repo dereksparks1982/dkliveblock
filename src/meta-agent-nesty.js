@@ -12,7 +12,8 @@ const agents=Object.freeze([
  Object.freeze({id:"agent_nesty_meta_06",status:"armed",job:"Bounded external Sponsored-label attribute changes"})
 ]);
 function normalize(t){return String(t||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
-function label(t){const s=normalize(t);return s==="sponsored"||s==="ad";}
+function label(t){const s=normalize(t);return s==="sponsored"||s==="ad"||
+ s==="реклама"||s==="спонсировано";}
 function segmentedLabels(el,win){
  const nodes=Array.from(el?.children||[]);
  if(nodes.length<2||nodes.length>8||nodes.some(n=>n?.tagName!=="SPAN"||(n.children?.length||0)!==0))return [];

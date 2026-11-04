@@ -1,3 +1,8 @@
+## Build 327 / v0.3.297: Russian Facebook advertising disclosures (November 3, 2026)
+- [x] Recognize exact Russian labels «Реклама» and «Спонсировано» alongside English Ad/Sponsored only in existing vetted Facebook ad slots and Meta's read-only specialist.
+- [x] Carry the same exact-label meaning through feed, rail and Marketplace checks; do not infer ads from Russian body text or broad words.
+- [x] Five negative/source checks registered. Real Russian Facebook browser observations and full Ubuntu regression remain pending.
+
 ## Build 326 / v0.3.296: late Facebook portal label caching (November 3, 2026)
 - [x] Check both ends of added/removed React node lists when retaining short-lived, referenced Sponsored labels; preserve 12-node work budget.
 - [x] Confirm ordinary text cannot create an ad label and a cache hit alone never deletes a post.

@@ -13,7 +13,13 @@ function isFacebook(host){
  return typeof host==="string"&&(host==="facebook.com"||host.endsWith(".facebook.com"));
 }
 function normalize(text){return String(text||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
-function isAdLabel(text){return normalize(text)==="ad"||normalize(text)==="sponsored";}
+// Exact short localised disclosure markers; never partial-word search.
+// The existing author/geometry gates still decide whether a post is an ad.
+function isSponsoredLabel(text){
+ const s=normalize(text);
+ return s==="sponsored"||s==="реклама"||s==="спонсировано";
+}
+function isAdLabel(text){return normalize(text)==="ad"||isSponsoredLabel(text);}
 function ownText(el){let out="";for(const c of el?.childNodes||[]){if(c.nodeType===3)out+=String(c.textContent||"");if(out.length>120)return "";}return out;}
 
 // Avoid expensive computed-style checks across arbitrary Facebook feed wrappers.
@@ -349,7 +355,7 @@ function marketplaceTileFrom(label,doc){
 function marketplaceSignal(label,tile,win){
  if(label.closest?.('p,blockquote,[role="paragraph"],[role="dialog"]'))return false;
  if(!sponsoredMenu(label)&&
-    !labelsOf(label,win).some(x=>normalize(x)==="sponsored"))return false;
+    !labelsOf(label,win).some(x=>isSponsoredLabel(x)))return false;
  const labelBox=label.getBoundingClientRect?.(),cardBox=tile.getBoundingClientRect?.();
  // Never hide a tile because the word Sponsored occurs in its description.
  // A true listing badge lives close to the tile's own upper edge.
@@ -714,7 +720,7 @@ function create(doc,win,max=100,onEvidence=null){
      const card=feedCardFrom(el,doc);
      if(card&&(inByline(el,card)||explicitHeaderAd(el,card,win)||linkedAuthorAdByline(el,card,win))&&hide(card,el,"feed"))count++;
      // Right-rail handling retains the existing strict geometry/Contacts guard.
-     if(values.some(v=>normalize(v)==="sponsored")){
+     if(values.some(v=>isSponsoredLabel(v))){
       const rail=rightRailCandidate(el,doc,win);
       if(rail&&hide(rail,el,"rail"))count++;
      }
@@ -769,7 +775,7 @@ function create(doc,win,max=100,onEvidence=null){
    for(let i=0;i<Math.min(3500,labels.length)&&count<15;i++){
     const label=labels[i];
     if((label.children?.length||0)>120)continue;
-    const likely=sponsoredMenu(label)||labelsOf(label,win).some(x=>normalize(x)==="sponsored");
+    const likely=sponsoredMenu(label)||labelsOf(label,win).some(x=>isSponsoredLabel(x));
     if(!likely)continue;
     stats.lastBylineSignals++;
     const tile=marketplaceTileFrom(label,doc);
@@ -809,7 +815,7 @@ function create(doc,win,max=100,onEvidence=null){
   const headings=doc.querySelectorAll(HEADING);
   for(let i=0;i<Math.min(260,headings.length)&&count<15;i++){
    const h=headings[i];
-   if(normalize(h.textContent)!=="sponsored")continue;
+   if(!isSponsoredLabel(h.textContent))continue;
    stats.lastRailSignals++;
    const section=rightRailCandidate(h,doc,win);
    if(!section)stats.lastRailUnresolved++;
@@ -833,7 +839,7 @@ function create(doc,win,max=100,onEvidence=null){
    const r=label.getBoundingClientRect?.();
    if(!r||r.left<Math.max(480,(win?.innerWidth||1200)*0.57)||
       r.width>270||r.height>80)continue;
-   if(!labelsOf(label,win).some(x=>normalize(x)==="sponsored"))continue;
+   if(!labelsOf(label,win).some(x=>isSponsoredLabel(x)))continue;
    stats.lastRailSignals++;
    const section=rightRailCandidate(label,doc,win);
    if(!section)stats.lastRailUnresolved++;
@@ -930,7 +936,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,isFacebook,isAdLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

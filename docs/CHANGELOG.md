@@ -1,3 +1,6 @@
+## 0.3.297 / Build 327 (2026-11-03)
+- Facebook's existing guarded ad detectors now understand exact Russian advertising disclosure labels; broad text matching remains prohibited.
+
 ## 0.3.296 / Build 326 (2026-11-03)
 - React mutation portal label cache inspects both head and tail of large node lists under the same work cap.
 
