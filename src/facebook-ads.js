@@ -622,6 +622,9 @@ function create(doc,win,max=100,onEvidence=null){
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
  function hide(el,trigger=null,kind=""){
+  // The full Facebook core owns its own hidden cards. A dormant Nesty
+  // fallback must never hide that card twice or take over its style.
+  if(el?.closest?.("[data-fbsb-hidden]"))return false;
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
@@ -636,6 +639,9 @@ function create(doc,win,max=100,onEvidence=null){
   return true;
  }
  function restoreOne(el,old){
+  // If the primary core also claimed this card, restoring the dormant
+  // fallback must never make the primary core's hidden post visible.
+  if(el.closest?.("[data-fbsb-hidden]"))return;
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
   if(old.value)el.style.setProperty("display",old.value,old.priority);else el.style.removeProperty("display");
  }
