@@ -1,3 +1,9 @@
+## Build 364 / v0.3.334: Facebook observer costs and unresolved label diagnostics (November 4, 2026)
+- [x] Expose capped aggregate scan/observer/retry cost, inspected elements and unanchored label counts from the complete original engine.
+- [x] Distinguish an authorized engine whose observer is unexpectedly inactive; strip all page identities/content.
+- [x] Register five diagnostic contract tests.
+- [ ] Native Ubuntu suite and owner Firefox comparison of visible ad latency versus observer cost.
+
 ## Build 363 / v0.3.333: pause-scoped complete Facebook observers (November 4, 2026)
 - [x] Attach upstream document observer only when DK has enabled Facebook protection.
 - [x] Disconnect full and mobile observers on pause; reattach idempotently on resume.

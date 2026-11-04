@@ -1,3 +1,6 @@
+## 0.3.334 / Build 364 (2026-11-04)
+- Expose bounded private-safe Facebook scan/observer/retry cost metrics and dedicated observer-inactive diagnosis.
+
 ## 0.3.333 / Build 363 (2026-11-04)
 - Scope full Facebook observer lifetime to active DK protection; immediately release document/mobile observers when paused or allowlisted.
 

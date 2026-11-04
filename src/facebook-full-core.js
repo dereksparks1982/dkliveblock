@@ -3217,12 +3217,16 @@ function dkScan() {
   return Math.max(0,hiddenPosts.size-before);
 }
 function dkDiagnostics() {
+  const duration=n=>Number.isFinite(n)&&n>=0?Math.min(1000000,Math.round(n)):0;
   // Only aggregate counts cross the DK diagnostics interface. Never original
   // debug samples, page names, personal URLs, DOM nodes or post text.
   return Object.freeze({platform:"facebook",coreFull:1,coreEnabled:dkEnabled?1:0,
     settingsReady:dkSettingsReady?1:0,settingsError:dkSettingsError?1:0,
     observerActive:dkObserverActive?1:0,
     hidden:hiddenPosts.size,scans:stats.scans,observerCalls:stats.observerCalls,
+    scanCostMs:duration(stats.ms),observerCostMs:duration(stats.observerMs),
+    retryCostMs:duration(stats.retryMs),scanElements:Math.min(1000000,stats.elements),
+    labelsUnanchored:Math.max(0,labelsClassified-labelsAnchored-labelsDeferred),
     retryTicks:stats.retryTicks,pending:pendingLabels.size,
     labelsClassified,labelsAnchored,labelsDeferred,
     rescuedLabels,lateTextLabels,lateLabelRefs,unlabeledAdsHidden,

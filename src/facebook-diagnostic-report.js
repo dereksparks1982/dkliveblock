@@ -1,7 +1,7 @@
 /* DK Live Block Build 305: fixed, local-only Facebook scanner + GraphQL diagnostics.
    This is observation only; browser network and page blocking decisions are unchanged. */
 (function(root){"use strict";
-const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreEnabled","settingsReady","settingsError","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
+const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreEnabled","settingsReady","settingsError","observerActive","scanCostMs","observerCostMs","retryCostMs","scanElements","labelsUnanchored","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
 const GRAPHQL=Object.freeze(["attached","modified","removed","unchanged","errors","oversized","timeout","skipped"]);
 function bounded(value,max=1000000){return Number.isSafeInteger(value)&&value>=0&&value<=max?value:null;}
 function counts(input,allowed){
@@ -30,6 +30,8 @@ function triage(r){
   return Object.freeze({code:"facebook-core-waiting",next:"The full Facebook engine is waiting for saved preferences. Retry after the tab finishes loading."});
  if(d.coreFull&&!d.coreEnabled)
   return Object.freeze({code:"facebook-core-disabled",next:"The Facebook engine was not authorized by the DK site policy. Check pause, allowlist and ad-recognition controls."});
+ if(d.coreFull&&!d.observerActive)
+  return Object.freeze({code:"facebook-observer-inactive",next:"The full Facebook engine is authorized but its page observer is not attached. Reload the Facebook tab and inspect startup."});
  const scans=(d.scans||0)+(d.fastScans||0)+(d.observerCalls||0);
  if(!scans)return Object.freeze({code:"no-scans-recorded",next:"Scroll a Facebook feed once and check the scanner again."});
  if((d.hidden||0)>0||((d.fastHidden||0)>0))
