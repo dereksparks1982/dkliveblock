@@ -158,3 +158,30 @@ test("Build 158 verified top-level YouTube tab reports Skip Ad click without pri
  assert.equal(dashboard.playbackDiagnostics[0].kind,"ad-skip");
  assert.doesNotMatch(JSON.stringify(dashboard.playbackDiagnostics),/test-video|private|watch\?|http/);
 });
+
+test("Build 390: transient YouTube ad-blocker refusal cannot force a video tab reload",async()=>{
+ const {hooks,browser,tabs}=await setup();
+ const url="https://www.youtube.com/watch?v=abcdefghijk";
+ tabs.set(1,url);
+ let reloads=0,refreshes=0;
+ browser.tabs.reload=async()=>{reloads++;};
+ browser.tabs.sendMessage=async()=>{refreshes++;};
+ const sender={url,tab:{id:1,url},frameId:0};
+ for(let i=0;i<3;i++){
+  const result=await hooks.message({action:"reportPlaybackHealth",
+   kind:"enforcement",watchVideoId:"abcdefghijk"},sender);
+  assert.equal(result.ok,true);
+  assert.equal(result.recoveryAttempted,false);
+ }
+ assert.equal(reloads,0,"warning must never restart a watch tab");
+ assert.equal(refreshes,0,"warning must not automatically change player treatment");
+ const dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.youtubeTestMode,"combined","existing protection strategy remains enabled");
+});
+test("Build 390: saved YouTube fallback is dormant, not removed",()=>{
+ const script=fs.readFileSync(path.join(src,"background.js"),"utf8");
+ const adaptive=fs.readFileSync(path.join(src,"adaptive-youtube.js"),"utf8");
+ assert.match(script,/DKAdaptiveYouTube\.note\(data\.youtubeAdaptive,id,pageHost,"enforcement",false,now\)/);
+ assert.doesNotMatch(script,/await browser\.tabs\.reload\(id\)/);
+ assert.match(adaptive,/function recoverRefusal\(/);
+});
