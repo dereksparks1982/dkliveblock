@@ -1,3 +1,10 @@
+## Build 377 / v0.3.347: Facebook late accessibility labels and truthful hiding (November 4, 2026)
+- [x] Detect exact late-arriving sponsored accessibility labels from attribute changes without unbounded feed scans.
+- [x] Only report an anchored/hide success if the target is really hidden; rejected broad cards and user-exempt posts remain unresolved, not false positives.
+- [x] Add regression tests for label exactness, refused hides, and mutation observer wiring.
+- [ ] Retest Facebook with the explicit International Tiger Project `Ad` example, inspect in-page aggregate diagnostics if still visible; no blanket page hiding.
+- [ ] YouTube player-refusal diagnosis remains open independently.
+
 ## Build 376 / v0.3.346: settings Back to Top control (November 4, 2026)
 - [x] Floating dark/cyan return-to-top button appears only on a long settings page after scrolling.
 - [x] Preserve existing settings layout and actions; keyboard focus, bilingual labels and reduced-motion scrolling.
