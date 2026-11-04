@@ -1605,18 +1605,14 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   // Never allow media hosts or disable the network/ad filter engine.
   if(recorded&&data.settings.youtubeResponseFilter&&
      DKYouTubeExperiment.get(data.youtubeExperiment,id,pageHost)==="combined"){
-   // A visible YouTube refusal is not buffering. Isolate our optional
-   // player JSON rewriting for this tab and retry exactly once in a bounded
-   // window. The ordinary network filtering engine remains fully active.
-   // Repeated refusals do not cause another reload or automatic allowlisting.
-   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)&&
-       DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)){
-    const recovered=DKAdaptiveYouTube.recoverRefusal(data.youtubeAdaptive,id,pageHost,now);
-    if(recovered.changed){
-     DKYouTubeResponse.clear(id);
-     try{await browser.tabs.reload(id);}catch(_){}
-    }
-    return {ok:recorded,recoveryAttempted:recovered.changed};
+   // A YouTube warning may be transient: never abort a potentially
+   // playable video by reloading its tab merely because text was detected.
+   // Keep the older recoverRefusal strategy dormant for verified future use.
+   // Enforce the live-video gate before recording passive context.
+   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)){
+    if(DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId))
+     DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,"enforcement",false,now);
+    return {ok:recorded,recoveryAttempted:false};
    }
    const adapted=DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,
     msg.kind,nearby,now);
