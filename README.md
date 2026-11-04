@@ -6,6 +6,8 @@
 
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
+**Build 369 / v0.3.339 (YouTube refusal recovery):** A detected in-player refusal now triggers one bounded, tab-local retry in player-pass-through mode. It keeps ordinary network filtering active, does not hide YouTube's refusal, and never loops reloading. Live playback success is not yet verified.
+
 **Build 368 / v0.3.338 (YouTube refusal triage):** Explicitly identifies YouTube in-player adblock enforcement as distinct from buffering; the local report recommends a controlled ordinary-video A/B check using the existing player-pass-through isolation setting. This is diagnostic guidance, not a confirmed playback fix.
 
 **Development status:** Active pre-release project. Facebook Sponsored removal and YouTube ordinary-video adblock compatibility still require real Firefox checks; source-integrity tests alone do not establish ad-free playback or uBlock Origin parity. No public release has been approved.
