@@ -1,3 +1,14 @@
+## Builds 386–388 candidate: authorization, regression alignment, Nesty cost (draft; 2026-11-04)
+- [x] 386: Retained Facebook detector must ask the healthy full-core engine to authorize each hide; the full core vetoes kept Pages, author exceptions, deliberately shown posts, dialogs, page-wide wrappers and oversized elements. Missing policy or errors fail closed.
+- [x] 387: Update historical Build 296 YouTube refusal fixtures to prove the specific in-player screenshot wording is recognized only after 800ms continuous visibility; never scan generic player prose or the document body.
+- [x] 388: Coalesce Facebook Nesty diagnostic snapshots to at most one per 120 ms in mutation bursts, with a fresh sample after site pause/resume.
+- [x] Register new tests/facebook-keep-boundary-build386.test.js and tests/meta-nesty-performance-build388.test.js in scripts/test-local.sh.
+- [x] Compare source against owner-confirmed Build 203 Git tag: youtube-response.js and youtube-page-bridge.js have diagnostics/instrumentation differences, with their ad-field removal paths essentially unchanged; default YouTube modes and MAIN-world script ordering existed in Build 203. This does not establish the cause of the reported later playback refusal.
+- [x] First exceptional Ubuntu CI checkpoint for Builds 380–385: 1725 Node cases, 1672 passed, 53 failed. Three of seven offline phases failed. New Build 382/384/385 focused tests themselves passed in that run. Many failures originate in earlier source/manifest/UI assumptions unrelated to these builds. See GitHub Actions run 41919483430.
+- [ ] Re-run targeted native Node tests for Builds 296, 382, 384, 385, 386 and 388 after the new fixes; do not imply full-suite success.
+- [ ] Identify which of the 53 full-suite failures reproduce on last accepted main, repair actual compatibility defects, then refresh inaccurate historical tests without weakening guarantees.
+- [ ] Live Firefox Facebook and YouTube test remains outstanding; no version bump or tag until substantial owner acceptance.
+
 ## Builds 382–385 candidate: adaptive Nesty defense coordination (draft, unreleased; November 4, 2026)
 - [x] **382: Facebook dormant strategy:** Add a bounded Meta Nesty supervisor that wakes the retained, previously unreachable legacy fast scanner only after persistent failures in a healthy full Facebook engine. Gate on at least two short exact-label or unanchored/width-failure signals over 1.5 seconds. Active for 30 seconds, cooldown five seconds; site pauses restore the fallback. Full engine remains primary and absent engine stays a visible failure.
 - [x] **383: YouTube sustained refusal:** A known, visible player error must persist 800 ms for first observation. A single additional signal after a continuous 22-second refusal makes the existing two-event adaptive response strategy reachable without reloading or hiding the warning. Resolved/transient warnings cause no fallback.
