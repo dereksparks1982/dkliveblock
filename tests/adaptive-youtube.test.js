@@ -116,3 +116,24 @@ test("Build 369 background retries a refusal only through bounded isolation",()=
  assert.match(code,/await browser\\.tabs\\.reload\\(id\\)/);
  assert.doesNotMatch(code,/DKAdaptiveYouTube\\.allowMedia|DKAdaptiveYouTube\\.disableFiltering/);
 });
+
+test("Build 370: refusal retry cannot loop after policy window expires",()=>{
+ const store=new Map(),host="www.youtube.com",t=100000;
+ const first=A.recoverRefusal(store,44,host,t);
+ assert.equal(first.changed,true);
+ assert.equal(A.mode(store,44,host,first.expires),"combined");
+ assert.equal(A.recoverRefusal(store,44,host,first.expires+1000).changed,false,
+  "later enforcement on the same tab must not reload repeatedly");
+ assert.equal(A.status(store,44,host,first.expires+1000).active,false);
+ assert.equal(A.recoverRefusal(store,44,host,t+A.RETRY_GUARD_MS).changed,true,
+  "bounded guard eventually expires, not a permanent exception");
+});
+test("Build 370: guard survives same-host navigation and clears on site change",()=>{
+ const store=new Map(),t=100000;
+ A.recoverRefusal(store,31,"www.youtube.com",t);
+ assert.equal(A.recoverRefusal(store,31,"www.youtube.com",t+2000).changed,false);
+ assert.equal(A.mode(store,31,"music.youtube.com",t+3000),"combined");
+ assert.equal(A.recoverRefusal(store,31,"music.youtube.com",t+4000).changed,true);
+ A.clear(store,31);
+ assert.equal(A.recoverRefusal(store,31,"music.youtube.com",t+5000).changed,true);
+});
