@@ -1,3 +1,11 @@
+## Build 389 candidate: Linux suite regression alignment (draft, 2026-11-04)
+- [x] Correct Build 382 integration fixture to advance simulated time beyond the real 120ms Nesty diagnostics debounce before measuring 1.5-second missed-ad persistence.
+- [x] Correct the Build 367 source invariant to require pause/restore **and** resetting the Nesty debounce clock.
+- [x] The second exceptional Ubuntu check ran 1,737 Node cases: 1,686 passed, 51 failed, down from 53, while 12 additional checks were registered. Seven Build 386 and five Build 388 tests passed; all eight historical Build 296 enforcement tests passed.
+- [ ] Rerun the two newly corrected Build 382 checks in native Ubuntu Node before release; no third GitHub Actions run scheduled as part of this build cycle.
+- [ ] Audit remaining 49 or more historical suite failures and do not infer they are all baseline or safe.
+- [ ] Validate Facebook user-visible ad hiding and YouTube watch-page playback in Firefox before owner acceptance.
+
 ## Builds 386–388 candidate: authorization, regression alignment, Nesty cost (draft; 2026-11-04)
 - [x] 386: Retained Facebook detector must ask the healthy full-core engine to authorize each hide; the full core vetoes kept Pages, author exceptions, deliberately shown posts, dialogs, page-wide wrappers and oversized elements. Missing policy or errors fail closed.
 - [x] 387: Update historical Build 296 YouTube refusal fixtures to prove the specific in-player screenshot wording is recognized only after 800ms continuous visibility; never scan generic player prose or the document body.
