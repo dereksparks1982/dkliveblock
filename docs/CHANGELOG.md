@@ -1,3 +1,6 @@
+## 0.3.330 / Build 360 (2026-11-03)
+- Gate complete Facebook engine on loaded saved preferences and fix manifest test assumptions after adding the scoped earlier script.
+
 ## 0.3.329 / Build 359 (2026-11-03)
 - Activate complete licensed Inky Facebook engine including ten requested core and control systems, with DK pause gates, privacy-safe counters and bilingual settings; browser acceptance pending.
 

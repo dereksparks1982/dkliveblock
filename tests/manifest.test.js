@@ -28,7 +28,7 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(m.background.scripts.indexOf("popup-trap.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("popup-history.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(m.background.scripts.indexOf("playback-health.js")<m.background.scripts.indexOf("background.js"));
- const content=m.content_scripts[0].js;
+ const content=m.content_scripts.find(row=>row.js?.includes("content.js")).js;
  assert.ok(content.indexOf("playback-health.js")<content.indexOf("content.js"));
  assert.ok(m.background.scripts.indexOf("request-controls.js")<m.background.scripts.indexOf("background.js"));
  assert.ok(fs.existsSync(path.join(root,"src/access-inspector.js")));
@@ -36,7 +36,7 @@ test("All Firefox manifest assets are available locally",()=>{
  assert.ok(fs.existsSync(path.join(root,"src/network-monitor.js")));
  assert.ok(fs.existsSync(path.join(root,"src/LICENSE-PSL.txt")));
  assert.ok(fs.existsSync(path.join(root,"src/LICENSE-FACEBOOK-MIT.txt")));
- const contentScripts=m.content_scripts[0].js;
+ const contentScripts=m.content_scripts.find(row=>row.js?.includes("content.js")).js;
  assert.ok(contentScripts.indexOf("video-assist.js")<contentScripts.indexOf("streaming-watch.js"));
  assert.ok(contentScripts.indexOf("streaming-watch.js")<contentScripts.indexOf("content.js"));
  assert.ok(contentScripts.indexOf("auth-protection.js")>=0);
@@ -83,7 +83,7 @@ test("Build 44 loads distraction classifier before content and retains no Accept
  const fs=require("node:fs"),path=require("node:path");
  const root=path.resolve(__dirname,"..");
  const manifest=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
- const scripts=manifest.content_scripts[0].js;
+ const scripts=manifest.content_scripts.find(row=>row.js?.includes("content.js")).js;
  assert.ok(scripts.indexOf("distractions.js")>=0);
  assert.ok(scripts.indexOf("distractions.js")<scripts.indexOf("content.js"));
  const bg=fs.readFileSync(path.join(root,"src/background.js"),"utf8");
@@ -96,7 +96,7 @@ test("Build 44 loads distraction classifier before content and retains no Accept
 
 test("Build 55 open-shadow consent script loads before the content controller",()=>{
  const m=JSON.parse(fs.readFileSync(path.join(root,"src/manifest.json"),"utf8"));
- const scripts=m.content_scripts[0].js;
+ const scripts=m.content_scripts.find(row=>row.js?.includes("content.js")).js;
  assert.ok(scripts.indexOf("consent-dom.js")>scripts.indexOf("consent.js"));
  assert.ok(scripts.indexOf("consent-dom.js")<scripts.indexOf("content.js"));
  assert.equal(m.version,JSON.parse(fs.readFileSync(path.join(root,"package.json"),"utf8")).version);

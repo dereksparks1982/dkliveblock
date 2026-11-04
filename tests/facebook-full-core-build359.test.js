@@ -19,7 +19,7 @@ test("Build 359: complete bounded retry and site gates",()=>{
 });
 test("Build 359: top-level Facebook only and permissions retained",()=>{
  const m=require("../src/manifest.json"),pkg=require("../package.json");
- assert.equal(pkg.version,m.version);assert.equal(pkg.version,"0.3.329");
+ assert.equal(pkg.version,m.version);assert.match(pkg.version,/^0\.3\.\d+$/);
  const s=m.content_scripts.find(s=>s.js.includes("facebook-full-core.js"));
  assert.ok(s&&!s.all_frames&&s.run_at==="document_start"&&s.css.includes("facebook-full-core.css"));
  assert.deepEqual(s.matches,["*://facebook.com/*","*://*.facebook.com/*"]);

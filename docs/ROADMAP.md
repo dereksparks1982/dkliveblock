@@ -1,3 +1,8 @@
+## Build 360 / v0.3.330: complete Facebook startup and manifest safety
+- [x] Hold requested activation until user-saved Facebook settings have loaded; keep DK site allowlist, pause and picker control intact.
+- [x] Preserve all ten upstream features and repair manifest regression-test assumptions.
+- [ ] Run native Ubuntu suite and live Facebook performance/safety acceptance.
+
 ## Build 359 / v0.3.329: all ten original Facebook blocker feature paths integrated (November 3, 2026)
 - [x] Activate the full MIT engine in one Facebook-only runtime, replacing the partial DK-specific DOM scanner.
 - [x] Include complete unlabeled-ad inference, 50ms bounded retry, portal reverse resolution, whole-post resolution, CSS deobfuscation and observer failure counters.

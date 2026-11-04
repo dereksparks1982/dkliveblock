@@ -64,7 +64,7 @@ const DEFAULT_SETTINGS = {
 let settings = { ...DEFAULT_SETTINGS };
 // DK-owned site policy always wins. The complete upstream ad detector runs
 // only after the existing DK content controller authorizes it.
-let dkEnabled = false, dkExceptions = [];
+let dkEnabled = false, dkSettingsReady = false, dkRequestedEnabled = false, dkExceptions = [];
 function dkExcluded(el) {
   return !!el && dkExceptions.some(s => {
     try { return !!(el.matches?.(s) || el.closest?.(s)); } catch (_) { return false; }
@@ -3140,6 +3140,8 @@ browser.storage.onChanged.addListener((changes, area) => {
 (async function main() {
   try { settings = await browser.storage.local.get(DEFAULT_SETTINGS); }
   catch (_) { settings = { ...DEFAULT_SETTINGS }; }
+  dkSettingsReady = true;
+  dkSetEnabled(dkRequestedEnabled);
   if (DEBUG) {
     console.log(
       "[fbsb] content script loaded, build",
@@ -3172,7 +3174,8 @@ browser.storage.onChanged.addListener((changes, area) => {
 
 let dkFallbackAt = 0;
 function dkSetEnabled(enabled) {
-  const next = enabled === true;
+  dkRequestedEnabled = enabled === true;
+  const next = dkRequestedEnabled && dkSettingsReady;
   if (next === dkEnabled) return;
   dkEnabled = next;
   if (!next) {
