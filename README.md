@@ -6,6 +6,8 @@
 
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
+**Build 374 / v0.3.344 (DK Page Architect planning):** Added a safe, testable clean-view planner with mandatory original player, strict region choices and explicit opt-in. The feature is deliberately inactive pending approved UI and live playback validation. See [Page Architect design](docs/PAGE_ARCHITECT.md). YouTube recovery remains unchanged.
+
 **Build 373 / v0.3.343 (SPA video identity):** Checks the live YouTube watch-video ID against the transient content-script refusal event before retrying. Stale events from a previous watch page cannot reload the current video. IDs are never added to saved preferences or diagnostics. Live Firefox verification remains pending.
 
 **Build 372 / v0.3.342 (Private recovery):** Decouples YouTube's one-shot refusal recovery from private request-history logging. Logging off continues to avoid storing playback events; only a bounded live refusal decision can trigger the existing tab-local recovery. Other health diagnostics still require logging. Live Firefox confirmation pending.
