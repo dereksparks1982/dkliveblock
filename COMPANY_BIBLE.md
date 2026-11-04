@@ -1,6 +1,8 @@
 # DK Live Block: Company Bible
 
-**Project:** DK Live Block / DK LAB / Elderred Softworks  
+**Project:** DK Live Block / DK Softworks  
+**Studio meaning:** Russian **ДК** = **Дом культуры** (*Dom kultury*), “House of Culture.”  
+**Earlier attribution:** DK LAB / Elderred Softworks (preserved in historical and legal notices).  
 **Repository:** `dereksparks1982/dkliveblock`  
 **Authority:** Project-owner instructions. This is the active DK Live Block project governance document.  
 **Established:** November 1, 2026.
