@@ -1,3 +1,10 @@
+## Build 378 / v0.3.348: Facebook label recovery and runtime evidence (November 4, 2026)
+- [x] Treat an explicit in-feed post landmark as authoritative when the label has shallow markup; detached labels without landmarks remain excluded.
+- [x] Observe in-place text changes and rescan only short, exact Ad/Sponsored labels in verified byline positions. No page-wide polling, network exceptions or UI geometry changes.
+- [x] Expose only aggregate counts for recovered shallow labels and edited-text labels in the local Facebook diagnostic schema.
+- [x] Add focused tests for shallow portals, real feed posts, text edits, non-ad text, detached labels, and existing label observation paths.
+- [ ] Real Firefox Facebook acceptance: explicit Ad cards still need validation. YouTube playback refusal remains unresolved and unchanged by this build.
+
 ## Build 377 / v0.3.347: Facebook late accessibility labels and truthful hiding (November 4, 2026)
 - [x] Detect exact late-arriving sponsored accessibility labels from attribute changes without unbounded feed scans.
 - [x] Only report an anchored/hide success if the target is really hidden; rejected broad cards and user-exempt posts remain unresolved, not false positives.
