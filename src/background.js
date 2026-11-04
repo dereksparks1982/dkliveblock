@@ -1572,9 +1572,14 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   return {ok:DKYouTubeResponse.noteBootstrap(id,msg.observation)};
  }
  if(msg.action==="reportPlaybackHealth"){
-  if(!fromContent||!data.ready||!data.settings.requestLog||!data.settings.enabled||
+  if(!fromContent||!data.ready||!data.settings.enabled||
      sender.frameId!==0||!Number.isInteger(id)||id<0)return {ok:false};
   const pageHost=host(sender.url||"");
+  // No browsing-history logging is required to react to a visible refusal.
+  // All other health event histories still require the explicit log setting.
+  if(!data.settings.requestLog&&!(msg.kind==="enforcement"&&
+      data.settings.youtubeResponseFilter===true&&
+      DKPlaybackHealth.isYouTube(pageHost)))return {ok:false};
   if(!DKPlaybackHealth.supportsHost(pageHost)||
      pageHost!==host(sender.tab?.url||"")||
      data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
@@ -1592,7 +1597,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    DKStreamingDiagnostics.recent(data.streamingIssues,id,now)
     .some(row=>row.pageHost===pageHost&&row.type==="media"&&
       now-row.when>=0&&now-row.when<=120000);
-  const recorded=DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now);
+  const recorded=data.settings.requestLog?
+   DKPlaybackHealth.record(data.playbackHealth,id,pageHost,msg.kind,nearby,now):
+   msg.kind==="enforcement"; // Ephemeral decision only; retain no history.
   // Repeated, independently timed playback faults correlated with recent
   // blocked media trigger a SHORT, REVERSIBLE switch among existing defenses.
   // Never allow media hosts or disable the network/ad filter engine.
@@ -1845,7 +1852,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
     adRecognition:data.settings.adRecognition&&!policy.elemhide&&
      (!policy.generichide||DKCompanyModules.profileFor(h)?.platform==="facebook"),
     adRecognitionExceptions:adExceptions,
-   playbackHealthEnabled:active&&data.settings.requestLog&&DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
+   playbackHealthEnabled:active&&(data.settings.requestLog||
+     data.settings.youtubeResponseFilter===true&&DKPlaybackHealth.isYouTube(h))&&
+     DKPlaybackHealth.supportsHost(h)&&sender.frameId===0,
    youtubePageAssistEnabled:active&&youtubePolicy(sender.tab?.id??-1,h).bridge&&DKYouTubeResponse.validPage(h)&&sender.frameId===0,
    youtubePageAssistMode:active&&sender.frameId===0&&DKYouTubeResponse.validPage(h)?
     (youtubePolicy(sender.tab?.id??-1,h).observe?"observe":
