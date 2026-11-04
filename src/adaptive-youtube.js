@@ -17,6 +17,18 @@ function validSite(site){return typeof site==="string"&&
   site==="youtube-nocookie.com"||site.endsWith(".youtube-nocookie.com"));}
 function valid(id,site,now){return Number.isInteger(id)&&id>=0&&validSite(site)&&
  Number.isFinite(now)&&now>=0;}
+// Automatic retry belongs to ordinary first-party YouTube watch pages only.
+function ordinaryWatchPage(raw){
+ if(typeof raw!=="string"||raw.length>4096)return false;
+ try{
+  const url=new URL(raw);
+  if(url.protocol!=="https:"||url.username||url.password||url.port||
+     !["youtube.com","www.youtube.com","m.youtube.com"].includes(url.hostname)||
+     url.pathname!=="/watch")return false;
+  const ids=url.searchParams.getAll("v");
+  return ids.length===1&&/^[A-Za-z0-9_-]{11}$/.test(ids[0]);
+ }catch(_){return false;}
+}
 function clear(store,id){store.delete(id);}
 function entry(store,id,site,now){
  if(!valid(id,site,now))return null;
@@ -108,7 +120,7 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  if(store.size>MAX_TABS)store.delete(store.keys().next().value);
  return unchanged;
 }
-const API=Object.freeze({validSite,clear,mode,status,note,recoverRefusal,
+const API=Object.freeze({validSite,ordinaryWatchPage,clear,mode,status,note,recoverRefusal,
  MAX_TABS,WINDOW_MS,MIN_GAP_MS,FALLBACK_MS,REFUSAL_MS,RETRY_GUARD_MS});
 root.DKAdaptiveYouTube=API;
 if(typeof module!=="undefined")module.exports=API;
