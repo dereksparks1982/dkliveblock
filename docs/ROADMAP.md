@@ -1,3 +1,9 @@
+## Build 375 / v0.3.345: read-only Page Architect discovery (November 4, 2026)
+- [x] Add conservative YouTube watch-page region recognition and a fail-closed preview when the existing player or masthead is missing.
+- [x] Return only immutable booleans and region names; no DOM elements, video IDs, titles, or URLs leave discovery.
+- [x] Add offline tests for missing regions, malformed documents, rejection of unsupported pages and no DOM mutation.
+- [ ] Opt-in UI and reversible CSS remain deferred until owner approval; actual YouTube playback must still be verified.
+
 ## Build 374 / v0.3.344: DK Page Architect clean-view foundation (November 4, 2026)
 - [x] Add inactive, strict YouTube watch-page clean-view planner, with selectable regions and mandatory original player.
 - [x] Add contract tests for explicit opt-in, hostile URLs, invalid settings, immutable output and no DOM mutation; register in local test runner.
