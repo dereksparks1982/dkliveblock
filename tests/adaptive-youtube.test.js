@@ -111,10 +111,10 @@ test("Build 369 recovery is tab-scoped and refuses spoofed hosts",()=>{
 test("Build 369 background retries a refusal only through bounded isolation",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const code=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
- assert.match(code,/DKAdaptiveYouTube\\.recoverRefusal\\(/);
- assert.match(code,/if\\(recovered\\.changed\\)/);
- assert.match(code,/await browser\\.tabs\\.reload\\(id\\)/);
- assert.doesNotMatch(code,/DKAdaptiveYouTube\\.allowMedia|DKAdaptiveYouTube\\.disableFiltering/);
+ assert.ok(code.includes("DKAdaptiveYouTube.recoverRefusal("));
+ assert.ok(code.includes("if(recovered.changed)"));
+ assert.ok(code.includes("await browser.tabs.reload(id)"));
+ assert.ok(!code.includes("DKAdaptiveYouTube.allowMedia")&&!code.includes("DKAdaptiveYouTube.disableFiltering"));
 });
 
 test("Build 370: refusal retry cannot loop after policy window expires",()=>{
@@ -159,6 +159,6 @@ test("Build 371: automatic recovery only targets ordinary watch URLs",()=>{
 test("Build 371: Firefox reload gate checks live tab URL",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const text=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
- assert.match(text,/DKAdaptiveYouTube\\.ordinaryWatchPage\\(liveTab\\?\\.url\\)/);
- assert.match(text,/liveTab=await browser\\.tabs\\.get\\(id\\)/);
+ assert.ok(text.includes("DKAdaptiveYouTube.ordinaryWatchPage(liveTab?.url)"));
+ assert.ok(text.includes("liveTab=await browser.tabs.get(id)"));
 });
