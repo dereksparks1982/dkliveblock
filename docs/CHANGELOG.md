@@ -1,3 +1,6 @@
+## 0.3.307 / Build 337 (2026-11-03)
+- Rotate bounded Facebook right-rail detection windows and add safe numeric cursor evidence.
+
 ## 0.3.306 / Build 336 (2026-11-03)
 - Look for late Sponsored label nodes in large Facebook insertions without increasing the existing fast-pass processing cap.
 

@@ -1,3 +1,8 @@
+## Build 337 / v0.3.307: long Facebook right-rail scan fairness (November 3, 2026)
+- [x] Rotate bounded Sponsored headings (260), right-rail labels (5,500) and attribution links (220), preventing long-list starvation.
+- [x] Include only aggregate scan cursor positions in explicit privacy-safe diagnostics. Contacts and normal-post guards unchanged.
+- [x] Five regressions registered; Firefox right-rail and full Ubuntu testing still pending.
+
 ## Build 336 / v0.3.306: late fast-path Sponsored labels (November 3, 2026)
 - [x] Sample first and last fifty candidate descendants within the existing 100-node-per-root fast Facebook scan instead of always the first hundred.
 - [x] Keep 32-root/320-element budgets and vetted byline, rail and card evidence gates. No full-document fast pass.

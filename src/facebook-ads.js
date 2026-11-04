@@ -537,6 +537,7 @@ function create(doc,win,max=100,onEvidence=null){
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
   recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
+ let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
   if(!feed||typeof win?.IntersectionObserver!=="function")return;
@@ -827,14 +828,16 @@ function create(doc,win,max=100,onEvidence=null){
   }
   // A role=complementary wrapper is not guaranteed on Facebook's new right rail.
   const headings=doc.querySelectorAll(HEADING);
-  for(let i=0;i<Math.min(260,headings.length)&&count<15;i++){
-   const h=headings[i];
+  let headingInspected=0;
+  for(;headingInspected<Math.min(260,headings.length)&&count<15;headingInspected++){
+   const h=headings[(railHeadingCursor+headingInspected)%headings.length];
    if(!isSponsoredLabel(h.textContent))continue;
    stats.lastRailSignals++;
    const section=rightRailCandidate(h,doc,win);
    if(!section)stats.lastRailUnresolved++;
    if(section&&hide(section,null,"rail"))count++;
   }
+  railHeadingCursor=headings.length?(railHeadingCursor+headingInspected)%headings.length:0;
   // MIT-inspired rail fallback: Facebook can render the visible Sponsored
   // heading as an ordinary span rather than h1..h6 or role=heading. Examine
   // short, on-screen right-column labels and hide only a bounded rail section.
@@ -842,8 +845,9 @@ function create(doc,win,max=100,onEvidence=null){
   // Accessible Sponsored names may sit on a button/link rather than a span.
   // Keep this strictly inside the right rail; geometry + section guards apply.
   const railLabels=doc.querySelectorAll('span,[role="complementary"] div,aside div,[role="complementary"] [aria-label],aside [aria-label]');
-  for(let i=0;i<Math.min(5500,railLabels.length)&&count<15;i++){
-   const label=railLabels[i];
+  let railInspected=0;
+  for(;railInspected<Math.min(5500,railLabels.length)&&count<15;railInspected++){
+   const label=railLabels[(railLabelCursor+railInspected)%railLabels.length];
    // The visible right-rail Sponsored label can itself be character-split.
    // The old >4-children prefilter discarded it before labelsOf() decoded it.
    const childCount=label.children?.length||0;
@@ -859,14 +863,18 @@ function create(doc,win,max=100,onEvidence=null){
    if(!section)stats.lastRailUnresolved++;
    if(section&&hide(section,label,"rail"))count++;
   }
+  railLabelCursor=railLabels.length?(railLabelCursor+railInspected)%railLabels.length:0;
   // Advertiser-tagged links are detected even when "Sponsored" is obfuscated.
   const railLinks=doc.querySelectorAll('a[target="rhcad2"],a[attributionsrc],a[href*="utm_campaign"]');
-  for(let i=0;i<Math.min(220,railLinks.length)&&count<15;i++){
-   const card=rightRailLinkCard(railLinks[i],doc,win);
-   if(railAdLink(railLinks[i]))stats.lastRailSignals++;
-   if(!card&&railAdLink(railLinks[i]))stats.lastRailUnresolved++;
+  let linkInspected=0;
+  for(;linkInspected<Math.min(220,railLinks.length)&&count<15;linkInspected++){
+   const link=railLinks[(railLinkCursor+linkInspected)%railLinks.length];
+   const card=rightRailLinkCard(link,doc,win);
+   if(railAdLink(link))stats.lastRailSignals++;
+   if(!card&&railAdLink(link))stats.lastRailUnresolved++;
    if(card&&hide(card,null,"rail"))count++;
   }
+  railLinkCursor=railLinks.length?(railLinkCursor+linkInspected)%railLinks.length:0;
   const cards=doc.querySelectorAll(ARTICLE),seen=new Set();
   // Rotate the same bounded window; a long feed must not starve late posts.
   let articleInspected=0;
@@ -946,7 +954,8 @@ function create(doc,win,max=100,onEvidence=null){
 
  return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
-   cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,exceptions:exceptions.length,
+   cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
+   railHeadingCursor,railLabelCursor,railLinkCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
