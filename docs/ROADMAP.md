@@ -1,3 +1,9 @@
+## Build 367 / v0.3.337: no silent partial Facebook fallback (November 4, 2026)
+- [x] Eliminate old partial scanner fallback so missing full-core installation is observable, not silently disguised.
+- [x] Add coreMissing diagnostic triage; five adapter regressions exercise full and missing engine cases.
+- [x] Strengthen source audit to reject partial fallback reintroduction.
+- [ ] Native Ubuntu and live Firefox confirmation of full-core initialization, ad latency and safe post handling.
+
 ## Build 366 / v0.3.336: full Facebook runtime integrity audit (November 4, 2026)
 - [x] Audit the actual complete Facebook engine and its injected order instead of relying on old partial-scanner tests alone.
 - [x] Guard every requested feature family, user controls, fail-closed pause, privacy reports and new test registration.

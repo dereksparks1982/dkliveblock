@@ -21,8 +21,9 @@ function create(doc,win){
  if(profile?.company!=="meta"||win?.top&&win.top!==win)return null;
  const platform=profile.platform;
  const intelligence=root.DKNestyIntelligence?.create?.()||null;
- const facebook=platform==="facebook"?(root.DKFacebookFullCore?.create?.(doc,win)||root.DKFacebookAds?.create?.(doc,win,100,
-  kind=>intelligence?.observeDecision?.(win.location.hostname,kind))):null;
+ // A missing full engine must be visible as a failure, never silently
+ // replaced by the old partial scanner. That regressed Facebook parity.
+ const facebook=platform==="facebook"?(root.DKFacebookFullCore?.create?.(doc,win)||null):null;
  const observer=root.DKAdaptiveDispatcher?.create?.()||null;
  if(observer){
   observer.register("meta-explicit-sponsored",ctx=>{
@@ -44,7 +45,9 @@ function create(doc,win){
   inspectSignals:signals=>intelligence?.inspect?.(win.location.hostname,signals)||null,
   intelligenceProfile:()=>intelligence?.snapshot?.(win.location.hostname,false)||null,
   deliveryMethods:()=>root.DKMetaDeliveryCatalog?.entries||[],
-  diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({platform,hidden:0,mode:"observation-only"}),
+  diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({
+   platform,hidden:0,coreFull:0,coreMissing:platform==="facebook"?1:0,
+   mode:platform==="facebook"?"full-facebook-engine-unavailable":"observation-only"}),
   get hiddenCount(){return facebook?.hiddenCount||0;}});
 }
 const API=Object.freeze({create,sampleMutations});

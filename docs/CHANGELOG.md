@@ -1,3 +1,6 @@
+## 0.3.337 / Build 367 (2026-11-04)
+- Disallow silent fallback to obsolete partial Facebook scanner; surface missing full engine and test exclusive ownership.
+
 ## 0.3.336 / Build 366 (2026-11-04)
 - Extend source auditor to guard full active Facebook runtime, all ten original MIT mechanisms and user controls; five mutation regressions.
 

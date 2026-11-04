@@ -1,7 +1,7 @@
 /* DK Live Block Build 305: fixed, local-only Facebook scanner + GraphQL diagnostics.
    This is observation only; browser network and page blocking decisions are unchanged. */
 (function(root){"use strict";
-const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreEnabled","settingsReady","settingsError","observerActive","scanCostMs","observerCostMs","retryCostMs","scanElements","labelsUnanchored","hideByLabel","hideByShape","hideByMarked","hideBySuggested","hideByUnfollowed","hideBySection","hideByOther","restoreOperations","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
+const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreMissing","coreEnabled","settingsReady","settingsError","observerActive","scanCostMs","observerCostMs","retryCostMs","scanElements","labelsUnanchored","hideByLabel","hideByShape","hideByMarked","hideBySuggested","hideByUnfollowed","hideBySection","hideByOther","restoreOperations","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
 const GRAPHQL=Object.freeze(["attached","modified","removed","unchanged","errors","oversized","timeout","skipped"]);
 function bounded(value,max=1000000){return Number.isSafeInteger(value)&&value>=0&&value<=max?value:null;}
 function counts(input,allowed){
@@ -24,6 +24,8 @@ function triage(r){
  if(!r.adapterLoaded)return Object.freeze({code:"scanner-unavailable",next:"Reload the Facebook tab and inspect whether the content script initialized."});
  if(r.picking)return Object.freeze({code:"picker-active",next:"Exit the element picker before comparing scans."});
  const d=r.detector||{},g=r.graphql||{};
+ if(d.coreMissing)
+  return Object.freeze({code:"facebook-full-core-missing",next:"The complete Facebook engine did not load. Reload DK Live Block and Facebook; do not treat the old partial scanner as successful."});
  if(d.coreFull&&d.settingsError)
   return Object.freeze({code:"facebook-settings-unavailable",next:"Facebook's saved preferences could not be read; the complete engine is off. Reload the extension and repeat."});
  if(d.coreFull&&!d.settingsReady)
