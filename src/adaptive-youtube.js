@@ -4,6 +4,7 @@
 (function(root){"use strict";
 const MAX_TABS=40,WINDOW_MS=2*60*1000,MIN_GAP_MS=20000,FALLBACK_MS=10*60*1000;
 const BAD=new Set(["buffering","media-error"]);
+const REFUSAL_MS=10*60*1000;
 const CONTEXT=new Set(["enforcement","ad-skip","ad-showing"]);
 const Model=typeof root.DKAdaptiveModel!=="undefined"?root.DKAdaptiveModel:
  typeof require==="function"?require("./adaptive-model.js"):null;
@@ -25,20 +26,38 @@ function entry(store,id,site,now){
 }
 function mode(store,id,site,now=Date.now()){
  const x=entry(store,id,site,now);
- return x?.until&&now<x.until?"response-only":"combined";
+ return x?.refusalUntil&&now<x.refusalUntil?"player-pass-through":
+  x?.until&&now<x.until?"response-only":"combined";
 }
 function status(store,id,site,now=Date.now()){
  const x=entry(store,id,site,now);
  const active=!!(x?.until&&now<x.until);
- return {active,mode:active?"response-only":"combined",
-  expires:active?x.until:0,reason:active?"repeated-playback-failures":""};
+ const refused=!!(x?.refusalUntil&&now<x.refusalUntil);
+ return {active:active||refused,mode:refused?"player-pass-through":active?"response-only":"combined",
+  expires:refused?x.refusalUntil:active?x.until:0,
+  reason:refused?"observed-youtube-playback-refusal":active?"repeated-playback-failures":""};
+}
+// One short-lived retry on an observed in-player refusal. The browser
+// keeps its ordinary network ad filters; only the two player JSON rewrite
+// paths are disabled for this tab. No site-wide allowlist is introduced.
+function recoverRefusal(store,id,site,now=Date.now()){
+ if(!valid(id,site,now))return {changed:false};
+ const old=entry(store,id,site,now);
+ if(old?.refusalUntil&&old.refusalUntil>now)return {changed:false};
+ const x=old||{site,first:now,last:now,count:0,nearby:false,until:0,
+  sawMediaError:false,sawBuffering:false,sawEnforcement:false,
+  sawAdSkip:false,sawAdShowing:false};
+ x.last=now;x.until=0;x.refusalUntil=now+REFUSAL_MS;x.sawEnforcement=true;
+ store.delete(id);store.set(id,x);
+ if(store.size>MAX_TABS)store.delete(store.keys().next().value);
+ return {changed:true,mode:"player-pass-through",expires:x.refusalUntil};
 }
 function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  const unchanged={changed:false,mode:mode(store,id,site,now)};
  if(!valid(id,site,now)||(!BAD.has(kind)&&!CONTEXT.has(kind))||
     typeof blockedMediaNearby!=="boolean")return unchanged;
  let x=entry(store,id,site,now);
- if(x?.until)return unchanged;
+ if(x?.until||x?.refusalUntil)return unchanged;
  if(!x||now-x.first>WINDOW_MS){
   x={site,first:now,last:now,count:0,nearby:false,until:0,
    sawMediaError:false,sawBuffering:false,sawEnforcement:false,
@@ -81,8 +100,8 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
  if(store.size>MAX_TABS)store.delete(store.keys().next().value);
  return unchanged;
 }
-const API=Object.freeze({validSite,clear,mode,status,note,
- MAX_TABS,WINDOW_MS,MIN_GAP_MS,FALLBACK_MS});
+const API=Object.freeze({validSite,clear,mode,status,note,recoverRefusal,
+ MAX_TABS,WINDOW_MS,MIN_GAP_MS,FALLBACK_MS,REFUSAL_MS});
 root.DKAdaptiveYouTube=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
