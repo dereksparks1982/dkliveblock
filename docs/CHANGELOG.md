@@ -1,3 +1,6 @@
+## 0.3.329 / Build 359 (2026-11-03)
+- Activate complete licensed Inky Facebook engine including ten requested core and control systems, with DK pause gates, privacy-safe counters and bilingual settings; browser acceptance pending.
+
 ## 0.3.328 / Build 358 (2026-11-03)
 - After an owner screenshot confirmed a visible Facebook ad with a short “Ad” badge, permit evidence-verified viewport recognition of posts lacking article landmarks; schedule bounded viewport scans on new React insertions as well as scroll. Live Firefox acceptance pending.
 

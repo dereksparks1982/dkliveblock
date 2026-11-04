@@ -17,7 +17,7 @@ The DK Live Block project credits external media, code and rule-list authors her
 
 - **Ghostery-based filtering:** MPL 2.0; see [src/LICENSE-GHOSTERY.txt](../src/LICENSE-GHOSTERY.txt).
 - **Mozilla Public Suffix List:** MPL 2.0; see [src/LICENSE-PSL.txt](../src/LICENSE-PSL.txt).
-- **Vendored Facebook Sponsored reference:** MIT; see [src/vendor/LICENSE-FACEBOOK-SPONSORED-MIT.txt](../src/vendor/LICENSE-FACEBOOK-SPONSORED-MIT.txt). The standalone upstream extension is not activated as a second blocker.
+- **Vendored Facebook Sponsored reference:** MIT; see [src/vendor/LICENSE-FACEBOOK-SPONSORED-MIT.txt](../src/vendor/LICENSE-FACEBOOK-SPONSORED-MIT.txt). The complete adapted MIT engine is active at `src/facebook-full-core.js` on Facebook alone, replacing the former partial DK Facebook scanner. The original reference and license remain preserved.
 - **Rule-list subscriptions:** Maintain the license, authorship and source notices applicable to each external filter list.
 
 Before incorporating other third-party sounds or imagery, document their authors, original sources, local paths and licensing here.

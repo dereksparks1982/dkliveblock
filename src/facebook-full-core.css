@@ -1,0 +1,7 @@
+/* Facebook-only controls for full MIT engine. No global DK geometry changes. */
+#fbsb-mark-bar{position:fixed;z-index:2147483645;display:none;gap:6px;padding:5px;background:#10151a;color:#fff;border:1px solid #22c5dc;border-radius:7px;box-shadow:0 4px 12px #0009;font:12px/1.4 system-ui,sans-serif}
+.fbsb-mark-btn{background:#182d39;border:1px solid #22c5dc;border-radius:4px;color:#fff;padding:5px 8px;font:inherit;cursor:pointer}
+.fbsb-mark-btn:focus-visible,.fbsb-mark-btn:hover{outline:2px solid #22c5dc}
+.fbsb-placeholder{display:flex;align-items:center;flex-wrap:wrap;gap:10px;justify-content:space-between;background:#151b21;border:1px solid #22c5dc;color:#e5f5fb;padding:10px;border-radius:7px;font:13px/1.4 system-ui,sans-serif;margin:8px 0}
+.fbsb-ph-text{display:flex;gap:8px;flex-wrap:wrap}
+.fbsb-show-btn{background:#092f3b;color:white;border:1px solid #22c5dc;border-radius:4px;padding:5px 10px;cursor:pointer}

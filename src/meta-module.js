@@ -21,8 +21,8 @@ function create(doc,win){
  if(profile?.company!=="meta"||win?.top&&win.top!==win)return null;
  const platform=profile.platform;
  const intelligence=root.DKNestyIntelligence?.create?.()||null;
- const facebook=platform==="facebook"?root.DKFacebookAds?.create?.(doc,win,100,
-  kind=>intelligence?.observeDecision?.(win.location.hostname,kind)):null;
+ const facebook=platform==="facebook"?(root.DKFacebookFullCore?.create?.(doc,win)||root.DKFacebookAds?.create?.(doc,win,100,
+  kind=>intelligence?.observeDecision?.(win.location.hostname,kind))):null;
  const observer=root.DKAdaptiveDispatcher?.create?.()||null;
  if(observer){
   observer.register("meta-explicit-sponsored",ctx=>{
@@ -35,6 +35,7 @@ function create(doc,win){
  }
  function review(element){return observer?.inspect({element,platform})||[];}
  return Object.freeze({company:"meta",platform,scan:()=>facebook?.scan()||0,
+  setEnabled:enabled=>facebook?.setEnabled?.(enabled),
   scanInserted:records=>facebook?.scanInserted?.(records)||0,
   scanVisible:()=>facebook?.scanVisible?.()||0,
   restore:()=>facebook?.restore(),setExceptions:r=>facebook?.setExceptions(r),

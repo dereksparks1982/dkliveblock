@@ -93,6 +93,7 @@
    if(!compactVideoGrids)layoutReflow?.restore();
    if(!nextActive)layoutScout?.reset?.();
    active=nextActive;css=s.css||"";youtubeSkip=!!s.youtubeSkip;rememberVideos=!!s.rememberVideos;cookieReject=!!s.cookieReject;adRecognition=s.adRecognition!==false;
+   facebookRecognizer?.setEnabled?.(active&&adRecognition&&!picking);
    antiAdblock=nextAnti;paywallPopups=nextPaywall;distractionControl=nextDistractions;procedural=nextProcedural;
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{
@@ -395,6 +396,7 @@
  }
  function endPicker(){
   picking=false;
+  facebookRecognizer?.setEnabled?.(active&&adRecognition);
   if(selected){selected.style.outline="";selected=null;}banner?.remove();banner=null;
   document.removeEventListener("mouseover",hover,true);document.removeEventListener("click",choose,true);document.removeEventListener("keydown",keys,true);
   syncVideoWatcher();
@@ -439,7 +441,7 @@
  }
  function startPicker(){
   if(!active||picking||!document.body)return false;
-  picking=true;syncVideoWatcher();banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
+  picking=true;facebookRecognizer?.setEnabled?.(false);syncVideoWatcher();banner=document.createElement("div");banner.textContent="DK Live Block: click an element to hide. Esc cancels.";
   banner.setAttribute("style","position:fixed!important;z-index:2147483647!important;right:12px!important;top:12px!important;padding:12px!important;background:#073934!important;color:white!important;border:2px solid #14b8a6!important;font:14px sans-serif!important");
   document.documentElement.appendChild(banner);
   document.addEventListener("mouseover",hover,true);document.addEventListener("click",choose,true);document.addEventListener("keydown",keys,true);

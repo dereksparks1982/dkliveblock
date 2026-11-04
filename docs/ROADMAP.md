@@ -1,3 +1,10 @@
+## Build 359 / v0.3.329: all ten original Facebook blocker feature paths integrated (November 3, 2026)
+- [x] Activate the full MIT engine in one Facebook-only runtime, replacing the partial DK-specific DOM scanner.
+- [x] Include complete unlabeled-ad inference, 50ms bounded retry, portal reverse resolution, whole-post resolution, CSS deobfuscation and observer failure counters.
+- [x] Include Page trust/ad marking, optional Suggested and Follow/Join filtering, placeholders and optional Stories/Reels/People You May Know cleanup.
+- [x] Expose dedicated English/Russian settings; retain DK pause, site allowlist, picker and existing cosmetic exceptions.
+- [ ] Native Ubuntu full suite and live Firefox test for ad latency, legitimate-post safety, controls, Marketplace, mobile and restoration.
+
 ## Build 358 / v0.3.328: owner-screenshot Facebook Ad-byline visible fallback (November 3, 2026)
 - [x] Respond to a real Firefox screenshot of a ModRetro feed ad with a short “Ad” disclosure: visible feed posts need not have article/pagelet landmarks.
 - [x] Add bounded safe-ancestor resolution and explicit evidence to the viewport priority scanner, with a shared mutation/scroll coalescing gate.

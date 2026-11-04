@@ -1,7 +1,7 @@
 /* DK Live Block Build 305: fixed, local-only Facebook scanner + GraphQL diagnostics.
    This is observation only; browser network and page blocking decisions are unchanged. */
 (function(root){"use strict";
-const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden"]);
+const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreEnabled","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
 const GRAPHQL=Object.freeze(["attached","modified","removed","unchanged","errors","oversized","timeout","skipped"]);
 function bounded(value,max=1000000){return Number.isSafeInteger(value)&&value>=0&&value<=max?value:null;}
 function counts(input,allowed){
@@ -24,7 +24,7 @@ function triage(r){
  if(!r.adapterLoaded)return Object.freeze({code:"scanner-unavailable",next:"Reload the Facebook tab and inspect whether the content script initialized."});
  if(r.picking)return Object.freeze({code:"picker-active",next:"Exit the element picker before comparing scans."});
  const d=r.detector||{},g=r.graphql||{};
- const scans=(d.scans||0)+(d.fastScans||0);
+ const scans=(d.scans||0)+(d.fastScans||0)+(d.observerCalls||0);
  if(!scans)return Object.freeze({code:"no-scans-recorded",next:"Scroll a Facebook feed once and check the scanner again."});
  if((d.hidden||0)>0||((d.fastHidden||0)>0))
   return Object.freeze({code:"dom-hide-observed",next:"Verify the specific Sponsored card disappeared while nearby ordinary posts stayed visible."});
