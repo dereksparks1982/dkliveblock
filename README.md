@@ -4,7 +4,14 @@
 
 # DK Live Block
 
-**DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
+## DK Softworks · House of Culture
+
+**DK Softworks** is the studio and project identity. **DK** draws on the Russian abbreviation **ДК** for **Дом культуры** (*Dom kultury*), meaning **“House of Culture.”** Traditionally, a *dom kultury* is a community center for the arts, creativity, performance, and learning.
+
+This identifies the present project or its stewardship; it does not change existing licenses, copyright holders, original creators, or historical credits.
+
+
+**DK Live Block** is a free Firefox-first browser extension from DK Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
 **Build 379 / v0.3.349 (Facebook runtime evidence):** Added a collapsed, opt-in Facebook Runtime Diagnostics section to Facebook's own settings page. It reads aggregate live detector and GraphQL counters, identifies disabled/missing/unanchored engines, and exports a private local JSON report only on request. No new blocking changes or telemetry; use this to isolate why visible ads remain. YouTube refusal remains open.
 
