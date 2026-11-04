@@ -582,7 +582,7 @@ function sampleFastArticles(nodes,max=18){
  else{for(let i=0;i<9;i++)out.push(nodes[i]);for(let i=n-9;i<n;i++)out.push(nodes[i]);}
  return out;
 }
-function create(doc,win,max=100,onEvidence=null){
+function create(doc,win,max=100,onEvidence=null,canHide=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
  const hidden=new Map(),cache=new Map(),limit=Math.max(1,Math.min(120,max));
@@ -622,6 +622,11 @@ function create(doc,win,max=100,onEvidence=null){
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
  function hide(el,trigger=null,kind=""){
+  // The primary full engine owns user keep/show decisions. When Nesty wakes
+  // this dormant strategy, its explicit veto is mandatory and fail-closed.
+  if(typeof canHide==="function"){
+   try{if(canHide(el)!==true)return false;}catch(_){return false;}
+  }
   // The full Facebook core owns its own hidden cards. A dormant Nesty
   // fallback must never hide that card twice or take over its style.
   if(el?.closest?.("[data-fbsb-hidden]")||el?.querySelector?.("[data-fbsb-hidden]"))return false;
