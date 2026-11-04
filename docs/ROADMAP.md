@@ -1,3 +1,13 @@
+## Builds 382–385 candidate: adaptive Nesty defense coordination (draft, unreleased; November 4, 2026)
+- [x] **382: Facebook dormant strategy:** Add a bounded Meta Nesty supervisor that wakes the retained, previously unreachable legacy fast scanner only after persistent failures in a healthy full Facebook engine. Gate on at least two short exact-label or unanchored/width-failure signals over 1.5 seconds. Active for 30 seconds, cooldown five seconds; site pauses restore the fallback. Full engine remains primary and absent engine stays a visible failure.
+- [x] **383: YouTube sustained refusal:** A known, visible player error must persist 800 ms for first observation. A single additional signal after a continuous 22-second refusal makes the existing two-event adaptive response strategy reachable without reloading or hiding the warning. Resolved/transient warnings cause no fallback.
+- [x] **384: Facebook ownership isolation:** Mark legacy-hidden cards so the primary engine cannot claim the same post; make the legacy engine avoid and never unhide full-core-owned posts. Preserve existing per-card safety and exceptions. No extra page-wide observer.
+- [x] **385: Explain Nesty activity:** Add fixed, bounded `legacyActive`, `legacyWakeups`, and `legacyHidden` diagnostics, visible only in the user-requested Facebook report; never export source post text or browsing identity. Expand tests and documentation.
+- [x] **Focused test checkpoint:** 41 existing/new YouTube/adaptive playback checks and 10 Facebook ownership/report checks passed in a simulated V8 harness. Core integration and syntax also spot-checked.
+- [ ] **Native Ubuntu tests:** Run the entire offline test suite, including the Meta strategy integration test, before merging.
+- [ ] **Live Firefox evidence:** On one ordinary YouTube watch page, verify whether playback is permitted without an advertisement or forced reload. On Facebook, verify whether an exact marked Ad disappears before and after dormant fallback activation. Never call an activation a verified hide.
+- [ ] **Root causes unresolved:** YouTube server-side refusal predates the removed reload behavior; Facebook layout continues to change. The branch is not yet a verified parity release. See `docs/NESTY_FALLBACK_COORDINATION.md`.
+
 ## Build 381 candidate: two-signal YouTube strategy fallback (draft, not released)
 - [x] Reuse existing, bounded adaptive YouTube strategy and old recoverRefusal rather than deleting either implementation.
 - [x] Require two independent refusal events at least twenty seconds apart, both bound to the current Firefox watch tab, before changing strategy.
