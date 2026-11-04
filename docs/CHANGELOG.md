@@ -1,3 +1,6 @@
+## 0.3.302 / Build 332 (2026-11-03)
+- Prevent overlapping Facebook diagnostics from presenting or exporting stale reports; only the newest explicit request can update the panel.
+
 ## 0.3.301 / Build 331 (2026-11-03)
 - Include bounded article/byline/portal scan cursors in opt-in, privacy-safe Facebook aggregate diagnostics to make long-feed coverage inspectable.
 

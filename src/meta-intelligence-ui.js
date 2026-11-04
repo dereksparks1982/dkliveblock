@@ -5,7 +5,7 @@
  const idText=params.get("tab");
  const tabId=idText!==null&&/^\d+$/.test(idText)?Number(idText):null;
  let ready=false;
- let facebookReport=null;
+ let facebookReport=null,facebookReportGeneration=0;
  // Human-readable triage follows the saved English/Russian preference.
  // Keep the underlying JSON source report unchanged and safe for export.
  const local=s=>DKUILanguage.translate(String(s),document.documentElement?.lang||"en");
@@ -19,6 +19,8 @@
 
  // Explicit read-only inspection: no page text, cookies or individual URLs.
  async function checkFacebook(){
+  const generation=++facebookReportGeneration;
+  const latest=()=>generation===facebookReportGeneration;
   const panel=$("facebookDiagnostics");
   facebookReport=null;$("facebookExport").disabled=true;
   if(!Number.isSafeInteger(tabId)||tabId<0){
@@ -26,11 +28,13 @@
   }
   try{
    const tab=await browser.tabs.get(tabId);
+   if(!latest())return;
    if(!/^https:\/\/(?:[^/]+\.)?facebook\.com(?:\/|$)/i.test(tab?.url||"")){
     panel.textContent="This diagnostic works on a Facebook tab only.";return;
    }
    const reply=await browser.tabs.sendMessage(tabId,
     {action:"getFacebookDetectorStatus"},{frameId:0});
+   if(!latest())return;
    if(!reply?.ok)throw Error(reply?.error||"Detector unavailable");
    // Two independently authorized, read-only sources. A missing GraphQL
    // reply is explicitly unavailable, never assumed disabled or successful.
@@ -38,12 +42,14 @@
    try{graphqlReply=await browser.runtime.sendMessage({action:"getMetaGraphqlStats",tabId});}
    catch(_){/* Scanner evidence is still useful when GraphQL is unavailable. */}
    const after=await browser.tabs.get(tabId);
+   if(!latest())return;
    if(after?.url!==tab.url)throw Error("Facebook tab changed during diagnostic. Retry.");
    facebookReport=DKFacebookDiagnosticReport.build(reply,graphqlReply);
    if(!facebookReport)throw Error("Diagnostic report unavailable");
    renderFacebook();
    $("facebookExport").disabled=false;
   }catch(e){
+   if(!latest())return;
    panel.textContent=local("Could not read the Facebook detector. Reload the Facebook tab and DK Live Block. ")+String(e?.message||"");
   }
  }

@@ -1,3 +1,8 @@
+## Build 332 / v0.3.302: Facebook diagnostic async request integrity (November 3, 2026)
+- [x] Retire stale Facebook report reads on a newer user-requested inspection, guarding initial tab lookup, content message, GraphQL wait, final navigation check and error presentation.
+- [x] Do not export or display a stale first request over a fresher diagnostic; preserve exact-tab navigation checks, privacy report schema and saved English/Russian renderer.
+- [x] Five source regressions registered. Real Firefox rapid-click test and full Ubuntu suite pending.
+
 ## Build 331 / v0.3.301: Facebook scan-cursor diagnostic integration (November 3, 2026)
 - [x] Carry the three bounded Facebook feed/label scan cursors into the existing explicit, privacy-scrubbed, local-only Meta diagnostics export.
 - [x] Reject oversized, fractional, negative and untrusted raw data; preserve v2 report schema, unverified interpretation and exact-tab snapshot.
