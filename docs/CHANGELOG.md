@@ -1,3 +1,6 @@
+## 0.3.325 / Build 355 (2026-11-03)
+- Prevent stale or cross-navigation Facebook GraphQL diagnostic results; preserve fixed-key read-only export.
+
 ## 0.3.324 / Build 354 (2026-11-03)
 - Guard YouTube offline A/B lab status against stale errors after reset/file-selection changes.
 

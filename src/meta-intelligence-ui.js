@@ -5,7 +5,7 @@
  const idText=params.get("tab");
  const tabId=idText!==null&&/^\d+$/.test(idText)?Number(idText):null;
  let ready=false;
- let facebookReport=null,facebookReportGeneration=0;
+ let facebookReport=null,facebookReportGeneration=0,graphqlRequestGeneration=0;
  // Human-readable triage follows the saved English/Russian preference.
  // Keep the underlying JSON source report unchanged and safe for export.
  const local=s=>DKUILanguage.translate(String(s),document.documentElement?.lang||"en");
@@ -54,20 +54,30 @@
   }
  }
  $("graphqlCheck").addEventListener("click",async()=>{
+  const generation=++graphqlRequestGeneration;
+  const latest=()=>generation===graphqlRequestGeneration;
   const box=$("graphqlDiagnostics");
   if(!Number.isSafeInteger(tabId)||tabId<0){
    box.textContent="Choose a Facebook tab from the Site Dashboard.";return;
   }
   try{
+   const tab=await browser.tabs.get(tabId);
+   if(!latest())return;
+   if(!/^https:\/\/(?:[^/]+\.)?facebook\.com(?:\/|$)/i.test(tab?.url||""))
+    throw Error("This diagnostic works on a Facebook tab only.");
    const result=await browser.runtime.sendMessage({action:"getMetaGraphqlStats",tabId});
+   if(!latest())return;
    if(!result?.ok)throw Error(result?.error||"Unavailable");
+   const after=await browser.tabs.get(tabId);
+   if(!latest())return;
+   if(after?.url!==tab.url)throw Error("Facebook tab changed during diagnostic. Retry.");
    // Share the same fixed-key sanitization with the user-exported report.
    const clean=DKFacebookDiagnosticReport.graphql(result);
    box.textContent=JSON.stringify({
     enabled:clean.enabled,siteActive:clean.siteActive,
     supported:clean.supported,stats:clean.counters
    },null,2);
-  }catch(error){box.textContent=String(error?.message||"Unavailable");}
+  }catch(error){if(latest())box.textContent=String(error?.message||"Unavailable");}
  });
  $("facebookCheck").addEventListener("click",()=>checkFacebook());
  browser.storage.onChanged?.addListener((changes,area)=>{

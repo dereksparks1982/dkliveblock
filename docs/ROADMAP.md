@@ -1,3 +1,8 @@
+## Build 355 / v0.3.325: Facebook GraphQL diagnostic race and navigation integrity (November 3, 2026)
+- [x] Guard the separate read-only GraphQL check against stale overlapping responses.
+- [x] Verify the tab is a Facebook HTTPS page before reading stats and is still on that exact URL afterward. No changes to experimental GraphQL blocking or interception.
+- [x] Five source regressions registered. Full native Ubuntu, owner Firefox and real GraphQL state acceptance pending.
+
 ## Build 354 / v0.3.324: stale YouTube A/B comparison status safety (November 3, 2026)
 - [x] Suppress obsolete local report-file errors when a user clears or changes YouTube comparison inputs during an ongoing read.
 - [x] Retain existing revision-invalidated comparisons, offline-only operation, privacy-safe reports and unchanged player/network interception.
