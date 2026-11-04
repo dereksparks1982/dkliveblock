@@ -14,6 +14,14 @@
  const adProbe=isYouTube&&isHealthSite?DKPlaybackHealth.createAdProbe():null;
  const enforcementProbe=isYouTube&&isHealthSite?
   DKPlaybackHealth.createEnforcementProbe(DKAntiAdblock.isPlaybackEnforcement):null;
+ // Transient current-video token, used solely to reject stale SPA refusal
+ // events. Never included in exports, logs, preferences or persistent state.
+ function currentWatchId(){
+  if(!isYouTube||!["youtube.com","www.youtube.com","m.youtube.com"].includes(host)||
+      location.pathname!=="/watch")return "";
+  const ids=new URL(location.href).searchParams.getAll("v");
+  return ids.length===1&&/^[A-Za-z0-9_-]{11}$/.test(ids[0])?ids[0]:"";
+ }
  function samplePlaybackHealth(){
   if(!active||!playbackHealthEnabled||!healthProbe||picking||window!==window.top)return;
   const player=document.querySelector("video.html5-main-video, #movie_player video, video");
@@ -25,7 +33,8 @@
   // Detect an in-player playback refusal independently of popup hiding.
   // Never suppress or modify the refusal; store only its fixed event kind.
   const enforcement=enforcementProbe?.scan(document);
-  if(enforcement)browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:enforcement}).catch(()=>{});
+  if(enforcement)browser.runtime.sendMessage({action:"reportPlaybackHealth",
+   kind:enforcement,watchVideoId:currentWatchId()}).catch(()=>{});
  }
  const videoWatcher=isYouTube?DKStreamingWatch.create(document,()=>skipVideo(),()=>active&&youtubeSkip&&!picking):null;
  function syncVideoWatcher(){if(!videoWatcher)return;if(active&&youtubeSkip&&!picking){videoWatcher.start();videoWatcher.poke();}else videoWatcher.stop();}
@@ -187,7 +196,8 @@
     if(playbackHealthEnabled&&window===window.top&&
       (lastEnforcementReport===0||now-lastEnforcementReport>=20000)){
      lastEnforcementReport=now;
-     browser.runtime.sendMessage({action:"reportPlaybackHealth",kind:"enforcement"}).catch(()=>{});
+     browser.runtime.sendMessage({action:"reportPlaybackHealth",
+      kind:"enforcement",watchVideoId:currentWatchId()}).catch(()=>{});
     }
     continue;
    }
