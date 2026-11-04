@@ -185,3 +185,47 @@ test("Build 195 ad probe tracks replaced player nodes without repeating the same
  assert.equal(p.scan(second,page,10001),null);
  p.reset();assert.equal(p.scan(second,page,11000),"ad-showing");
 });
+
+
+test("Build 380 enforcement requires stable visible error text, not general player prose",()=>{
+ const p=H.createEnforcementProbe(text=>text.includes("Ad blockers are not allowed"));
+ const error={textContent:"Ad blockers are not allowed. Disable your extension to watch.",
+  isConnected:true,getClientRects:()=>[{}]};
+ let hasError=false,visible=true;
+ const document={visibilityState:"visible",hidden:false,
+  defaultView:{getComputedStyle:()=>({display:visible?"block":"none",visibility:"visible"})},
+  querySelector(selector){
+   if(selector==="#movie_player")throw Error("probe must never read the whole player");
+   return hasError&&selector==="#movie_player .ytp-error"?error:null;
+  }};
+ assert.equal(p.scan(document,1000),null);
+ assert.equal(p.scan(document,2000),null,"ordinary player prose is not a refusal");
+ hasError=true;
+ assert.equal(p.scan(document,3000),null,"single sample is insufficient");
+ assert.equal(p.scan(document,3799),null);
+ assert.equal(p.scan(document,3800),"enforcement");
+ assert.equal(p.scan(document,5000),null,"one error cannot be reported repeatedly");
+ hasError=false;assert.equal(p.scan(document,6000),null);
+ hasError=true;visible=false;
+ assert.equal(p.scan(document,7000),null,"hidden errors cannot be counted");
+ visible=true;
+ assert.equal(p.scan(document,28000),null);
+ assert.equal(p.scan(document,28800),"enforcement");
+});
+test("Build 380 transient and stale error candidates expire without a report",()=>{
+ const p=H.createEnforcementProbe(text=>text.includes("Ad blocker warning detected"));
+ let active=true;
+ const error={textContent:"Ad blocker warning detected. Playback is unavailable.",
+  isConnected:true,getClientRects:()=>[{}]};
+ const page={visibilityState:"visible",hidden:false,
+  querySelector:()=>active?error:null};
+ assert.equal(p.scan(page,1000),null);
+ active=false;assert.equal(p.scan(page,1100),null);
+ active=true;assert.equal(p.scan(page,1800),null,"a new candidate needs its own confirmation");
+ assert.equal(p.scan(page,2599),null);
+ assert.equal(p.scan(page,2600),"enforcement");
+ p.reset();
+ assert.equal(p.scan(page,10000),null);
+ assert.equal(p.scan(page,17000),null,"stale sample cannot confirm itself");
+ assert.equal(p.scan(page,17800),"enforcement");
+});
