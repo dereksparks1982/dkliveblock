@@ -1,3 +1,8 @@
+## Build 351 / v0.3.321: preserve independent Facebook posts in huge wrappers (November 3, 2026)
+- [x] Sample first and last thirty child wrappers under the original sixty-child independent-post guard.
+- [x] Refuse whole-wrapper removal if two sizable distinct article siblings appear near the end, preserving organic content.
+- [x] Five source/negative tests registered; full Ubuntu and live Facebook verification pending.
+
 ## Build 350 / v0.3.320: late Facebook ad evidence in long cards (November 3, 2026)
 - [x] Keep 650 early and reserve 200 final descendants within the same 850-element evidence scan when React renders unusually large cards.
 - [x] Preserve exact sponsored action, author-row, card and organic evidence gates; no broad text detection.

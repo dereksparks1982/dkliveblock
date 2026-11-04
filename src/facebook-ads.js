@@ -276,9 +276,19 @@ function hasAdEvidence(card,doc,win,cache){
 // A wrapper holding two real card-sized sibling posts is not itself a post.
 // Facebook often reuses role="article" for shared/embedded content, so do not
 // treat nested positional markers alone as proof of additional cards.
+// A wrapper with many children may contain distinct posts at the end.
+function samplePostSiblings(nodes,max=60){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==60)return [];
+ const out=[];
+ if(n<=60){for(let i=0;i<n;i++)out.push(nodes[i]);}
+ else{for(let i=0;i<30;i++)out.push(nodes[i]);for(let i=n-30;i<n;i++)out.push(nodes[i]);}
+ return out;
+}
 function holdsSeparatePostSiblings(card){
  let siblings=0;
- for(const child of Array.from(card?.children||[]).slice(0,60)){
+ for(const child of samplePostSiblings(card?.children||[])){
   const r=child.getBoundingClientRect?.();
   if(!r||r.width<300||r.height<160)continue;
   const landmark=child.matches?.('[role="article"],[data-pagelet^="FeedUnit"]')||
@@ -1014,7 +1024,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,sampleFastArticles,sampleEvidenceNodes,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,sampleFastArticles,sampleEvidenceNodes,samplePostSiblings,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

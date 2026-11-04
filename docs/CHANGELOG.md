@@ -1,3 +1,6 @@
+## 0.3.321 / Build 351 (2026-11-03)
+- Extend existing multi-post wrapper safety to independently sized article siblings near the end of large Facebook DOM wrappers.
+
 ## 0.3.320 / Build 350 (2026-11-03)
 - Include late Sponsored action labels in bounded Facebook card evidence scans without increasing the existing 850-node cap.
 
