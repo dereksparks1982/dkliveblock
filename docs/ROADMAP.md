@@ -1,3 +1,8 @@
+## Build 331 / v0.3.301: Facebook scan-cursor diagnostic integration (November 3, 2026)
+- [x] Carry the three bounded Facebook feed/label scan cursors into the existing explicit, privacy-scrubbed, local-only Meta diagnostics export.
+- [x] Reject oversized, fractional, negative and untrusted raw data; preserve v2 report schema, unverified interpretation and exact-tab snapshot.
+- [x] Five regression checks registered. Native Ubuntu suite and live Firefox long-feed acceptance pending.
+
 ## Build 330 / v0.3.300: scrambled English Facebook labels (November 3, 2026)
 - [x] Nesty's eight-part segmented ad-label decoder now checks exact English Sponsored/Ad character signatures before bounded CSS ordering, in addition to the guarded Russian labels.
 - [x] Avoid accepting arbitrary anagrams as ads: original author/boundary filters remain unchanged, and the final reconstructed string must be a recognized exact marker.

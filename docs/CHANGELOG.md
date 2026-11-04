@@ -1,3 +1,6 @@
+## 0.3.301 / Build 331 (2026-11-03)
+- Include bounded article/byline/portal scan cursors in opt-in, privacy-safe Facebook aggregate diagnostics to make long-feed coverage inspectable.
+
 ## 0.3.300 / Build 330 (2026-11-03)
 - Recover CSS-shuffled English Sponsored and Ad label spans in the bounded Meta specialist, with strict exact reconstructed-label verification.
 
