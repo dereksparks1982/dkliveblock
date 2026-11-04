@@ -14,6 +14,13 @@ const agents=Object.freeze([
 function normalize(t){return String(t||"").replace(/[\p{Cf}\p{Mn}\p{Co}]/gu,"").replace(/[\s·•|]+/g," ").trim().toLowerCase();}
 function label(t){const s=normalize(t);return s==="sponsored"||s==="ad"||
  s==="реклама"||s==="спонсировано";}
+// Only exact multiset matches reach computed-style inspection for scrambled
+// Russian labels; arbitrary Cyrillic post text never activates the decoder.
+const russianSignatures=new Set(["реклама","спонсировано"].map(word=>[...word].sort().join("")));
+function russianLabelPieces(value){
+ const s=normalize(value);
+ return s.length<=24&&russianSignatures.has([...s].sort().join(""));
+}
 function segmentedLabels(el,win){
  const nodes=Array.from(el?.children||[]);
  if(nodes.length<2||nodes.length>8||nodes.some(n=>n?.tagName!=="SPAN"||(n.children?.length||0)!==0))return [];
@@ -23,7 +30,8 @@ function segmentedLabels(el,win){
   if(!text||text.length>12||(total+=text.length)>40)return [];
   chunks.push({n,text,index:i});
  }
- if(!/spon|ad/i.test(chunks.map(x=>x.text).join("")))return [];
+ const combined=chunks.map(x=>x.text).join("");
+ if(!/spon|ad/i.test(combined)&&!russianLabelPieces(combined))return [];
  const ordered=[];
  for(const x of chunks){
   let order=x.index,hidden=false;

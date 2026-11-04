@@ -1,3 +1,8 @@
+## Build 328 / v0.3.298: scrambled Russian Sponsored labels (November 3, 2026)
+- [x] The Nesty Meta specialist now considers exact Russian ad labels when their character spans arrive in scrambled DOM order, subject to existing CSS ordering and all downstream Facebook post safety checks.
+- [x] Match only the exact character multiset before invoking computed-style inspection; ordinary Cyrillic words remain untouched.
+- [x] Five regression cases registered; native Ubuntu and real Russian Facebook tests pending.
+
 ## Build 327 / v0.3.297: Russian Facebook advertising disclosures (November 3, 2026)
 - [x] Recognize exact Russian labels «Реклама» and «Спонсировано» alongside English Ad/Sponsored only in existing vetted Facebook ad slots and Meta's read-only specialist.
 - [x] Carry the same exact-label meaning through feed, rail and Marketplace checks; do not infer ads from Russian body text or broad words.

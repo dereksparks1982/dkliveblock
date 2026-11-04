@@ -1,3 +1,6 @@
+## 0.3.298 / Build 328 (2026-11-03)
+- Handle bounded CSS-scrambled Russian ad disclosures in the existing Nesty Meta label helper.
+
 ## 0.3.297 / Build 327 (2026-11-03)
 - Facebook's existing guarded ad detectors now understand exact Russian advertising disclosure labels; broad text matching remains prohibited.
 
