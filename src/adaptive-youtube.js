@@ -19,7 +19,8 @@ function entry(store,id,site,now){
  const x=store.get(id);
  if(!x)return null;
  if(x.site!==site||!Number.isFinite(x.last)||now<x.last||
-    (x.until&&now>=x.until)||(!x.until&&now-x.first>WINDOW_MS)){
+    (x.refusalUntil?now>=x.refusalUntil:
+     (x.until&&now>=x.until)||(!x.until&&now-x.first>WINDOW_MS))){
   store.delete(id);return null;
  }
  return x;
