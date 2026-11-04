@@ -37,7 +37,7 @@ test("Build 378: in-place Ad text edit queues only short byline candidates",()=>
   "let inlineAdLabelEdits=0;"+body("noteInlineAdTextEdit")+
   ";return {run:noteInlineAdTextEdit,count:()=>inlineAdLabelEdits};")(
    {TEXT_NODE:3},{hideSponsored:true},new Set(["Ad","Sponsored"]),
-   t=>t.replace(/^[\\s·•|]+|[\\s·•|]+$/g,""),/\\u200b/g,
+   t=>t.replace(/^[\s·•|]+|[\s·•|]+$/g,""),/\u200b/g,
    ()=>"byline",node=>changed.push(node),true);
  const parent={isConnected:true,closest:()=>null};
  for(const text of ["Ad","Sponsored ·"]){
