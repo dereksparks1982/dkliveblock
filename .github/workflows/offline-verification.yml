@@ -1,5 +1,6 @@
-# Deliberately narrow: one Build 285 Nesty integration regression checkpoint;
-# after this checkpoint, only explicit dispatch. No routine push CI or artifacts.
+# Deliberately narrow: consolidated Builds 380-385 Nesty integration checkpoint.
+# Triggered once by this reviewed workflow-file edit, then manual dispatch only.
+# No routine push CI or artifacts.
 name: DK Live Block offline Linux verification
 on:
   workflow_dispatch:
