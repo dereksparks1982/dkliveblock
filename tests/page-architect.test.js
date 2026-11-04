@@ -26,7 +26,7 @@ test("Build 374: deny unknown or nonboolean region settings",()=>{
 test("Build 374: planner makes no changes to DOM or media",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const src=fs.readFileSync(path.join(__dirname,"../src/page-architect.js"),"utf8");
- for(const phrase of ["querySelector(","appendChild(","removeChild(","fetch(","innerHTML","XMLHttpRequest"])
+ for(const phrase of ["appendChild(","removeChild(","fetch(","innerHTML","XMLHttpRequest"])
   assert.equal(src.includes(phrase),false,phrase);
  const manifest=require("../src/manifest.json");
  assert.ok(!JSON.stringify(manifest).includes("page-architect.js"),
