@@ -1,3 +1,8 @@
+## Build 336 / v0.3.306: late fast-path Sponsored labels (November 3, 2026)
+- [x] Sample first and last fifty candidate descendants within the existing 100-node-per-root fast Facebook scan instead of always the first hundred.
+- [x] Keep 32-root/320-element budgets and vetted byline, rail and card evidence gates. No full-document fast pass.
+- [x] Five offline regressions registered; native Ubuntu and live Facebook rapid insertion checks pending.
+
 ## Build 335 / v0.3.305: Facebook interactive editor preservation (November 3, 2026)
 - [x] Forbid whole-card hiding if an otherwise sponsored-looking card contains a live textbox, searchbox, non-hidden input, textarea or contenteditable editor.
 - [x] Preserve advertisement detection when no editor is present; existing popup, dialog and Facebook-only scope unchanged.

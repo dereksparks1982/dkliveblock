@@ -1,3 +1,6 @@
+## 0.3.306 / Build 336 (2026-11-03)
+- Look for late Sponsored label nodes in large Facebook insertions without increasing the existing fast-pass processing cap.
+
 ## 0.3.305 / Build 335 (2026-11-03)
 - Safeguard active Facebook text inputs and composer descendants against broad whole-card hiding.
 

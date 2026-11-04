@@ -515,6 +515,17 @@ function sampleChangedNodes(nodes,max=12){
  else{for(let i=0;i<6;i++)out.push(nodes[i]);for(let i=n-6;i<n;i++)out.push(nodes[i]);}
  return out;
 }
+// Check both ends of unusually long changed subtrees without
+// increasing the original 100-element immediate scan work limit.
+function sampleFastLabels(nodes,max=100){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==100)return [];
+ const out=[];
+ if(n<=100){for(let i=0;i<n;i++)out.push(nodes[i]);}
+ else{for(let i=0;i<50;i++)out.push(nodes[i]);for(let i=n-50;i<n;i++)out.push(nodes[i]);}
+ return out;
+}
 function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -709,9 +720,9 @@ function create(doc,win,max=100,onEvidence=null){
     consider(articles[i]);
    // Facebook also uses non-article cards and character-split labels.
    // Restrict candidates to changed subtrees, and reuse vetted resolvers.
-   const labels=[rootNode,...Array.from(rootNode.querySelectorAll?.(
+   const labels=[rootNode,...sampleFastLabels(rootNode.querySelectorAll?.(
     'span,a,[aria-label],[aria-labelledby],use,text,h1,h2,h3,h4,h5,h6,[role="heading"]'
-   )||[]).slice(0,100)];
+   )||[])];
    for(const el of labels){
     if(++inspected>320||count>=15)break;
     if(sponsoredMenu(el)){
@@ -939,7 +950,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
