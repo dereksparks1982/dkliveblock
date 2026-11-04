@@ -33,7 +33,44 @@ function plan(raw,choices){
  return Object.freeze({supported:true,enabled:true,
   regions:Object.freeze(REGIONS.filter(key=>selection[key])),reason:"ready"});
 }
-const API=Object.freeze({REGIONS,DEFAULT,watch,plan});
+// Read-only discovery. Never returns live elements, HTML, text, URLs or IDs.
+// Unknown YouTube markup fails closed instead of hiding page infrastructure.
+const SELECTORS=Object.freeze({
+ masthead:Object.freeze(["ytd-masthead","#masthead"]),
+ player:Object.freeze(["#movie_player","ytd-player"]),
+ title:Object.freeze(["ytd-watch-metadata #title","h1.ytd-watch-metadata"]),
+ actions:Object.freeze(["ytd-menu-renderer.ytd-watch-metadata","#top-level-buttons-computed"]),
+ description:Object.freeze(["ytd-text-inline-expander","#description"]),
+ comments:Object.freeze(["ytd-comments","#comments"]),
+ related:Object.freeze(["#related","ytd-watch-next-secondary-results-renderer"])
+});
+function discover(doc,raw){
+ const empty=Object.freeze({supported:false,ready:false,found:Object.freeze([]),missing:Object.freeze([])});
+ if(!watch(raw)||!doc||typeof doc.querySelector!=="function")return empty;
+ const found=[],missing=[];
+ for(const key of REGIONS){
+  let exists=false;
+  for(const selector of SELECTORS[key]){
+   try{if(doc.querySelector(selector)){exists=true;break;}}
+   catch(_){return empty;}
+  }
+  (exists?found:missing).push(key);
+ }
+ // The real player is never replaced or moved. If it is not present,
+ // Page Architect must not perform any cosmetic modifications.
+ const ready=found.includes("player")&&found.includes("masthead");
+ return Object.freeze({supported:true,ready,
+  found:Object.freeze(found),missing:Object.freeze(missing)});
+}
+function preview(raw,choices,doc){
+ const p=plan(raw,choices),d=discover(doc,raw);
+ return Object.freeze({supported:p.supported&&d.supported,
+  ready:p.enabled&&d.ready,
+  selected:p.regions,
+  missing:Object.freeze(d.missing.filter(region=>p.regions.includes(region))),
+  reason:!p.enabled?p.reason:!d.ready?"missing-page-foundation":"ready"});
+}
+const API=Object.freeze({REGIONS,DEFAULT,watch,plan,discover,preview});
 root.DKPageArchitect=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
