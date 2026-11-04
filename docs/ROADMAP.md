@@ -1,3 +1,8 @@
+## Build 346 / v0.3.316: Facebook fallback attribution scan fairness (November 3, 2026)
+- [x] Rotate capped 160-item Facebook Sponsored/explainer fallback scans instead of starving later explicit ad evidence.
+- [x] Add privacy-safe numeric fallback cursor to explicit local report; all original ad and context guards remain.
+- [x] Five regressions registered. Ubuntu/Firefox acceptance still pending.
+
 ## Build 345 / v0.3.315: virtualized Facebook mobile feed fairness (November 3, 2026)
 - [x] Rotate existing 5,000-label bounded mobile scan across oversized virtualized feed DOMs, retaining original author-row and explicit sponsorship gates.
 - [x] Expose only a bounded numeric mobile scan cursor in opt-in Facebook diagnostic export.

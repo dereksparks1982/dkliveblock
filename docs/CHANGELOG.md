@@ -1,3 +1,6 @@
+## 0.3.316 / Build 346 (2026-11-03)
+- Rotate bounded explicitly ad-attributed fallback candidates with local-only cursor diagnostics.
+
 ## 0.3.315 / Build 345 (2026-11-03)
 - Rotate bounded Facebook mobile virtualized feed scanning and include its safe cursor in the local diagnostic report.
 

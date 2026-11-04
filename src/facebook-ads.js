@@ -541,7 +541,7 @@ function create(doc,win,max=100,onEvidence=null){
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
   recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
- let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0,mobileCursor=0;
+ let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0,mobileCursor=0,hardCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
   if(!feed||typeof win?.IntersectionObserver!=="function")return;
@@ -962,14 +962,16 @@ function create(doc,win,max=100,onEvidence=null){
   referenceCursor=refs.length?(referenceCursor+referenceInspected)%refs.length:0;
   // Fallback for ad-labelled feed cards without role=article or pagelet markup.
   const hard=doc.querySelectorAll('a[href*="/ads/about/"],a[href*="/ads/about?"],[aria-label$="sponsored content" i]');
-  for(let i=0;i<Math.min(160,hard.length)&&count<15;i++){
-   const el=hard[i];
+  let hardInspected=0;
+  for(;hardInspected<Math.min(160,hard.length)&&count<15;hardInspected++){
+   const el=hard[(hardCursor+hardInspected)%hard.length];
    if(!sponsoredMenu(el)&&!el.getAttribute?.("href")?.includes("/ads/about"))continue;
    const card=feedCardFrom(el,doc);
    if(card&&hide(card,null,"feed")){count++;continue;}
    const section=rightRailCandidate(el,doc,win);
    if(section&&hide(section,null,"rail"))count++;
   }
+  hardCursor=hard.length?(hardCursor+hardInspected)%hard.length:0;
   stats.lastHidden=count;
   return count;
  }
@@ -977,7 +979,7 @@ function create(doc,win,max=100,onEvidence=null){
  return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
-   railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,exceptions:exceptions.length,
+   railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,hardCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
