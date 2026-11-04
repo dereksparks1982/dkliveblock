@@ -3,7 +3,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const FB=require("../src/facebook-ads.js");
 function setup(kind=""){
  const body={nodeType:1},doc={body,documentElement:{nodeType:1},location:{hostname:"www.facebook.com"}};
- const style={value:"",getPropertyValue(){return this.value},getPropertyPriority(){return ""},setProperty(_,v){this.value=v},removeProperty(){this.value=""}};
+ const style={value:"",priority:"",getPropertyValue(){return this.value;},getPropertyPriority(){return this.priority;},setProperty(_,v,p){this.value=v;this.priority=p||"";},removeProperty(){this.value="";this.priority="";}};
  const c={nodeType:1,isConnected:true,children:[],style,closest:()=>null,
   matches:s=>s.includes('[role="article"]')&&!s.startsWith("main"),
   querySelector:s=>s.includes("/ads/about/")?{}:s.includes(kind)&&kind?{}:null,
@@ -32,6 +32,6 @@ test("Build 335: dialog and root guards remain intact",()=>{
 });
 test("Build 335: scope remains Facebook-only, permissions and version stable",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.305");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
  assert.ok(m.content_scripts[0].js.includes("facebook-ads.js"));
 });

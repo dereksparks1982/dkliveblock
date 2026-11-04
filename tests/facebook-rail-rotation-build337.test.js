@@ -20,7 +20,7 @@ test("Build 337: label and link scan rotate inside prior bounds",()=>{
  const d=fixture(0,6000,500);d.scan();
  assert.equal(d.diagnostics().railLabelCursor,5500);
  assert.equal(d.diagnostics().railLinkCursor,220);
- d.scan();assert.equal(d.diagnostics().railLabelCursor,500);
+ d.scan();assert.equal(d.diagnostics().railLabelCursor,5000);
  assert.equal(d.diagnostics().railLinkCursor,440);
 });
 test("Build 337: ordinary rail stays visible after multiple scans",()=>{

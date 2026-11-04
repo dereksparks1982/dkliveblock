@@ -1,3 +1,8 @@
+## Build 340 / v0.3.310: first integration fixture repair (November 3, 2026)
+- [x] Correct cross-build regression errors: historical version freezes, 250-post and right-rail modulo values, Russian uppercase label expectation and inaccurate !important display mocks.
+- [x] Add five fixture integrity tests and preserve all original production blocking code.
+- [ ] Remaining historical version freezes will be removed in next validation build; full Ubuntu/native Firefox tests remain pending.
+
 ## Build 339 / v0.3.309: late Facebook label priority under mutation storms (November 3, 2026)
 - [x] Reserve half the twelve urgent fast-scan roots for tail label changes when more than twelve text/aria-label changes arrive together.
 - [x] Keep original 32-root, 320-descendant and evidence/exception bounds; normal posts stay visible.

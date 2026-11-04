@@ -3,7 +3,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const FB=require("../src/facebook-ads.js");
 function fixture(pathname="/"){
  const body={nodeType:1},doc={body,documentElement:{nodeType:1},location:{hostname:"www.facebook.com"}},win={location:{hostname:"www.facebook.com",pathname},innerWidth:1250};
- const style={value:"",getPropertyValue(){return this.value;},getPropertyPriority(){return ""},setProperty(_,v){this.value=v;},removeProperty(){this.value=""}};
+ const style={value:"",priority:"",getPropertyValue(){return this.value;},getPropertyPriority(){return this.priority;},setProperty(_,v,p){this.value=v;this.priority=p||"";},removeProperty(){this.value="";this.priority="";}};
  const card={nodeType:1,isConnected:true,children:[],style,closest:()=>null,
   matches:s=>s.includes('[role="article"]')&&!s.startsWith("main"),
   querySelector:s=>s.includes("/ads/about/")?{}:null,querySelectorAll:()=>[],getClientRects:()=>[{}],
@@ -33,5 +33,5 @@ test("Build 334: Marketplace-specific scan remains the owner of promoted tiles",
 });
 test("Build 334: version and permission surface unchanged",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.304");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
 });

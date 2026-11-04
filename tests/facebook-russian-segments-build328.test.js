@@ -27,6 +27,6 @@ test("Build 328: hidden segments cannot justify a full ad",()=>{
 });
 test("Build 328: no new permissions and version consistent",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.298");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
  assert.ok(m.content_scripts[0].js.includes("meta-agent-nesty.js"));
 });

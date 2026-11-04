@@ -25,6 +25,6 @@ test("Build 331: new cursors cannot assert that advertisements were removed",()=
 });
 test("Build 331: report scope stays local and source versions agree",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.301");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
  for(const s of m.background.scripts)assert.notEqual(s,"facebook-diagnostic-report.js");
 });

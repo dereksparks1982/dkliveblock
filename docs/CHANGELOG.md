@@ -1,3 +1,6 @@
+## 0.3.310 / Build 340 (2026-11-03)
+- Repair initial cumulative regression test expectations and CSS priority mocks; production ad blocking unchanged.
+
 ## 0.3.309 / Build 339 (2026-11-03)
 - Protect late explicit Facebook ad label changes from starvation behind earlier aria-label churn, without increasing scan work.
 
