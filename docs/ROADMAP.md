@@ -1,7 +1,10 @@
-## Build 390 candidate: YouTube transient warning no-reload correction (main, November 4, 2026)
+## Build 390 / v0.3.350: YouTube warning stability and Facebook evidence integrity (November 4, 2026)
 - [x] Remove the automatic tab reload on YouTube playback refusal, which was introduced after the user's original refusal and could interrupt videos that would otherwise continue.
 - [x] Keep existing player response, page bridge, automatic ad filtering, and tab-specific recovery implementation intact; mark observed refusal as passive context only.
 - [x] Add background regression tests ensuring repeated observed warnings never reload the tab or silently change the existing filtering mode.
+- [x] Reject Facebook reports if the tab navigates or closes during inspection; prevent overlapping manual checks.
+- [x] Distinguish aggregate historical post hides from concurrent unresolved ad-label attempts. Display aggregate-only unanchored, deferred and pending counts.
+- [x] Register new regression tests; align extension and package to v0.3.350.
 - [ ] Confirm normal YouTube playback in Firefox, including a warning that disappears before playback. The original server-side refusal remains unresolved.
 - [ ] Run the full native offline Ubuntu suite and do not call this browser-verified or a release.
 

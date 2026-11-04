@@ -1,3 +1,8 @@
+## 0.3.350 / Build 390 (2026-11-04)
+- Stop automatic tab reloads on transient YouTube in-player warnings, preserving normal filtering and dormant recovery implementation.
+- Guard manual Facebook diagnostics against tab changes and duplicate requests; distinguish mixed hide and unresolved-label evidence without exporting private page details.
+- Full Ubuntu suite and live Firefox acceptance pending; not a public release.
+
 ## 0.3.337 / Build 367 (2026-11-04)
 - Disallow silent fallback to obsolete partial Facebook scanner; surface missing full engine and test exclusive ownership.
 

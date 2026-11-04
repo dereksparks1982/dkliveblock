@@ -13,31 +13,7 @@ This identifies the present project or its stewardship; it does not change exist
 
 **DK Live Block** is a free Firefox-first browser extension from DK Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
-**Build 379 / v0.3.349 (Facebook runtime evidence):** Added a collapsed, opt-in Facebook Runtime Diagnostics section to Facebook's own settings page. It reads aggregate live detector and GraphQL counters, identifies disabled/missing/unanchored engines, and exports a private local JSON report only on request. No new blocking changes or telemetry; use this to isolate why visible ads remain. YouTube refusal remains open.
-
-**Build 378 / v0.3.348 (Facebook feed compatibility):** Improved complete Facebook ad detection for shallow post layouts and labels updated directly as text, with bounded scans and privacy-preserving counters. The existing YouTube player code is unchanged while its refusal remains under investigation. Live browser behavior still requires verification.
-
-**Build 377 / v0.3.347 (Facebook late-label recovery):** Fixed the full Facebook engine's false-success bookkeeping when a detected ad cannot be safely hidden. The detector now handles late-arriving exact `Ad`/`Sponsored` accessibility labels with a bounded targeted scan, preserving protections against hiding entire feeds and preserving user-kept Pages. Firefox validation with the reported visible Facebook ad is still pending.
-
-**Build 376 / v0.3.346 (Settings navigation):** Added a compact, accessible Back to Top button to the Firefox settings page. It appears only after scrolling a long page, respects reduced motion, and leaves the protection engine and approved page layout unchanged. Includes English/Russian labels and regression checks.
-
-**Build 375 / v0.3.345 (Page Architect discovery):** Added read-only YouTube region discovery and fail-closed clean-view preview. No page modifications or UI controls are enabled; the existing player and ad-blocking engine remain unchanged. Regression tests cover missing player, unknown markup, and data minimization.
-
-**Build 374 / v0.3.344 (DK Page Architect planning):** Added a safe, testable clean-view planner with mandatory original player, strict region choices and explicit opt-in. The feature is deliberately inactive pending approved UI and live playback validation. See [Page Architect design](docs/PAGE_ARCHITECT.md). YouTube recovery remains unchanged.
-
-**Build 373 / v0.3.343 (SPA video identity):** Checks the live YouTube watch-video ID against the transient content-script refusal event before retrying. Stale events from a previous watch page cannot reload the current video. IDs are never added to saved preferences or diagnostics. Live Firefox verification remains pending.
-
-**Build 372 / v0.3.342 (Private recovery):** Decouples YouTube's one-shot refusal recovery from private request-history logging. Logging off continues to avoid storing playback events; only a bounded live refusal decision can trigger the existing tab-local recovery. Other health diagnostics still require logging. Live Firefox confirmation pending.
-
-**Build 371 / v0.3.341 (Watch-page scope):** Automatic YouTube refusal recovery is now limited to live, verified ordinary `/watch?v=` videos. Search, homepage, Shorts, embedded players, and lookalike origins are excluded; network filtering and other platform behavior are unchanged. No claim of live ad-free playback.
-
-**Build 370 / v0.3.340 (YouTube retry safety):** Hardened enforcement recovery so repeated refusal after the ten-minute compatibility window cannot start another immediate reload. A bounded one-hour tab/host retry guard prevents recurring reloads while leaving the normal filter engine in place. Live Firefox verification remains outstanding.
-
-**Build 369 / v0.3.339 (YouTube refusal recovery):** A detected in-player refusal now triggers one bounded, tab-local retry in player-pass-through mode. It keeps ordinary network filtering active, does not hide YouTube's refusal, and never loops reloading. Live playback success is not yet verified.
-
-**Build 368 / v0.3.338 (YouTube refusal triage):** Explicitly identifies YouTube in-player adblock enforcement as distinct from buffering; the local report recommends a controlled ordinary-video A/B check using the existing player-pass-through isolation setting. This is diagnostic guidance, not a confirmed playback fix.
-
-**Development status:** Active pre-release project. Facebook Sponsored removal and YouTube ordinary-video adblock compatibility still require real Firefox checks; source-integrity tests alone do not establish ad-free playback or uBlock Origin parity. No public release has been approved.
+**Development status:** Active pre-release. Facebook Sponsored removal and ordinary YouTube playback still require real Firefox verification. Source checks alone do not prove universal advertising removal or uBlock Origin parity. No public release has been approved.
 
 **[Official website and downloads](https://dereksparks1982.github.io/dkliveblock/?lang=en)**. Choose English or Русский using the language selector at the top. The extension has its own language setting.
 

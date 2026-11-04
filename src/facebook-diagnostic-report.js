@@ -36,8 +36,12 @@ function triage(r){
   return Object.freeze({code:"facebook-observer-inactive",next:"The full Facebook engine is authorized but its page observer is not attached. Reload the Facebook tab and inspect startup."});
  const scans=(d.scans||0)+(d.fastScans||0)+(d.observerCalls||0);
  if(!scans)return Object.freeze({code:"no-scans-recorded",next:"Scroll a Facebook feed once and check the scanner again."});
- if((d.hidden||0)>0||((d.fastHidden||0)>0))
+ if((d.hidden||0)>0||((d.fastHidden||0)>0)){
+  // Counts are aggregate: earlier hides can coexist with unresolved ads.
+  if(d.coreFull&&(d.labelsUnanchored||0)>0)
+   return Object.freeze({code:"mixed-hide-evidence",next:"Some posts were hidden, but other label attempts remain unresolved. These aggregate counters cannot prove the currently visible ad was removed. Compare the actual feed."});
   return Object.freeze({code:"dom-hide-observed",next:"Verify the specific Sponsored card disappeared while nearby ordinary posts stayed visible."});
+ }
  if(d.coreFull&&d.labelsClassified>0&&d.labelsAnchored===0)
   return Object.freeze({code:"ad-label-not-anchored",next:"Facebook ad labels were detected but none attached to a safe post. Check whole-post resolution before adding more scanning."});
  if(d.coreFull&&d.labelsClassified===0&&(d.observerCalls||0)>0)
