@@ -1,3 +1,9 @@
+## Build 372 / v0.3.342: YouTube recovery works with request history disabled (November 4, 2026)
+- [x] Allow exact in-player YouTube refusal to trigger bounded recovery without private diagnostic logging.
+- [x] Keep buffering, ad-state and media-error histories behind the existing logging switch; no new persistent storage, host allowances or telemetry.
+- [x] Cover recovery gating and privacy semantics with source-contract tests.
+- [ ] Run native Ubuntu and live Firefox checks (both logging on and off).
+
 ## Build 371 / v0.3.341: restrict recovery to verified YouTube watch pages (November 4, 2026)
 - [x] Verify the live tab URL is an exact HTTPS YouTube watch-page origin with one valid video ID before automatic retry.
 - [x] Exclude Shorts, search, homepage, embeds, credentialed URLs, duplicated video IDs, lookalikes, and other YouTube products.
