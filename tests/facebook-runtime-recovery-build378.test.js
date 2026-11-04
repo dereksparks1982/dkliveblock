@@ -51,13 +51,24 @@ test("Build 378: in-place Ad text edit queues only short byline candidates",()=>
  assert.equal(call.count(),2);
  assert.deepEqual(changed,[parent,parent]);
 });
-test("Build 378: observer handles text edits without scanning arbitrary changes",()=>{
- assert.ok(src.includes('if (mutation.type === "characterData")'));
- assert.ok(src.includes("noteInlineAdTextEdit(mutation.target);"));
- assert.ok(src.includes("characterData: true,"));
+test("Build 378: use existing bounded content observer instead of duplicating it",()=>{
+ const observations=[];
+ const adapter=new Function("noteInlineAdTextEdit",body("dkObserveMutation")+
+  ";return dkObserveMutation;")(target=>{observations.push(target);return true;});
+ const token={};
+ assert.equal(adapter({type:"characterData",target:token}),true);
+ assert.equal(adapter({type:"childList",target:token}),false);
+ assert.equal(adapter(null),false);
+ assert.deepEqual(observations,[token]);
+ assert.ok(src.includes("observeMutation:dkObserveMutation"));
  assert.ok(src.includes("inlineAdLabelEdits,shallowPostLabelsRecovered"));
  assert.ok(src.includes('!adLabelPosition(parent)'));
  assert.ok(src.includes("raw.length > 48"));
  assert.ok(src.includes('mutation.attributeName === "aria-label"'),
   "existing late ARIA recovery must remain");
+ assert.ok(!src.includes("characterData: true,"),
+  "full Facebook core must not duplicate the page-wide text observer");
+ const controller=fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8");
+ assert.ok(controller.includes("characterData:!!facebookRecognizer"));
+ assert.ok(controller.includes("facebookRecognizer?.observeMutation(item)"));
 });
