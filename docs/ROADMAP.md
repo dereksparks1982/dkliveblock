@@ -1,3 +1,8 @@
+## Build 329 / v0.3.299: expanded source-integrity checkpoint (November 3, 2026)
+- [x] Extend the local read-only checkpoint to include Builds 325–329, rotating feed scan caps, Russian exact-label gates and twelve-node portal budget.
+- [x] Preserve the original 16-build test contract for historical tests and add distinct post-324 registration checks.
+- [x] Five negative-contract regressions registered. Full Ubuntu suite and real Firefox tests remain pending.
+
 ## Build 328 / v0.3.298: scrambled Russian Sponsored labels (November 3, 2026)
 - [x] The Nesty Meta specialist now considers exact Russian ad labels when their character spans arrive in scrambled DOM order, subject to existing CSS ordering and all downstream Facebook post safety checks.
 - [x] Match only the exact character multiset before invoking computed-style inspection; ordinary Cyrillic words remain untouched.

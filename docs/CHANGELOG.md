@@ -1,3 +1,6 @@
+## 0.3.299 / Build 329 (2026-11-03)
+- Expand source-only checkpoint coverage to the five follow-up builds, with safety regressions for Facebook scan bounds and exact-label guardrails.
+
 ## 0.3.298 / Build 328 (2026-11-03)
 - Handle bounded CSS-scrambled Russian ad disclosures in the existing Nesty Meta label helper.
 
