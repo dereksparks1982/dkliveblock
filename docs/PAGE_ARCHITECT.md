@@ -1,6 +1,6 @@
 # DK Page Architect: reversible clean viewing
 
-**Status:** Build 374 introduces the offline planner and contract tests only. The
+**Status:** Build 375 includes an offline planner, read-only region discovery and contract tests. The
 feature is **not enabled** and does not change the YouTube page in Firefox yet.
 
 ## Goal
@@ -12,8 +12,9 @@ authorization, bypass DRM, or silently replace native account controls.
 ## Implementation stages
 1. **Planner (done):** exact HTTPS YouTube watch pages only, an explicit opt-in
    configuration, a mandatory original player, and a strict list of regions.
-2. **Read-only discovery:** verify actual page regions without collecting
-   histories or URLs; provide unknown-markup fallback.
+2. **Read-only discovery (done):** verify actual page regions without collecting
+   histories or URLs; provide unknown-markup fallback and abort when the existing
+   player or masthead is not detected.
 3. **Reversible local CSS:** use a scoped style class to hide unselected
    peripheral containers; preserve the player, accessibility controls,
    captions, search, sign-in and legitimate interactive dialogs.
