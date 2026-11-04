@@ -137,6 +137,7 @@
         "nesty-team.js",
         "nesty-layout-scout.js",
         "meta-agent-nesty.js",
+        "meta-strategy-nesty.js",
         "nesty-intelligence.js",
         "facebook-ads.js",
         "meta-module.js",
