@@ -64,7 +64,7 @@ const DEFAULT_SETTINGS = {
 let settings = { ...DEFAULT_SETTINGS };
 // DK-owned site policy always wins. The complete upstream ad detector runs
 // only after the existing DK content controller authorizes it.
-let dkEnabled = false, dkSettingsReady = false, dkRequestedEnabled = false, dkExceptions = [];
+let dkEnabled = false, dkSettingsReady = false, dkSettingsError = false, dkRequestedEnabled = false, dkExceptions = [];
 function dkExcluded(el) {
   return !!el && dkExceptions.some(s => {
     try { return !!(el.matches?.(s) || el.closest?.(s)); } catch (_) { return false; }
@@ -3138,9 +3138,20 @@ browser.storage.onChanged.addListener((changes, area) => {
 });
 
 (async function main() {
-  try { settings = await browser.storage.local.get(DEFAULT_SETTINGS); }
-  catch (_) { settings = { ...DEFAULT_SETTINGS }; }
-  dkSettingsReady = true;
+  try {
+    const loaded = await browser.storage.local.get(DEFAULT_SETTINGS);
+    // A missing/invalid storage response is not permission to turn filtering on.
+    if (!loaded || typeof loaded !== "object" || Array.isArray(loaded))
+      throw new Error("Facebook preferences unavailable");
+    settings = loaded;
+    dkSettingsReady = true;
+    dkSettingsError = false;
+  } catch (_) {
+    dkSettingsReady = false;
+    dkSettingsError = true;
+    dkSetEnabled(false);
+    return;
+  }
   dkSetEnabled(dkRequestedEnabled);
   if (DEBUG) {
     console.log(
@@ -3202,6 +3213,7 @@ function dkDiagnostics() {
   // Only aggregate counts cross the DK diagnostics interface. Never original
   // debug samples, page names, personal URLs, DOM nodes or post text.
   return Object.freeze({platform:"facebook",coreFull:1,coreEnabled:dkEnabled?1:0,
+    settingsReady:dkSettingsReady?1:0,settingsError:dkSettingsError?1:0,
     hidden:hiddenPosts.size,scans:stats.scans,observerCalls:stats.observerCalls,
     retryTicks:stats.retryTicks,pending:pendingLabels.size,
     labelsClassified,labelsAnchored,labelsDeferred,

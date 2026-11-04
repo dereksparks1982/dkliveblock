@@ -1,3 +1,9 @@
+## Build 362 / v0.3.332: full Facebook engine fails closed on preference/authorization failures (November 4, 2026)
+- [x] Prevent preference-storage errors from enabling unlabeled ad inference through unsafe default fallback.
+- [x] Disarm on failed DK policy refresh; export fixed-key settings-ready/error counters.
+- [x] Add five regressions; full upstream ten-feature engine remains active only when DK has authorized it.
+- [ ] Full Ubuntu suite and live Firefox feed/Marketplace verification still required.
+
 ## Build 361 / v0.3.331: complete Facebook engine lifecycle tests and diagnostic triage (November 3, 2026)
 - [x] Register full-core mocked async startup/pause/loaded settings regressions.
 - [x] Triage zero readable ad labels separately from ad labels that cannot anchor to safe post boundaries.

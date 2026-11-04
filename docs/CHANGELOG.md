@@ -1,3 +1,6 @@
+## 0.3.332 / Build 362 (2026-11-04)
+- Make full Facebook engine fail closed after preference-storage or DK policy refresh errors and expose private-safe settings status counters.
+
 ## 0.3.331 / Build 361 (2026-11-03)
 - Add full Facebook-core lifecycle regressions and separate safe diagnostics for missing vs unanchored ad labels.
 

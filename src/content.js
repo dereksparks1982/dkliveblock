@@ -107,6 +107,9 @@
    applyCSS();applyPickerCSS();cbsAutoplay?.setEnabled(active&&s.cbsAutoplay===true&&window===window.top&&
     (host==="cbsnews.com"||host==="www.cbsnews.com"));queueOverlayScan();inspectAdSlots();syncVideoWatcher();
   }catch(_){
+   // Never keep the full Facebook feed engine active after an authorization
+   // refresh failed. A subsequent successful refresh re-enables it.
+   if(isFacebookHost)facebookRecognizer?.setEnabled?.(false);
    if(typeof CustomEvent==="function"&&document.dispatchEvent)
     try{document.dispatchEvent(new CustomEvent("dk-live-block:safe-scriptlets",{detail:"[]"}));}
     catch(__){}
