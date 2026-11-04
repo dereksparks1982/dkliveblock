@@ -1,3 +1,6 @@
+## 0.3.318 / Build 348 (2026-11-03)
+- Preserve late Sponsored articles in large Facebook inserted subtrees without enlarging the fast scan budget.
+
 ## 0.3.317 / Build 347 (2026-11-03)
 - Preserve late ephemeral Facebook Sponsored portal IDs in id-heavy React DOM subtrees without increasing cache work.
 

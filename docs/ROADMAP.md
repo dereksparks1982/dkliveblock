@@ -1,3 +1,8 @@
+## Build 348 / v0.3.318: tail-aware Facebook article fast scanning (November 3, 2026)
+- [x] Sample first and last nine article descendants in large inserted subtrees, retaining the existing eighteen-article work cap.
+- [x] Keep original strict Sponsored evidence, 32-root budget and ordinary post protection.
+- [x] Five offline regressions registered; native Ubuntu and live Facebook verification pending.
+
 ## Build 347 / v0.3.317: late Facebook ad portal ID retention (November 3, 2026)
 - [x] Sample first and last thirty labelled IDs within the existing sixty-node portal cache check to keep detached Sponsored evidence near subtree ends.
 - [x] Preserve exact ad-label match, bounded 200-ID cache and post reference/geometry requirements.

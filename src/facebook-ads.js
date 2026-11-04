@@ -540,6 +540,17 @@ function samplePortalIds(nodes,max=60){
  else{for(let i=0;i<30;i++)result.push(nodes[i]);for(let i=n-30;i<n;i++)result.push(nodes[i]);}
  return result;
 }
+// A new React subtree can hold dozens of article descendants.
+ // Keep the eighteen-article fast-pass cap, including its latest entries.
+function sampleFastArticles(nodes,max=18){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==18)return [];
+ const out=[];
+ if(n<=18){for(let i=0;i<n;i++)out.push(nodes[i]);}
+ else{for(let i=0;i<9;i++)out.push(nodes[i]);for(let i=n-9;i<n;i++)out.push(nodes[i]);}
+ return out;
+}
 function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -744,9 +755,8 @@ function create(doc,win,max=100,onEvidence=null){
    // A new article can be detected even when its Sponsored label is a
    // separate nested mutation. This path does not depend on scroll speed.
    consider(rootNode.matches?.(ARTICLE)?rootNode:rootNode.closest?.(ARTICLE));
-   const articles=rootNode.querySelectorAll?.(ARTICLE)||[];
-   for(let i=0;i<Math.min(18,articles.length)&&count<15;i++)
-    consider(articles[i]);
+   const articles=sampleFastArticles(rootNode.querySelectorAll?.(ARTICLE)||[]);
+   for(const article of articles)if(count<15)consider(article);
    // Facebook also uses non-article cards and character-split labels.
    // Restrict candidates to changed subtrees, and reuse vetted resolvers.
    const labels=[rootNode,...sampleFastLabels(rootNode.querySelectorAll?.(
@@ -993,7 +1003,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,sampleFastArticles,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);
