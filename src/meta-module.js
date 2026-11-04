@@ -43,7 +43,13 @@ function create(doc,win){
   if(next.changed&&next.active){
    // Keep the old implementation available for site reversions without
    // burdening ordinary Facebook mutations with two parallel scanners.
-   if(!legacy)legacy=root.DKFacebookAds?.create?.(doc,win,60)||null;
+   // A fallback may only run when the primary engine authorizes the
+   // candidate card against kept Pages and user-revealed posts.
+   if(typeof facebook?.canFallbackHide!=="function"){
+    supervisor.reset();return false;
+   }
+   if(!legacy)legacy=root.DKFacebookAds?.create?.(doc,win,60,null,
+    card=>facebook.canFallbackHide(card)===true)||null;
    legacy?.setExceptions?.(exceptions);
    if(!legacy){supervisor.reset();return false;}
    if(fallbackTimer!==null)(win?.clearTimeout||clearTimeout)(fallbackTimer);
