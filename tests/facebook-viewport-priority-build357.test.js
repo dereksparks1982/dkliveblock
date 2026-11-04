@@ -48,8 +48,8 @@ test("Build 357: scrolling is rate-limited, gated, and never invokes broad scans
  const fs=require("node:fs"),path=require("node:path");
  const content=fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8");
  assert.match(content,/window\.addEventListener\("scroll"/);
- assert.match(content,/facebookScrollTimer=setTimeout\(/);
- assert.match(content,/if\(active&&adRecognition&&!picking\)/);
+ assert.match(content,/facebookVisibleTimer=setTimeout\(/);
+ assert.match(content,/if\(!active\|\|!adRecognition\|\|picking\)return/);
  assert.match(content,/facebookRecognizer\?\.scanVisible\?\.\(\)/);
  assert.equal(require("../package.json").version,require("../src/manifest.json").version);
 });

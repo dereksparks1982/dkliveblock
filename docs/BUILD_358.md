@@ -14,3 +14,6 @@ Build 357 was installed from GitHub, and the user provided a Firefox screenshot 
 
 ## Acceptance
 Real Firefox behavior, live Facebook DOM semantics, long-feed latency and update/reload are still unverified after this commit. Keep Build 358 a source-only candidate; no tag, no public release, no permissions, layout or CI changes.
+
+## QA follow-up
+The Build 357 scroll regression was updated to verify the Build 358 shared viewport scheduler instead of its replaced, scroll-only timer variable. The same scroll, active-state, and no-broad-scan intentions remain covered.
