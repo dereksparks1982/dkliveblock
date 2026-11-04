@@ -1,3 +1,9 @@
+## Build 376 / v0.3.346: settings Back to Top control (November 4, 2026)
+- [x] Floating dark/cyan return-to-top button appears only on a long settings page after scrolling.
+- [x] Preserve existing settings layout and actions; keyboard focus, bilingual labels and reduced-motion scrolling.
+- [x] Tests cover visibility, resizing/collapsing content, scrolling and isolation from blocking code.
+- [ ] Visual Firefox acceptance after reloading local extension.
+
 ## Build 375 / v0.3.345: read-only Page Architect discovery (November 4, 2026)
 - [x] Add conservative YouTube watch-page region recognition and a fail-closed preview when the existing player or masthead is missing.
 - [x] Return only immutable booleans and region names; no DOM elements, video IDs, titles, or URLs leave discovery.
