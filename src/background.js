@@ -1578,7 +1578,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   if(!DKPlaybackHealth.supportsHost(pageHost)||
      pageHost!==host(sender.tab?.url||"")||
      data.hosts.get(id)!==pageHost||!activeTab(id,pageHost))return {ok:false};
-  try{if(host((await browser.tabs.get(id))?.url||"")!==pageHost)return {ok:false};}
+  let liveTab;
+  try{liveTab=await browser.tabs.get(id);
+   if(host(liveTab?.url||"")!==pageHost)return {ok:false};}
   catch(_){return {ok:false};}
   if(msg.kind!=="buffering"&&msg.kind!=="media-error"&&msg.kind!=="enforcement"&&
      msg.kind!=="ad-skip"&&msg.kind!=="ad-showing")return {ok:false};
@@ -1600,7 +1602,8 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    // player JSON rewriting for this tab and retry exactly once in a bounded
    // window. The ordinary network filtering engine remains fully active.
    // Repeated refusals do not cause another reload or automatic allowlisting.
-   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)){
+   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)&&
+       DKAdaptiveYouTube.ordinaryWatchPage(liveTab?.url)){
     const recovered=DKAdaptiveYouTube.recoverRefusal(data.youtubeAdaptive,id,pageHost,now);
     if(recovered.changed){
      DKYouTubeResponse.clear(id);
