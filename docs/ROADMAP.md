@@ -1,3 +1,9 @@
+## Build 370 / v0.3.340: YouTube recovery loop guard (November 4, 2026)
+- [x] Separate ten-minute player-pass-through policy window from one-hour bounded reload guard; recurring player refusals cannot generate a new reload every ten minutes.
+- [x] Keep guard tab- and host-scoped; site change or tab close clears it. No permanent bypass or media exception.
+- [x] Add regression cases for expiry, no reload-loop, and tab/host lifecycle.
+- [ ] Verify full Ubuntu test suite and live Firefox playback before claiming compatibility success.
+
 ## Build 369 / v0.3.339: bounded YouTube refusal recovery (November 4, 2026)
 - [x] On observed regular YouTube in-player enforcement, retry once per tab with existing player-pass-through isolation for ten minutes, while network ad filtering remains enabled.
 - [x] Avoid retry loops, preserve site-pause and user-selected experiment precedence; do not suppress YouTube refusal overlays.
