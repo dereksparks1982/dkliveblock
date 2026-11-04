@@ -702,7 +702,11 @@ function create(doc,win,max=100,onEvidence=null,canHide=null){
    const now=Date.now();
    if(old.misses>=1&&now-old.lastMiss>=700){
     restoreOne(el,old);hidden.delete(el);released++;
-   }else{old.misses++;old.lastMiss=now;}
+   }else if(old.misses===0||now<old.lastMiss){
+    // Keep the FIRST negative time. Resetting it on every early recheck
+    // could indefinitely defer cleanup on busy React feed mutations.
+    old.misses=1;old.lastMiss=now;
+   }
   }
   auditCursor=rows.length?(start+Math.min(rows.length,budget))%rows.length:0;
   return released;
