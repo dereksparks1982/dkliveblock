@@ -1,3 +1,8 @@
+## Build 338 / v0.3.308: long Marketplace listing coverage (November 3, 2026)
+- [x] Rotate the existing 3,500-label Marketplace check across oversized search/result DOMs, retaining prior exact promoted badge and single-tile checks.
+- [x] Include safe bounded numeric position in the user-requested local-only Facebook report.
+- [x] Five offline regression cases registered. Full Ubuntu and live Facebook Marketplace acceptance pending.
+
 ## Build 337 / v0.3.307: long Facebook right-rail scan fairness (November 3, 2026)
 - [x] Rotate bounded Sponsored headings (260), right-rail labels (5,500) and attribution links (220), preventing long-list starvation.
 - [x] Include only aggregate scan cursor positions in explicit privacy-safe diagnostics. Contacts and normal-post guards unchanged.

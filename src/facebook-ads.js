@@ -537,7 +537,7 @@ function create(doc,win,max=100,onEvidence=null){
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
   recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
- let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0;
+ let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
   if(!feed||typeof win?.IntersectionObserver!=="function")return;
@@ -787,8 +787,9 @@ function create(doc,win,max=100,onEvidence=null){
   // never the results grid, its filters, or ordinary shopping listings.
   if(marketplacePage(win)){
    const labels=doc.querySelectorAll('main span,main [aria-label],[role="main"] span,[role="main"] [aria-label]');
-   for(let i=0;i<Math.min(3500,labels.length)&&count<15;i++){
-    const label=labels[i];
+   let marketplaceInspected=0;
+   for(;marketplaceInspected<Math.min(3500,labels.length)&&count<15;marketplaceInspected++){
+    const label=labels[(marketplaceCursor+marketplaceInspected)%labels.length];
     if((label.children?.length||0)>120)continue;
     const likely=sponsoredMenu(label)||labelsOf(label,win).some(x=>isSponsoredLabel(x));
     if(!likely)continue;
@@ -797,6 +798,7 @@ function create(doc,win,max=100,onEvidence=null){
     if(!tile||!marketplaceSignal(label,tile,win)){stats.lastBylineUnresolved++;continue;}
     if(hide(tile,label,"marketplace"))count++;
    }
+   marketplaceCursor=labels.length?(marketplaceCursor+marketplaceInspected)%labels.length:0;
    stats.lastHidden=count;
    return count;
   }
@@ -955,7 +957,7 @@ function create(doc,win,max=100,onEvidence=null){
  return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
-   railHeadingCursor,railLabelCursor,railLinkCursor,exceptions:exceptions.length,
+   railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }

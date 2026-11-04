@@ -1,3 +1,6 @@
+## 0.3.308 / Build 338 (2026-11-03)
+- Rotate capped Marketplace sponsored-listing inspection to cover later tiles, without broadening the hide surface.
+
 ## 0.3.307 / Build 337 (2026-11-03)
 - Rotate bounded Facebook right-rail detection windows and add safe numeric cursor evidence.
 
