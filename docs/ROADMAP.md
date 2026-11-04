@@ -1,3 +1,11 @@
+## Build 379 / v0.3.349: accessible live Facebook evidence (November 4, 2026)
+- [x] Connect the existing count-only Facebook detector report to a user-initiated settings-page inspection button.
+- [x] Select a verified first-party HTTPS Facebook tab, request local content runtime status and current GraphQL counters, show actionable diagnosis.
+- [x] Export only aggregate diagnostic keys and the local extension version after a separate user action. No post text, URL paths, profile data, cookies, telemetry, remote fetch or storage.
+- [x] Keep the new panel collapsed by default, preserving existing settings layout; include Russian control labels and regression tests.
+- [ ] Obtain one report from an affected Facebook tab to distinguish unloaded, unauthorized, unanchored, and unchanged DOM filtering.
+- [ ] YouTube playback refusal remains unresolved independently.
+
 ## Build 378 / v0.3.348: Facebook label recovery and runtime evidence (November 4, 2026)
 - [x] Treat an explicit in-feed post landmark as authoritative when the label has shallow markup; detached labels without landmarks remain excluded.
 - [x] Reuse the existing DK content controller's bounded characterData mutation sampling through the Meta adapter (the full engine previously exposed a no-op observeMutation handler); rescan only short, exact Ad/Sponsored labels in verified byline positions. No duplicate page-wide observer, network exceptions or UI geometry changes.
