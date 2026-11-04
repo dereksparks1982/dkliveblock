@@ -32,3 +32,40 @@ test("Build 374: planner makes no changes to DOM or media",()=>{
  assert.ok(!JSON.stringify(manifest).includes("page-architect.js"),
   "planning-only module is not injected until opt-in UI has acceptance");
 });
+
+test("Build 375: read-only discovery requires a real player and masthead",()=>{
+ const nodes=new Set(["#movie_player","ytd-masthead","ytd-watch-metadata #title","#related"]);
+ const doc={querySelector(selector){return nodes.has(selector)?{nodeType:1}:null;}};
+ const seen=A.discover(doc,WATCH);
+ assert.equal(seen.supported,true);assert.equal(seen.ready,true);
+ assert.ok(seen.found.includes("player"));
+ assert.ok(seen.missing.includes("comments"));
+ assert.ok(Object.isFrozen(seen.found));
+ const preview=A.preview(WATCH,{},doc);
+ assert.equal(preview.ready,true);
+ assert.deepEqual(preview.missing,["actions","description"]);
+ nodes.delete("#movie_player");
+ assert.equal(A.preview(WATCH,{},doc).ready,false);
+});
+test("Build 375: unsupported markup and malformed document fail closed",()=>{
+ const original="https://www.youtube.com/watch?v=CMNP5pNxIHc";
+ assert.equal(A.discover(null,original).ready,false);
+ assert.equal(A.discover({},original).ready,false);
+ assert.equal(A.discover({querySelector(){throw Error("bad selector");}},original).ready,false);
+ assert.equal(A.discover({querySelector(){return {};}},"https://evil.example/watch?v=CMNP5pNxIHc").supported,false);
+ assert.equal(A.preview(original,null,{querySelector(){return {};}}).ready,false);
+});
+test("Build 375: discovery never mutates the page or returns DOM objects",()=>{
+ let checks=0;
+ const marker={secret:"DO_NOT_COPY"};
+ const doc={querySelector(){checks++;return marker;}};
+ const snapshot=JSON.stringify(A.discover(doc,WATCH));
+ assert.ok(checks>=7);
+ assert.equal(snapshot.includes(marker.secret),false);
+ assert.equal(snapshot.includes("https://"),false);
+ assert.equal(Object.isFrozen(A.discover(doc,WATCH)),true);
+ const fs=require("node:fs"),path=require("node:path");
+ const src=fs.readFileSync(path.join(__dirname,"../src/page-architect.js"),"utf8");
+ for(const forbidden of ["appendChild(","removeChild(","innerHTML","XMLHttpRequest","window.postMessage("])
+  assert.equal(src.includes(forbidden),false,forbidden);
+});
