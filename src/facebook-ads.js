@@ -678,6 +678,29 @@ function create(doc,win,max=100,onEvidence=null,canHide=null){
   }
   return false;
  }
+ // A Nesty strategy may become dormant without relinquishing a verified
+ // post hide. Releasing every hidden card at the end of the strategy window
+ // caused ads to reappear. Only restore() (site pause or exception) reveals.
+ function park(){stopMobileWatch();}
+ function auditHidden(max=30){
+  // A dormant scanner only maintains its own previously hidden cards.
+  // Never scan new content while parked. Bound each pass and restore stale
+  // recycled cards only after two independent negative evidence checks.
+  let visited=0,released=0;
+  for(const [el,old] of hidden){
+   if(visited++>=max)break;
+   if(el.isConnected===false){hidden.delete(el);released++;continue;}
+   if(allowed(el)||old.trigger&&allowed(old.trigger)){
+    restoreOne(el,old);hidden.delete(el);released++;continue;
+   }
+   if(stillSponsored(el,old)){old.misses=0;old.lastMiss=0;continue;}
+   const now=Date.now();
+   if(old.misses>=1&&now-old.lastMiss>=700){
+    restoreOne(el,old);hidden.delete(el);released++;
+   }else{old.misses++;old.lastMiss=now;}
+  }
+  return released;
+ }
  function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
@@ -1090,7 +1113,7 @@ function create(doc,win,max=100,onEvidence=null,canHide=null){
   return count;
  }
 
- return {scan,scanVisible,scanInserted,restore,setExceptions,observeMutation,
+ return {scan,scanVisible,scanInserted,park,auditHidden,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
    railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,hardCursor,exceptions:exceptions.length,
