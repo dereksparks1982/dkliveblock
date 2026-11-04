@@ -30,6 +30,9 @@ function diagnosisText(report){
   " | hidden posts: "+num("hidden")+
   "\nLate text edits: "+num("inlineAdLabelEdits")+
   " | shallow labels recovered: "+num("shallowPostLabelsRecovered")+
+  "\nNesty fallback active: "+(d.legacyActive===1?"yes":"no")+
+  " | wakeups: "+num("legacyWakeups")+
+  " | legacy-hidden posts: "+num("legacyHidden")+
   "\nNext: "+(t.next||"No specific conclusion.");
 }
 async function collect(api,tab,Report){

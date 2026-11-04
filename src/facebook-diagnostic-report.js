@@ -1,7 +1,7 @@
 /* DK Live Block Build 305: fixed, local-only Facebook scanner + GraphQL diagnostics.
    This is observation only; browser network and page blocking decisions are unchanged. */
 (function(root){"use strict";
-const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreMissing","coreEnabled","settingsReady","settingsError","observerActive","scanCostMs","observerCostMs","retryCostMs","scanElements","labelsUnanchored","hideByLabel","hideByShape","hideByMarked","hideBySuggested","hideByUnfollowed","hideBySection","hideByOther","restoreOperations","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","inlineAdLabelEdits","shallowPostLabelsRecovered","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned"]);
+const DETECTOR=Object.freeze(["hidden","cachedLabels","limit","menuCursor","articleCursor","bylineCursor","referenceCursor","railHeadingCursor","railLabelCursor","railLinkCursor","marketplaceCursor","mobileCursor","hardCursor","exceptions","scans","lastScanAt","lastHidden","lastFeedCards","lastRailSignals","lastRailUnresolved","lastMenuSignals","lastMenuUnresolved","lastBylineSignals","lastBylineUnresolved","recycledRestored","rechecks","fastScans","fastHidden","coreFull","coreMissing","coreEnabled","settingsReady","settingsError","observerActive","scanCostMs","observerCostMs","retryCostMs","scanElements","labelsUnanchored","hideByLabel","hideByShape","hideByMarked","hideBySuggested","hideByUnfollowed","hideBySection","hideByOther","restoreOperations","observerCalls","retryTicks","pending","labelsClassified","labelsAnchored","labelsDeferred","inlineAdLabelEdits","shallowPostLabelsRecovered","rescuedLabels","lateTextLabels","lateLabelRefs","unlabeledAdsHidden","tooWideRefused","openedPostsSpared","hiddenPostsPruned","legacyActive","legacyWakeups","legacyHidden"]);
 const GRAPHQL=Object.freeze(["attached","modified","removed","unchanged","errors","oversized","timeout","skipped"]);
 function bounded(value,max=1000000){return Number.isSafeInteger(value)&&value>=0&&value<=max?value:null;}
 function counts(input,allowed){
@@ -36,8 +36,10 @@ function triage(r){
   return Object.freeze({code:"facebook-observer-inactive",next:"The full Facebook engine is authorized but its page observer is not attached. Reload the Facebook tab and inspect startup."});
  const scans=(d.scans||0)+(d.fastScans||0)+(d.observerCalls||0);
  if(!scans)return Object.freeze({code:"no-scans-recorded",next:"Scroll a Facebook feed once and check the scanner again."});
- if((d.hidden||0)>0||((d.fastHidden||0)>0))
+ if((d.hidden||0)>0||(d.legacyHidden||0)>0||((d.fastHidden||0)>0))
   return Object.freeze({code:"dom-hide-observed",next:"Verify the specific Sponsored card disappeared while nearby ordinary posts stayed visible."});
+ if(d.legacyActive)
+  return Object.freeze({code:"nesty-legacy-fallback-active",next:"The retained Facebook scanner was activated by repeated misses, but no verified post hide was recorded. Compare counters before and after the feed updates."});
  if(d.coreFull&&d.labelsClassified>0&&d.labelsAnchored===0)
   return Object.freeze({code:"ad-label-not-anchored",next:"Facebook ad labels were detected but none attached to a safe post. Check whole-post resolution before adding more scanning."});
  if(d.coreFull&&d.labelsClassified===0&&(d.observerCalls||0)>0)

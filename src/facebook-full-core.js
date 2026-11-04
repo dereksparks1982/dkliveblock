@@ -1074,6 +1074,11 @@ function tooBigToBeAPost(container) {
 function hidePost(container, reason, label, via) {
   if (!dkEnabled) return;
   if (isPostReason(reason)) container = wholePost(container);
+  // Nesty may briefly wake the retained legacy scanner after repeated misses.
+  // Never claim or overwrite its existing hide; one controller owns a post.
+  // The legacy scan is bounded and automatically restored on expiry.
+  if (container?.closest?.("[data-dklb-nesty-legacy-hidden]") ||
+      container?.querySelector?.("[data-dklb-nesty-legacy-hidden]")) return;
   if (dkExcluded(container) || dkExcluded(label)) return;
   // Too big is not the end of it: a post-sized card may sit inside, around the
   // label - a landmark that wraps a little wider than the post it marks. Hide

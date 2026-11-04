@@ -3,7 +3,7 @@ const {test}=require("node:test"),assert=require("node:assert/strict");
 const fs=require("node:fs"),path=require("node:path"),vm=require("node:vm");
 const src=path.resolve(__dirname,"../src");
 const manifest=JSON.parse(fs.readFileSync(path.join(src,"manifest.json"),"utf8"));
-async function setup(){
+async function setup(clock=Date){
  const hooks={},on=name=>({addListener:fn=>hooks[name]=fn,removeListener:()=>{}});
  let stored={settings:{autoUpdate:false,requestLog:true}},tabs=new Map([
   [1,"https://www.youtube.com/watch?v=test-video"],
@@ -26,7 +26,7 @@ async function setup(){
   storage:{local:{get:async()=>stored,set:async x=>{stored={...stored,...x};}}}
  };
  const timeout=(fn,ms,...args)=>{const t=setTimeout(fn,ms,...args);if(ms>=60000)t.unref();return t;};
- const ctx=vm.createContext({browser,URL,console,AbortController,Date,TextEncoder,TextDecoder,
+ const ctx=vm.createContext({browser,URL,console,AbortController,Date:clock,TextEncoder,TextDecoder,
   fetch:async()=>{throw Error("No network during tests");},setTimeout:timeout,clearTimeout});
  for(const script of manifest.background.scripts)
   vm.runInContext(fs.readFileSync(path.join(src,script),"utf8"),ctx,{filename:script});
@@ -157,4 +157,62 @@ test("Build 158 verified top-level YouTube tab reports Skip Ad click without pri
  const dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
  assert.equal(dashboard.playbackDiagnostics[0].kind,"ad-skip");
  assert.doesNotMatch(JSON.stringify(dashboard.playbackDiagnostics),/test-video|private|watch\?|http/);
+});
+
+test("Build 380: a transient YouTube enforcement warning never triggers a forced reload",async()=>{
+ const {hooks,browser,tabs}=await setup();
+ const videoId="abcdefghijk";
+ const url="https://www.youtube.com/watch?v="+videoId;
+ tabs.set(1,url);
+ let reloadCount=0;
+ browser.tabs.reload=async()=>{reloadCount++;};
+ const sender={url,tab:{id:1,url},frameId:0};
+ const reply=await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:videoId},sender);
+ assert.equal(reply.ok,true);
+ assert.equal(reply.recoveryAttempted,false);
+ assert.equal(reloadCount,0);
+ assert.equal((await hooks.message({action:"getPlaybackHealth",tabId:1}))[0].kind,"enforcement");
+ await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:videoId},sender);
+ assert.equal(reloadCount,0,"repeated warnings must not interrupt playback");
+});
+
+test("Build 381: two separated verified warnings switch player strategy without reloading",async()=>{
+ class Clock extends Date {static current=100000;static now(){return Clock.current;}}
+ const {hooks,browser,tabs}=await setup(Clock);
+ const url="https://www.youtube.com/watch?v=abcdefghijk";
+ tabs.set(1,url);
+ let reloads=0,refreshes=0;
+ browser.tabs.reload=async()=>{reloads++;};
+ browser.tabs.sendMessage=async()=>{refreshes++;};
+ const sender={url,tab:{id:1,url},frameId:0};
+ const first=await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:"abcdefghijk"},sender);
+ assert.equal(first.ok,true);assert.equal(first.strategyChanged,false);
+ assert.equal(reloads,0);assert.equal(refreshes,0);
+ assert.equal((await hooks.message({action:"getSiteDashboard",tabId:1})).youtubeTestMode,"combined");
+ Clock.current+=25000;
+ const second=await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:"abcdefghijk"},sender);
+ assert.equal(second.ok,true);assert.equal(second.strategyChanged,true);
+ assert.equal(second.recoveryAttempted,false);
+ assert.equal(reloads,0,"never forcibly interrupt the video");
+ assert.equal(refreshes,1,"reconfigure only existing page bridge");
+ const dashboard=await hooks.message({action:"getSiteDashboard",tabId:1});
+ assert.equal(dashboard.youtubeTestMode,"player-pass-through");
+ assert.equal(dashboard.youtubeResponse.enabled,false,"player response editing temporarily off");
+ assert.equal(dashboard.youtubeAdaptive.reason,"observed-youtube-playback-refusal");
+});
+test("Build 381: repeated bad or nonwatch video ID cannot activate fallback",async()=>{
+ class Clock extends Date {static current=100000;static now(){return Clock.current;}}
+ const {hooks,browser,tabs}=await setup(Clock);
+ const url="https://www.youtube.com/watch?v=abcdefghijk";
+ tabs.set(1,url);
+ let refreshes=0;
+ browser.tabs.sendMessage=async()=>{refreshes++;};
+ const sender={url,tab:{id:1,url},frameId:0};
+ for(let i=0;i<3;i++){
+  const result=await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:"WRONG_VIDEO"},sender);
+  assert.equal(result.strategyChanged,false);
+  Clock.current+=25000;
+ }
+ assert.equal(refreshes,0);
+ assert.equal((await hooks.message({action:"getSiteDashboard",tabId:1})).youtubeTestMode,"combined");
 });

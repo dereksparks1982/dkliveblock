@@ -1,3 +1,30 @@
+## Builds 382–385 candidate: adaptive Nesty defense coordination (draft, unreleased; November 4, 2026)
+- [x] **382: Facebook dormant strategy:** Add a bounded Meta Nesty supervisor that wakes the retained, previously unreachable legacy fast scanner only after persistent failures in a healthy full Facebook engine. Gate on at least two short exact-label or unanchored/width-failure signals over 1.5 seconds. Active for 30 seconds, cooldown five seconds; site pauses restore the fallback. Full engine remains primary and absent engine stays a visible failure.
+- [x] **383: YouTube sustained refusal:** A known, visible player error must persist 800 ms for first observation. A single additional signal after a continuous 22-second refusal makes the existing two-event adaptive response strategy reachable without reloading or hiding the warning. Resolved/transient warnings cause no fallback.
+- [x] **384: Facebook ownership isolation:** Mark legacy-hidden cards so the primary engine cannot claim the same post; make the legacy engine avoid and never unhide full-core-owned posts. Preserve existing per-card safety and exceptions. No extra page-wide observer.
+- [x] **385: Explain Nesty activity:** Add fixed, bounded `legacyActive`, `legacyWakeups`, and `legacyHidden` diagnostics, visible only in the user-requested Facebook report; never export source post text or browsing identity. Expand tests and documentation.
+- [x] **Focused test checkpoint:** 41 existing/new YouTube/adaptive playback checks and 10 Facebook ownership/report checks passed in a simulated V8 harness. Core integration and syntax also spot-checked.
+- [ ] **Native Ubuntu tests:** Run the entire offline test suite, including the Meta strategy integration test, before merging.
+- [ ] **Live Firefox evidence:** On one ordinary YouTube watch page, verify whether playback is permitted without an advertisement or forced reload. On Facebook, verify whether an exact marked Ad disappears before and after dormant fallback activation. Never call an activation a verified hide.
+- [ ] **Root causes unresolved:** YouTube server-side refusal predates the removed reload behavior; Facebook layout continues to change. The branch is not yet a verified parity release. See `docs/NESTY_FALLBACK_COORDINATION.md`.
+
+## Build 381 candidate: two-signal YouTube strategy fallback (draft, not released)
+- [x] Reuse existing, bounded adaptive YouTube strategy and old recoverRefusal rather than deleting either implementation.
+- [x] Require two independent refusal events at least twenty seconds apart, both bound to the current Firefox watch tab, before changing strategy.
+- [x] Keep single/transient refusals passive, veto strategy changes when ad-showing or Skip Ad evidence was observed.
+- [x] Switch to temporary response/bridge observation only without changing network ad filters or reloading the tab, expire after ten minutes and guard repeats for one hour.
+- [x] Add module and background integration regressions and JavaScript syntax checks.
+- [ ] Run complete native tests and verify actual ordinary-video Firefox playback, with uBlock Origin disabled during the DK test, before claiming a playback fix.
+- [ ] Underlying original refusal root cause still unknown: do not release this as verified adblock-bypass functionality.
+
+## Build 380 candidate: YouTube false-positive and reload containment (draft, not released)
+- [x] Remove forced browser-tab reload on detecting an enforcement warning; preserve normal network blocking and manual diagnostic modes.
+- [x] Limit warning probe to visible error components, not the entire player text.
+- [x] Require two stable observations at least 800 ms apart, with stale and hidden candidate handling.
+- [x] Add regression coverage for transient warnings, repeats and hidden error components.
+- [ ] Run full Ubuntu regression suite and real Firefox playback comparison before acceptance, merge, or version bump.
+- [ ] Diagnose and fix underlying YouTube adblock refusal, which predates the forced-reload regression.
+
 ## Build 379 / v0.3.349: accessible live Facebook evidence (November 4, 2026)
 - [x] Connect the existing count-only Facebook detector report to a user-initiated settings-page inspection button.
 - [x] Select a verified first-party HTTPS Facebook tab, request local content runtime status and current GraphQL counters, show actionable diagnosis.
