@@ -28,6 +28,10 @@ function triage(r){
  if(!scans)return Object.freeze({code:"no-scans-recorded",next:"Scroll a Facebook feed once and check the scanner again."});
  if((d.hidden||0)>0||((d.fastHidden||0)>0))
   return Object.freeze({code:"dom-hide-observed",next:"Verify the specific Sponsored card disappeared while nearby ordinary posts stayed visible."});
+ if(d.coreFull&&d.labelsClassified>0&&d.labelsAnchored===0)
+  return Object.freeze({code:"ad-label-not-anchored",next:"Facebook ad labels were detected but none attached to a safe post. Check whole-post resolution before adding more scanning."});
+ if(d.coreFull&&d.labelsClassified===0&&(d.observerCalls||0)>0)
+  return Object.freeze({code:"no-ad-label-matched",next:"Facebook's observer ran but saw no recognized ad labels. Inspect actual ad markup, unlabeled-ad evidence and language."});
  if(g.available&&g.enabled&&g.supported&&(g.counters?.modified||g.counters?.removed))
   return Object.freeze({code:"graphql-modification-observed",next:"Response modifications alone do not prove a sponsored post disappeared. Compare with the actual feed."});
  return Object.freeze({code:"no-hides-recorded",next:"If a marked Ad remains visible, save this report and a screenshot. Do not infer that permitted requests were ads."});

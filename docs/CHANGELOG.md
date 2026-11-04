@@ -1,3 +1,6 @@
+## 0.3.331 / Build 361 (2026-11-03)
+- Add full Facebook-core lifecycle regressions and separate safe diagnostics for missing vs unanchored ad labels.
+
 ## 0.3.330 / Build 360 (2026-11-03)
 - Gate complete Facebook engine on loaded saved preferences and fix manifest test assumptions after adding the scoped earlier script.
 

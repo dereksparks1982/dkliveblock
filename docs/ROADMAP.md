@@ -1,3 +1,8 @@
+## Build 361 / v0.3.331: complete Facebook engine lifecycle tests and diagnostic triage (November 3, 2026)
+- [x] Register full-core mocked async startup/pause/loaded settings regressions.
+- [x] Triage zero readable ad labels separately from ad labels that cannot anchor to safe post boundaries.
+- [ ] Verify full native Ubuntu suite, Facebook visible-ad timing, false positives and all user controls in actual Firefox.
+
 ## Build 360 / v0.3.330: complete Facebook startup and manifest safety
 - [x] Hold requested activation until user-saved Facebook settings have loaded; keep DK site allowlist, pause and picker control intact.
 - [x] Preserve all ten upstream features and repair manifest regression-test assumptions.
