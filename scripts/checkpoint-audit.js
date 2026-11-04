@@ -4,7 +4,8 @@
 const fs=require("node:fs"),path=require("node:path");
 const TESTS=Object.freeze(["facebook-added-nodes-build309","facebook-triage-build310","facebook-label-priority-build311","nesty-signal-limits-build312","youtube-site-family-build313","youtube-manual-outcome-build314","layout-stale-cleanup-build315","layout-route-integrity-build316","layout-cleanup-scout-build317","layout-compare-pending-build318","youtube-selection-integrity-build319","youtube-compat-advice-build320","facebook-organic-boundaries-build321","ui-language-build322","facebook-locale-triage-build323","checkpoint-audit-build324"]);
 const POST_324_TESTS=Object.freeze(["facebook-scan-fairness-build325","facebook-portal-tail-build326","facebook-russian-ads-build327","facebook-russian-segments-build328","checkpoint-audit-build329","facebook-english-segments-build330","facebook-cursor-report-build331","facebook-diagnostic-race-build332","meta-readonly-locale-build333","facebook-marketplace-fast-guard-build334","facebook-editor-descendant-build335","facebook-fast-label-tail-build336","facebook-rail-rotation-build337","facebook-marketplace-rotation-build338","facebook-priority-tail-build339","regression-fixture-contract-build340","checkpoint-extended-build341","facebook-extra-editor-guard-build342","facebook-last-insert-build343","facebook-rail-editor-build344","facebook-mobile-rotation-build345","facebook-hard-fallback-rotation-build346","facebook-portal-id-tail-build347","facebook-article-tail-build348","facebook-mobile-fast-guard-build349","facebook-evidence-tail-build350","facebook-sibling-tail-build351","facebook-anchor-tail-build352","facebook-bounds-audit-build353","youtube-lab-reset-race-build354","facebook-graphql-race-build355","extended-checkpoint-build356"]);
-const FILES=Object.freeze(["package.json","src/manifest.json","scripts/test-local.sh","README.md","README.ru.md","src/style.css","src/site-dashboard.html","src/youtube-lab.html","src/meta-intelligence.html","src/facebook-diagnostic-report.js","src/youtube-compatibility-advice.js","src/youtube-manual-outcome.js","src/youtube-selection-gate.js","src/layout-reflow.js","src/nesty-layout-scout.js","src/nesty-intelligence.js","src/youtube-lab-ui.js","src/meta-intelligence-ui.js","src/facebook-ads.js","src/meta-agent-nesty.js"]);
+const FULL_FB_TESTS=Object.freeze(["facebook-viewport-priority-build357","facebook-unmarked-visible-build358","facebook-full-core-build359","facebook-core-lifecycle-build361","facebook-failclosed-build362","facebook-observer-lifecycle-build363","facebook-cost-diagnostics-build364","facebook-hide-reasons-build365","facebook-full-audit-build366"]);
+const FILES=Object.freeze(["src/facebook-full-core.js","src/facebook-full-core.css","src/facebook-full-settings.js","src/facebook-full-settings.html","src/meta-module.js","src/content.js","package.json","src/manifest.json","scripts/test-local.sh","README.md","README.ru.md","src/style.css","src/site-dashboard.html","src/youtube-lab.html","src/meta-intelligence.html","src/facebook-diagnostic-report.js","src/youtube-compatibility-advice.js","src/youtube-manual-outcome.js","src/youtube-selection-gate.js","src/layout-reflow.js","src/nesty-layout-scout.js","src/nesty-intelligence.js","src/youtube-lab-ui.js","src/meta-intelligence-ui.js","src/facebook-ads.js","src/meta-agent-nesty.js"]);
 const PERMISSIONS=Object.freeze(["webRequest","webRequestBlocking","tabs","storage","browserSettings","alarms","<all_urls>","webNavigation","contextMenus","proxy","dns"]);
 const DIAGNOSTICS=Object.freeze(["youtube-compatibility-advice.js","youtube-manual-outcome.js","youtube-selection-gate.js","facebook-diagnostic-report.js","ui-language-tools.js"]);
 function ordered(html,names){let prev=-1;for(const name of names){const at=html.indexOf('src="'+name+'"');if(at<=prev)return false;prev=at;}return true;}
@@ -60,6 +61,40 @@ function fromFiles(files){
  test("bilingual-pre-release-and-neon-brand",get("README.md").includes("**Development status:** Active pre-release")&&
    get("README.ru.md").includes("**Статус разработки:** Предварительная версия")&&
    ["README.md","README.ru.md"].every(name=>get(name).includes("DK%20Live%20Block%20Neon%20Banner.png")));
+ // The earlier source audit covered only the *legacy* Facebook scanner.
+ // This is a separately checked contract for the actually executed full core.
+ const full=get("src/facebook-full-core.js"),meta=get("src/meta-module.js"),controller=get("src/content.js");
+ const all=manifest?.content_scripts||[];
+ const fb=all.find(row=>Array.isArray(row.js)&&row.js.includes("facebook-full-core.js"));
+ const global=all.find(row=>Array.isArray(row.js)&&row.js.includes("content.js"));
+ test("full-facebook-runtime-injected-first",!!fb&&!!global&&all.indexOf(fb)<all.indexOf(global)&&
+   fb.all_frames===false&&fb.run_at==="document_start"&&
+   JSON.stringify(fb.matches)===JSON.stringify(["*://facebook.com/*","*://*.facebook.com/*"])&&
+   Array.isArray(fb.css)&&fb.css.includes("facebook-full-core.css"));
+ test("full-facebook-single-engine-adapter",meta.includes("DKFacebookFullCore?.create")&&
+   controller.includes("facebookRecognizer?.setEnabled?.(active&&adRecognition&&!picking)")&&
+   controller.includes("facebookRecognizer?.setEnabled?.(false)"));
+ test("full-facebook-ten-mechanisms",[
+   "function sweepUnlabeledAds(","function retryPendingLabels(","function resolveViaReferrer(",
+   "function wholePost(","function labelVariants(","function buildDiagnostics(",
+   "function addToPageList(","function restorePost(","function sweepSections(",
+   "function isAdCallToAction(","function isOutboundLink(",
+   "function hasResolvingTimestamp(","function hasPermalink("
+  ].every(name=>full.includes(name))&&full.includes("RETRY_INTERVAL_MS = 50"));
+ test("full-facebook-user-control-surface",["hideSponsored","hideUnlabeledAds","hideSuggested",
+   "hideUnfollowed","showMarkers","placeholderMode","hideStories","hideReels",
+   "hidePeopleYouMayKnow","keepPages","adPages"].every(k=>
+   get("src/facebook-full-settings.html").includes('id="'+k+'"'))&&
+   get("src/facebook-full-settings.js").includes('browser.storage.local.set(data)'));
+ test("full-facebook-preferences-pause-and-observer",full.includes("dkSettingsReady")&&
+   full.includes("dkSettingsError")&&full.includes("observer.disconnect(); dkObserverActive = false")&&
+   full.includes("if (!dkEnabled) return;")&&full.includes("dkExcluded(container) || dkExcluded(label)"));
+ test("full-facebook-privacy-only-diagnostics",
+   ["hideByShape","hideByLabel","observerCostMs","retryCostMs"].every(k=>
+   full.includes(k)&&get("src/facebook-diagnostic-report.js").includes('"'+k+'"'))&&
+   !/\b(?:sendBeacon|XMLHttpRequest)\s*\(/.test(get("src/facebook-diagnostic-report.js")));
+ test("full-facebook-all-regressions-registered",
+   FULL_FB_TESTS.every(name=>get("scripts/test-local.sh").includes("tests/"+name+".test.js")));
  test("checkpoint-command-available",pkg?.scripts?.["audit:checkpoint"]==="node scripts/checkpoint-audit.js");
  const failures=checks.filter(c=>!c.pass).map(c=>c.id);
  return Object.freeze({version:version||"unknown",checked:checks.length,passed:checks.length-failures.length,failures:Object.freeze(failures),sourceIntegrity:failures.length===0,liveFirefoxVerified:false,fullUbuntuSuiteVerified:false,publicReleaseApproved:false});
@@ -74,4 +109,4 @@ if(require.main===module){
  process.stdout.write(JSON.stringify(result,null,2)+"\n");
  process.exitCode=result.sourceIntegrity?0:1;
 }
-module.exports=Object.freeze({FILES,TESTS,POST_324_TESTS,PERMISSIONS,fromFiles,inspect});
+module.exports=Object.freeze({FILES,TESTS,POST_324_TESTS,FULL_FB_TESTS,PERMISSIONS,fromFiles,inspect});

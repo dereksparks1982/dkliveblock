@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "DK Live Block",
-  "version": "0.3.335",
+  "version": "0.3.336",
   "description": "Free Firefox ad, tracker and unwanted-popup blocker with privacy controls",
   "browser_specific_settings": {
     "gecko": {

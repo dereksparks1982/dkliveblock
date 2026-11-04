@@ -1,3 +1,9 @@
+## Build 366 / v0.3.336: full Facebook runtime integrity audit (November 4, 2026)
+- [x] Audit the actual complete Facebook engine and its injected order instead of relying on old partial-scanner tests alone.
+- [x] Guard every requested feature family, user controls, fail-closed pause, privacy reports and new test registration.
+- [x] Register five negative mutation tests; never claim passing source audit proves live ad removal.
+- [ ] Run native Ubuntu suite and owner Firefox feed, rail, Marketplace and optional-controls acceptance.
+
 ## Build 365 / v0.3.335: complete Facebook hide/restore reason counters (November 4, 2026)
 - [x] Distinguish explicit Ad labels, unlabeled shape inference, manually marked advertisers and optional non-ad cleanup with success-only aggregate buckets.
 - [x] Count restores separately; preserve fixed-key privacy export and user control of all ten integrated capabilities.

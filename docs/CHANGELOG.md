@@ -1,3 +1,6 @@
+## 0.3.336 / Build 366 (2026-11-04)
+- Extend source auditor to guard full active Facebook runtime, all ten original MIT mechanisms and user controls; five mutation regressions.
+
 ## 0.3.335 / Build 365 (2026-11-04)
 - Add privacy-safe aggregate counts of Facebook hide reasons and restores to isolate unlabeled-ad inference from explicit labels.
 
