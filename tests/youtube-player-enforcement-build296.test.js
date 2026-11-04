@@ -8,14 +8,15 @@ function fixture(text=denied){
  const node={isConnected:true,textContent:text,getClientRects:()=>[{}]};
  const seen=[];
  const doc={visibilityState:"visible",hidden:false,
-  querySelector(selector){seen.push(selector);return selector==="#movie_player"?node:null;},
+  querySelector(selector){seen.push(selector);return selector==="#movie_player .ytp-error"?node:null;},
   defaultView:{getComputedStyle:()=>({display:"block",visibility:"visible"})}};
  return {node,doc,seen};
 }
 test("Build 296 recognizes the screenshot's exact ordinary-video playback refusal",()=>{
  assert.equal(Anti.isPlaybackEnforcement(denied),true);
  const {doc}=fixture(),p=Health.createEnforcementProbe(Anti.isPlaybackEnforcement);
- assert.equal(p.scan(doc,10000),"enforcement");
+ assert.equal(p.scan(doc,10000),null,"a single warning sighting cannot force recovery");
+ assert.equal(p.scan(doc,10800),"enforcement","the same visible refusal is confirmed after 800ms");
  assert.equal(p.scan(doc,11000),null,"ongoing refusal must not flood logs");
 });
 test("Build 296 does not mistake normal YouTube video titles or generic ad notices for enforcement",()=>{
@@ -31,8 +32,9 @@ test("Build 296 does not mistake normal YouTube video titles or generic ad notic
 test("Build 296 scans only the known player root and no page body or comments",()=>{
  const {doc,seen}=fixture();
  const p=Health.createEnforcementProbe(Anti.isPlaybackEnforcement);
- assert.equal(p.scan(doc,10000),"enforcement");
- assert.ok(seen.length<=7);
+ assert.equal(p.scan(doc,10000),null);
+ assert.equal(p.scan(doc,10800),"enforcement");
+ assert.ok(seen.length<=14);
  assert.ok(seen.every(x=>x.startsWith("#movie_player")));
 });
 test("Build 296 rejects hidden, disconnected and overlong in-player text",()=>{
@@ -65,18 +67,21 @@ test("Build 296 fails open on throwing DOM or recognizer, never modifies the pla
 test("Build 296 resets on SPA navigation; suppresses short duplicate transitions",()=>{
  const {node,doc}=fixture();
  const p=Health.createEnforcementProbe(Anti.isPlaybackEnforcement);
- assert.equal(p.scan(doc,10000),"enforcement");
+ assert.equal(p.scan(doc,10000),null);
+ assert.equal(p.scan(doc,10800),"enforcement");
  node.textContent="ordinary video";
  assert.equal(p.scan(doc,11000),null);
  node.textContent=denied;
- assert.equal(p.scan(doc,12000),null,"rate limit");
+ assert.equal(p.scan(doc,12000),null,"a new candidate still needs confirmation");
  p.reset();
- assert.equal(p.scan(doc,13000),"enforcement","new navigation receives new sample");
+ assert.equal(p.scan(doc,13000),null);
+ assert.equal(p.scan(doc,13800),"enforcement","new navigation receives a confirmed fresh sample");
 });
 test("Build 296 integration records only a coarse existing playback event, not text",()=>{
  const p=Health.createEnforcementProbe(Anti.isPlaybackEnforcement);
  const {node,doc}=fixture(),table=new Map();
- const event=p.scan(doc,1000);
+ assert.equal(p.scan(doc,1000),null);
+ const event=p.scan(doc,1800);
  assert.equal(event,"enforcement");
  assert.equal(Health.record(table,26,"www.youtube.com",event,false,1000),true);
  const exported=JSON.stringify(Health.recent(table,26,"www.youtube.com",2000));
