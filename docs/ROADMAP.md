@@ -1,3 +1,11 @@
+## Build 380 candidate: YouTube false-positive and reload containment (draft, not released)
+- [x] Remove forced browser-tab reload on detecting an enforcement warning; preserve normal network blocking and manual diagnostic modes.
+- [x] Limit warning probe to visible error components, not the entire player text.
+- [x] Require two stable observations at least 800 ms apart, with stale and hidden candidate handling.
+- [x] Add regression coverage for transient warnings, repeats and hidden error components.
+- [ ] Run full Ubuntu regression suite and real Firefox playback comparison before acceptance, merge, or version bump.
+- [ ] Diagnose and fix underlying YouTube adblock refusal, which predates the forced-reload regression.
+
 ## Build 379 / v0.3.349: accessible live Facebook evidence (November 4, 2026)
 - [x] Connect the existing count-only Facebook detector report to a user-initiated settings-page inspection button.
 - [x] Select a verified first-party HTTPS Facebook tab, request local content runtime status and current GraphQL counters, show actionable diagnosis.
