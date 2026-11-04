@@ -1,3 +1,6 @@
+## 0.3.317 / Build 347 (2026-11-03)
+- Preserve late ephemeral Facebook Sponsored portal IDs in id-heavy React DOM subtrees without increasing cache work.
+
 ## 0.3.316 / Build 346 (2026-11-03)
 - Rotate bounded explicitly ad-attributed fallback candidates with local-only cursor diagnostics.
 

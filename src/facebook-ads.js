@@ -530,6 +530,16 @@ function sampleFastLabels(nodes,max=100){
  else{for(let i=0;i<50;i++)out.push(nodes[i]);for(let i=n-50;i<n;i++)out.push(nodes[i]);}
  return out;
 }
+// Keep cache discovery bounded while checking both ends of id-rich portals.
+function samplePortalIds(nodes,max=60){
+ const n=nodes?.length;
+ if(!nodes||typeof nodes!=="object"||!Number.isSafeInteger(n)||
+    n<0||n>1000000||max!==60)return [];
+ const result=[];
+ if(n<=60){for(let i=0;i<n;i++)result.push(nodes[i]);}
+ else{for(let i=0;i<30;i++)result.push(nodes[i]);for(let i=n-30;i<n;i++)result.push(nodes[i]);}
+ return result;
+}
 function create(doc,win,max=100,onEvidence=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
@@ -631,8 +641,8 @@ function create(doc,win,max=100,onEvidence=null){
    const text=referenceTargetLabels(n,win).find(isAdLabel);
    return text?cacheAdId(id,text):false;
   };
-  let changed=record(el);const all=el.querySelectorAll?.("[id]")||[];
-  for(let i=0;i<Math.min(60,all.length);i++)changed=record(all[i])||changed;
+  let changed=record(el);const all=samplePortalIds(el.querySelectorAll?.("[id]")||[]);
+  for(const candidate of all)changed=record(candidate)||changed;
   return changed;
  }
  function observeMutation(r){
@@ -983,7 +993,7 @@ function create(doc,win,max=100,onEvidence=null){
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }
-const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
+const api={create,sampleAddedNodes,sampleChangedNodes,sampleFastLabels,samplePortalIds,isFacebook,isAdLabel,isSponsoredLabel,labelsOf,inByline,linkedAuthorAdByline,referenceLabels,referenceTargetLabels,cachedSponsored,CACHED_SPONSORED_TTL_MS,hasAdEvidence,safeCard,holdsSeparatePostSiblings,railSection,feedCardFrom,rightRailCandidate,sponsoredMenu,railAdLink,rightRailLinkCard,splitLabelRoot,nestedLabelVariants,sponsoredFeedCard,mobileLayout,mobilePostFrom,marketplacePage,marketplaceTileFrom,marketplaceSignal};
 root.DKFacebookAds=api;
 if(typeof module!=="undefined")module.exports=api;
 })(typeof globalThis!=="undefined"?globalThis:this);

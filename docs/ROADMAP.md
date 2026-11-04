@@ -1,3 +1,8 @@
+## Build 347 / v0.3.317: late Facebook ad portal ID retention (November 3, 2026)
+- [x] Sample first and last thirty labelled IDs within the existing sixty-node portal cache check to keep detached Sponsored evidence near subtree ends.
+- [x] Preserve exact ad-label match, bounded 200-ID cache and post reference/geometry requirements.
+- [x] Five positive/negative regressions registered. Full native Ubuntu and live Firefox proof pending.
+
 ## Build 346 / v0.3.316: Facebook fallback attribution scan fairness (November 3, 2026)
 - [x] Rotate capped 160-item Facebook Sponsored/explainer fallback scans instead of starving later explicit ad evidence.
 - [x] Add privacy-safe numeric fallback cursor to explicit local report; all original ad and context guards remain.
