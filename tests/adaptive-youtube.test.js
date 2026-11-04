@@ -159,7 +159,7 @@ test("Build 371: automatic recovery only targets ordinary watch URLs",()=>{
 test("Build 371: Firefox reload gate checks live tab URL",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const text=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
- assert.ok(text.includes("DKAdaptiveYouTube.ordinaryWatchPage(liveTab?.url)"));
+ assert.ok(text.includes("DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)"));
  assert.ok(text.includes("liveTab=await browser.tabs.get(id)"));
 });
 
@@ -171,4 +171,22 @@ test("Build 372: YouTube recovery does not require request logging",()=>{
  assert.ok(code.includes('const recorded=data.settings.requestLog?'));
  assert.ok(code.includes('msg.kind==="enforcement"; // Ephemeral decision only'));
  assert.ok(code.includes('data.settings.youtubeResponseFilter===true&&DKPlaybackHealth.isYouTube(h)'));
+});
+
+test("Build 373: stale YouTube SPA enforcement cannot retry another video",()=>{
+ const url="https://www.youtube.com/watch?v=CMNP5pNxIHc";
+ assert.equal(A.watchVideoId(url),"CMNP5pNxIHc");
+ assert.equal(A.matchesLiveWatch(url,"CMNP5pNxIHc"),true);
+ assert.equal(A.matchesLiveWatch(url,"ABCDEFGHIJK"),false);
+ assert.equal(A.matchesLiveWatch(url,""),false);
+ assert.equal(A.matchesLiveWatch("https://www.youtube.com/shorts/CMNP5pNxIHc","CMNP5pNxIHc"),false);
+ assert.equal(A.matchesLiveWatch(url+"&v=ABCDEFGHIJK","CMNP5pNxIHc"),false);
+});
+test("Build 373: content supplies only transient current video id",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const source=fs.readFileSync(path.join(__dirname,"../src/content.js"),"utf8");
+ const background=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.ok(source.includes("watchVideoId:currentWatchId()"));
+ assert.ok(background.includes("DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)"));
+ assert.ok(!background.includes("data.settings.watchVideoId="));
 });
