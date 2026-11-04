@@ -1,3 +1,6 @@
+## 0.3.300 / Build 330 (2026-11-03)
+- Recover CSS-shuffled English Sponsored and Ad label spans in the bounded Meta specialist, with strict exact reconstructed-label verification.
+
 ## 0.3.299 / Build 329 (2026-11-03)
 - Expand source-only checkpoint coverage to the five follow-up builds, with safety regressions for Facebook scan bounds and exact-label guardrails.
 

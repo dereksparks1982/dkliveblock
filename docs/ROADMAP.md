@@ -1,3 +1,8 @@
+## Build 330 / v0.3.300: scrambled English Facebook labels (November 3, 2026)
+- [x] Nesty's eight-part segmented ad-label decoder now checks exact English Sponsored/Ad character signatures before bounded CSS ordering, in addition to the guarded Russian labels.
+- [x] Avoid accepting arbitrary anagrams as ads: original author/boundary filters remain unchanged, and the final reconstructed string must be a recognized exact marker.
+- [x] Five synthetic regression cases registered. Full native Ubuntu and owner Firefox tests remain outstanding.
+
 ## Build 329 / v0.3.299: expanded source-integrity checkpoint (November 3, 2026)
 - [x] Extend the local read-only checkpoint to include Builds 325–329, rotating feed scan caps, Russian exact-label gates and twelve-node portal budget.
 - [x] Preserve the original 16-build test contract for historical tests and add distinct post-324 registration checks.
