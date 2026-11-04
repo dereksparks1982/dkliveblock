@@ -1,3 +1,12 @@
+## Build 381 candidate: two-signal YouTube strategy fallback (draft, not released)
+- [x] Reuse existing, bounded adaptive YouTube strategy and old recoverRefusal rather than deleting either implementation.
+- [x] Require two independent refusal events at least twenty seconds apart, both bound to the current Firefox watch tab, before changing strategy.
+- [x] Keep single/transient refusals passive, veto strategy changes when ad-showing or Skip Ad evidence was observed.
+- [x] Switch to temporary response/bridge observation only without changing network ad filters or reloading the tab, expire after ten minutes and guard repeats for one hour.
+- [x] Add module and background integration regressions and JavaScript syntax checks.
+- [ ] Run complete native tests and verify actual ordinary-video Firefox playback, with uBlock Origin disabled during the DK test, before claiming a playback fix.
+- [ ] Underlying original refusal root cause still unknown: do not release this as verified adblock-bypass functionality.
+
 ## Build 380 candidate: YouTube false-positive and reload containment (draft, not released)
 - [x] Remove forced browser-tab reload on detecting an enforcement warning; preserve normal network blocking and manual diagnostic modes.
 - [x] Limit warning probe to visible error components, not the entire player text.
