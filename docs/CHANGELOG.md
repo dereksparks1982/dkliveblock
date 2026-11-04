@@ -1,3 +1,6 @@
+## 0.3.313 / Build 343 (2026-11-03)
+- Reserve existing fast-scan capacity for the newest Sponsored card after noisy Facebook React child insertions.
+
 ## 0.3.312 / Build 342 (2026-11-03)
 - Prevent Marketplace and mobile Facebook hides containing active input fields; finish regression test version cleanup.
 

@@ -708,6 +708,15 @@ function create(doc,win,max=100,onEvidence=null){
    take(r.target);
    if(roots.size>previous)priorityRoots++;
   }
+  // Reserve eight of the original 32 roots, from the newest records
+  // first. A noisy older tail record must not consume all reserved slots.
+  let tailRoots=0;
+  for(const r of batch.slice(-4).reverse())if(r?.type==="childList")
+   for(const node of sampleAddedNodes(r.addedNodes)){
+    if(tailRoots>=8)break;
+    const size=roots.size;take(node);
+    if(roots.size>size)tailRoots++;
+   }
   for(const r of batch)if(r?.type==="childList")
    for(const node of sampleAddedNodes(r.addedNodes))take(node);
   for(const r of batch)if(r?.type==="attributes"||r?.type==="characterData"||r?.type==="childList")

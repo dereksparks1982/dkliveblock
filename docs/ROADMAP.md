@@ -1,3 +1,8 @@
+## Build 343 / v0.3.313: newest Facebook insertion priority (November 3, 2026)
+- [x] Reserve eight of the same 32 fast-scan root positions for the *newest* of the last four React child insertions before ordinary earlier insertion traversal.
+- [x] Keep independent exact-ad, organic and editor safeguards, as well as the original first/middle/tail sampling and bounded loop.
+- [x] Five regression cases registered. Full native Ubuntu and actual Firefox acceptance pending.
+
 ## Build 342 / v0.3.312: protect mobile and Marketplace editing (November 3, 2026)
 - [x] Add active editor/input descendant veto to Marketplace promoted tile and mobile virtualized post resolution, preserving previous geometry and ad-evidence checks.
 - [x] Fix final detected historical SemVer assertion in Build339 and register safety tests in extended source-only audit.
