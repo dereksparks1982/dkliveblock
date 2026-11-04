@@ -624,13 +624,14 @@ function create(doc,win,max=100,onEvidence=null){
  function hide(el,trigger=null,kind=""){
   // The full Facebook core owns its own hidden cards. A dormant Nesty
   // fallback must never hide that card twice or take over its style.
-  if(el?.closest?.("[data-fbsb-hidden]"))return false;
+  if(el?.closest?.("[data-fbsb-hidden]")||el?.querySelector?.("[data-fbsb-hidden]"))return false;
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
   hidden.set(el,{value:el.style.getPropertyValue("display"),
    priority:el.style.getPropertyPriority("display"),trigger,
    hiddenAt:Date.now(),dirty:false,misses:0,lastMiss:0});
+  el.setAttribute?.("data-dklb-nesty-legacy-hidden","");
   el.style.setProperty("display","none","important");
   // Existing vetted hide succeeds before any Nesty observation.
   // No DOM node, URL, post text or identity crosses this interface.
@@ -639,9 +640,10 @@ function create(doc,win,max=100,onEvidence=null){
   return true;
  }
  function restoreOne(el,old){
-  // If the primary core also claimed this card, restoring the dormant
-  // fallback must never make the primary core's hidden post visible.
-  if(el.closest?.("[data-fbsb-hidden]"))return;
+  // Remove our marker even if the page changed the style. Never unhide a
+  // post that the primary engine has also claimed through its own marker.
+  el.removeAttribute?.("data-dklb-nesty-legacy-hidden");
+  if(el.closest?.("[data-fbsb-hidden]")||el.querySelector?.("[data-fbsb-hidden]"))return;
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
   if(old.value)el.style.setProperty("display",old.value,old.priority);else el.style.removeProperty("display");
  }
