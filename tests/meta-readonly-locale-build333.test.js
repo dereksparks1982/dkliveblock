@@ -29,5 +29,5 @@ test("Build 333: non-Facebook company behavior remains independently scoped",()=
 });
 test("Build 333: manifest and package versions still agree",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.303");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
 });

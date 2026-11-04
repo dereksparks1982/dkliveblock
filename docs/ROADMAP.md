@@ -1,3 +1,8 @@
+## Build 341 / v0.3.311: expanded regression suite and checkpoint (November 3, 2026)
+- [x] Finish cross-version test pin cleanup and extend the original source-integrity audit registration from Builds 325 to 341.
+- [x] Add live-file and historical registration invariants without touching working YouTube, Disney+, Facebook filtering, permissions, approved UX geometry or release status.
+- [x] Five integration audit tests registered. Native Ubuntu suite and actual Firefox/browser acceptance still pending.
+
 ## Build 340 / v0.3.310: first integration fixture repair (November 3, 2026)
 - [x] Correct cross-build regression errors: historical version freezes, 250-post and right-rail modulo values, Russian uppercase label expectation and inaccurate !important display mocks.
 - [x] Add five fixture integrity tests and preserve all original production blocking code.

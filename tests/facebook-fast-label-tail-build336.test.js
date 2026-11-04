@@ -24,5 +24,5 @@ test("Build 336: fast scanner uses bounded head/tail decoder",()=>{
 });
 test("Build 336: app and manifest versions remain matched",()=>{
  const p=require("../package.json"),m=require("../src/manifest.json");
- assert.equal(p.version,m.version);assert.equal(p.version,"0.3.306");
+ assert.equal(p.version,m.version);assert.match(p.version,/^0\.3\.\d+$/);
 });

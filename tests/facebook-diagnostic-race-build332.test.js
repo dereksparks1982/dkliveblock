@@ -19,5 +19,5 @@ test("Build 332: stale network and content errors cannot clobber latest evidence
 test("Build 332: reports remain local with unchanged Firefox privileges",()=>{
  assert.doesNotMatch(src,/innerHTML\s*=|fetch\s*\(|sendBeacon\s*\(/);
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.302");
+ assert.equal(m.version,p.version);assert.match(p.version,/^0\.3\.\d+$/);
 });

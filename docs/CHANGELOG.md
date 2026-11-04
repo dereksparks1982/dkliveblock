@@ -1,3 +1,6 @@
+## 0.3.311 / Build 341 (2026-11-03)
+- Finish post-324 test-version normalization and extend the offline source-integrity checkpoint across the new run.
+
 ## 0.3.310 / Build 340 (2026-11-03)
 - Repair initial cumulative regression test expectations and CSS priority mocks; production ad blocking unchanged.
 

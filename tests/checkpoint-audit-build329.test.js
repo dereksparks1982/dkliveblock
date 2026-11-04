@@ -6,7 +6,7 @@ test("Build 329: exact source checkpoint passes and is not browser certification
  const r=Audit.inspect(root);assert.equal(r.sourceIntegrity,true,r.failures.join(","));
  assert.equal(r.liveFirefoxVerified,false);
  assert.equal(r.fullUbuntuSuiteVerified,false);assert.equal(r.publicReleaseApproved,false);
- assert.equal(Audit.TESTS.length,16);assert.equal(Audit.POST_324_TESTS.length,5);
+ assert.equal(Audit.TESTS.length,16);assert.ok(Audit.POST_324_TESTS.length>=5);
 });
 test("Build 329: missing newly registered regression is detected",()=>{
  const f=files();f["scripts/test-local.sh"]=f["scripts/test-local.sh"].replace("tests/facebook-portal-tail-build326.test.js","");
