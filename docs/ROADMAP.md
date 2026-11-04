@@ -1,3 +1,10 @@
+## Build 374 / v0.3.344: DK Page Architect clean-view foundation (November 4, 2026)
+- [x] Add inactive, strict YouTube watch-page clean-view planner, with selectable regions and mandatory original player.
+- [x] Add contract tests for explicit opt-in, hostile URLs, invalid settings, immutable output and no DOM mutation; register in local test runner.
+- [x] Document reversible CSS architecture, accessibility, restore-original controls and acceptance criteria.
+- [ ] Owner approval of controls/layout and live Firefox testing required before enabling clean-view mode.
+- [ ] Ordinary YouTube playback and anti-adblock detection are NOT resolved by this scaffold.
+
 ## Build 373 / v0.3.343: prevent stale YouTube SPA refusals (November 4, 2026)
 - [x] Require a current-video ID match against the live Firefox tab before automatic recovery.
 - [x] Reject delayed refusal signals after watch-page navigation; transient video ID is never stored or exported.
