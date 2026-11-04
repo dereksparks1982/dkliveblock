@@ -1,3 +1,8 @@
+## Build 334 / v0.3.304: Marketplace feed-boundary isolation (November 3, 2026)
+- [x] Route Facebook Marketplace changes through its existing promoted-listing-aware regular scan instead of allowing the immediate general feed fast pass to hide a Marketplace wrapper.
+- [x] Keep ordinary Facebook feed, pages and group fast-pass unchanged. No broader Marketplace blocking or unverified evidence.
+- [x] Five regression checks registered; live Facebook Marketplace/Firefox and native Ubuntu suite pending.
+
 ## Build 333 / v0.3.303: Meta reviewer localized disclosure parity (November 3, 2026)
 - [x] The existing read-only Meta dispatcher now recognizes exact Russian advertising disclosures alongside English in explicit aria-label review evidence.
 - [x] Do not infer advertisements from Russian body words, Meta host ownership or other surfaces; the Facebook scanner alone performs approved hides.

@@ -1,3 +1,6 @@
+## 0.3.304 / Build 334 (2026-11-03)
+- Protect Facebook Marketplace listing grids by reserving automatic hides for the existing Marketplace-specific full scanner.
+
 ## 0.3.303 / Build 333 (2026-11-03)
 - Meta's existing read-only ad-review dispatch now recognizes exact Russian Sponsored disclosures without changing blocking decisions.
 
