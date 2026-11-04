@@ -57,7 +57,8 @@ test("Build 382: Meta adapter stays full-first and creates legacy only after Nes
   DKFacebookFullCore:{create:()=>({
    setEnabled:()=>{state.counts.enabled++;},scan:()=>{state.counts.fullScan++;return 0;},
    diagnostics:()=>({...state.diag}),scanInserted:()=>0,scanVisible:()=>0,
-   observeMutation:()=>false,restore:()=>{},setExceptions:()=>{},get hiddenCount(){return 0;}})},
+   observeMutation:()=>false,restore:()=>{},setExceptions:()=>{},
+   canFallbackHide:()=>true,get hiddenCount(){return 0;}})},
   DKFacebookAds:{create:()=>{state.counts.create++;return {
    scan:()=>{state.counts.legacyScan++;return 1;},scanVisible:()=>1,
    scanInserted:()=>1,restore:()=>{state.counts.restored++;},
