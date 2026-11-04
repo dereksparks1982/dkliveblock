@@ -126,6 +126,13 @@ const UNFOLLOWED_TEXTS = new Set([
 const APP_BANNER_TEXTS = new Set(["Open app"]);
 const APP_BANNER_SELECTOR = ".fixed-container.bottom";
 const SPONSORED_ARIA_RE = /sponsored content$/i;
+// Facebook may attach the accessible ad label after inserting its byline.
+// Only exact short accessibility labels qualify, not a substring in post text.
+function sponsoredAriaCandidate(raw) {
+  if (typeof raw !== "string" || raw.length > 100) return false;
+  const normalized = labelKey(raw.replace(INVISIBLE_CHARS_RE, "").trim());
+  return SPONSORED_TEXTS.has(normalized) || SPONSORED_ARIA_RE.test(normalized);
+}
 // The "Why am I seeing this ad?" explainer. Matches both "/ads/about/" and the
 // absolute form; the query string Facebook appends is irrelevant.
 const ADS_ABOUT_RE = /(^|\.com)\/ads\/about(\/|\?|$)/;
@@ -392,7 +399,9 @@ function classifyLabel(el) {
     // feed. Kept because it costs nothing and still matches older/other
     // surfaces; the data-ad-rendering-role check above is what actually
     // carries sponsored detection now.
-    if (settings.hideSponsored && SPONSORED_ARIA_RE.test(ariaLabel)) {
+    if (settings.hideSponsored &&
+        (SPONSORED_ARIA_RE.test(ariaLabel) ||
+         (sponsoredAriaCandidate(ariaLabel) && adLabelPosition(el)))) {
       return "sponsored";
     }
     if (DEBUG && /sponsor/i.test(ariaLabel)) {
@@ -1482,8 +1491,12 @@ function isImplausiblyShallow(el) {
 function tryHideFromLabel(label, reason) {
   const container = findPostContainer(label, reason);
   if (!container) return false;
-  if (!hiddenPosts.has(container)) hidePost(container, reason, label);
-  return true;
+  if (hiddenPosts.has(container)) return true;
+  hidePost(container, reason, label);
+  // hidePost can refuse a broad card, protected page, user-kept author or
+  // open viewer. A resolved *candidate* is not a successfully hidden post.
+  // Count a win only when the label belongs to an actually hidden container.
+  return !!hiddenContainerFor(label);
 }
 
 // Accessibility-label targets - the <span id="_r_..._"> an ad's aria-labelledby
@@ -2959,7 +2972,16 @@ const observer = new MutationObserver((mutations) => {
   const observerStartedAt = performance.now();
   for (const mutation of mutations) {
     if (mutation.type === "attributes") {
-      noteLabelledByChange(mutation.target);
+      if (mutation.attributeName === "aria-labelledby") {
+        noteLabelledByChange(mutation.target);
+      } else if (mutation.attributeName === "aria-label") {
+        // An accessible "Ad" can arrive late without any childList change.
+        // A full scan per ARIA change would stall the feed, so only revisit
+        // elements with an exact recognized sponsorship label.
+        const raw = mutation.target.getAttribute("aria-label");
+        if (settings.hideSponsored && sponsoredAriaCandidate(raw))
+          scheduleScan(mutation.target);
+      }
       continue;
     }
     if (mutation.addedNodes.length > 0 && mutation.target.nodeType === Node.ELEMENT_NODE) {
@@ -3062,7 +3084,7 @@ function startObserving() {
   // number.
   // aria-labelledby too, and only that attribute - see noteLabelledByChange.
   observer.observe(document.documentElement, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ["aria-labelledby"],
+    childList: true, subtree: true, attributes: true, attributeFilter: ["aria-labelledby", "aria-label"],
   });
   cacheLabelTargets(document.body);
   scanRoot(document.body);
