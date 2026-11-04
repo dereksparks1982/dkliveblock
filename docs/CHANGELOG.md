@@ -1,3 +1,6 @@
+## 0.3.305 / Build 335 (2026-11-03)
+- Safeguard active Facebook text inputs and composer descendants against broad whole-card hiding.
+
 ## 0.3.304 / Build 334 (2026-11-03)
 - Protect Facebook Marketplace listing grids by reserving automatic hides for the existing Marketplace-specific full scanner.
 

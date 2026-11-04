@@ -1,3 +1,8 @@
+## Build 335 / v0.3.305: Facebook interactive editor preservation (November 3, 2026)
+- [x] Forbid whole-card hiding if an otherwise sponsored-looking card contains a live textbox, searchbox, non-hidden input, textarea or contenteditable editor.
+- [x] Preserve advertisement detection when no editor is present; existing popup, dialog and Facebook-only scope unchanged.
+- [x] Five negative/positive regression tests registered. Native Ubuntu and live Facebook posting/comment checks pending.
+
 ## Build 334 / v0.3.304: Marketplace feed-boundary isolation (November 3, 2026)
 - [x] Route Facebook Marketplace changes through its existing promoted-listing-aware regular scan instead of allowing the immediate general feed fast pass to hide a Marketplace wrapper.
 - [x] Keep ordinary Facebook feed, pages and group fast-pass unchanged. No broader Marketplace blocking or unverified evidence.

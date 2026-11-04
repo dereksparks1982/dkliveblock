@@ -297,7 +297,8 @@ function independentPostCount(card){
 function safeCard(c,doc){
  if(!c||c===doc.body||c===doc.documentElement||c.isConnected===false||!c.style?.setProperty||
     c.matches?.(ROOTS)||c.closest?.('[role="dialog"],[role="complementary"],form,nav,[contenteditable="true"],[role="textbox"],[role="searchbox"]')||
-    c.querySelector?.('main,[role="main"],[role="feed"],[role="navigation"],nav,[role="dialog"]'))return false;
+    c.querySelector?.('main,[role="main"],[role="feed"],[role="navigation"],nav,[role="dialog"]')||
+     c.querySelector?.('[contenteditable="true"],[role="textbox"],[role="searchbox"],textarea,input:not([type="hidden"])'))return false;
  const r=c.getBoundingClientRect?.();
  return !!r&&r.width>=250&&r.width<=880&&r.height>=90&&r.height<=2500&&
    independentPostCount(c)<=1;
