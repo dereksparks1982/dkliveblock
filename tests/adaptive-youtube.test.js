@@ -137,3 +137,28 @@ test("Build 370: guard survives same-host navigation and clears on site change",
  A.clear(store,31);
  assert.equal(A.recoverRefusal(store,31,"music.youtube.com",t+5000).changed,true);
 });
+
+test("Build 371: automatic recovery only targets ordinary watch URLs",()=>{
+ const yes=["https://www.youtube.com/watch?v=CMNP5pNxIHc",
+  "https://youtube.com/watch?v=CMNP5pNxIHc",
+  "https://m.youtube.com/watch?v=CMNP5pNxIHc&t=90"];
+ const no=["https://www.youtube.com/shorts/CMNP5pNxIHc",
+  "https://www.youtube.com/results?search_query=video",
+  "https://www.youtube.com/",
+  "https://www.youtube-nocookie.com/embed/CMNP5pNxIHc",
+  "https://www.youtube.com/watch?v=bad",
+  "https://www.youtube.com/watch?v=CMNP5pNxIHc&v=XXXXXXXXXXX",
+  "http://www.youtube.com/watch?v=CMNP5pNxIHc",
+  "https://www.youtube.com.evil.test/watch?v=CMNP5pNxIHc",
+  "https://evil.test@www.youtube.com/watch?v=CMNP5pNxIHc",
+  "https://music.youtube.com/watch?v=CMNP5pNxIHc"];
+ for(const url of yes)assert.equal(A.ordinaryWatchPage(url),true,url);
+ for(const url of no)assert.equal(A.ordinaryWatchPage(url),false,url);
+ assert.equal(A.ordinaryWatchPage(null),false);
+});
+test("Build 371: Firefox reload gate checks live tab URL",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const text=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.match(text,/DKAdaptiveYouTube\\.ordinaryWatchPage\\(liveTab\\?\\.url\\)/);
+ assert.match(text,/liveTab=await browser\\.tabs\\.get\\(id\\)/);
+});
