@@ -1,3 +1,9 @@
+## Build 356 / v0.3.326: 32-build source checkpoint and bilingual pre-release handoff (November 3, 2026)
+- [x] Close the thirty-two-build run (Builds 325–356) with unchanged Firefox permissions, guarded Meta/YouTube diagnostic behavior and local source-integrity audit.
+- [x] Refresh English/Russian README introductions with the same approved red/neon banner and an explicit distinction between source checks and live-browser confirmation.
+- [x] Register five final checkpoint regressions, including an exact 32-build test registry and explicit non-approval for release.
+- [ ] Native Ubuntu full suite, Firefox regular YouTube video and Free-with-Ads comparisons, Facebook feed/rail/Marketplace checks, and Orion/mobile acceptance remain owner-dependent.
+
 ## Build 355 / v0.3.325: Facebook GraphQL diagnostic race and navigation integrity (November 3, 2026)
 - [x] Guard the separate read-only GraphQL check against stale overlapping responses.
 - [x] Verify the tab is a Facebook HTTPS page before reading stats and is still on that exact URL afterward. No changes to experimental GraphQL blocking or interception.

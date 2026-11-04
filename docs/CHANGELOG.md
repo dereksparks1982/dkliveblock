@@ -1,3 +1,6 @@
+## 0.3.326 / Build 356 (2026-11-03)
+- Conclude 32 incremental source builds with bilingual honest pre-release status, approved banner parity and source-only checkpoint gating. No public release.
+
 ## 0.3.325 / Build 355 (2026-11-03)
 - Prevent stale or cross-navigation Facebook GraphQL diagnostic results; preserve fixed-key read-only export.
 
