@@ -30,9 +30,11 @@ test("Build 367: diagnostic triage identifies missing core ahead of no-scans",()
  assert.equal(d.triage.code,"facebook-full-core-missing");
  assert.equal(d.detector.coreMissing,1);
 });
-test("Build 367: legacy fallback is not referenced from active Meta adapter",()=>{
- assert.doesNotMatch(source,/DKFacebookAds\?\.create/);
+test("Build 382: legacy scanner is reachable only behind bounded Nesty evidence",()=>{
  assert.match(source,/DKFacebookFullCore\?\.create/);
+ assert.match(source,/root\.DKMetaStrategyNesty\?\.create/);
+ assert.match(source,/if\(!legacy\)legacy=root\.DKFacebookAds\?\.create/);
+ assert.match(source,/if\(enabled!==true\)\{supervisor\?\.reset\(\);stopFallback\(\);\}/);
 });
 test("Build 367: package matches manifest and core is injected first",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
