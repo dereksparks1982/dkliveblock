@@ -1,3 +1,6 @@
+## 0.3.327 / Build 357 (2026-11-03)
+- Attempt to reduce the owner-reported ~30-second Facebook feed advertisement flash by prioritizing visible card checks and bounded scroll-driven detection, with explicit sponsored evidence and post-safety constraints. Live Firefox verification pending.
+
 ## 0.3.326 / Build 356 (2026-11-03)
 - Conclude 32 incremental source builds with bilingual honest pre-release status, approved banner parity and source-only checkpoint gating. No public release.
 

@@ -36,6 +36,7 @@ function create(doc,win){
  function review(element){return observer?.inspect({element,platform})||[];}
  return Object.freeze({company:"meta",platform,scan:()=>facebook?.scan()||0,
   scanInserted:records=>facebook?.scanInserted?.(records)||0,
+  scanVisible:()=>facebook?.scanVisible?.()||0,
   restore:()=>facebook?.restore(),setExceptions:r=>facebook?.setExceptions(r),
   observeMutation:r=>facebook?.observeMutation(r)||false,review,
   investigateDelivery:signals=>root.DKMetaDeliveryCatalog?.inspect?.(signals)||[],

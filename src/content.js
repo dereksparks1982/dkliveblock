@@ -546,6 +546,21 @@
   window.addEventListener("yt-navigate-finish",onNavigate,false);
   window.addEventListener("popstate",onNavigate,false);
  }
+ // Facebook's virtualised feed can reveal a Sponsored post on scroll with
+ // no new child insertion. Use a 120ms coalesced VIEWPORT pass, never a
+ // full-page scan on every scroll event; honor site pause and exceptions.
+ if(isFacebookHost&&window===window.top&&typeof window.addEventListener==="function"){
+  let facebookScrollTimer=null;
+  window.addEventListener("scroll",()=>{
+   if(facebookScrollTimer!==null||!active||!adRecognition||picking||
+      typeof setTimeout!=="function")return;
+   facebookScrollTimer=setTimeout(()=>{
+    facebookScrollTimer=null;
+    if(active&&adRecognition&&!picking)
+     try{facebookRecognizer?.scanVisible?.();}catch(_){}
+   },120);
+  },{passive:true});
+ }
  if(!document.documentElement){
   try{
    const watcher=new MutationObserver(()=>{

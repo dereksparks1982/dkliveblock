@@ -1,3 +1,9 @@
+## Build 357 / v0.3.327: Facebook visible-feed response after delayed-hiding report (November 3, 2026)
+- [x] Add a bounded on-screen article priority pass before rotating whole-page work queues, and run the same lightweight pass after scroll with a 120ms coalesced delay.
+- [x] Keep existing strict ad evidence, safe card containment, user exceptions, mobile/Marketplace isolation and unchanged Firefox permissions.
+- [x] Register a mock regression suite for visible sponsored vs organic posts, repeated scans and excluded contexts.
+- [ ] Owner Firefox acceptance: confirm the source installation has been **reloaded**; use live diagnostic `visibleScans`/`visibleHidden` counts to determine whether visible sponsored cards are detected quickly. The thirty-second delay remains unverified here.
+
 ## Build 356 / v0.3.326: 32-build source checkpoint and bilingual pre-release handoff (November 3, 2026)
 - [x] Close the thirty-two-build run (Builds 325–356) with unchanged Firefox permissions, guarded Meta/YouTube diagnostic behavior and local source-integrity audit.
 - [x] Refresh English/Russian README introductions with the same approved red/neon banner and an explicit distinction between source checks and live-browser confirmation.

@@ -591,7 +591,7 @@ function create(doc,win,max=100,onEvidence=null){
  const stats={scans:0,lastScanAt:0,lastHidden:0,lastFeedCards:0,
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
-  recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
+  recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0,visibleScans:0,visibleHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
  let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0,mobileCursor=0,hardCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
@@ -819,6 +819,33 @@ function create(doc,win,max=100,onEvidence=null){
   return count;
  }
 
+ // Prioritise the posts actually on screen. Full-page round-robin scanning can
+ // reach a visible late feed unit only after many passes on large React feeds.
+ // Element-from-point sampling costs a fixed 15 probes instead of walking all
+ // article bounding boxes, and reuses the existing explicit-ad and safe-card
+ // evidence gates. Never infer advertising from geometry alone.
+ function scanVisible(){
+  if(!doc?.body||typeof doc.elementFromPoint!=="function"||
+     marketplacePage(win)||mobileLayout(doc))return 0;
+  const width=Number(win?.innerWidth),height=Number(win?.innerHeight);
+  if(!Number.isFinite(width)||!Number.isFinite(height)||width<320||height<240)return 0;
+  stats.visibleScans++;
+  const seen=new Set();let count=0;
+  for(const y of [0.18,0.36,0.54,0.72,0.89]){
+   for(const x of [0.34,0.50,0.66]){
+    let node=null;
+    try{node=doc.elementFromPoint(Math.floor(width*x),Math.floor(height*y));}catch(_){}
+    const card=node?.closest?.('[role="article"],[data-pagelet^="FeedUnit"]')||
+     node?.closest?.('[aria-posinset]');
+    if(!card||seen.has(card)||seen.size>=15)continue;
+    seen.add(card);
+    if(hidden.has(card)||!safeCard(card,doc)||!hasAdEvidence(card,doc,win,cache))continue;
+    if(hide(card,null,"feed")){count++;stats.visibleHidden++;}
+   }
+  }
+  return count;
+ }
+
  function scan(){
   if(!doc?.querySelectorAll||!doc.body)return 0;
   stats.scans++;stats.lastScanAt=Date.now();
@@ -899,6 +926,8 @@ function create(doc,win,max=100,onEvidence=null){
    stats.lastHidden=count;
    return count;
   }
+  // Check actual visible feed cards before any rotating full-page windows.
+  count+=scanVisible();
   // A role=complementary wrapper is not guaranteed on Facebook's new right rail.
   const headings=doc.querySelectorAll(HEADING);
   let headingInspected=0;
@@ -1027,7 +1056,7 @@ function create(doc,win,max=100,onEvidence=null){
   return count;
  }
 
- return {scan,scanInserted,restore,setExceptions,observeMutation,
+ return {scan,scanVisible,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
    railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,hardCursor,exceptions:exceptions.length,
