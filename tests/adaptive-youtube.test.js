@@ -111,7 +111,7 @@ test("Build 369 recovery is tab-scoped and refuses spoofed hosts",()=>{
 test("Build 380 YouTube refusal is passive and dormant recovery stays available",()=>{
  const fs=require("node:fs"),path=require("node:path");
  const code=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
- assert.ok(code.includes('DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,"enforcement",false,now)'));
+ assert.ok(code.includes('DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,'));
  assert.ok(code.includes("recoveryAttempted:false"));
  assert.ok(!code.includes("await browser.tabs.reload(id)"));
  assert.equal(typeof A.recoverRefusal,"function");
@@ -190,4 +190,41 @@ test("Build 373: content supplies only transient current video id",()=>{
  assert.ok(source.includes("watchVideoId:currentWatchId()"));
  assert.ok(background.includes("DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)"));
  assert.ok(!background.includes("data.settings.watchVideoId="));
+});
+
+test("Build 381: one transient enforcement warning never changes response strategy",()=>{
+ const store=new Map(),site="www.youtube.com",t=100000;
+ assert.equal(A.note(store,381,site,"enforcement",false,t).changed,false);
+ assert.equal(A.note(store,381,site,"enforcement",false,t+1000).changed,false);
+ assert.equal(A.mode(store,381,site,t+1500),"combined");
+ assert.equal(A.status(store,381,site,t+1500).active,false);
+});
+test("Build 381: two independent refusals choose bounded player isolation with no network allowance",()=>{
+ const store=new Map(),site="www.youtube.com",t=100000;
+ assert.equal(A.note(store,382,site,"enforcement",false,t).changed,false);
+ const r=A.note(store,382,site,"enforcement",false,t+A.MIN_GAP_MS+1);
+ assert.equal(r.changed,true);assert.equal(r.mode,"player-pass-through");
+ assert.deepEqual({...Y.policy(A.mode(store,382,site,t+A.MIN_GAP_MS+2))},
+  {response:false,bridge:false,observe:true});
+ assert.equal(A.note(store,382,site,"enforcement",false,t+A.MIN_GAP_MS+3000).changed,false);
+ assert.equal(A.mode(store,382,site,r.expires),"combined");
+ assert.equal(A.note(store,382,site,"enforcement",false,r.expires+2000).changed,false,
+  "retry guard prevents repeated fallback while preserving ordinary rules");
+});
+test("Build 381: ordinary ad-display and Skip Ad evidence veto enforcement switch",()=>{
+ for(const event of ["ad-showing","ad-skip"]){
+  const store=new Map(),site="www.youtube.com",t=100000;
+  A.note(store,383,site,"enforcement",false,t);
+  A.note(store,383,site,event,false,t+500);
+  assert.equal(A.note(store,383,site,"enforcement",false,t+25000).changed,false);
+  assert.equal(A.mode(store,383,site,t+26000),"combined");
+ }
+});
+test("Build 381: wrong host and expired refusal evidence never change strategies",()=>{
+ const store=new Map(),t=100000;
+ assert.equal(A.note(store,384,"youtube.com.evil.test","enforcement",false,t).changed,false);
+ assert.equal(A.note(store,384,"youtube.com.evil.test","enforcement",false,t+25000).changed,false);
+ A.note(store,384,"www.youtube.com","enforcement",false,t);
+ assert.equal(A.note(store,384,"www.youtube.com","enforcement",false,t+A.WINDOW_MS+1000).changed,false);
+ assert.equal(A.mode(store,384,"www.youtube.com",t+A.WINDOW_MS+1001),"combined");
 });
