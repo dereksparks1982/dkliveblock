@@ -87,3 +87,32 @@ test("Build 187 observed YouTube ad state is context, not a fault or filtering p
   "an ad state must suppress switching away from normal protections");
  assert.equal(A.mode(state,187,"www.youtube.com",150001),"combined");
 });
+
+// Build 369: bounded refusal recovery uses existing tab-local player isolation.
+test("Build 369 refusal selects player pass-through, retains network filters and expires",()=>{
+ const store=new Map(),now=100000,host="www.youtube.com";
+ const first=A.recoverRefusal(store,9,host,now);
+ assert.equal(first.changed,true);assert.equal(first.mode,"player-pass-through");
+ assert.equal(A.mode(store,9,host,now+1),"player-pass-through");
+ assert.deepEqual({...Y.policy(A.mode(store,9,host,now+1))},
+  {response:false,bridge:false,observe:true});
+ assert.equal(A.status(store,9,host,now+1).reason,"observed-youtube-playback-refusal");
+ assert.equal(A.recoverRefusal(store,9,host,now+2000).changed,false);
+ assert.equal(A.mode(store,9,host,first.expires),"combined");
+});
+test("Build 369 recovery is tab-scoped and refuses spoofed hosts",()=>{
+ const store=new Map();
+ assert.equal(A.recoverRefusal(store,2,"youtube.com.attacker.invalid",100000).changed,false);
+ assert.equal(A.recoverRefusal(store,-1,"www.youtube.com",100000).changed,false);
+ assert.equal(A.recoverRefusal(store,3,"www.youtube.com",100000).changed,true);
+ assert.equal(A.mode(store,4,"www.youtube.com",100001),"combined");
+ assert.equal(A.mode(store,3,"music.youtube.com",100001),"combined");
+});
+test("Build 369 background retries a refusal only through bounded isolation",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const code=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.match(code,/DKAdaptiveYouTube\\.recoverRefusal\\(/);
+ assert.match(code,/if\\(recovered\\.changed\\)/);
+ assert.match(code,/await browser\\.tabs\\.reload\\(id\\)/);
+ assert.doesNotMatch(code,/DKAdaptiveYouTube\\.allowMedia|DKAdaptiveYouTube\\.disableFiltering/);
+});
