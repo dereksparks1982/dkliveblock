@@ -28,7 +28,8 @@ function create(doc,win){
   observer.register("meta-explicit-sponsored",ctx=>{
    const el=ctx?.element;
    const label=String(el?.getAttribute?.("aria-label")||"").trim().toLowerCase();
-   return {matched:label==="sponsored"||label==="sponsored content",
+   return {matched:label==="sponsored"||label==="sponsored content"||
+     label==="реклама"||label==="спонсировано",
     evidence:["sponsor_label","aria_label"]};
   });
  }

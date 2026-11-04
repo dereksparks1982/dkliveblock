@@ -1,3 +1,8 @@
+## Build 333 / v0.3.303: Meta reviewer localized disclosure parity (November 3, 2026)
+- [x] The existing read-only Meta dispatcher now recognizes exact Russian advertising disclosures alongside English in explicit aria-label review evidence.
+- [x] Do not infer advertisements from Russian body words, Meta host ownership or other surfaces; the Facebook scanner alone performs approved hides.
+- [x] Five local reviewer tests registered. Full Ubuntu and live Firefox/Meta acceptance pending.
+
 ## Build 332 / v0.3.302: Facebook diagnostic async request integrity (November 3, 2026)
 - [x] Retire stale Facebook report reads on a newer user-requested inspection, guarding initial tab lookup, content message, GraphQL wait, final navigation check and error presentation.
 - [x] Do not export or display a stale first request over a fresher diagnostic; preserve exact-tab navigation checks, privacy report schema and saved English/Russian renderer.
