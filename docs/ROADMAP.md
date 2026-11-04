@@ -1,3 +1,9 @@
+## Build 371 / v0.3.341: restrict recovery to verified YouTube watch pages (November 4, 2026)
+- [x] Verify the live tab URL is an exact HTTPS YouTube watch-page origin with one valid video ID before automatic retry.
+- [x] Exclude Shorts, search, homepage, embeds, credentialed URLs, duplicated video IDs, lookalikes, and other YouTube products.
+- [x] Add URL matrix and live-tab source regression tests; retain tab-local and bounded recovery, no site-wide network-filter bypass.
+- [ ] Native Ubuntu suite and live Firefox playback verification remain required.
+
 ## Build 370 / v0.3.340: YouTube recovery loop guard (November 4, 2026)
 - [x] Separate ten-minute player-pass-through policy window from one-hour bounded reload guard; recurring player refusals cannot generate a new reload every ten minutes.
 - [x] Keep guard tab- and host-scoped; site change or tab close clears it. No permanent bypass or media exception.
