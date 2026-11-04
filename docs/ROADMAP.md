@@ -1,3 +1,8 @@
+## Build 352 / v0.3.322: multi-post anchor safety for oversized Facebook DOM wrappers (November 3, 2026)
+- [x] Inspect first and last fifty article descendants for independent posts when the parent is not itself a designated article.
+- [x] Prevent whole-wrapper hiding if independent organic posts appear after the former 100-anchor prefix; retain original 100-anchor budget and nested comment distinction.
+- [x] Five negative/positive checks registered; native Ubuntu/full Firefox acceptance pending.
+
 ## Build 351 / v0.3.321: preserve independent Facebook posts in huge wrappers (November 3, 2026)
 - [x] Sample first and last thirty child wrappers under the original sixty-child independent-post guard.
 - [x] Refuse whole-wrapper removal if two sizable distinct article siblings appear near the end, preserving organic content.

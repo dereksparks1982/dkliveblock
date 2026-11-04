@@ -1,3 +1,6 @@
+## 0.3.322 / Build 352 (2026-11-03)
+- Safeguard late independent article anchors in oversized Facebook wrappers using the same 100-node detection cap.
+
 ## 0.3.321 / Build 351 (2026-11-03)
 - Extend existing multi-post wrapper safety to independently sized article siblings near the end of large Facebook DOM wrappers.
 
