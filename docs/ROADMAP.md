@@ -1,3 +1,9 @@
+## Build 363 / v0.3.333: pause-scoped complete Facebook observers (November 4, 2026)
+- [x] Attach upstream document observer only when DK has enabled Facebook protection.
+- [x] Disconnect full and mobile observers on pause; reattach idempotently on resume.
+- [x] Register five regression cases and observerActive diagnostic.
+- [ ] Native Ubuntu suite, Firefox performance and false-positive checks.
+
 ## Build 362 / v0.3.332: full Facebook engine fails closed on preference/authorization failures (November 4, 2026)
 - [x] Prevent preference-storage errors from enabling unlabeled ad inference through unsafe default fallback.
 - [x] Disarm on failed DK policy refresh; export fixed-key settings-ready/error counters.

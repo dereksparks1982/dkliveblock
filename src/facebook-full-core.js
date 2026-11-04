@@ -3039,8 +3039,12 @@ const observer = new MutationObserver((mutations) => {
 // the message listener above keeps answering the popup as if healthy. Never
 // assume the body is there; if it is missing, wait for it.
 let bootState = "pending";
+let dkObserverActive = false;
 
 function startObserving() {
+  // Paused and allowlisted pages must not retain the document-wide observer.
+  if (!dkEnabled || !document.body || dkObserverActive) return;
+  dkObserverActive = true;
   // documentElement, not body: a label span inserted directly under <html> is
   // invisible to an observer rooted at body, and these portal spans are
   // page-level scratch nodes of exactly that kind. The extra coverage is <head>,
@@ -3190,12 +3194,15 @@ function dkSetEnabled(enabled) {
   if (next === dkEnabled) return;
   dkEnabled = next;
   if (!next) {
+    observer.disconnect(); dkObserverActive = false;
+    revealObserver?.disconnect(); feedChildObserver?.disconnect();
+    mobileFeed = null; feedChildObserver = null;
     hideMarker(); pendingLabels.clear();
     if (retryIntervalId !== null) { clearInterval(retryIntervalId); retryIntervalId = null; }
     for (const card of Array.from(hiddenPosts.keys())) restorePost(card);
     return;
   }
-  if (document.body) scanRoot(document.body);
+  if (document.body) startObserving();
 }
 function dkSetExceptions(list) {
   dkExceptions = Array.isArray(list) ? list.filter(s =>
@@ -3214,6 +3221,7 @@ function dkDiagnostics() {
   // debug samples, page names, personal URLs, DOM nodes or post text.
   return Object.freeze({platform:"facebook",coreFull:1,coreEnabled:dkEnabled?1:0,
     settingsReady:dkSettingsReady?1:0,settingsError:dkSettingsError?1:0,
+    observerActive:dkObserverActive?1:0,
     hidden:hiddenPosts.size,scans:stats.scans,observerCalls:stats.observerCalls,
     retryTicks:stats.retryTicks,pending:pendingLabels.size,
     labelsClassified,labelsAnchored,labelsDeferred,

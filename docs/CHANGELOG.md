@@ -1,3 +1,6 @@
+## 0.3.333 / Build 363 (2026-11-04)
+- Scope full Facebook observer lifetime to active DK protection; immediately release document/mobile observers when paused or allowlisted.
+
 ## 0.3.332 / Build 362 (2026-11-04)
 - Make full Facebook engine fail closed after preference-storage or DK policy refresh errors and expose private-safe settings status counters.
 
