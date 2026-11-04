@@ -36,3 +36,25 @@ test("Build 320: report embeds bounded advice and text exporter labels it correc
  assert.ok(html.indexOf('src="youtube-compatibility-advice.js"')<html.indexOf('src="youtube-report.js"'));
  assert.equal(require("../src/manifest.json").version,require("../package.json").version);
 });
+// Build 368: preserve an explicit YouTube refusal diagnosis without silently
+// treating enforcement as a buffering failure or claiming a working bypass.
+test("Build 368: screenshot refusal gets a targeted, safe isolation path",()=>{
+ const r=Advice.assess({playbackAssessment:{counts:{enforcement:1,buffering:2}},
+  responseFiltering:{modified:3}});
+ assert.equal(r.diagnosis,"youtube-player-refusal");
+ assert.match(r.next,/player-pass-through/);
+ assert.match(r.next,/SAME ordinary video/);
+ assert.equal(r.rootCauseEstablished,false);
+ assert.equal(r.verifiedAdFree,false);
+});
+test("Build 368: buffering alone cannot be misclassified as enforcement",()=>{
+ const r=Advice.assess({playbackAssessment:{counts:{buffering:2}}});
+ assert.equal(r.diagnosis,"media-playback-fault");
+ assert.doesNotMatch(r.next,/player-pass-through/);
+});
+test("Build 368: invalid and private fields cannot create an enforcement finding",()=>{
+ const r=Advice.assess({playbackAssessment:{counts:{enforcement:"999"}},
+  url:"https://www.youtube.com/watch?v=SECRET"});
+ assert.equal(r.diagnosis,"insufficient-evidence");
+ assert.equal(JSON.stringify(r).includes("SECRET"),false);
+});
