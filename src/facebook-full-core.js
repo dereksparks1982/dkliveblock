@@ -1477,7 +1477,16 @@ const SHALLOW_DEPTH_LIMIT = 10;
 // shallow.
 const MOBILE_SHALLOW_DEPTH_LIMIT = 4;
 
+// A short 2026-style feed card can have fewer nesting levels than an older
+// desktop post. It must not be discarded as a detached portal label if it is
+// already inside a concrete post landmark. Portal spans remain excluded.
+let shallowPostLabelsRecovered = 0;
 function isImplausiblyShallow(el) {
+  if (el?.closest?.('[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]') &&
+      !el.closest('[role="dialog"],[role="navigation"]')) {
+    shallowPostLabelsRecovered = Math.min(1000000,shallowPostLabelsRecovered+1);
+    return false;
+  }
   const limit = isMobileLayout() ? MOBILE_SHALLOW_DEPTH_LIMIT : SHALLOW_DEPTH_LIMIT;
   let node = el;
   for (let depth = 0; depth < limit; depth++) {
@@ -2963,6 +2972,25 @@ function noteLabelledByChange(el) {
   }
 }
 
+// Text nodes can change from empty to "Ad" with characterData only. The
+// previous observer saw child additions and label attributes but never those
+// edits. Check only a tiny exact-label candidate, then scan its own subtree.
+let inlineAdLabelEdits = 0;
+function noteInlineAdTextEdit(target) {
+  if (!dkEnabled || !settings.hideSponsored ||
+      target?.nodeType !== Node.TEXT_NODE) return false;
+  const raw = target.textContent;
+  if (!raw || raw.length > 48 ||
+      !SPONSORED_TEXTS.has(labelKey(raw.replace(INVISIBLE_CHARS_RE, "").trim())))
+    return false;
+  const parent = target.parentElement;
+  if (!parent || !parent.isConnected ||
+      parent.closest('[role="dialog"],[role="navigation"]') ||
+      !adLabelPosition(parent)) return false;
+  inlineAdLabelEdits = Math.min(1000000,inlineAdLabelEdits+1);
+  scheduleScan(parent);
+  return true;
+}
 const observer = new MutationObserver((mutations) => {
   if (!dkEnabled) return;
   // Timed unconditionally now. Two performance.now() calls per callback is far
@@ -2971,6 +2999,10 @@ const observer = new MutationObserver((mutations) => {
   // read it, which means collecting it in the build people actually install.
   const observerStartedAt = performance.now();
   for (const mutation of mutations) {
+    if (mutation.type === "characterData") {
+      noteInlineAdTextEdit(mutation.target);
+      continue;
+    }
     if (mutation.type === "attributes") {
       if (mutation.attributeName === "aria-labelledby") {
         noteLabelledByChange(mutation.target);
@@ -3084,7 +3116,8 @@ function startObserving() {
   // number.
   // aria-labelledby too, and only that attribute - see noteLabelledByChange.
   observer.observe(document.documentElement, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ["aria-labelledby", "aria-label"],
+    childList: true, subtree: true, attributes: true, characterData: true,
+    attributeFilter: ["aria-labelledby", "aria-label"],
   });
   cacheLabelTargets(document.body);
   scanRoot(document.body);
@@ -3266,7 +3299,8 @@ function dkDiagnostics() {
     labelsClassified,labelsAnchored,labelsDeferred,
     rescuedLabels,lateTextLabels,lateLabelRefs,unlabeledAdsHidden,
     tooWideRefused,openedPostsSpared,hiddenPostsPruned,
-    exceptions:dkExceptions.length});
+    exceptions:dkExceptions.length,
+    inlineAdLabelEdits,shallowPostLabelsRecovered});
 }
 const dkApi=Object.freeze({
  installed:true,create:()=>dkApi,setEnabled:dkSetEnabled,
