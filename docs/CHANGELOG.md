@@ -1,3 +1,6 @@
+## 0.3.328 / Build 358 (2026-11-03)
+- After an owner screenshot confirmed a visible Facebook ad with a short “Ad” badge, permit evidence-verified viewport recognition of posts lacking article landmarks; schedule bounded viewport scans on new React insertions as well as scroll. Live Firefox acceptance pending.
+
 ## 0.3.327 / Build 357 (2026-11-03)
 - Attempt to reduce the owner-reported ~30-second Facebook feed advertisement flash by prioritizing visible card checks and bounded scroll-driven detection, with explicit sponsored evidence and post-safety constraints. Live Firefox verification pending.
 

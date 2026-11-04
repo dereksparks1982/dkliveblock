@@ -1,3 +1,9 @@
+## Build 358 / v0.3.328: owner-screenshot Facebook Ad-byline visible fallback (November 3, 2026)
+- [x] Respond to a real Firefox screenshot of a ModRetro feed ad with a short “Ad” disclosure: visible feed posts need not have article/pagelet landmarks.
+- [x] Add bounded safe-ancestor resolution and explicit evidence to the viewport priority scanner, with a shared mutation/scroll coalescing gate.
+- [x] Register five targeted offline regressions; preserve organic-feed, editable, pause and Marketplace safety.
+- [ ] Verify the Firefox extension was reloaded; use Meta diagnostics and timed live scrolling to establish whether ads now disappear before paint. Real-browser outcome unproven.
+
 ## Build 357 / v0.3.327: Facebook visible-feed response after delayed-hiding report (November 3, 2026)
 - [x] Add a bounded on-screen article priority pass before rotating whole-page work queues, and run the same lightweight pass after scroll with a 120ms coalesced delay.
 - [x] Keep existing strict ad evidence, safe card containment, user exceptions, mobile/Marketplace isolation and unchanged Firefox permissions.

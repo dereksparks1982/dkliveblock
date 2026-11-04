@@ -591,7 +591,7 @@ function create(doc,win,max=100,onEvidence=null){
  const stats={scans:0,lastScanAt:0,lastHidden:0,lastFeedCards:0,
   lastRailSignals:0,lastRailUnresolved:0,lastMenuSignals:0,
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
-  recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0,visibleScans:0,visibleHidden:0};
+  recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0,visibleScans:0,visibleHidden:0,visibleFallbackHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
  let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0,mobileCursor=0,hardCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
@@ -819,11 +819,29 @@ function create(doc,win,max=100,onEvidence=null){
   return count;
  }
 
- // Prioritise the posts actually on screen. Full-page round-robin scanning can
- // reach a visible late feed unit only after many passes on large React feeds.
- // Element-from-point sampling costs a fixed 15 probes instead of walking all
- // article bounding boxes, and reuses the existing explicit-ad and safe-card
- // evidence gates. Never infer advertising from geometry alone.
+ // A visible media/image descendant is not always inside role=article.
+ // Resolve the largest safe single-card ancestor inside a bounded climb,
+ // never the feed, navigation, composer, dialog or independent-post wrapper.
+ // The article landmark remains a fast path; the fallback is evidence-gated.
+ function visibleFeedCardFrom(point){
+  if(!point||point.nodeType!==1)return null;
+  let best=null,usedFallback=false;
+  const declared=point.closest?.('[role="article"],[data-pagelet^="FeedUnit"],[aria-posinset]');
+  if(declared&&safeCard(declared,doc)){best=declared;}
+  let node=point;
+  for(let depth=0;node&&depth<24;depth++,node=node.parentElement){
+   if(node===doc.body||node===doc.documentElement||node.matches?.(ROOTS)||
+      node.closest?.('[role="dialog"],[role="complementary"],nav,form'))break;
+   const r=node.getBoundingClientRect?.();
+   if(!r||r.width<350||r.width>880||r.height<140||r.height>2500)continue;
+   if(safeCard(node,doc)){best=node;usedFallback=node!==declared;}
+  }
+  return best?{card:best,fallback:usedFallback}:null;
+ }
+ // Prioritise the actual visible feed, including React cards without article
+ // markers. Fifteen fixed viewport probes, no all-DOM bounding-box traversal.
+ // Never hide on the literal text "Ad" alone: require vetted header or
+ // attribution evidence and an independently safe complete post boundary.
  function scanVisible(){
   if(!doc?.body||typeof doc.elementFromPoint!=="function"||
      marketplacePage(win)||mobileLayout(doc))return 0;
@@ -835,12 +853,15 @@ function create(doc,win,max=100,onEvidence=null){
    for(const x of [0.34,0.50,0.66]){
     let node=null;
     try{node=doc.elementFromPoint(Math.floor(width*x),Math.floor(height*y));}catch(_){}
-    const card=node?.closest?.('[role="article"],[data-pagelet^="FeedUnit"]')||
-     node?.closest?.('[aria-posinset]');
+    if([...seen].some(card=>card.contains?.(node)))continue;
+    const chosen=visibleFeedCardFrom(node),card=chosen?.card;
     if(!card||seen.has(card)||seen.size>=15)continue;
     seen.add(card);
-    if(hidden.has(card)||!safeCard(card,doc)||!hasAdEvidence(card,doc,win,cache))continue;
-    if(hide(card,null,"feed")){count++;stats.visibleHidden++;}
+    if(hidden.has(card)||!hasAdEvidence(card,doc,win,cache))continue;
+    if(hide(card,null,"feed")){
+     count++;stats.visibleHidden++;
+     if(chosen.fallback)stats.visibleFallbackHidden++;
+    }
    }
   }
   return count;

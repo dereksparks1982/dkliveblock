@@ -331,9 +331,12 @@
      r=>r.type==="childList"&&((r.addedNodes?.length||0)||(r.removedNodes?.length||0)));
     if(ads||listChanged){
      // Run the small Facebook mutation pass before paint, not 450ms later.
-     // A separate coalesced broad scan still handles delayed/portal labels.
-     if(isFacebookHost&&active&&adRecognition&&!picking&&facebookChanges.length)
+     // React may insert a feed card without any article landmark. Schedule
+     // the viewport fallback as well, bounded separately from global scans.
+     if(isFacebookHost&&active&&adRecognition&&!picking&&facebookChanges.length){
       try{facebookRecognizer?.scanInserted?.(facebookChanges);}catch(_){}
+      queueFacebookVisibleScan(0);
+     }
      queueAdScan();
     }
    });
@@ -546,21 +549,22 @@
   window.addEventListener("yt-navigate-finish",onNavigate,false);
   window.addEventListener("popstate",onNavigate,false);
  }
- // Facebook's virtualised feed can reveal a Sponsored post on scroll with
- // no new child insertion. Use a 120ms coalesced VIEWPORT pass, never a
- // full-page scan on every scroll event; honor site pause and exceptions.
- if(isFacebookHost&&window===window.top&&typeof window.addEventListener==="function"){
-  let facebookScrollTimer=null;
-  window.addEventListener("scroll",()=>{
-   if(facebookScrollTimer!==null||!active||!adRecognition||picking||
-      typeof setTimeout!=="function")return;
-   facebookScrollTimer=setTimeout(()=>{
-    facebookScrollTimer=null;
-    if(active&&adRecognition&&!picking)
-     try{facebookRecognizer?.scanVisible?.();}catch(_){}
-   },120);
-  },{passive:true});
+ // Facebook may insert unmarked cards or reveal them during scrolling.
+ // Coalesce both triggers into one viewport-only pass at most every 120ms,
+ // retaining the existing global scan's independent fallback.
+ let facebookVisibleTimer=null,lastFacebookVisibleAt=0;
+ function queueFacebookVisibleScan(delay=120){
+  if(!isFacebookHost||window!==window.top||facebookVisibleTimer!==null||
+     !active||!adRecognition||picking||typeof setTimeout!=="function")return;
+  facebookVisibleTimer=setTimeout(()=>{
+   facebookVisibleTimer=null;
+   if(!active||!adRecognition||picking)return;
+   lastFacebookVisibleAt=Date.now();
+   try{facebookRecognizer?.scanVisible?.();}catch(_){}
+  },Math.max(delay,120-(Date.now()-lastFacebookVisibleAt),0));
  }
+ if(isFacebookHost&&window===window.top&&typeof window.addEventListener==="function")
+  window.addEventListener("scroll",()=>queueFacebookVisibleScan(120),{passive:true});
  if(!document.documentElement){
   try{
    const watcher=new MutationObserver(()=>{
