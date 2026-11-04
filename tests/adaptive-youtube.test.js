@@ -162,3 +162,13 @@ test("Build 371: Firefox reload gate checks live tab URL",()=>{
  assert.ok(text.includes("DKAdaptiveYouTube.ordinaryWatchPage(liveTab?.url)"));
  assert.ok(text.includes("liveTab=await browser.tabs.get(id)"));
 });
+
+test("Build 372: YouTube recovery does not require request logging",()=>{
+ const fs=require("node:fs"),path=require("node:path");
+ const code=fs.readFileSync(path.join(__dirname,"../src/background.js"),"utf8");
+ assert.ok(code.includes('if(!data.settings.requestLog&&!(msg.kind==="enforcement"'));
+ assert.ok(code.includes('DKPlaybackHealth.isYouTube(pageHost)))return {ok:false};'));
+ assert.ok(code.includes('const recorded=data.settings.requestLog?'));
+ assert.ok(code.includes('msg.kind==="enforcement"; // Ephemeral decision only'));
+ assert.ok(code.includes('data.settings.youtubeResponseFilter===true&&DKPlaybackHealth.isYouTube(h)'));
+});
