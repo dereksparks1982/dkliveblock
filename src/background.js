@@ -1610,7 +1610,7 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    // window. The ordinary network filtering engine remains fully active.
    // Repeated refusals do not cause another reload or automatic allowlisting.
    if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)&&
-       DKAdaptiveYouTube.ordinaryWatchPage(liveTab?.url)){
+       DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)){
     const recovered=DKAdaptiveYouTube.recoverRefusal(data.youtubeAdaptive,id,pageHost,now);
     if(recovered.changed){
      DKYouTubeResponse.clear(id);
