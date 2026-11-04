@@ -1,3 +1,8 @@
+## Build 345 / v0.3.315: virtualized Facebook mobile feed fairness (November 3, 2026)
+- [x] Rotate existing 5,000-label bounded mobile scan across oversized virtualized feed DOMs, retaining original author-row and explicit sponsorship gates.
+- [x] Expose only a bounded numeric mobile scan cursor in opt-in Facebook diagnostic export.
+- [x] Five offline regression cases registered. Live mobile Firefox/Orion acceptance and full native Ubuntu suite pending.
+
 ## Build 344 / v0.3.314: right-rail interactive content preservation (November 3, 2026)
 - [x] Protect active editor/input descendants in Facebook right-rail Sponsored sections and attributed-link cards.
 - [x] Exclude contenteditable/textbox/searchbox ancestors before right-rail candidacy while retaining exact attribution, geometry and Contacts safeguards.

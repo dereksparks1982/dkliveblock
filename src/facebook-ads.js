@@ -541,7 +541,7 @@ function create(doc,win,max=100,onEvidence=null){
   lastMenuUnresolved:0,lastBylineSignals:0,lastBylineUnresolved:0,
   recycledRestored:0,rechecks:0,fastScans:0,fastHidden:0};
  let menuCursor=0,articleCursor=0,bylineCursor=0,referenceCursor=0;
- let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0;
+ let railHeadingCursor=0,railLabelCursor=0,railLinkCursor=0,marketplaceCursor=0,mobileCursor=0;
  let mobileFeed=null,revealObserver=null,revealQueued=false;
  function watchMobileFeed(feed){
   if(!feed||typeof win?.IntersectionObserver!=="function")return;
@@ -824,8 +824,9 @@ function create(doc,win,max=100,onEvidence=null){
   // full-width children, with IntersectionObserver rechecks on reveal.
   if(mobileLayout(doc)){
    const nodes=doc.querySelectorAll('span,a,[aria-label],[aria-labelledby],use,text');
-   for(let i=0;i<Math.min(5000,nodes.length)&&count<15;i++){
-    const label=nodes[i],split=splitLabelRoot(label);
+   let mobileInspected=0;
+   for(;mobileInspected<Math.min(5000,nodes.length)&&count<15;mobileInspected++){
+    const label=nodes[(mobileCursor+mobileInspected)%nodes.length],split=splitLabelRoot(label);
     if((label.children?.length||0)>120||
        ((label.children?.length||0)>2&&!split))continue;
     const menu=sponsoredMenu(label);
@@ -843,6 +844,7 @@ function create(doc,win,max=100,onEvidence=null){
     }
     if(hide(card,label,"feed"))count++;
    }
+   mobileCursor=nodes.length?(mobileCursor+mobileInspected)%nodes.length:0;
    stats.lastHidden=count;
    return count;
   }
@@ -975,7 +977,7 @@ function create(doc,win,max=100,onEvidence=null){
  return {scan,scanInserted,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
-   railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,exceptions:exceptions.length,
+   railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,exceptions:exceptions.length,
    metaAgents:Object.freeze(root.DKMetaAgentNesty?.agents?.map(x=>x.id)||[]),...stats});},
   get hiddenCount(){return hidden.size;}};
 }

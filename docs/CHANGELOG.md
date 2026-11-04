@@ -1,3 +1,6 @@
+## 0.3.315 / Build 345 (2026-11-03)
+- Rotate bounded Facebook mobile virtualized feed scanning and include its safe cursor in the local diagnostic report.
+
 ## 0.3.314 / Build 344 (2026-11-03)
 - Prevent whole Facebook right-rail hides around active editors, while retaining original attributed link and geometry evidence.
 
