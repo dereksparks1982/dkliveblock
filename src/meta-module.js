@@ -96,6 +96,8 @@ function create(doc,win){
   deliveryMethods:()=>root.DKMetaDeliveryCatalog?.entries||[],
   diagnostics:()=>facebook?Object.freeze({...facebook.diagnostics(),
    nestyFallback:supervisor?.snapshot?.()||null,
+   legacyActive:supervisor?.snapshot?.().active?1:0,
+   legacyWakeups:supervisor?.snapshot?.().wakeups||0,
    legacyHidden:legacy?.hiddenCount||0}):Object.freeze({
    platform,hidden:0,coreFull:0,coreMissing:platform==="facebook"?1:0,
    mode:platform==="facebook"?"full-facebook-engine-unavailable":"observation-only"}),
