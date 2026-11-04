@@ -158,3 +158,20 @@ test("Build 158 verified top-level YouTube tab reports Skip Ad click without pri
  assert.equal(dashboard.playbackDiagnostics[0].kind,"ad-skip");
  assert.doesNotMatch(JSON.stringify(dashboard.playbackDiagnostics),/test-video|private|watch\?|http/);
 });
+
+test("Build 380: a transient YouTube enforcement warning never triggers a forced reload",async()=>{
+ const {hooks,browser,tabs}=await setup();
+ const videoId="abcdefghijk";
+ const url="https://www.youtube.com/watch?v="+videoId;
+ tabs.set(1,url);
+ let reloadCount=0;
+ browser.tabs.reload=async()=>{reloadCount++;};
+ const sender={url,tab:{id:1,url},frameId:0};
+ const reply=await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:videoId},sender);
+ assert.equal(reply.ok,true);
+ assert.equal(reply.recoveryAttempted,false);
+ assert.equal(reloadCount,0);
+ assert.equal((await hooks.message({action:"getPlaybackHealth",tabId:1}))[0].kind,"enforcement");
+ await hooks.message({action:"reportPlaybackHealth",kind:"enforcement",watchVideoId:videoId},sender);
+ assert.equal(reloadCount,0,"repeated warnings must not interrupt playback");
+});
