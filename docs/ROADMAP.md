@@ -1,3 +1,9 @@
+## Build 368 / v0.3.338: YouTube enforcement-aware compatibility triage (November 4, 2026)
+- [x] Classify observed in-player anti-adblock refusal separately from buffering/media faults in the private local report.
+- [x] Recommend the existing tab-local player-pass-through isolation test for the SAME ordinary video; preserve all network blocking and do not conceal YouTube's refusal screen.
+- [x] Add regression tests for refusal priority, buffering-only classification and private/invalid inputs.
+- [ ] Run native Ubuntu suite and live Firefox ordinary-video playback A/B; no claim yet that YouTube enforcement is resolved.
+
 ## Build 367 / v0.3.337: no silent partial Facebook fallback (November 4, 2026)
 - [x] Eliminate old partial scanner fallback so missing full-core installation is observable, not silently disguised.
 - [x] Add coreMissing diagnostic triage; five adapter regressions exercise full and missing engine cases.
