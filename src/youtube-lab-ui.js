@@ -79,7 +79,10 @@ async function doCompare(){
   render(result);
   $("exportComparison").disabled=false;
   show("Comparison complete. This is evidence only, not a claim of ad-free playback.");
- }catch(error){show(error?.message||"Could not compare the reports.");}
+ }catch(error){
+  // A newer reset or selection owns the UI; suppress stale file-read errors.
+  if(selectionGate.valid(revision))show(error?.message||"Could not compare the reports.");
+ }
  finally{labBusy=false;$("compareReports").disabled=false;}
 }
 function exportComparison(){

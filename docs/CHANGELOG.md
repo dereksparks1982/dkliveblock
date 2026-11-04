@@ -1,3 +1,6 @@
+## 0.3.324 / Build 354 (2026-11-03)
+- Guard YouTube offline A/B lab status against stale errors after reset/file-selection changes.
+
 ## 0.3.323 / Build 353 (2026-11-03)
 - Expand source-integrity checks to enforce Facebook bounded tail sampling, root caps and organic/editor safety invariants.
 

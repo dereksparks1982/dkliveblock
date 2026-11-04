@@ -1,3 +1,8 @@
+## Build 354 / v0.3.324: stale YouTube A/B comparison status safety (November 3, 2026)
+- [x] Suppress obsolete local report-file errors when a user clears or changes YouTube comparison inputs during an ongoing read.
+- [x] Retain existing revision-invalidated comparisons, offline-only operation, privacy-safe reports and unchanged player/network interception.
+- [x] Five regressions registered. Native Ubuntu and Firefox lab interaction tests pending.
+
 ## Build 353 / v0.3.323: source audit for Facebook tail-scan guardrails (November 3, 2026)
 - [x] Extend source-only checkpoint with bounded tail-sampler, fast mutation root budget and editor/independent-post guard invariants.
 - [x] Add five mutation-based negative tests to ensure unsafe future edits are caught before owner acceptance.
