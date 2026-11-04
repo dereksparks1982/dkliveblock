@@ -4,7 +4,7 @@
 
 # DK Live Block
 
-**Build 381 candidate (draft, not released):** Removed the automatic reload triggered by YouTube's in-player refusal warning. Tightened warning detection to visible error components and requires two stable observations instead of reading the whole player. Added regression tests. This does not resolve the original YouTube detection problem; live Firefox playback remains unverified. A single transient warning never changes the active filter strategy. Two independently reported, live-watch refusals at least 20 seconds apart may temporarily disable only the player-JSON rewrite paths, preserving ordinary network filtering and restoring normal protections after ten minutes. Ad-showing or Skip Ad evidence vetoes this switch. The changes are isolated in draft PR #3.
+**Builds 380–385 candidate (draft; not released):** Added a bounded YouTube enforcement recovery path that never reloads an ordinary video; a transient warning does nothing, while a still-visible refusal can trigger an isolated temporary player-response strategy after two validated signals. Added a Meta Nesty coordinator that wakes the older Facebook fast scanner only after sustained full-engine misses, protects primary/legacy hide ownership, and reports count-only fallback activity. Expanded regression coverage and documented the safety limits in [Nesty Fallback Coordination](docs/NESTY_FALLBACK_COORDINATION.md). **These changes have not been verified to restore normal YouTube playback or remove all Facebook ads and remain off the release branch.**
 
 **DK Live Block** is a free Firefox-first browser extension from Elderred Softworks that helps block advertising, tracking requests, intrusive popups, unwanted tabs, and distracting page elements.
 
