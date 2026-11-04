@@ -2,7 +2,7 @@
 const {test}=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),path=require("node:path");
 const src=fs.readFileSync(path.join(__dirname,"../src/facebook-full-core.js"),"utf8");
 function harness(){
- const instances=[],body={nodeType:1,querySelectorAll:()=>[]};
+ const instances=[],body={nodeType:1,querySelectorAll:()=>[],classList:{contains:()=>false},matches:()=>false};
  const doc={body,documentElement:{nodeType:1},addEventListener(){}};
  const win={location:{hostname:"www.facebook.com",pathname:"/"},addEventListener(){}};
  const browser={runtime:{getManifest:()=>({version:"fixture"}),sendMessage:async()=>({}),onMessage:{addListener(){}}},storage:{onChanged:{addListener(){}},local:{get:async d=>d,set:async()=>{}}}};
