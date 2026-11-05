@@ -1,3 +1,8 @@
+## 0.3.354 / Build 394 (2026-11-04)
+- Add read-only offline provenance verification for commercially reusable MPL and MIT components and tightly pinned upstream packages.
+- Prevent unreviewed package changes from silently inheriting DK-specific licensing. No live blocking changes.
+- Native Ubuntu and browser acceptance outstanding.
+
 ## 0.3.353 / Build 393 (2026-11-04)
 - Route Firefox imageset/beacon request types into the existing Ghostery image/ping filter families without changing DK's native type handling or user overrides.
 - Added compatibility and fail-safe contract tests; no new packages, permissions or UI.

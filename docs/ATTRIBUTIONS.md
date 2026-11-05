@@ -26,3 +26,7 @@ Before incorporating other third-party sounds or imagery, document their authors
 
 - **uBlock Origin uAssets:** https://github.com/uBlockOrigin/uAssets/blob/master/filters/filters.txt
 - **Purpose:** Publicly documented Facebook GraphQL ad markers and compatibility cautions informed independent DK Live Block schema matching. No uBlock Origin source code or scriptlet runtime was copied into DK's new GraphQL response module. The upstream repository and filter-list authorship remain with their original owners.
+
+## Build 394 provenance gate
+
+The offline `npm run audit:licenses` gate verifies the already bundled Ghostery/MPL, Mozilla PSL/MPL and Facebook/MIT source/license pairs, checked-in Ghostery hash, pinned dependency versions and manifest wiring. Unknown new dependencies require a separate licensing review. This is not legal advice or exhaustive transitive dependency/filter-list clearance. Third-party rights and source-availability obligations remain independent of DK's custom source license.

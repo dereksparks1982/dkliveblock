@@ -1,13 +1,14 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.3.353",
+  "version": "0.3.354",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
     "verify:ghostery": "node scripts/build-ghostery.mjs --verify",
     "test:local": "bash scripts/test-local.sh",
     "audit:evidence": "node scripts/nesty-evidence-lab.js",
-    "audit:checkpoint": "node scripts/checkpoint-audit.js"
+    "audit:checkpoint": "node scripts/checkpoint-audit.js",
+    "audit:licenses": "node scripts/third-party-license-gate.js"
   },
   "dependencies": {
     "@ghostery/adblocker": "2.20.3"

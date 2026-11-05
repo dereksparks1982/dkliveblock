@@ -1,3 +1,10 @@
+## Build 394 / v0.3.354: reviewed third-party commercial reuse gate (November 4, 2026)
+- [x] Add offline integrity checks for the already-bundled Ghostery MPL-2.0, PSL MPL-2.0 and Facebook MIT files and their attribution.
+- [x] Verify approved exact dependency versions, Firefox manifest placements and known Ghostery bundle digest.
+- [x] Reject unreviewed npm dependency additions until their licenses and redistribution obligations are checked.
+- [x] Wire the gate into local Linux checks with no network, browser launch or GitHub Actions.
+- [ ] Complete native Ubuntu suite and counsel/Firefox acceptance before release.
+
 ## Build 393 / v0.3.353: licensed Ghostery request-type coverage (November 4, 2026)
 - [x] Reuse bundled MPL-2.0 Ghostery matching for Firefox imageset (responsive images) and beacon (sendBeacon telemetry) request types.
 - [x] Normalize these two verified type aliases to Ghostery's existing image/ping rule families while retaining the original native request type and precedence policy.
