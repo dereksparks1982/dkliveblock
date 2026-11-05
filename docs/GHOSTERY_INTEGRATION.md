@@ -22,3 +22,7 @@ Compiled Ghostery library loaded successfully in a local Node.js VM. Offline net
 ## Build 392 hardened CSS integration
 
 The existing MPL-2.0 Ghostery engine is reused, not duplicated. Its supplementary CSS output now splits selector lists only at genuine top-level commas; quoted commas inside attribute selector values are preserved. Unclosed quotes, malformed brackets, CSS escapes, nested groups and arbitrary injected declarations fail closed. Scriptlets and external redirects remain excluded. The original upstream bundle is not modified and keeps its own license.
+
+## Build 393 WebRequest resource-type compatibility
+
+Firefox's `imageset` and `beacon` request types are normalized at the Ghostery bridge boundary to the `image` and `ping` filter families documented by the upstream matcher. The original Firefox types remain visible to DK's native engine and existing request controls. Unknown/new types are not guessed, and host/page policy, manual rules, important exceptions and streaming guards retain precedence. Upstream Ghostery remains bundled and MPL-2.0.

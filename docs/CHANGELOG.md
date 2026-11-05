@@ -1,3 +1,8 @@
+## 0.3.353 / Build 393 (2026-11-04)
+- Route Firefox imageset/beacon request types into the existing Ghostery image/ping filter families without changing DK's native type handling or user overrides.
+- Added compatibility and fail-safe contract tests; no new packages, permissions or UI.
+- Internal development only; real browser results outstanding.
+
 ## 0.3.352 / Build 392 (2026-11-04)
 - Improve commercial MPL-licensed Ghostery integration: safe selector-list parsing preserves legitimate quoted attribute commas and rejects malformed CSS.
 - Correct engineering documentation to distinguish Ghostery MPL-2.0, Facebook MIT and DK-owned project licensing.

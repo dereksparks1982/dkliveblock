@@ -1,5 +1,12 @@
 /* DK Live Block hybrid engine with locally embedded Ghostery MPL-2.0. */
 (function(root){"use strict";
+// Firefox calls responsive images "imageset" and navigator.sendBeacon()
+ // "beacon"; the upstream Ghostery matcher uses image/ping filter families.
+ // Normalize only these confirmed aliases. DK's native engine still sees
+ // the original type and remains the source of truth for scoped exceptions.
+function ghosteryType(type){
+ return type==="imageset"?"image":type==="beacon"?"ping":type;
+}
 function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
  const native=new DKFilter.FilterEngine(text);
  // User-authored rules are evaluated separately, so their explicit decisions
@@ -36,7 +43,7 @@ function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
    try{
     const sourceUrl=/^https?:\/\//i.test(origin||"")?origin:
       DKRules.validDomains(origin||"")&&!(origin||"").includes("|")?"https://"+origin+"/":"";
-    const request=vendorApi.Request.fromRawDetails({url,type:type||"other",sourceUrl,method});
+    const request=vendorApi.Request.fromRawDetails({url,type:ghosteryType(type||"other"),sourceUrl,method});
     const verdict=this.vendor.match(request);
     // CRITICAL: a subscribed exception recognized by Ghostery must rescue
     // a plain native block that DK's partial parser cannot correctly exempt.
@@ -87,6 +94,6 @@ function create(text,vendorApi=root.DKGhosteryVendor,manualText=""){
  }catch(_){result.vendor=null;result.diagnostic="Ghostery parse error; native engine used.";}
  return result;
 }
-root.DKHybridEngine={create,get available(){return !!(root.DKGhosteryVendor?.FiltersEngine?.parse);}};
+root.DKHybridEngine={create,ghosteryType,get available(){return !!(root.DKGhosteryVendor?.FiltersEngine?.parse);}};
 if(typeof module!=="undefined")module.exports=root.DKHybridEngine;
 })(typeof globalThis!=="undefined"?globalThis:this);

@@ -1,3 +1,10 @@
+## Build 393 / v0.3.353: licensed Ghostery request-type coverage (November 4, 2026)
+- [x] Reuse bundled MPL-2.0 Ghostery matching for Firefox imageset (responsive images) and beacon (sendBeacon telemetry) request types.
+- [x] Normalize these two verified type aliases to Ghostery's existing image/ping rule families while retaining the original native request type and precedence policy.
+- [x] Preserve manual exceptions, important filters, document/popup exclusion, safe redirects, request methods and streaming safeguards.
+- [x] Add synthetic positive and negative regression tests, including vendor-only rules and explicit user exceptions.
+- [ ] Full Ubuntu suite and actual Firefox ad-removal acceptance remain pending.
+
 ## Build 392 / v0.3.352: practical Ghostery CSS compatibility (November 4, 2026)
 - [x] Reuse the bundled Ghostery MPL-2.0 cosmetic output instead of adding a second adblock engine.
 - [x] Recognize safe comma-bearing quoted attribute selectors while refusing malformed or potentially unsafe selector groups.
