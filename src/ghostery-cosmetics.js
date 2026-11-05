@@ -5,6 +5,41 @@ const LIMIT=300,MAX_CSS=500000;
 const BAD=/\b(?:html|body|main|video|audio|iframe|object|embed|form|input|button|textarea|select|dialog|player|movie_player|ytp-)\b/i;
 function valid(h){return typeof h==="string"&&h.length<254&&h.includes(".")&&
  /^[a-z0-9.-]+$/.test(h)&&!h.includes("..")&&!h.startsWith(".")&&!h.endsWith(".");}
+// Split only top-level commas. Ghostery emits compound selector groups whose
+// attribute values can contain a comma: splitting them naively loses a rule.
+// Reject malformed quoting, escapes, nested brackets and unquoted attribute
+// commas rather than guessing whether the CSS would target a safe element.
+function selectorList(group){
+ if(typeof group!=="string"||group.length>12000)return [];
+ const out=[];let current="",quote="",brackets=0,parens=0;
+ for(let i=0;i<group.length;i++){
+  const ch=group[i];
+  if(ch==="\\")return [];
+  if(quote){
+   current+=ch;
+   if(ch===quote)quote="";
+   continue;
+  }
+  if(ch==='"'||ch==="'"){quote=ch;current+=ch;continue;}
+  if(ch==="["){if(++brackets>1)return [];current+=ch;continue;}
+  if(ch==="]"){if(--brackets<0)return [];current+=ch;continue;}
+  if(ch==="("){if(++parens>1)return [];current+=ch;continue;}
+  if(ch===")"){if(--parens<0)return [];current+=ch;continue;}
+  if(ch===","){
+   if(brackets&&parens===0)return [];
+   if(!brackets&&!parens){
+    if(!current.trim())return [];
+    out.push(current.trim());current="";
+    if(out.length>LIMIT)return [];
+    continue;
+   }
+  }
+  current+=ch;
+ }
+ if(quote||brackets||parens||!current.trim())return [];
+ out.push(current.trim());
+ return out;
+}
 function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
  const fragments=typeof styles==="string"?[styles]:Array.isArray(styles)?styles:[];
  if(!fragments.length)return "";
@@ -16,11 +51,11 @@ function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
    if(bracket<1)continue;
    const selectorGroup=part.slice(0,bracket).trim(),body=part.slice(bracket+1).trim();
    if(!/^display\s*:\s*none\s*!important\s*;?$/i.test(body))continue;
-   for(const raw of selectorGroup.split(",")){
+   for(const raw of selectorList(selectorGroup)){
    const selector=raw.trim();
    if(!selector||selector.length>320||BAD.test(selector)||
      /[;{}@\\]/.test(selector)||/:(?:has|is|where|not)\(/i.test(selector)||
-     !/^[.#a-zA-Z0-9_\- \t>+~:[\]="'.*^$()|]+$/.test(selector)||
+     !/^[.#a-zA-Z0-9_\- \t>+~:[\]="',.*^$()|]+$/.test(selector)||
      !/^display\s*:\s*none\s*!important\s*;?$/i.test(body)||
      seen.has(selector)||protectSelector(selector)||!safeSelector([selector]).includes(selector))
     continue;
@@ -59,7 +94,7 @@ function styles(vendor,host,{streaming=false,policy={},page="",safeSelector=x=>x
   return sanitize(value?.styles,safeSelector,protectSelector);
  }catch(_){return "";}
 }
-const API=Object.freeze({sanitize,styles,pageURL});
+const API=Object.freeze({sanitize,styles,pageURL,selectorList});
 root.DKGhosteryCosmetics=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

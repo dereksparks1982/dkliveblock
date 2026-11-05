@@ -1,3 +1,10 @@
+## Build 392 / v0.3.352: practical Ghostery CSS compatibility (November 4, 2026)
+- [x] Reuse the bundled Ghostery MPL-2.0 cosmetic output instead of adding a second adblock engine.
+- [x] Recognize safe comma-bearing quoted attribute selectors while refusing malformed or potentially unsafe selector groups.
+- [x] Preserve streaming protections, user exceptions, sanitized CSS declarations, scriptlet prohibition and selector limits.
+- [x] Add direct positive/negative integration regressions; correct attribution text describing DK-owned vs third-party source licensing.
+- [ ] Run full native Ubuntu suite and real Firefox site acceptance at the end of the series.
+
 ## Build 391 / v0.3.351: bounded MIT Facebook portal recovery (November 4, 2026)
 - [x] Protect the complete vendored MIT Facebook referrer resolution from aria-labelledby / SVG portal cycles.
 - [x] Cap synchronous recovery hops at eight; malformed CSS selectors safely fail closed; always release active reference guards after exceptions.

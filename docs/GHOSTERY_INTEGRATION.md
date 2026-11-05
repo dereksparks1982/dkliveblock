@@ -13,8 +13,12 @@ Ghostery operates as a supplementary network filtering engine; DK's existing loc
 
 Developers who intentionally want to regenerate the pinned engine bundle can use the optional script `bash scripts/install-ghostery.sh` on Ubuntu. The compiled result must be reviewed and committed like other source updates. This is **not** an end-user installation step and is not required for ordinary coding or Firefox packaging.
 
-The standalone upstream `@ghostery/adblocker` library is MPL-2.0; keep copyright/source and license notices when distributing. Upstream: https://github.com/ghostery/adblocker . The host app's original code remains MIT-licensed. No npm `node_modules/` tree is bundled or tracked. The extension does not require remote executable code.
+The standalone upstream `@ghostery/adblocker` library is MPL-2.0; preserve its source availability, notices and license rights when distributing. Upstream: https://github.com/ghostery/adblocker . DK's own source is subject to the project's separately stated license, not automatically MIT; the Facebook MIT reference remains independently MIT-licensed. No npm `node_modules/` tree is bundled or tracked. The extension does not require remote executable code.
 
 ## Validation status
 
 Compiled Ghostery library loaded successfully in a local Node.js VM. Offline network blocking and site-scoped exception smoke checks passed. A browser is **not** needed to download dependencies at runtime, but real Firefox playback and comprehensive extension testing are still pending. No public release has been authorized.
+
+## Build 392 hardened CSS integration
+
+The existing MPL-2.0 Ghostery engine is reused, not duplicated. Its supplementary CSS output now splits selector lists only at genuine top-level commas; quoted commas inside attribute selector values are preserved. Unclosed quotes, malformed brackets, CSS escapes, nested groups and arbitrary injected declarations fail closed. Scriptlets and external redirects remain excluded. The original upstream bundle is not modified and keeps its own license.

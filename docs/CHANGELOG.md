@@ -1,3 +1,8 @@
+## 0.3.352 / Build 392 (2026-11-04)
+- Improve commercial MPL-licensed Ghostery integration: safe selector-list parsing preserves legitimate quoted attribute commas and rejects malformed CSS.
+- Correct engineering documentation to distinguish Ghostery MPL-2.0, Facebook MIT and DK-owned project licensing.
+- Full Ubuntu and Firefox regression pending; internal only.
+
 ## 0.3.351 / Build 391 (2026-11-04)
 - Guard complete Facebook MIT engine against cyclic/malformed linked-label portal references; bound synchronous lookups and preserve cleanup.
 - Expand offline regression coverage without touching saved user controls or network filtering.
