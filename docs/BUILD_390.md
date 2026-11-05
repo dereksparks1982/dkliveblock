@@ -9,6 +9,8 @@
 - Existing collapsed, opt-in Facebook panel displays only bounded aggregate unanchored, deferred and pending label counts. When hides and unresolved labels coexist, the diagnostic identifies mixed evidence instead of implying all visible ads were removed.
 - Bump manifest and package to v0.3.350, register isolated regressions and remove build history from English README according to the Company Bible.
 
+- Build 390 test correction: The owner's Ubuntu run found that repeated `enforcement` events are deliberately de-duplicated for 20 seconds. The regression now expects the first event to be recorded and subsequent duplicates suppressed, while asserting zero reloads and refreshes throughout. No blocking behavior or version changed.
+
 ## Validation boundary
 - Direct isolated V8 module behavior checks executed before committing.
 - Additional Node regressions are registered, as is the existing Build 390 YouTube background test.

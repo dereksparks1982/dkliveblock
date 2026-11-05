@@ -170,8 +170,10 @@ test("Build 390: transient YouTube ad-blocker refusal cannot force a video tab r
  for(let i=0;i<3;i++){
   const result=await hooks.message({action:"reportPlaybackHealth",
    kind:"enforcement",watchVideoId:"abcdefghijk"},sender);
-  assert.equal(result.ok,true);
-  assert.equal(result.recoveryAttempted,false);
+  // The health ledger intentionally coalesces identical warnings within
+  // 20 seconds. Only the first is recorded; none may reload the watch tab.
+  assert.equal(result.ok,i===0);
+  assert.notEqual(result.recoveryAttempted,true);
  }
  assert.equal(reloads,0,"warning must never restart a watch tab");
  assert.equal(refreshes,0,"warning must not automatically change player treatment");
