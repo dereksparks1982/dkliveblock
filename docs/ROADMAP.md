@@ -1,3 +1,10 @@
+## Build 395 / v0.3.355: dual Facebook sponsored-label reverse lookup (November 4, 2026)
+- [x] Check both ARIA labelled-by and SVG use-href references to a detected Sponsored/Ad label without first-match short-circuiting.
+- [x] Limit inspection to two distinct referenced nodes and preserve Build 391's eight-hop cycle and exception guard.
+- [x] Keep the MIT ad detector, normal-post boundaries, 50 ms retry, approved UI, pauses and user-kept Pages unchanged.
+- [x] Add executable synthetic tests for dual, duplicate, malformed, self and cyclic references.
+- [ ] Full Ubuntu and owner Firefox confirmation are required; no universal Facebook success claim.
+
 ## Build 394 / v0.3.354: reviewed third-party commercial reuse gate (November 4, 2026)
 - [x] Add offline integrity checks for the already-bundled Ghostery MPL-2.0, PSL MPL-2.0 and Facebook MIT files and their attribution.
 - [x] Verify approved exact dependency versions, Firefox manifest placements and known Ghostery bundle digest.

@@ -1529,17 +1529,24 @@ function resolveViaReferrer(label) {
   if (!label?.id || resolvingReferrers.has(label) ||
       resolvingReferrers.size >= MAX_REFERRER_HOPS) return false;
   const id = CSS.escape(label.id);
-  // Two known referrer forms only. A malformed selector is not ad evidence.
-  let referrer;
-  try {
-    referrer = document.querySelector(`[aria-labelledby~="${id}"]`) ||
-      document.querySelector(`use[*|href="#${id}"]`);
-  } catch (_) { return false; }
-  if (!referrer || referrer === label ||
-      resolvingReferrers.has(referrer)) return false;
+  // Check at most one ARIA and one SVG referrer. A disconnected first
+  // match must not conceal the usable second relationship.
+  let aria=null,svg=null;
+  try { aria=document.querySelector(`[aria-labelledby~="${id}"]`); } catch (_) {}
+  try { svg=document.querySelector(`use[*|href="#${id}"]`); } catch (_) {}
+  const seen=new Set();
+  let attempted=false;
   resolvingReferrers.add(label);
-  try { processLabel(referrer); return true; }
-  finally { resolvingReferrers.delete(label); }
+  try {
+    for(const referrer of [aria,svg]){
+      if(!referrer||referrer===label||seen.has(referrer)||
+          resolvingReferrers.has(referrer))continue;
+      seen.add(referrer);
+      processLabel(referrer);
+      attempted=true;
+    }
+  } finally { resolvingReferrers.delete(label); }
+  return attempted;
 }
 
 function processLabel(label) {

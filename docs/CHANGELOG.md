@@ -1,3 +1,8 @@
+## 0.3.355 / Build 395 (2026-11-04)
+- Recover both known Facebook ARIA and SVG ad-label references, bounded to two unique nodes with existing cycle protections.
+- Complete an additional MIT Facebook runtime integration without new permissions, observers or page-wide hiding heuristics.
+- Full Ubuntu/Firefox acceptance outstanding; development only.
+
 ## 0.3.354 / Build 394 (2026-11-04)
 - Add read-only offline provenance verification for commercially reusable MPL and MIT components and tightly pinned upstream packages.
 - Prevent unreviewed package changes from silently inheriting DK-specific licensing. No live blocking changes.
