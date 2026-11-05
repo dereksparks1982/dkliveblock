@@ -1,3 +1,8 @@
+## 0.3.351 / Build 391 (2026-11-04)
+- Guard complete Facebook MIT engine against cyclic/malformed linked-label portal references; bound synchronous lookups and preserve cleanup.
+- Expand offline regression coverage without touching saved user controls or network filtering.
+- Internal build; live Facebook verification pending.
+
 ## 0.3.350 / Build 390 (2026-11-04)
 - Stop automatic tab reloads on transient YouTube in-player warnings, preserving normal filtering and dormant recovery implementation.
 - Guard manual Facebook diagnostics against tab changes and duplicate requests; distinguish mixed hide and unresolved-label evidence without exporting private page details.

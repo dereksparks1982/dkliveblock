@@ -1,3 +1,10 @@
+## Build 391 / v0.3.351: bounded MIT Facebook portal recovery (November 4, 2026)
+- [x] Protect the complete vendored MIT Facebook referrer resolution from aria-labelledby / SVG portal cycles.
+- [x] Cap synchronous recovery hops at eight; malformed CSS selectors safely fail closed; always release active reference guards after exceptions.
+- [x] Retain the MIT engine, its settings, 50 ms retry loop and existing hiding policy; no additional observers, telemetry or network alterations.
+- [x] Add direct executable recovery regression cases for A↔B loops, self-links, long chains and cleanup after a thrown handler.
+- [ ] Browser acceptance and full Ubuntu test suite remain pending. No claim of eliminating Facebook advertisements.
+
 ## Build 390 / v0.3.350: YouTube warning stability and Facebook evidence integrity (November 4, 2026)
 - [x] Remove the automatic tab reload on YouTube playback refusal, which was introduced after the user's original refusal and could interrupt videos that would otherwise continue.
 - [x] Keep existing player response, page bridge, automatic ad filtering, and tab-specific recovery implementation intact; mark observed refusal as passive context only.

@@ -1520,18 +1520,26 @@ function tryHideFromLabel(label, reason) {
 // insertion is a mutation we observe, so use it to walk forward to whoever
 // references it. `~=` matches one entry of a space-separated list, which is what
 // aria-labelledby is.
+// A portal reference can link back to a second portal, forming a cycle.
+// Prevent unbounded recursion while retaining the licensed engine's
+// forward-link recovery. Only live DOM nodes are held, and only on the stack.
+const resolvingReferrers = new Set();
+const MAX_REFERRER_HOPS = 8;
 function resolveViaReferrer(label) {
-  if (!label.id) return false;
+  if (!label?.id || resolvingReferrers.has(label) ||
+      resolvingReferrers.size >= MAX_REFERRER_HOPS) return false;
   const id = CSS.escape(label.id);
-  // Two ways to point at a label target: aria-labelledby from an ordinary
-  // element, or xlink:href from an <svg><use> that draws it as a sprite - the form
-  // many feed ads use. `*|href` matches href in any namespace.
-  const referrer =
-    document.querySelector(`[aria-labelledby~="${id}"]`) ||
-    document.querySelector(`use[*|href="#${id}"]`);
-  if (!referrer || referrer === label) return false;
-  processLabel(referrer);
-  return true;
+  // Two known referrer forms only. A malformed selector is not ad evidence.
+  let referrer;
+  try {
+    referrer = document.querySelector(`[aria-labelledby~="${id}"]`) ||
+      document.querySelector(`use[*|href="#${id}"]`);
+  } catch (_) { return false; }
+  if (!referrer || referrer === label ||
+      resolvingReferrers.has(referrer)) return false;
+  resolvingReferrers.add(label);
+  try { processLabel(referrer); return true; }
+  finally { resolvingReferrers.delete(label); }
 }
 
 function processLabel(label) {
