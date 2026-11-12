@@ -2913,21 +2913,54 @@ function scanRoot(root) {
 // requestAnimationFrame coalesces everything since the last paint into one pass,
 // run just before the next paint - the latest moment that still hides content
 // before it is drawn.
+// A busy Facebook render can insert dozens of descendants of the same card.
+// The old per-frame Set deduplicated identity, not ancestor/child overlap,
+// and re-ran the same subtree scan many times before paint.
 const pendingRoots = new Set();
+const MAX_SCAN_ROOTS_PER_FRAME = 48;
+const MAX_PENDING_SCAN_ROOTS = 96;
 let scanScheduled = false;
 
-function scheduleScan(root) {
-  pendingRoots.add(root);
-  if (scanScheduled) return;
-  scanScheduled = true;
-  requestAnimationFrame(() => {
-    scanScheduled = false;
-    const roots = Array.from(pendingRoots);
-    pendingRoots.clear();
-    for (const r of roots) {
-      if (r.isConnected) scanRoot(r);
+function flushScheduledScans() {
+  scanScheduled = false;
+  let processed = 0;
+  const roots = Array.from(pendingRoots);
+  pendingRoots.clear();
+  for (const root of roots) {
+    if (!root.isConnected) continue;
+    if (processed >= MAX_SCAN_ROOTS_PER_FRAME) {
+      // Never discard a connected subtree just because this frame was busy.
+      pendingRoots.add(root);
+      continue;
     }
-  });
+    processed += 1;
+    scanRoot(root);
+  }
+  if (pendingRoots.size && !scanScheduled) {
+    scanScheduled = true;
+    requestAnimationFrame(flushScheduledScans);
+  }
+}
+function scheduleScan(root) {
+  if (!root || root.nodeType !== Node.ELEMENT_NODE || !root.isConnected) return;
+  // A pending ancestor scan already includes this element.
+  for (let parent = root.parentElement; parent; parent = parent.parentElement)
+    if (pendingRoots.has(parent)) return;
+  // A newly queued outer card makes earlier inner work redundant.
+  for (const queued of pendingRoots)
+    if (root.contains(queued)) pendingRoots.delete(queued);
+  if (pendingRoots.size >= MAX_PENDING_SCAN_ROOTS) {
+    // Rather than silently dropping ad candidates, fall back once to the
+    // existing full body scan, which retains all source/exception guards.
+    pendingRoots.clear();
+    pendingRoots.add(document.body || root);
+  } else {
+    pendingRoots.add(root);
+  }
+  if (!scanScheduled) {
+    scanScheduled = true;
+    requestAnimationFrame(flushScheduledScans);
+  }
 }
 
 // Facebook recycles DOM nodes, so a container we hid can be repurposed for
@@ -3275,7 +3308,7 @@ function dkSetEnabled(enabled) {
     observer.disconnect(); dkObserverActive = false;
     revealObserver?.disconnect(); feedChildObserver?.disconnect();
     mobileFeed = null; feedChildObserver = null;
-    hideMarker(); pendingLabels.clear();
+    hideMarker(); pendingLabels.clear(); pendingRoots.clear();
     if (retryIntervalId !== null) { clearInterval(retryIntervalId); retryIntervalId = null; }
     for (const card of Array.from(hiddenPosts.keys())) restorePost(card);
     return;

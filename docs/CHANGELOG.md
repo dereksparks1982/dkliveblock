@@ -1,3 +1,8 @@
+## 0.3.358 / Build 398 (2026-11-12)
+- Reduce repeated Facebook ad-label/feed-card scans by coalescing ancestor/descendant queued roots.
+- Bound per-frame scan work; safely preserve queued late cards and pause cleanup without changing the MIT detection engine's rules.
+- New scheduler regression fixtures and fast integration coverage. Live Facebook acceptance remains outstanding.
+
 ## 0.3.357 / Build 397 (2026-11-12)
 - Repair stale 7-phase Linux runner tests following the new license-check phase and recognize two existing audited offline scripts.
 - Cap aggregate Ghostery cosmetic CSS work to prevent cumulative 200-fragment oversized output.

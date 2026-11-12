@@ -1,3 +1,11 @@
+## Build 398 / v0.3.358: bounded Facebook feed-scanning scheduler (November 12, 2026)
+- [x] Coalesce overlapping pending scan roots before paint; a pending outer feed card subsumes its label and descendant scans.
+- [x] Preserve each distinct connected candidate but process at most 48 roots per frame, spreading bursts over subsequent animation frames.
+- [x] Bound pending roots at 96 and use one existing full-body scan on overflow rather than silently losing ad candidates.
+- [x] Clear pending roots on pause; retain the complete MIT detector, 50 ms retry, content safety checks, user-kept Pages, settings and licensed notices.
+- [x] Add runnable synthetic DOM fixtures for overlapping roots, detached inserts, per-frame fairness and overflow.
+- [ ] Full Ubuntu tests and live Facebook feed scroll/organic-post/Marketplace acceptance remain pending.
+
 ## Build 397 / v0.3.357: Linux integration regression stabilization (November 12, 2026)
 - [x] Fix the synthetic local-runner tests to recognize eight verification phases after the reviewed third-party license check was added.
 - [x] Accept only approved offline license and evidence scripts in the runner's fake Node program, avoiding false failures.
