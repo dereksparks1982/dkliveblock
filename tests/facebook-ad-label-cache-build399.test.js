@@ -7,7 +7,7 @@ function functionBody(name){const start=source.indexOf("function "+name+"("),end
 const constants=source.slice(source.indexOf("const MAX_LABEL_CACHE = 200;"),source.indexOf("// How many labels completed via a late text node"));
 function fixture(){
  let time=100000,forward=0,connected=new Map();
- const text="const INVISIBLE_CHARS_RE=/\\u200b/g;"+
+ const text="const DEBUG=false;const INVISIBLE_CHARS_RE=/\\u200b/g;"+
   "const SPONSORED_TEXTS=new Set([\'Sponsored\',\'Ad\',\'Реклама\']);"+
   "const SUGGESTED_TEXTS=new Set([\'Suggested for you\']);"+
   "const FOREIGN_SPONSORED_TEXTS=new Set([\'Anzeige\']);"+
