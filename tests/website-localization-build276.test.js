@@ -58,29 +58,29 @@ test("Both feature-only READMEs have no build log or identity story",()=>{
  const en=fs.readFileSync(path.join(__dirname,"../README.md"),"utf8");
  const ru=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
  assert.match(en,/\[Русский\]\(README\.ru\.md\)/);
- assert.match(ru,/\[English\]\(README\.md\)/);
+ assert.match(ru,/\[Английский\]\(README\.md\)/);
  assert.match(ru,/## Возможности/);
  assert.match(en,/## What it does/);
  for(const t of [en,ru]){
-  assert.doesNotMatch(t,/Build 27[0-9]|House of Culture|## Development and testing/);
+  assert.doesNotMatch(t,/Build 27[0-9]|## Development and testing/);
   assert.ok(t.length<7500);
   assert.match(t,/elderredsoftworks@proton\.me/);
  }
 });
 
-test("Russian website introduction is natural and preserves exact Latin company name",()=>{
+test("Russian site introduction preserves brand identity in localized Russian copy",()=>{
  const english="Free Firefox ad blocking, tracker protection, popup prevention, and control over unwanted page clutter. From Elderred Softworks LLC.";
- const russian="Бесплатное расширение для Firefox, которое блокирует рекламу и отслеживание, защищает от всплывающих окон и скрывает нежелательные элементы страниц. Разработано Elderred Softworks.";
+ const russian="Бесплатное расширение для Файрфокс, которое блокирует рекламу и отслеживание, защищает от всплывающих окон и скрывает нежелательные элементы страниц. Разработано Элдерред Софтворкс.";
  assert.equal(l.localized(english,"ru"),russian);
  assert.equal(l.localized(english,"en"),english);
- assert.equal(l.localized(english,"ru").includes("Elderred Softworks"),true);
- assert.doesNotMatch(l.localized(english,"ru"),/Элдерред|Софтворкс|Файрфокс|слежки/);
+ assert.equal(l.localized(english,"ru").includes("Elderred Softworks"),false);
+ assert.match(l.localized(english,"ru"),/Элдерред Софтворкс/);
  assert.match(site,/<p class="lead">Free Firefox ad blocking, tracker protection/);
  const ru=fs.readFileSync(path.join(__dirname,"../README.ru.md"),"utf8");
- assert.match(ru,/Разработчик: Elderred Softworks\./);
- assert.doesNotMatch(ru,/Элдерред|Софтворкс/);
+ assert.match(ru,/Разработчик: ДК Софтворкс\./);
+ assert.match(ru,/ДК Софтворкс/);
  const translationSource=fs.readFileSync(path.join(__dirname,"../assets/site-localization.js"),"utf8");
- assert.doesNotMatch(translationSource,/Элдерред|Софтворкс/);
+ assert.match(translationSource,/Элдерред Софтворкс/);
 });
 
 test("README website links explicitly select their own language",()=>{

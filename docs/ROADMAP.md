@@ -1,3 +1,11 @@
+## Build 396 / v0.3.356: approved Russian artwork and complete public Russian copy (November 12, 2026)
+- [x] Restore the owner's approved metallic Cyrillic artwork in the Russian README; retain English cyan banner solely on English page.
+- [x] Make GitHub Pages serve the same original Russian PNG locally first, with its pinned immutable GitHub revision as backup.
+- [x] Translate the Russian mode's selector label, English-language option, studio names and translated glossary while keeping paths/email machine-readable.
+- [x] Restore original English presentation on language switch without changing approved button layout or Russian colors.
+- [x] Add executable tests for Russian-only presentation, exact approved banner blob, reversible language switch and full visible text coverage.
+- [ ] Owner to confirm actual GitHub Pages and GitHub README display after publication.
+
 ## Build 395 / v0.3.355: dual Facebook sponsored-label reverse lookup (November 4, 2026)
 - [x] Check both ARIA labelled-by and SVG use-href references to a detected Sponsored/Ad label without first-match short-circuiting.
 - [x] Limit inspection to two distinct referenced nodes and preserve Build 391's eight-hop cycle and exception guard.

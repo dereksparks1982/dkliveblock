@@ -59,3 +59,7 @@ Builds 300–302 had valid extra string dictionaries, but the DOM text/attribute
 
 ## Build 304: known dynamic messages
 Fixed runtime messages produced by the support form, library, downloads, phishing warning, Network Monitor and YouTube lab have exact local Russian translations. Strings that include hostnames, user notes, numeric counters or arbitrary errors do not receive broad pattern substitutions, avoiding corruption of private data or misleading labels. Translation remains partial until native Firefox visual QA and all dynamic messages are reviewed.
+
+## Build 396 public Russian language consistency (November 12, 2026)
+
+The Russian README again uses the exact owner-approved Cyrillic red/gold metallic banner. The website now loads that same published local PNG first and the immutable GitHub revision only if the local file fails. Its early hero initialization sets the Cyrillic banner before the rest of the site content; its language selector says «Язык» and «Английский» in Russian mode, restoring the original English controls when switched back. Existing translated site body text uses Russian technical/vendor terms, preserving actual URLs, account addresses and setup paths. Regression checks cover the binary asset hash, localized text completeness and switch reversibility. The English website and geometry are unchanged.

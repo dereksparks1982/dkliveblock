@@ -1,3 +1,8 @@
+## 0.3.356 / Build 396 (2026-11-12)
+- Restore approved Russian metallic/Cyrillic banner to Russian README and Russian website.
+- Translate Russian switcher and formerly English Russian product copy, preserving URLs, technical paths, email and English site.
+- Improve site translation contract tests; full browser verification pending.
+
 ## 0.3.355 / Build 395 (2026-11-04)
 - Recover both known Facebook ARIA and SVG ad-label references, bounded to two unique nodes with existing cycle protections.
 - Complete an additional MIT Facebook runtime integration without new permissions, observers or page-wide hiding heuristics.
