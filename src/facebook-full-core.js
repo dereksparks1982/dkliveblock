@@ -2088,6 +2088,22 @@ function ensureRetryLoopRunning() {
 // first, because Facebook mints these continuously.
 const MAX_LABEL_CACHE = 200;
 const labelTextById = new Map();
+// Ordinary short labels must remain cached: a former reference to organic
+// text is not proof of an ad. Keep a *separate* small rescue cache only for
+// recognized ad/suggested markers, so unrelated DOM churn cannot evict all
+// advertising evidence before Facebook attaches its late ARIA reference.
+const MAX_AD_LABEL_RESCUES = 64;
+const AD_LABEL_RESCUE_MS = 30000;
+const adLabelRescues = new Map(); // id -> {text, at}; no post text or URL
+function rescuedAdLabel(id) {
+  const entry = adLabelRescues.get(id);
+  if (!entry) return "";
+  if (Date.now() - entry.at > AD_LABEL_RESCUE_MS) {
+    adLabelRescues.delete(id);
+    return "";
+  }
+  return entry.text;
+}
 // How many labels completed via a late text node rather than arriving whole.
 // Zero on a feed with ads means that is not how they are being built any more.
 let lateTextLabels = 0;
@@ -2108,13 +2124,27 @@ function rememberLabelTarget(el) {
 // record, where there is an id and a string but the element may already be
 // detached and emptied. `source` is only used to resolve forward from.
 function cacheLabelText(id, raw, source) {
-  const text = (raw || "").replace(INVISIBLE_CHARS_RE, "").trim();
+  if (typeof id !== "string" || !id || id.length > 160 ||
+      typeof raw !== "string" || raw.length > 120) return;
+  const text = raw.replace(INVISIBLE_CHARS_RE, "").trim();
   if (!text || text.length > 40) return;
   const el = { id, textContent: text };
-  if (labelTextById.size >= MAX_LABEL_CACHE) {
+  // Refresh an existing entry in place rather than evicting an unrelated
+  // organic label when Facebook updates the same accessibility target.
+  labelTextById.delete(id);
+  if (labelTextById.size >= MAX_LABEL_CACHE)
     labelTextById.delete(labelTextById.keys().next().value);
+  labelTextById.set(id, text);
+  const key = labelKey(text);
+  const important = SPONSORED_TEXTS.has(key) ||
+    SUGGESTED_TEXTS.has(key) || FOREIGN_SPONSORED_TEXTS.has(key);
+  // A re-used id with new, non-ad text must invalidate older ad evidence.
+  adLabelRescues.delete(id);
+  if (important) {
+    if (adLabelRescues.size >= MAX_AD_LABEL_RESCUES)
+      adLabelRescues.delete(adLabelRescues.keys().next().value);
+    adLabelRescues.set(id, { text, at: Date.now() });
   }
-  labelTextById.set(el.id, text);
 
   // Caching alone isn't enough: the post was scanned before this label
   // existed, found nothing, and nothing re-examines it. Resolve forward now,
@@ -2123,8 +2153,7 @@ function cacheLabelText(id, raw, source) {
   // every id Facebook adds.
   // The foreign words go forward too: the element that references this label
   // is where isForeignAdLabel is checked, when the referrer is classified.
-  const key = labelKey(text);
-  if (SPONSORED_TEXTS.has(key) || SUGGESTED_TEXTS.has(key) || FOREIGN_SPONSORED_TEXTS.has(key)) {
+  if (important) {
     // The cache lives in the isolated world, so it can't be inspected from the
     // page console. Log the one event that matters instead: an ad's label
     // target existing long enough for us to see it. Silence here means the
@@ -2548,7 +2577,7 @@ function labelRefTexts(el) {
     const target = document.getElementById(id);
     const text = target
       ? target.textContent.replace(INVISIBLE_CHARS_RE, "").trim()
-      : labelTextById.get(id) || "";
+      : labelTextById.get(id) || rescuedAdLabel(id) || "";
     out.push({ id, text });
   }
   return out;
@@ -3308,7 +3337,7 @@ function dkSetEnabled(enabled) {
     observer.disconnect(); dkObserverActive = false;
     revealObserver?.disconnect(); feedChildObserver?.disconnect();
     mobileFeed = null; feedChildObserver = null;
-    hideMarker(); pendingLabels.clear(); pendingRoots.clear();
+    hideMarker(); pendingLabels.clear(); pendingRoots.clear(); adLabelRescues.clear();
     if (retryIntervalId !== null) { clearInterval(retryIntervalId); retryIntervalId = null; }
     for (const card of Array.from(hiddenPosts.keys())) restorePost(card);
     return;

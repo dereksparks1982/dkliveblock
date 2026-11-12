@@ -1,3 +1,11 @@
+## Build 399 / v0.3.359: recover late Facebook ad labels through bounded cache churn (November 12, 2026)
+- [x] Retain complete MIT Facebook detector while preserving ad-label IDs for 30 seconds in a separate 64-entry cache.
+- [x] Keep the original 200-entry general label cache, preserving organic-label evidence and avoiding new false dangling references.
+- [x] Replace stale ad cache when an ID is reused with ordinary text; live text always takes precedence over cached evidence.
+- [x] Guard unreasonably long IDs/text to avoid excessive page-supplied data retention; clear ad rescues when Facebook protection is paused.
+- [x] Add fixtures for 260 ordinary updates, genuine late Sponsored lookup, stale cache expiration, recycled IDs and 64-entry bound.
+- [ ] Live Firefox verification of late ads, regular feed posts and scroll cost is required before release.
+
 ## Build 398 / v0.3.358: bounded Facebook feed-scanning scheduler (November 12, 2026)
 - [x] Coalesce overlapping pending scan roots before paint; a pending outer feed card subsumes its label and descendant scans.
 - [x] Preserve each distinct connected candidate but process at most 48 roots per frame, spreading bursts over subsequent animation frames.

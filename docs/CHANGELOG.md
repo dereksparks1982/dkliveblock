@@ -1,3 +1,8 @@
+## 0.3.359 / Build 399 (2026-11-12)
+- Add small, expiring Facebook ad-label rescue cache alongside the normal label cache to preserve Sponsored evidence across unrelated DOM churn.
+- Preserve ordinary label references for false-positive protection, prioritize live labels, clear re-used IDs and pause state.
+- Register synthetic late-ad/eviction/caching tests; real Firefox confirmation pending.
+
 ## 0.3.358 / Build 398 (2026-11-12)
 - Reduce repeated Facebook ad-label/feed-card scans by coalescing ancestor/descendant queued roots.
 - Bound per-frame scan work; safely preserve queued late cards and pause cleanup without changing the MIT detection engine's rules.
