@@ -1,3 +1,11 @@
+## Build 400 / v0.3.360: bounded Facebook accessible-label reference parsing (November 12, 2026)
+- [x] Avoid unbounded DOM target lookup on malformed or unusually long aria-labelledby reference arrays.
+- [x] Inspect at most 16 unique accessibility references, selecting both head and tail to keep late Sponsored labels visible.
+- [x] Reject malformed long SVG fragment IDs and portal label IDs while respecting the existing full MIT detector policy.
+- [x] Retain full site observer, cached labels, 50 ms retries, alternate DOM label decoding, user-kept Pages and all existing ad-safety guards.
+- [x] Add executable regression fixtures for 40 references, tail labels, duplicate IDs, oversized attributes/text and safe empty lookup.
+- [ ] Full Ubuntu and real Firefox Facebook scroll/organic-post acceptance remain pending.
+
 ## Build 399 / v0.3.359: recover late Facebook ad labels through bounded cache churn (November 12, 2026)
 - [x] Retain complete MIT Facebook detector while preserving ad-label IDs for 30 seconds in a separate 64-entry cache.
 - [x] Keep the original 200-entry general label cache, preserving organic-label evidence and avoiding new false dangling references.

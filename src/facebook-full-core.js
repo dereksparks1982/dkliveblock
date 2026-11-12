@@ -366,7 +366,7 @@ function classifyLabel(el) {
   // cache covers symbols Facebook has already discarded.
   if (el.tagName === "use") {
     const ref = el.getAttribute("xlink:href") || el.getAttribute("href");
-    if (ref && ref.startsWith("#")) {
+    if (ref && ref.length <= 161 && ref.startsWith("#")) {
       const id = ref.slice(1);
       const target = document.getElementById(id);
       const text = target
@@ -1526,7 +1526,8 @@ function tryHideFromLabel(label, reason) {
 const resolvingReferrers = new Set();
 const MAX_REFERRER_HOPS = 8;
 function resolveViaReferrer(label) {
-  if (!label?.id || resolvingReferrers.has(label) ||
+  if (!label?.id || typeof label.id !== "string" || label.id.length > 160 ||
+      resolvingReferrers.has(label) ||
       resolvingReferrers.size >= MAX_REFERRER_HOPS) return false;
   const id = CSS.escape(label.id);
   // Check at most one ARIA and one SVG referrer. A disconnected first
@@ -2569,14 +2570,31 @@ function bylineCount(card) {
 // accessible name is computed, so a live lookup alone fails even though the
 // post genuinely was labelled. An empty string means the reference dangles:
 // nothing to read either way.
+// Facebook can join many accessibility names in aria-labelledby. Process
+// at most 16 unique ids, preserving both ends: sponsored refs sometimes
+// arrive at the tail, while generic refs are usually at the start. This
+// is used by both the full detector and the conservative unlabeled shape
+// guard, so malformed/oversized attributes must fail open, not infer "ad".
+const MAX_LABEL_REF_IDS = 16;
+const MAX_LABEL_REF_ATTR = 1024;
+const MAX_LABEL_REF_TEXT = 120;
 function labelRefTexts(el) {
   const out = [];
-  const ids = (el.getAttribute && el.getAttribute("aria-labelledby")) || "";
-  for (const id of ids.split(/\s+/)) {
-    if (!id) continue;
+  const raw = (el.getAttribute && el.getAttribute("aria-labelledby")) || "";
+  if (typeof raw !== "string" || raw.length > MAX_LABEL_REF_ATTR) return out;
+  const ids = raw.trim().split(/\s+/).filter(Boolean);
+  const chosen = ids.length > MAX_LABEL_REF_IDS
+    ? ids.slice(0, MAX_LABEL_REF_IDS / 2).concat(ids.slice(-MAX_LABEL_REF_IDS / 2))
+    : ids;
+  const visited = new Set();
+  for (const id of chosen) {
+    if (!id || id.length > 160 || visited.has(id)) continue;
+    visited.add(id);
     const target = document.getElementById(id);
-    const text = target
-      ? target.textContent.replace(INVISIBLE_CHARS_RE, "").trim()
+    const live = target?.textContent;
+    const text = typeof live === "string"
+      ? live.length <= MAX_LABEL_REF_TEXT
+        ? live.replace(INVISIBLE_CHARS_RE, "").trim() : ""
       : labelTextById.get(id) || rescuedAdLabel(id) || "";
     out.push({ id, text });
   }

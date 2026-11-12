@@ -1,3 +1,8 @@
+## 0.3.360 / Build 400 (2026-11-12)
+- Harden the MIT Facebook accessibility label resolver against oversized, duplicated and adversarially long reference lists.
+- Preserve final Sponsored references using bounded head/tail selection, and reject oversized SVG fragment identifiers.
+- Add fixture coverage; no UI changes, no page-wide new observers or outside network connections. Real browser acceptance still pending.
+
 ## 0.3.359 / Build 399 (2026-11-12)
 - Add small, expiring Facebook ad-label rescue cache alongside the normal label cache to preserve Sponsored evidence across unrelated DOM churn.
 - Preserve ordinary label references for false-positive protection, prioritize live labels, clear re-used IDs and pause state.
