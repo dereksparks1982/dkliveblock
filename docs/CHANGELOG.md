@@ -1,3 +1,9 @@
+## 0.3.361 / Build 401 (2026-11-12)
+- Activate a bounded, locally sampled class/id path into the existing Ghostery MPL-2.0 cosmetic engine for dynamic non-streaming websites.
+- Reuse existing DOM observers and style refresh; reject untrusted/private names and retain document/elemhide user allowances, media/identity protections and sanitizer.
+- Add tests for real dynamic bridge options, source validation, privacy bounds, failure recovery and manifest wiring.
+- Development only; complete Ubuntu and browser verification pending.
+
 ## 0.3.360 / Build 400 (2026-11-12)
 - Harden the MIT Facebook accessibility label resolver against oversized, duplicated and adversarially long reference lists.
 - Preserve final Sponsored references using bounded head/tail selection, and reject oversized SVG fragment identifiers.

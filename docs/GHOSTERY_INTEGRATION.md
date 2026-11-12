@@ -30,3 +30,9 @@ Firefox's `imageset` and `beacon` request types are normalized at the Ghostery b
 ## Build 397 aggregate workload cap
 
 The licensed Ghostery cosmetic bridge now processes no more than 2,000,000 characters and 4,000 CSS declaration blocks across its bounded vendor fragments, in addition to the existing per-fragment, fragment-count and selector limits. Earlier validated CSS rules are retained and later blocks omitted if the budget is exceeded. This avoids excessive parsing from a large malicious or unexpected list. No scriptlet execution, new vendor engine or page exception change is introduced.
+
+## Build 401 DOM-aware cosmetic matching
+
+Ghostery's existing MPL-2.0 `getCosmeticsFilters` API has a second, DOM-specific path accepting class and ID names. DK previously used only hostname/base rules. The new `ghostery-dom.js` sampler collects at most 64 safe class names and 32 IDs (up to 360 initial nodes, 40 mutation records and 16 nodes in each new subtree). It reads **no page text, URLs, link destinations, login fields or form values**. Its bounded sample travels only between the content script and local extension background through the existing `getStyle` interface, where it is normalized again. The Ghostery vendor receives an empty href list, never raw pages or DOM nodes.
+
+The bridge asks the upstream engine for `getRulesFromDOM:true` with base/hostname/injection disabled for this incremental pass. Returned CSS joins baseline CSS and is subject to the exact existing safe-selector, media, authentication and user-exception rules. Upstream scripts are discarded. Ordinary pages are eligible; Facebook's full MIT module and known streaming hosts stay excluded until owner browser verification. No new permissions, dependencies, remote scripts, observers or UI changes were made.

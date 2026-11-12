@@ -1,3 +1,13 @@
+## Build 401 / v0.3.361: bounded Ghostery DOM-aware cosmetic integration (November 12, 2026)
+- [x] Reuse the embedded MPL-2.0 Ghostery engine's previously unused getRulesFromDOM class/id filter matching for dynamic ordinary web pages.
+- [x] Sample at most 360 initial elements, 40 mutation records, 16 nodes per added subtree, 64 distinct class names and 32 IDs.
+- [x] Omit hrefs, page text, form values, input fields and sensitive-looking identifiers; validate samples a second time in the background script.
+- [x] Reuse the existing content-script MutationObserver/getStyle message and debounce extra refresh to a minimum of 1.2 seconds, normally 4 seconds.
+- [x] Gate samples to real Firefox top-frame sender/host; skip Facebook's complete MIT detector and streaming/video sites.
+- [x] Apply all existing page/user exceptions, protected selectors and CSS sanitizer; never run upstream scriptlets or remote code.
+- [x] Add new offline DOM sampling, vendor protocol, safe-exception and manifest regression cases.
+- [ ] Run full native Ubuntu suite and real Firefox site/false-positive/performance acceptance before a public release.
+
 ## Build 400 / v0.3.360: bounded Facebook accessible-label reference parsing (November 12, 2026)
 - [x] Avoid unbounded DOM target lookup on malformed or unusually long aria-labelledby reference arrays.
 - [x] Inspect at most 16 unique accessibility references, selecting both head and tail to keep late Sponsored labels visible.

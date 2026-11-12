@@ -80,7 +80,7 @@ function pageURL(host,raw){
   return raw;
  }catch(_){return "https://"+host+"/";}
 }
-function styles(vendor,host,{streaming=false,policy={},page="",safeSelector=x=>x,protectSelector=()=>false}={}){
+function styles(vendor,host,{streaming=false,policy={},page="",domSignals=null,safeSelector=x=>x,protectSelector=()=>false}={}){
  // Native $document/$elemhide exceptions must also govern the supplementary
  // Ghostery layer. Otherwise a user's allowed site can remain hidden.
  if(streaming||policy?.document||policy?.elemhide||
@@ -95,8 +95,27 @@ function styles(vendor,host,{streaming=false,policy={},page="",safeSelector=x=>x
    getRulesFromHostname:true,getRulesFromDOM:false
   });
   if(value?.active===false)return "";
-  // Ignore value.scripts completely, regardless of source.
-  return sanitize(value?.styles,safeSelector,protectSelector);
+  // Ghostery's MPL engine can also select CSS by local classes and IDs.
+  // Only a validated bounded sample crosses the extension's own message bus.
+  const combined=Array.isArray(value?.styles)?value.styles.slice():[value?.styles];
+  const signals=root.DKGhosteryDOM?.normalizeSignals?.(domSignals)||
+   {classes:[],ids:[]};
+  if(signals.classes.length||signals.ids.length){
+   try{
+    const extra=vendor.getCosmeticsFilters({
+     hostname:host,domain,url:pageURL(host,page),
+     classes:signals.classes,ids:signals.ids,hrefs:[],
+     getBaseRules:false,getInjectionRules:false,getExtendedRules:false,
+     getRulesFromHostname:false,getRulesFromDOM:true
+    });
+    if(extra?.active!==false){
+     if(Array.isArray(extra?.styles))combined.push(...extra.styles);
+     else combined.push(extra?.styles);
+    }
+   }catch(_){ /* A dynamic vendor failure must not discard base CSS. */ }
+  }
+  // Neither response's scripts are executed or forwarded, ever.
+  return sanitize(combined,safeSelector,protectSelector);
  }catch(_){return "";}
 }
 const API=Object.freeze({sanitize,styles,pageURL,selectorList});

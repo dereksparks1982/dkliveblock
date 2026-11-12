@@ -1865,6 +1865,9 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
       streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
+      // Only the browser-identified same-host top frame supplies DOM names.
+      domSignals:fromContent&&sender.frameId===0&&
+       host(sender.tab?.url||"")===h?msg.domSignals:null,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
       protectSelector:selector=>DKVideoAssist.protectSelector(selector)||DKVideoAssist.protectCBSSelector(selector,h)||adExceptions.includes(selector)
     }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}

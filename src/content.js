@@ -7,6 +7,10 @@
  const hidden=new Map(),overlayRecovery=DKOverlayRecovery.create(document,window);
  const host=location.hostname.toLowerCase(),isFacebookHost=host==="facebook.com"||host.endsWith(".facebook.com"),isYouTube=host==="youtube.com"||host.endsWith(".youtube.com")||host==="youtube-nocookie.com"||host.endsWith(".youtube-nocookie.com");
  const isHealthSite=typeof DKPlaybackHealth!=="undefined"&&DKPlaybackHealth.supportsHost(host);
+ // Avoid interference with the complete MIT Facebook detector or players.
+ const ghosteryDOM=window===window.top&&!isFacebookHost&&
+  !DKVideoAssist.isStreamingHost(host)&&typeof DKGhosteryDOM!=="undefined"?
+  DKGhosteryDOM.create(document):null;
  const videoController=DKVideoAssist.createController();
  const cosmeticDebugger=DKCosmeticDebug.create(document);
  const cbsAutoplay=typeof DKCBSAutoplay!=="undefined"?DKCBSAutoplay.create(document,window):null;
@@ -79,7 +83,8 @@
  async function refresh(){
   const sequence=++refreshSequence;
   try{
-   const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href});
+   const s=await browser.runtime.sendMessage({action:"getStyle",url:location.href,
+    domSignals:ghosteryDOM?.snapshot()||null});
    if(sequence!==refreshSequence)return; // Ignore stale replies after rapid SPA navigation.
    const nextActive=!!s.active,nextAnti=!!s.antiAdblock,nextPaywall=!!s.paywallPopups,nextDistractions=!!s.distractionControl;
    const nextProcedural=Array.isArray(s.procedural)?s.procedural:[];
@@ -318,6 +323,18 @@
    overlayTimer=null;scanDynamicOverlays();
   },delay);
  }
+ // A single coalesced update reuses the existing document observer and style
+ // refresh. New names are scanned only under the fixed DOM feature budgets.
+ let ghosteryDOMTimer=null,lastGhosteryDOMRefreshAt=0;
+ function queueGhosteryDOMRefresh(){
+  if(!ghosteryDOM||!active||picking||ghosteryDOMTimer!==null)return;
+  ghosteryDOMTimer=setTimeout(()=>{
+   ghosteryDOMTimer=null;
+   if(!active||picking)return;
+   lastGhosteryDOMRefreshAt=Date.now();
+   void refresh();
+  },Math.max(1200,4000-(Date.now()-lastGhosteryDOMRefreshAt)));
+ }
  function observePopupChanges(){
   if(overlayObserver||!document.documentElement||typeof MutationObserver!=="function")return;
   try{
@@ -338,6 +355,7 @@
      // Finish this bounded batch: later React records may contain ad label
     // references that disappear before the scheduled rescan.
     }
+    if(ghosteryDOM?.observe(inspected))queueGhosteryDOMRefresh();
     if(popups)queueOverlayScan();
     // Only a video-list child insertion can schedule additional reflow work;
     // the existing 450ms debounce bounds repeated site mutations.
