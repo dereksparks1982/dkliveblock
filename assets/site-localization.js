@@ -4,8 +4,8 @@
    Keep both languages updated whenever the English site copy changes. */
 (function(root){"use strict";
 const KEY="dkWebsiteLanguage",ICON_EN="assets/images/DK%20Live%20Block%20Neon%20Banner.png";
-// The approved Russian PNG exists in GitHub, but GitHub Pages sometimes omits a newly uploaded image.
-// Serve its immutable GitHub raw URL first; retain a Pages-relative fallback.
+// Use the owner-approved Cyrillic banner from this website first.
+// Its immutable GitHub revision is a fallback if local asset loading fails.
 const ICON_RU_LOCAL="assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png";
 const ICON_RU="https://raw.githubusercontent.com/dereksparks1982/dkliveblock/2552853711159fdea179aad26efd1391f42c7f92/assets/images/Metallic%20Cyrillic%20Emblem%20and%20Gold%20Live%20Block%20Title.png";
 const FAVICON_EN="apple-touch-icon.png";
@@ -20,7 +20,15 @@ function requested(search){
   return value==="ru"||value==="en"?value:null;
  }catch(_){return null;}
 }
-function localized(source,lang){return lang==="ru"?(translations.get(hash(source))||source):source;}
+function localized(source,lang){
+ if(lang!=="ru")return source;
+ const value=translations.get(hash(source));
+ if(!value)return source;
+ // Do not transliterate machine-readable paths or support addresses.
+ if(["about:debugging","src/manifest.json","elderredsoftworks@proton.me"].includes(value))return value;
+ return value.replaceAll("Elderred Softworks","Элдерред Софтворкс")
+  .replaceAll("Firefox","Файрфокс").replace(/cookie/gi,"куки");
+}
 function translateNode(node,lang){
  const value=node.nodeValue||"",trimmed=value.trim();
  if(!trimmed||!/[A-Za-z]/.test(trimmed)&&!originals.has(node))return;
@@ -66,8 +74,8 @@ function render(doc,lang){
  if(banner){
   // Register error recovery BEFORE assigning src; never let a bad Pages image path
   // leave only visible alt text. No remote translator, tracking, or user data.
-  const primary=wanted==="ru"?ICON_RU:ICON_EN;
-  const fallback=wanted==="ru"?ICON_RU_LOCAL:"https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/"+ICON_EN;
+  const primary=wanted==="ru"?ICON_RU_LOCAL:ICON_EN;
+  const fallback=wanted==="ru"?ICON_RU:"https://raw.githubusercontent.com/dereksparks1982/dkliveblock/main/"+ICON_EN;
   banner.onerror=()=>{
    if(banner.dataset.dkFallbackFor===wanted){banner.onerror=null;return;}
    banner.dataset.dkFallbackFor=wanted;
@@ -83,7 +91,14 @@ function render(doc,lang){
  const theme=doc.querySelector('meta[name="theme-color"]');
  if(theme)theme.content=wanted==="ru"?"#4c1010":"#0b1920";
  const select=doc.getElementById("dkWebsiteLanguage");
- if(select)select.value=wanted;
+ if(select){
+  const label=doc.getElementById("siteLanguageBar")?.querySelector("label");
+  if(label)label.textContent=wanted==="ru"?"🌐 Язык":"🌐 Language / Язык";
+  const english=select.querySelector('option[value="en"]');
+  if(english)english.textContent=wanted==="ru"?"Английский":"English";
+  select.setAttribute("aria-label",wanted==="ru"?"Язык":"Language / Язык");
+  select.value=wanted;
+ }
  if(typeof doc.dispatchEvent==='function'&&typeof Event==='function')doc.dispatchEvent(new Event('dk-site-language-changed'));
  return wanted;
 }
