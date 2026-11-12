@@ -16,7 +16,7 @@ function runFixture(failing,approved=false){
   const fakeNode=[
    "#!/usr/bin/env bash",
    'if [[ "$1" == "--check" ]]; then exit 0; fi',
-   'if [[ "$1" == "scripts/build-200-audit.js" ]]; then exit 0; fi',
+   'if [[ "$1" == "scripts/build-200-audit.js" || "$1" == "scripts/nesty-evidence-lab.js" || "$1" == "scripts/third-party-license-gate.js" ]]; then exit 0; fi',
    'if [[ "$1" != "--test" ]]; then exit 91; fi',
    'if [[ "${DKLB_FIXTURE_FAIL:-}" == "yes" && "$*" == *"tests/version-contract.test.js"* ]]; then',
    " printf '# tests 3\\n# suites 0\\n# pass 2\\n# fail 1\\n# cancelled 0\\n# skipped 0\\n# todo 0\\n'",
@@ -47,27 +47,35 @@ function runFixture(failing,approved=false){
  }finally{fs.rmSync(root,{recursive:true,force:true});}
 }
 
-test("Build 161: all seven phases run and TAP totals include legitimate skipped cases",()=>{
+test("Build 161: all eight phases run and TAP totals include legitimate skipped cases",()=>{
  const result=runFixture(false);
  assert.equal(result.status,0,result.output);
- assert.equal((result.output.match(/PHASE START:/g)||[]).length,7);
+ assert.equal((result.output.match(/PHASE START:/g)||[]).length,8);
  assert.match(result.output,/Node cases: 6 total, 4 passed, 0 failed, 2 skipped, 0 todo, 0 cancelled/);
  assert.match(result.output,/Python companion scripts: 6 executed, 0 failed/);
- assert.match(result.output,/FINAL PASS: 7 offline phases passed/);
+ assert.match(result.output,/FINAL PASS: 8 offline phases passed/);
 });
 test("Build 161: failures do not hide later phases and final exit remains nonzero",()=>{
  const result=runFixture(true);
  assert.equal(result.status,1,result.output);
- assert.equal((result.output.match(/PHASE START:/g)||[]).length,7);
+ assert.equal((result.output.match(/PHASE START:/g)||[]).length,8);
  assert.match(result.output,/PHASE START: Offline Firefox release audit/);
+ assert.match(result.output,/PHASE PASS: Reviewed third-party license provenance/);
  assert.match(result.output,/Node cases: 6 total, 4 passed, 1 failed, 1 skipped, 0 todo, 0 cancelled/);
  assert.match(result.output,/Python companion scripts: 6 executed, 1 failed/);
- assert.match(result.output,/FINAL FAIL: 3 of 7 offline phases failed/);
+ assert.match(result.output,/FINAL FAIL: 3 of 8 offline phases failed/);
 });
 
 test("Build 283: reviewed on-demand Linux workflow passes the restricted CI gate",()=>{
  const result=runFixture(false,true);
  assert.equal(result.status,0,result.output);
  assert.match(result.output,/PHASE PASS: Restricted GitHub Actions policy/);
- assert.equal((result.output.match(/PHASE START:/g)||[]).length,7);
+ assert.equal((result.output.match(/PHASE START:/g)||[]).length,8);
+});
+
+test("Build 397: third-party provenance and evidence scripts are explicit runner steps",()=>{
+ const source=fs.readFileSync(RUNNER,"utf8");
+ assert.ok(source.includes('node scripts/third-party-license-gate.js'));
+ assert.ok(source.includes('node scripts/nesty-evidence-lab.js'));
+ assert.ok(source.includes('run_phase "Offline Firefox release audit" check_release'));
 });

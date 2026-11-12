@@ -1,3 +1,11 @@
+## Build 397 / v0.3.357: Linux integration regression stabilization (November 12, 2026)
+- [x] Fix the synthetic local-runner tests to recognize eight verification phases after the reviewed third-party license check was added.
+- [x] Accept only approved offline license and evidence scripts in the runner's fake Node program, avoiding false failures.
+- [x] Enforce an aggregate Ghostery CSS input budget of 2,000,000 characters and 4,000 block checks across vendor fragments.
+- [x] Preserve all user page exceptions, streaming exclusions, bundled MPL Ghostery engine, approved interfaces and working blocking paths.
+- [x] Add fast no-install `npm run test:integration` to run targeted integration tests with no browser or network.
+- [ ] Run complete Ubuntu Node/Python suite and confirm actual Facebook/YouTube browser outcomes before release.
+
 ## Build 396 / v0.3.356: approved Russian artwork and complete public Russian copy (November 12, 2026)
 - [x] Restore the owner's approved metallic Cyrillic artwork in the Russian README; retain English cyan banner solely on English page.
 - [x] Make GitHub Pages serve the same original Russian PNG locally first, with its pinned immutable GitHub revision as backup.

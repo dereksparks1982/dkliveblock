@@ -26,3 +26,7 @@ The existing MPL-2.0 Ghostery engine is reused, not duplicated. Its supplementar
 ## Build 393 WebRequest resource-type compatibility
 
 Firefox's `imageset` and `beacon` request types are normalized at the Ghostery bridge boundary to the `image` and `ping` filter families documented by the upstream matcher. The original Firefox types remain visible to DK's native engine and existing request controls. Unknown/new types are not guessed, and host/page policy, manual rules, important exceptions and streaming guards retain precedence. Upstream Ghostery remains bundled and MPL-2.0.
+
+## Build 397 aggregate workload cap
+
+The licensed Ghostery cosmetic bridge now processes no more than 2,000,000 characters and 4,000 CSS declaration blocks across its bounded vendor fragments, in addition to the existing per-fragment, fragment-count and selector limits. Earlier validated CSS rules are retained and later blocks omitted if the budget is exceeded. This avoids excessive parsing from a large malicious or unexpected list. No scriptlet execution, new vendor engine or page exception change is introduced.

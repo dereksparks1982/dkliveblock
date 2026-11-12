@@ -1,3 +1,9 @@
+## 0.3.357 / Build 397 (2026-11-12)
+- Repair stale 7-phase Linux runner tests following the new license-check phase and recognize two existing audited offline scripts.
+- Cap aggregate Ghostery cosmetic CSS work to prevent cumulative 200-fragment oversized output.
+- Add direct budget regressions and a quick offline integration test command. No UI, ad-filter policy or media transport changes.
+- Full local Ubuntu suite and live Firefox acceptance pending.
+
 ## 0.3.356 / Build 396 (2026-11-12)
 - Restore approved Russian metallic/Cyrillic banner to Russian README and Russian website.
 - Translate Russian switcher and formerly English Russian product copy, preserving URLs, technical paths, email and English site.

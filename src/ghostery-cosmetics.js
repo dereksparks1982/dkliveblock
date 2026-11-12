@@ -1,7 +1,8 @@
 /* Conservative bridge for bundled Ghostery COSMETIC CSS only.
    Does NOT execute the engine's scriptlets, intercept responses, or fetch code. */
 (function(root){"use strict";
-const LIMIT=300,MAX_CSS=500000;
+// Bound aggregate vendor work, not just 200 individually large CSS fragments.
+const LIMIT=300,MAX_CSS=500000,MAX_TOTAL_CSS=2000000,MAX_BLOCKS=4000;
 const BAD=/\b(?:html|body|main|video|audio|iframe|object|embed|form|input|button|textarea|select|dialog|player|movie_player|ytp-)\b/i;
 function valid(h){return typeof h==="string"&&h.length<254&&h.includes(".")&&
  /^[a-z0-9.-]+$/.test(h)&&!h.includes("..")&&!h.startsWith(".")&&!h.endsWith(".");}
@@ -44,9 +45,13 @@ function sanitize(styles,safeSelector=items=>items,protectSelector=()=>false){
  const fragments=typeof styles==="string"?[styles]:Array.isArray(styles)?styles:[];
  if(!fragments.length)return "";
  const out=[],seen=new Set();
+ let totalChars=0,blocks=0;
  for(const fragment of fragments.slice(0,200)){
   if(typeof fragment!=="string"||fragment.length>MAX_CSS)continue;
+  if(totalChars+fragment.length>MAX_TOTAL_CSS)break;
+  totalChars+=fragment.length;
   for(const part of fragment.split("}")){
+   if(++blocks>MAX_BLOCKS)return out.join("\n");
    const bracket=part.indexOf("{");
    if(bracket<1)continue;
    const selectorGroup=part.slice(0,bracket).trim(),body=part.slice(bracket+1).trim();
