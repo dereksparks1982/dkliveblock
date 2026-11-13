@@ -51,3 +51,7 @@ The active read-only catalog lives in `src/meta-delivery-catalog.js` and is visi
 - MIT-licensed Inky `fb-sponsored-ad-post-blocker`, upstream source vendored under `src/vendor/`. Original MIT license preserved.
 - uBlock Origin uAssets Facebook quick fixes (GPL-3.0, studied but not copied into the DK engine); these filters require implementing compatible browser scripting semantics.
 - DK owner acceptance screenshot: Build 250 still displayed a feed `Ad` post and two right-rail `Sponsored` advertisements. Not yet a verified PASS.
+
+## Build 402: renamed GraphQL ad metadata (November 12, 2026)
+
+Independent October 2026 research identifies `th_dat_spo` as a renamed `sponsored_data` field in sponsored Facebook feed stories. DK's first-party schema-bound GraphQL engine now recognizes it inside previously approved feed, relay, sidebar, Marketplace and search collections. The new field requires an explicit `SponsoredData` type or nonempty short `ad_id`, whereas historical `sponsored_data` ad-ID behavior is unchanged. Generic root `data.node`, GHL parser decoys, messages and user reactions remain untouched; the existing reversible Meta Nesty 05 setting and JSONL/RequireJS bounds stay active. This is source-level implementation, **not live Facebook acceptance**. External research: https://github.com/SysAdminDoc/facebook-ublock-filters and https://github.com/pyxis3-ai/webcleaner (no code copied).

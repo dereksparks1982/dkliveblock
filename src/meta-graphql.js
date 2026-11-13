@@ -53,25 +53,31 @@ function dropFromArray(obj,prop,predicate){
  if(list.length===keep.length)return 0;
  obj[prop]=keep;return list.length-keep.length;
 }
-// Match affirmative ad metadata on an explicitly recognized feed unit,
-// not an arbitrary "sponsored" string embedded in normal user content.
+// Newer Facebook GraphQL uses th_dat_spo for some sponsored_data fields.
+// Existing historical ad-id handling stays intact. The new alias demands a
+// typed SponsoredData object or a short nonempty ad_id to avoid false positives.
+// Callers inspect only explicit feed/search/Marketplace/side ad collections,
+// never arbitrary private messages, root data.node or JSON.parse canaries.
+function adMetadata(value,renamed=false){
+ return object(value)&&(value.__typename==="SponsoredData"||
+  (renamed?(typeof value.ad_id==="string"&&value.ad_id.length>0&&value.ad_id.length<=256):
+   Object.prototype.hasOwnProperty.call(value,"ad_id")));
+}
+function sponsoredFields(unit){
+ return object(unit)&&(adMetadata(unit.sponsored_data)||
+  adMetadata(unit.th_dat_spo,true));
+}
 function adNode(n){
  return object(n)&&(n.__typename==="SponsoredData"||
-   n.__typename==="MarketplaceFeedAdStory"||
-   n.role==="SEARCH_ADS"||
-   object(n.sponsored_data)&&("ad_id" in n.sponsored_data||
-     n.sponsored_data.__typename==="SponsoredData")||
-   object(n.story)&&object(n.story.sponsored_data)&&
-    ("ad_id" in n.story.sponsored_data||
-     n.story.sponsored_data.__typename==="SponsoredData")||
-   object(n.relay_rendering_strategy?.view_model?.story?.sponsored_data)&&
-    "ad_id" in n.relay_rendering_strategy.view_model.story.sponsored_data);
+  n.__typename==="MarketplaceFeedAdStory"||
+  n.role==="SEARCH_ADS"||
+  sponsoredFields(n)||sponsoredFields(n.story)||
+  sponsoredFields(n.relay_rendering_strategy?.view_model?.story));
 }
 function sponsoredEdge(edge){
  if(!object(edge)||!object(edge.node))return false;
  return edge.category==="SPONSORED"||adNode(edge.node)||
-   object(edge.relay_rendering_strategy?.view_model?.story?.sponsored_data)&&
-    "ad_id" in edge.relay_rendering_strategy.view_model.story.sponsored_data;
+  sponsoredFields(edge.relay_rendering_strategy?.view_model?.story);
 }
 function pruneEdges(parent){
  return dropFromArray(parent,"edges",sponsoredEdge);
@@ -357,7 +363,7 @@ function experimentEnabled(settings,request,site){
   settings?.metaGraphqlFilter===true&&eligible(request,site);
 }
 const API=Object.freeze({EXPERIMENT_OWNER,experimentEnabled,MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
- validSite,route,eligible,safeHeaders,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
+ validSite,route,eligible,safeHeaders,adMetadata,sponsoredFields,adNode,sponsoredEdge,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

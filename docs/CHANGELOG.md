@@ -1,3 +1,9 @@
+## 0.3.362 / Build 402 (2026-11-12)
+- Support newer `th_dat_spo` Facebook sponsorship metadata in the existing first-party GraphQL filter, retaining old `sponsored_data` semantics.
+- Restrict new decisions to clearly marked ads in known collection shapes; preserve regular posts and Facebook JSON parser canaries.
+- Extend offline regression coverage and targeted integration command. No extension permissions, third-party dependencies, page scripts or YouTube changes.
+- Browser verification pending.
+
 ## 0.3.361 / Build 401 (2026-11-12)
 - Activate a bounded, locally sampled class/id path into the existing Ghostery MPL-2.0 cosmetic engine for dynamic non-streaming websites.
 - Reuse existing DOM observers and style refresh; reject untrusted/private names and retain document/elemhide user allowances, media/identity protections and sanitizer.

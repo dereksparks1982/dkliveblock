@@ -1,3 +1,10 @@
+## Build 402 / v0.3.362: Facebook renamed sponsored GraphQL metadata (November 12, 2026)
+- [x] Recognize `th_dat_spo` as a candidate alias for `sponsored_data` in known first-party GraphQL feed/Marketplace/search and dedicated ad slots.
+- [x] Require positive `SponsoredData` type or short non-empty ad ID for the *new* alias, keeping historical `sponsored_data` behavior intact.
+- [x] Preserve parser decoys, private content, fail-open transaction and JSONL/RequireJS safety, 1.5MB cap and user-controlled Meta Nesty 05 experiment.
+- [x] Add 15 regression tests for feed/relay/Marketplace/sidebar, nested envelopes, ordinary posts, GHL canaries and legacy compatibility.
+- [ ] Confirm actual signed-in Firefox Facebook feed and Marketplace outcomes before considering production success.
+
 ## Build 401 / v0.3.361: bounded Ghostery DOM-aware cosmetic integration (November 12, 2026)
 - [x] Reuse the embedded MPL-2.0 Ghostery engine's previously unused getRulesFromDOM class/id filter matching for dynamic ordinary web pages.
 - [x] Sample at most 360 initial elements, 40 mutation records, 16 nodes per added subtree, 64 distinct class names and 32 IDs.
