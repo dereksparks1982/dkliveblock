@@ -1,3 +1,9 @@
+## 0.3.367 / Build 407 (2026-11-13)
+- Link the existing MIT Facebook DOM and first-party GraphQL counters in a fixed, aggregate-only read-only diagnostic pipeline.
+- Distinguish GraphQL unused/unchanged/modified/errored, missing DOM core, unanchored post labels and pending SPA retries without claiming any specific post was removed.
+- Integrate into the existing explicit Facebook diagnostic export with no new observer, extension privilege, request capture, telemetry, dependency or blocking policy changes.
+- Add source-level and synthetic privacy/false-positive tests; signed-in Firefox acceptance still pending.
+
 ## 0.3.366 / Build 406 (2026-11-13)
 - Review upstream Ghostery FiltersEngine API and WebExtension example against the installed v2.20.3 bridge.
 - Reuse the upstream CSS matcher without requesting unneeded scriptlet rules; preserve existing no-scriptlet and no-extended-selector policy.

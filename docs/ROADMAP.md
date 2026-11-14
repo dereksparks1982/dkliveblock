@@ -1,3 +1,11 @@
+## Build 407 / v0.3.367: read-only Facebook DOM and GraphQL pipeline classification (November 13, 2026)
+- [x] Reuse existing MIT Facebook full-core counts and DK Meta GraphQL Nesty 05 totals through the existing fixed-schema `DKFacebookDiagnosticReport.build` path.
+- [x] Add frozen five-key `pipeline` summary distinguishing no GraphQL eligible response, unchanged responses, modified records, errors/timeout/capacity skips, and unavailable/disabled GraphQL.
+- [x] Identify late SPA retries, safe-post anchoring failures, loaded-but-inactive core and DOM hides without asserting per-post causal success.
+- [x] Keep explicit owner-triggered same-tab diagnostics and JSON export; no new page observers, new permissions, network capture, auto-hiding or private browsing records.
+- [x] Add 15 synthetic regression cases, including false-positives, extra user data, out-of-range stats and unchanged report schema.
+- [ ] Live signed-in Firefox false-positive, scroll and Marketplace acceptance is still required to confirm outcomes.
+
 ## Build 406 / v0.3.366: reuse Ghostery's CSS-only upstream API safely (November 13, 2026)
 - [x] Check official `@ghostery/adblocker` FiltersEngine CSS and WebExtension API behavior in upstream code and examples.
 - [x] Stop requesting unused scriptlet injection rules from the bundled upstream engine; retain ordinary hostname + DOM-specific CSS matching and existing CSS sanitization.

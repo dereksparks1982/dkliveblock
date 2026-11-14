@@ -51,6 +51,56 @@ function triage(r){
  return Object.freeze({code:"no-hides-recorded",next:"If a marked Ad remains visible, save this report and a screenshot. Do not infer that permitted requests were ads."});
 }
 
+
+// Build 407: local, aggregate-only links between the existing MIT Facebook
+// DOM detector and the already-running Nesty Meta 05 GraphQL response filter.
+// These are independent cumulative counters. Never infer that a particular
+// ad was blocked merely because either counter is positive.
+function pipeline(r){
+ if(!r||r.kind!=="dk-facebook-aggregate-diagnostics"||r.schema!==2)
+  return Object.freeze({dom:"unknown",graphql:"unknown",focus:"invalid-evidence",
+   verified:false,scope:"aggregate-only"});
+ const d=r.detector||{},g=r.graphql||{},q=g.counters||{};
+ const engaged=r.active===true&&r.adRecognition===true&&r.adapterLoaded===true;
+ let dom="unavailable";
+ if(!engaged)dom="inactive";
+ else if(d.coreMissing)dom="core-missing";
+ else if(d.settingsError||d.settingsReady===0)dom="settings-unavailable";
+ else if(d.coreEnabled===0)dom="core-disabled";
+ else if(d.observerActive===0)dom="observer-inactive";
+ else if((d.hidden||0)>0||(d.fastHidden||0)>0)dom="hides-observed";
+ else if((d.labelsUnanchored||0)>0)dom="labels-unanchored";
+ else if((d.labelsAnchored||0)>0)dom="labels-anchored-no-hide";
+ else if((d.labelsDeferred||0)>0||(d.pending||0)>0)dom="labels-pending";
+ else if((d.labelsClassified||0)>0)dom="labels-classified";
+ else if((d.scans||0)+(d.fastScans||0)+(d.observerCalls||0)>0)dom="scanning-no-label";
+ else dom="no-scan-evidence";
+ let graphql="unavailable";
+ if(g.available!==true)graphql="unavailable";
+ else if(g.enabled!==true||g.siteActive!==true)graphql="inactive";
+ else if(g.supported!==true)graphql="unsupported";
+ else if((q.errors||0)+(q.timeout||0)+(q.oversized||0)>0)graphql="interception-errors-observed";
+ else if((q.modified||0)>0||(q.removed||0)>0)graphql="records-modified";
+ else if((q.attached||0)>0)graphql="responses-observed-unmodified";
+ else if((q.skipped||0)>0)graphql="capacity-skips-observed";
+ else graphql="no-eligible-responses-observed";
+ let focus="compare-visible-ad";
+ if(dom==="inactive"||graphql==="inactive")focus="check-authorization-and-pauses";
+ else if(dom==="core-missing"||dom==="observer-inactive"||
+   dom==="settings-unavailable"||dom==="core-disabled")
+  focus="inspect-dom-core-lifecycle";
+ else if(dom==="labels-unanchored"||dom==="labels-anchored-no-hide")
+  focus="inspect-post-boundaries";
+ else if(dom==="labels-pending")focus="inspect-late-spa-retries";
+ else if(graphql==="interception-errors-observed")focus="inspect-graphql-safety-fallback";
+ else if(graphql==="no-eligible-responses-observed")focus="inspect-facebook-response-routes";
+ else if(graphql==="responses-observed-unmodified")focus="inspect-ad-metadata-schema";
+ else if(dom==="scanning-no-label")focus="inspect-visible-label-variants";
+ else if(dom==="hides-observed"&&graphql==="records-modified")
+  focus="both-layers-active-still-check-feed";
+ return Object.freeze({dom,graphql,focus,verified:false,scope:"aggregate-only"});
+}
+
 function build(detector,graphqlReply){
  if(!detector||detector.ok!==true)return null;
  const d=detector.detector&&typeof detector.detector==="object"?
@@ -63,9 +113,9 @@ function build(detector,graphqlReply){
   detector:d,graphql:graphql(graphqlReply),
   interpretation:"Permitted Facebook requests and zero network blocks cannot establish whether sponsored content was hidden or GraphQL advertising records were removed."
  });
- return Object.freeze({...snapshot,triage:triage(snapshot)});
+ return Object.freeze({...snapshot,triage:triage(snapshot),pipeline:pipeline(snapshot)});
 }
-const API=Object.freeze({DETECTOR,GRAPHQL,bounded,counts,graphql,build,triage});
+const API=Object.freeze({DETECTOR,GRAPHQL,bounded,counts,graphql,build,triage,pipeline});
 root.DKFacebookDiagnosticReport=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
