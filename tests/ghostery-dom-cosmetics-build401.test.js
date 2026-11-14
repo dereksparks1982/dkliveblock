@@ -23,6 +23,7 @@ test("Build 401: upstream MPL engine receives bounded class/id DOM request",()=>
  assert.deepEqual(v.calls[1].hrefs,[]);
  assert.equal(v.calls[1].getBaseRules,false);
  assert.equal(v.calls[1].getRulesFromHostname,false);
+ assert.equal(v.calls[0].getInjectionRules,false);
  assert.equal(v.calls[1].getInjectionRules,false);
  assert.doesNotMatch(css,/malicious/);
 });

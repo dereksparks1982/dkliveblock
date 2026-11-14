@@ -1,3 +1,11 @@
+## Build 406 / v0.3.366: reuse Ghostery's CSS-only upstream API safely (November 13, 2026)
+- [x] Check official `@ghostery/adblocker` FiltersEngine CSS and WebExtension API behavior in upstream code and examples.
+- [x] Stop requesting unused scriptlet injection rules from the bundled upstream engine; retain ordinary hostname + DOM-specific CSS matching and existing CSS sanitization.
+- [x] Guard DK's own `$generichide` page policy against dynamic generic DOM matching; retain other named-host CSS and full document/elemhide exemptions.
+- [x] Record official WebExtension adapter capability but avoid installing a second browser listener engine alongside DK's protected native/YouTube/Facebook decision owners.
+- [x] Add an executable Ghostery feature/unsupported-behavior matrix and `npm run audit:ghostery-compat`; register synthetic regression fixtures.
+- [ ] Native Ubuntu suite and real Firefox behavior are required before enabling broader CSS semantics or WebExtension adapter.
+
 ## Build 405 / v0.3.365: reuse-first open-source integration roadmap (November 13, 2026)
 - [x] [Living upstream reuse plan and build sequence](OPEN_SOURCE_INTEGRATION_ROADMAP.md), including actual integrated versus considered repositories, specific license uncertainties, 406–416 priorities and acceptance gates.
 - [x] Add offline, machine-readable catalog `scripts/open-source-integration-catalog.js` distinguishing bundled, development-vendored, planned, research-only, deferred and archived candidates.

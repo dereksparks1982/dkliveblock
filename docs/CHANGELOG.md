@@ -1,3 +1,10 @@
+## 0.3.366 / Build 406 (2026-11-13)
+- Review upstream Ghostery FiltersEngine API and WebExtension example against the installed v2.20.3 bridge.
+- Reuse the upstream CSS matcher without requesting unneeded scriptlet rules; preserve existing no-scriptlet and no-extended-selector policy.
+- Keep DK's local generic-hide exceptions authoritative over the new Ghostery DOM-matched CSS path.
+- Add a source-checked offline compatibility matrix and real adapter-boundary tests. No new dependency, listener, permission, remote script or UI changes.
+- Full native and browser verification remains outstanding.
+
 ## 0.3.365 / Build 405 (2026-11-13)
 - Establish a maintainable open-source reuse-first program with explicit integrated, developer-only, planned, research-only, deferred and archived repository statuses.
 - Document 13 evaluated external repositories, existing bundled components and ordered Build 406–416 adoption/benchmark milestones with licensing and privacy decisions.

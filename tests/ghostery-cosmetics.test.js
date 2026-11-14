@@ -66,7 +66,8 @@ test("Build 159 generichide disables Ghostery base rules but keeps site-specific
  assert.equal(seen.length,1);
  assert.equal(seen[0].getBaseRules,false,"must not inject global hiding CSS");
  assert.equal(seen[0].getRulesFromHostname,true);
- assert.equal(seen[0].getInjectionRules,true);
+ assert.equal(seen[0].getInjectionRules,false,
+  "DK requests CSS only, not unused upstream scriptlets");
  G.styles(vendor,"news.example",{policy:{}});
  assert.equal(seen[1].getBaseRules,true);
 });

@@ -91,7 +91,9 @@ function styles(vendor,host,{streaming=false,policy={},page="",domSignals=null,s
  try{
   const value=vendor.getCosmeticsFilters({
    hostname:host,domain,url:pageURL(host,page),
-   getBaseRules:policy?.generichide!==true,getInjectionRules:true,getExtendedRules:false,
+   // The upstream engine returns normal CSS with injection disabled.
+   // Do not even ask Ghostery to resolve scriptlet resources which DK never runs.
+   getBaseRules:policy?.generichide!==true,getInjectionRules:false,getExtendedRules:false,
    getRulesFromHostname:true,getRulesFromDOM:false
   });
   if(value?.active===false)return "";
@@ -100,7 +102,10 @@ function styles(vendor,host,{streaming=false,policy={},page="",domSignals=null,s
   const combined=Array.isArray(value?.styles)?value.styles.slice():[value?.styles];
   const signals=root.DKGhosteryDOM?.normalizeSignals?.(domSignals)||
    {classes:[],ids:[]};
-  if(signals.classes.length||signals.ids.length){
+  // DK native $generichide must also suppress the DOM-matched generic CSS
+  // path. Ghostery has a separate native exception mechanism but cannot know
+  // every DK-local user rule, so the conservative choice is to skip that pass.
+  if(policy?.generichide!==true&&(signals.classes.length||signals.ids.length)){
    try{
     const extra=vendor.getCosmeticsFilters({
      hostname:host,domain,url:pageURL(host,page),

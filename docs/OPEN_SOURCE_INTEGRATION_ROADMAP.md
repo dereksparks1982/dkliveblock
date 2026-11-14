@@ -90,3 +90,7 @@ npm run test:local
 3. Can we integrate it via a bounded adapter without a second conflicting decision owner, permissions or remote code?
 4. Are there genuine positive and negative cases including protected content, media, privacy and revert behavior?
 5. If no, document why a narrow DK implementation is necessary. Do not default to starting over.
+
+## Build 406 milestone result (November 13, 2026)
+
+Completed a source-backed upstream Ghostery API comparison and corrected DK's existing CSS-only bridge to request `getInjectionRules:false`. This is an actual runtime integration improvement, **not** an additional adblock engine. Dynamic generic hiding now defers to the DK page's `generichide` exception. Added `npm run audit:ghostery-compat` documenting linked versus intentionally disabled engine features (CSP, advanced selectors, scriptlets, HTML rewriting, serialization and official WebExtension adapter). The official WebExtension package is retained as a future adapter comparison, not installed as a competing listener. Build 407 Facebook diagnostics is next; complete Ubuntu/browser acceptance remains pending.

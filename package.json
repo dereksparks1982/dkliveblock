@@ -1,17 +1,18 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.3.365",
+  "version": "0.3.366",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
     "verify:ghostery": "node scripts/build-ghostery.mjs --verify",
     "test:local": "bash scripts/test-local.sh",
-    "test:integration": "node --test --test-reporter=tap --test-concurrency=2 tests/test-local-runner.test.js tests/meta-graphql-build402.test.js tests/meta-graphql-build403.test.js tests/meta-graphql-build404.test.js tests/open-source-reuse-build405.test.js tests/engine-verdict-reuse-build405.test.js tests/facebook-referrer-safety-build391.test.js tests/facebook-dual-referrer-build395.test.js tests/facebook-scan-queue-build398.test.js tests/facebook-ad-label-cache-build399.test.js tests/facebook-reference-budget-build400.test.js tests/ghostery-cosmetics.test.js tests/ghostery-cosmetics-build392.test.js tests/ghostery-css-budgets-build397.test.js tests/ghostery-dom-build401.test.js tests/ghostery-dom-cosmetics-build401.test.js tests/ghostery-request-types-build393.test.js tests/third-party-license-build394.test.js tests/website-localization-build276.test.js tests/website-russian-build396.test.js",
+    "test:integration": "node --test --test-reporter=tap --test-concurrency=2 tests/test-local-runner.test.js tests/meta-graphql-build402.test.js tests/meta-graphql-build403.test.js tests/meta-graphql-build404.test.js tests/open-source-reuse-build405.test.js tests/engine-verdict-reuse-build405.test.js tests/ghostery-upstream-build406.test.js tests/ghostery-compatibility-report-build406.test.js tests/facebook-referrer-safety-build391.test.js tests/facebook-dual-referrer-build395.test.js tests/facebook-scan-queue-build398.test.js tests/facebook-ad-label-cache-build399.test.js tests/facebook-reference-budget-build400.test.js tests/ghostery-cosmetics.test.js tests/ghostery-cosmetics-build392.test.js tests/ghostery-css-budgets-build397.test.js tests/ghostery-dom-build401.test.js tests/ghostery-dom-cosmetics-build401.test.js tests/ghostery-request-types-build393.test.js tests/third-party-license-build394.test.js tests/website-localization-build276.test.js tests/website-russian-build396.test.js",
     "audit:evidence": "node scripts/nesty-evidence-lab.js",
     "audit:checkpoint": "node scripts/checkpoint-audit.js",
     "audit:licenses": "node scripts/third-party-license-gate.js",
     "audit:reuse": "node scripts/open-source-integration-audit.js",
-    "audit:engine-compat": "node scripts/engine-verdict-audit.js"
+    "audit:engine-compat": "node scripts/engine-verdict-audit.js",
+    "audit:ghostery-compat": "node scripts/ghostery-compatibility-audit.js"
   },
   "dependencies": {
     "@ghostery/adblocker": "2.20.3"
