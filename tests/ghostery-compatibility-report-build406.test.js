@@ -29,6 +29,10 @@ test("Build 406: removal of CSS injection guard fails inspection",()=>{
  const opts=options();opts.source=opts.source.replace("getInjectionRules:false","getInjectionRules:true");
  assert.equal(Report.audit(opts).ok,false);
 });
+test("Build 406: no mixed request flags can accidentally request upstream scripts",()=>{
+ const opts=options();opts.source+="\n// accidental getInjectionRules:true";
+ assert.equal(Report.audit(opts).ok,false);
+});
 test("Build 406: generic-hide guard is required to preserve local exceptions",()=>{
  const opts=options();opts.source=opts.source.replace(
   "policy?.generichide!==true&&(signals.classes.length||signals.ids.length)",

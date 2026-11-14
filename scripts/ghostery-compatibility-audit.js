@@ -34,6 +34,7 @@ function capabilities(){
 function audit({source,hybrid,manifest,dependencies,rows}){
  const errors=[];
  if(typeof source!=="string"||!source.includes("getInjectionRules:false")||
+   source.includes("getInjectionRules:true")||
    !source.includes("policy?.generichide!==true&&(signals.classes.length||signals.ids.length)"))
   errors.push("CSS-only or generic-hide safeguards missing");
  if(typeof hybrid!=="string"||!hybrid.includes("ghosteryType(type||")||

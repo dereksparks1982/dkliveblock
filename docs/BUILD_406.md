@@ -7,3 +7,7 @@ The shipping `src/ghostery-cosmetics.js` bridge uses the approved bundled Ghoste
 The upstream WebExtension adapter, if fully enabled, attaches its own request/content listeners, duplicating DK's existing Firefox blocking architecture. We therefore **did not install** it or introduce a second production interception owner. The new offline `scripts/ghostery-compatibility-audit.js` records actual integration status and gaps, leveraging existing `engine-verdict-audit.js` and source dependencies without network or private telemetry. New tests cover request flags, no scriptlet compilation, generichide, exceptions, protected selectors, vendor failures, manifest pin and audit anti-drift. No new permissions or npm package.
 
 Reference source: https://github.com/ghostery/adblocker/blob/master/packages/adblocker/src/engine/engine.ts and https://github.com/ghostery/adblocker/tree/master/packages/adblocker-webextension. Licensed upstream bundle remains unchanged and MPL notices retained. Native Ubuntu/actual Firefox acceptance not performed.
+
+## Audit hardening correction
+
+The initial synthetic audit found that a partial `getInjectionRules:false` string check was insufficient: a second upstream request could still ask for scriptlets without detection. The audit now explicitly rejects any `getInjectionRules:true` in the bridge. Added a regression case for mixed flags; the runtime bridge itself did not require another change.
