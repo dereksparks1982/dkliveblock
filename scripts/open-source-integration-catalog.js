@@ -26,7 +26,7 @@ const ITEMS=Object.freeze([
   evidence:[],next:"Run optional Build 409 Cargo/API harness and audit its output before any installation; no second live Firefox engine."},
  {id:"mljs",repo:"mljs/ml",license:"MIT",
   status:"planned-evaluation",priority:"P1",capability:"Offline supervised Nesty evaluation",
-  evidence:[],next:"Require real labeled privacy-safe corpus, holdouts, false-positive benchmark and rollback."},
+  evidence:[],next:"Build 410 defines offline site holdouts and a strict fail-closed benchmark; wait for approved real labels before importing ML packages or training."},
  {id:"onnx",repo:"microsoft/onnxruntime",license:"MIT",
   status:"deferred",priority:"P3",capability:"Optional local WASM inference",
   evidence:[],next:"Use only if a measured compact trained model beats current deterministic scoring."},
