@@ -6,7 +6,10 @@ const NAME=/^[A-Za-z_$][A-Za-z0-9_$]{0,39}$/;
 const BAD=new Set(["__proto__","constructor","prototype","document","location","navigator",
  "fetch","XMLHttpRequest","eval","Function","globalThis","self","top","parent",
  "frames","opener","browser","chrome","history","JSON","Promise","crypto",
- "localStorage","sessionStorage","cookieStore"]);
+ "localStorage","sessionStorage","cookieStore","__defineGetter__",
+ "__defineSetter__","__lookupGetter__","__lookupSetter__","toString",
+ "toLocaleString","valueOf","hasOwnProperty","isPrototypeOf",
+ "propertyIsEnumerable"]);
 const VALUES=new Set(["true","false","null","undefined","0","1"]);
 function validHost(h){return typeof h==="string"&&h.length<254&&h.includes(".")&&HOST.test(h);}
 function validPath(p){
@@ -28,6 +31,15 @@ function parse(raw){
  if(args.length!==3||args[0]!=="set-constant"||!validPath(args[1])||!VALUES.has(args[2]))return null;
  return {site,exception,name:"set-constant",path:args[1],value:args[2]};
 }
+// The MAIN-world tree cannot install a leaf and its ancestor/descendant
+// simultaneously. Resolve the collision before the 24-shim runtime budget.
+// Preserve the first eligible user-authored rule, leave unrelated siblings.
+function pathConflict(path,selectedPaths){
+ for(const other of selectedPaths){
+  if(other===path||other.startsWith(path+".")||path.startsWith(other+"."))return true;
+ }
+ return false;
+}
 function select(text,host){
  if(typeof text!=="string"||text.length>200000||!validHost(host))return [];
  const added=new Map(),removed=new Set();let disabled=false,index=0;
@@ -44,13 +56,13 @@ function select(text,host){
  // Otherwise 24 excepted entries can hide later eligible user rules.
  const selected=[],paths=new Set();
  if(!disabled)for(const [id,rule] of added){
-  if(removed.has(id)||paths.has(rule.path))continue;
+  if(removed.has(id)||pathConflict(rule.path,paths))continue;
   selected.push(rule);paths.add(rule.path);
   if(selected.length>=24)break;
  }
  return selected;
 }
-const API=Object.freeze({validHost,validPath,parse,select});
+const API=Object.freeze({validHost,validPath,parse,select,pathConflict});
 root.DKSafeScriptletRules=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);
