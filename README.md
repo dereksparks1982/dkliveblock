@@ -15,6 +15,8 @@ This identifies the present project or its stewardship; it does not change exist
 
 **Development status:** Active pre-release. Facebook Sponsored removal and ordinary YouTube playback still require real Firefox verification. Source checks alone do not prove universal advertising removal or uBlock Origin parity. No public release has been approved.
 
+**Build 410 Nesty evaluation:** An offline-only, synthetic site-held-out measurement harness is documented in [the Nesty evaluation report](docs/NESTY_EVALUATION_BUILD410.md). It measures false-positive risk and refuses automatic deployment; it does not train on visitor activity or replace tested browser filtering.
+
 **Build 409 portability research:** The optional, developer-only Brave Rust comparison and Safari content-blocker conversion experiment is documented in [the portability study](docs/BRAVE_SAFARI_PORTABILITY_BUILD409.md). It is **not** installed in the Firefox extension or verified on Orion iOS.
 
 **[Official website and downloads](https://dereksparks1982.github.io/dkliveblock/?lang=en)**. Choose English or Русский using the language selector at the top. The extension has its own language setting.
