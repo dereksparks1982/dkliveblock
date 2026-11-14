@@ -23,7 +23,7 @@ const ITEMS=Object.freeze([
   next:"Only use as offline experimental code; keep synthetic scores review-only."},
  {id:"brave",repo:"brave/adblock-rust",license:"MPL-2.0",
   status:"planned-evaluation",priority:"P1",capability:"Offline engine differential benchmark and Safari format conversion feasibility",
-  evidence:[],next:"Compare in a separate developer-only tool; do not ship a second live Firefox engine."},
+  evidence:[],next:"Run optional Build 409 Cargo/API harness and audit its output before any installation; no second live Firefox engine."},
  {id:"mljs",repo:"mljs/ml",license:"MIT",
   status:"planned-evaluation",priority:"P1",capability:"Offline supervised Nesty evaluation",
   evidence:[],next:"Require real labeled privacy-safe corpus, holdouts, false-positive benchmark and rollback."},
