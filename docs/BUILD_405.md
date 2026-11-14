@@ -9,3 +9,7 @@ The living [OPEN_SOURCE_INTEGRATION_ROADMAP](OPEN_SOURCE_INTEGRATION_ROADMAP.md)
 **Implementation:** new static `scripts/open-source-integration-catalog.js`, offline `scripts/open-source-integration-audit.js` and tests. The latter **reuses** both `scripts/third-party-license-gate.js` and `scripts/engine-verdict-audit.js`. The preexisting differential engine's sample set is larger, and its direct Ghostery evaluation now normalizes `imageset` and `beacon` through DK's real adapter, fixing an audit mismatch. Commands: `npm run audit:reuse`, `npm run audit:engine-compat`.
 
 No new npm dependency, copied GPL code, license/manifest permission, runtime blocking behavior, site settings, profile storage, Nesty agent or UI geometry is introduced. The integration status is *evidence-based*, not a claim of blocker parity or browser success. Run native local Node/Python suite and real Firefox owner acceptance in the later stabilization phase. No Actions or release requested.
+
+## Focused fixture correction
+
+The initial isolated catalog test caught a case-sensitive assertion mismatch (the validator said `missing local evidence`; the test expected capital `Missing`). The test now validates the diagnostic without relying on capitalization. The catalog validator also returns a clear failure instead of throwing for null entries. These corrections do not alter live filtering or extension behavior.

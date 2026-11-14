@@ -65,7 +65,11 @@ function validateCatalog(items=ITEMS){
  if(!Array.isArray(items)||items.length<3||items.length>40)return ["Invalid catalog length"];
  const errors=[],seen=new Set();
  for(const row of items){
-  if(!row||typeof row.id!=="string"||!/^[a-z0-9-]+$/.test(row.id)||seen.has(row.id))
+  if(!row||typeof row!=="object"){
+   errors.push("Invalid component entry");
+   continue;
+  }
+  if(typeof row.id!=="string"||!/^[a-z0-9-]+$/.test(row.id)||seen.has(row.id))
    errors.push("Duplicate/malformed component id");
   else seen.add(row.id);
   if(!STATUSES.includes(row.status))errors.push("Unknown status: "+row.id);

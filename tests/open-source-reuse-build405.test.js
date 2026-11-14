@@ -41,7 +41,11 @@ test("Build 405: existing license-gate errors propagate into reuse audit",()=>{
 test("Build 405: false bundled claim without local evidence is rejected",()=>{
  const altered=Catalog.ITEMS.map(x=>x.id==="brave"?
   {...x,status:"bundled-runtime",evidence:[]}:x);
- assert.ok(Catalog.validateCatalog(altered).some(x=>/Missing/.test(x)));
+ assert.ok(Catalog.validateCatalog(altered).some(x=>/missing local evidence/i.test(x)));
+});
+test("Build 405: null or malformed catalog entries fail closed without crashing",()=>{
+ const bad=Catalog.ITEMS.slice();bad[1]=null;
+ assert.ok(Catalog.validateCatalog(bad).some(x=>/Invalid component entry/.test(x)));
 });
 test("Build 405: unsupported status and duplicated candidate is rejected",()=>{
  const list=Catalog.ITEMS.map(x=>({...x}));
