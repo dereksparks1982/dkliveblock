@@ -34,3 +34,7 @@ The offline `npm run audit:licenses` gate verifies the already bundled Ghostery/
 ## Build 405: potential upstream sources are not new bundled licenses
 
 The [open-source integration roadmap](OPEN_SOURCE_INTEGRATION_ROADMAP.md) catalogs additional *candidate* GitHub repositories, current high-level license indicators and proposed work. None of those candidates was installed, vendored into the runtime or relicensed in Build 405. The existing Ghostery MPL-2.0, Mozilla PSL MPL-2.0, Facebook MIT and offline micrograd MIT notices remain authoritative. A future actual integration must extend these attribution and license files at the same time code is introduced.
+
+## Build 409 optional developer-only Brave research
+
+The optional Cargo experiment at `experiments/brave-differential/` **references** Brave's [adblock-rust](https://github.com/brave/adblock-rust) 0.13.5 through its official Rust crate API. Brave source is licensed **MPL-2.0**. No Brave source or binary was copied into the Firefox runtime, vendored into DK, or installed on end-user devices in this build. The crate is not part of the root npm dependencies. The developer who chooses to resolve/build the optional Cargo project must review its resulting lockfile, exact sources, license notices and redistribution obligations before shipping any artifact. Safari-converted rules are derived from synthetic DK examples, not from copyrighted external lists. The complete capability and acceptance discussion is at [Build 409](BRAVE_SAFARI_PORTABILITY_BUILD409.md).
