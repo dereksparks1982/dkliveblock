@@ -1,3 +1,12 @@
+## Build 411 / v0.3.371: conservative user scriptlet hardening and bundled Ghostery capability audit (November 14, 2026)
+- [x] Reuse existing MPL-2.0 Ghostery 2.20.3 and the existing DK user-authored scriptlet parser/runtime; add no new third-party engine, dependency, permission or list-supplied JavaScript.
+- [x] Reject overlapping leaf/ancestor/descendant manual scriptlet targets **before** the 24-operation limit, preserving first-eligible priority, exceptions and unrelated siblings.
+- [x] Deny common object prototype methods and magic accessors in both the manual rule parser and MAIN-world runtime validator; preserve two literal operations, property restoration and ordinary page content.
+- [x] Add a developer-only API capability probe that requests upstream scriptlet metadata on synthetic `.example` rules then discards all returned executable text, never injecting or storing it.
+- [x] Verify 16 synthetic site/exception/collision fixtures, existing runtime wiring, reviewed licenses and version pins; add 25 regression cases to local and integration runners.
+- [x] Document Ghostery MPL-2.0 reuse, AdGuard Scriptlets GPL-3.0 reference-only decision, anti-circumvention support limits, no new background/page script and no production policy change beyond manual rule hardening.
+- [ ] Full native Ubuntu suite, Firefox site acceptance, in-browser scriptlet regression and any future broader scriptlet adoption are still pending. No upstream subscription scriptlet execution or public release.
+
 ## Build 410 / v0.3.370: Nesty offline synthetic site-holdout and false-positive safety gate (November 14, 2026)
 - [x] Reuse existing synthetic ad-evidence model `src/adaptive-model.js` and Build 295 confusion-matrix metrics; no second runtime engine or external ML dependency.
 - [x] Add deterministic 60-case, six-profile hand-authored synthetic corpus with balanced site-held-out folds and explicit authentication/ordinary-content negatives.
