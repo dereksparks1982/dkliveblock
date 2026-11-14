@@ -42,3 +42,9 @@ The optional Cargo experiment at `experiments/brave-differential/` **references*
 ## Build 410 Nesty synthetic holdout experiment
 
 No new third-party ML package, data set, weights or model was imported. The evaluation code at `scripts/nesty-holdout-evaluator.js` reuses DK's existing offline synthetic `src/adaptive-model.js` and Build 295 benchmark library. The existing MIT micrograd provenance remains at `scripts/vendor/micrograd/LICENSE`. The `mljs/ml` GitHub project was considered but **not installed or copied**; the privacy and real-labeled-data acceptance gate must be met before adopting it. The 60 fixture examples are newly self-authored synthetic cases, not captured browser data. See [Nesty Build 410](NESTY_EVALUATION_BUILD410.md).
+
+## Build 411: Ghostery scriptlet API research and AdGuard GPL boundary
+
+The optional offline-only scriptlet capability audit at `scripts/scriptlet-compatibility-audit.js` calls the **already bundled** Ghostery 2.20.3 API, published under **MPL-2.0**, against synthetic `.example` rules. Any executable script text returned by the upstream library is discarded immediately; no new source, binary, list-supplied JavaScript, or third-party data is installed or executed. Production Ghostery cosmetics continue to pass `getInjectionRules:false`. Changes to the user-authored DK parser and runtime are original DK-owned compatibility guards, not copied scriptlets.
+
+[AdGuard's Scriptlets](https://github.com/AdguardTeam/Scriptlets) are **GPL-3.0**; the repository was reviewed as a capability/syntax reference only. No GPL code, package, scriptlet, runtime or filter list was copied or vendored into DK Live Block. The same applies to uBlock Origin GPL scriptlet sources. Future direct code reuse needs an explicit licensing/distribution decision and source/attribution review; repository availability is not blanket permission to relicense. See the [Build 411 decision ledger](SCRIPTLET_COMPATIBILITY_BUILD411.md).
