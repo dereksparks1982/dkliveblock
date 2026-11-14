@@ -1,3 +1,9 @@
+## 0.3.368 / Build 408 (2026-11-13)
+- Prevent active YouTube player error-screen payloads from being cosmetically rewritten when their status is incorrectly or inconsistently `OK`.
+- Match the refusal guard across existing Firefox response JSON, page bridge and shared YouTube feed engine.
+- Keep normal ad metadata filtering, DRM/signed media, no-reload protections and source scopes unchanged.
+- Add 16 synthetic regression cases; no new package, permission, telemetry or UI. Browser testing pending.
+
 ## 0.3.367 / Build 407 (2026-11-13)
 - Link the existing MIT Facebook DOM and first-party GraphQL counters in a fixed, aggregate-only read-only diagnostic pipeline.
 - Distinguish GraphQL unused/unchanged/modified/errored, missing DOM core, unanchored post labels and pending SPA retries without claiming any specific post was removed.

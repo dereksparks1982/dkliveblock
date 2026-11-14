@@ -34,8 +34,11 @@ function ownData(x,key){
   descriptor.value:undefined;
 }
 function denied(x){
- const status=ownData(ownData(x,"playabilityStatus"),"status");
- return Boolean(status&&status!=="OK"||plain(ownData(x,"error")));
+ const state=ownData(x,"playabilityStatus");
+ const status=ownData(state,"status"),screen=ownData(state,"errorScreen");
+ // Inspect only own data descriptors; never invoke a site-defined getter.
+ return Boolean(status&&status!=="OK"||
+  plain(screen)||Array.isArray(screen)||plain(ownData(x,"error")));
 }
 function playable(x){return plain(x)&&(
  plain(ownData(x,"streamingData"))||plain(ownData(x,"videoDetails"))||

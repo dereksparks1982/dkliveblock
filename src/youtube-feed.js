@@ -45,8 +45,12 @@ function prune(payload,url){
  // No cosmetic metadata change can fix a server-side playback refusal.
  // Preserve the whole response, including its ad markers and error evidence.
  try{
-  const status=payload.playabilityStatus?.status;
-  if(status&&status!=="OK"||plain(payload.error))
+  const state=ownData(payload,"playabilityStatus");
+  const status=ownData(state,"status"),screen=ownData(state,"errorScreen");
+  // The page can return an errorScreen with status OK. Keep all error
+  // evidence and ad fields intact; it is not a playable feed.
+  if(status&&status!=="OK"||plain(screen)||Array.isArray(screen)||
+     plain(ownData(payload,"error")))
    return {changed:false,items:0};
  }catch(_){return {changed:false,items:0};}
  const queue=[{node:payload,depth:0}],seen=new WeakSet(),selectedArrays=new WeakSet(),jobs=[];

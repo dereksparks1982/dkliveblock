@@ -94,9 +94,13 @@ function safeHeaders(details){
 }
 function plain(x){return !!x&&typeof x==="object"&&!Array.isArray(x);}
 function refused(obj){
- return plain(obj)&&Boolean(
-  obj.playabilityStatus?.status&&obj.playabilityStatus.status!=="OK"||
-  plain(obj.error));
+ if(!plain(obj))return false;
+ const status=obj.playabilityStatus;
+ // Preserve YouTube's explicit error surface even if status says OK.
+ // Removing ad metadata from a refused player cannot restore playback.
+ const screen=status?.errorScreen;
+ return Boolean(status?.status&&status.status!=="OK"||
+  plain(screen)||Array.isArray(screen)||plain(obj.error));
 }
 function pruneObject(obj){
  if(!plain(obj)||refused(obj))return 0;

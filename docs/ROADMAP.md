@@ -1,3 +1,11 @@
+## Build 408 / v0.3.368: preserve YouTube player error-screen evidence (November 13, 2026)
+- [x] Reuse existing Firefox JSON response filter, MAIN-world bridge and first-party feed helper; no new engine.
+- [x] Preserve an explicit `playabilityStatus.errorScreen` object/array even if `status: "OK"` or absent.
+- [x] Keep direct, nested object/string, prefetch and browse/next responses intact during explicit playback refusals.
+- [x] Preserve normal playable-player and feed sponsored-ad filtering, no automatic reload or ad allowlist.
+- [x] Add 16 synthetic tests and link them into both local and integration suites.
+- [ ] Full native Ubuntu regression suite and signed-in Firefox YouTube ordinary watch/Free-with-Ads acceptance pending.
+
 ## Build 407 / v0.3.367: read-only Facebook DOM and GraphQL pipeline classification (November 13, 2026)
 - [x] Reuse existing MIT Facebook full-core counts and DK Meta GraphQL Nesty 05 totals through the existing fixed-schema `DKFacebookDiagnosticReport.build` path.
 - [x] Add frozen five-key `pipeline` summary distinguishing no GraphQL eligible response, unchanged responses, modified records, errors/timeout/capacity skips, and unavailable/disabled GraphQL.
