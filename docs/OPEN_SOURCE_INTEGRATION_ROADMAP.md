@@ -102,3 +102,7 @@ Reused **existing** MIT Facebook full-core diagnostics, Nesty Meta 05 GraphQL st
 ## Build 408 milestone result (November 13, 2026)
 
 The existing YouTube first-party JSON filter, MAIN-world bridge and feed helper now treat a structured `playabilityStatus.errorScreen` as refusal evidence even with a misleading `status: "OK"`. They preserve the entire response rather than strip ad fields from an error screen. Ordinary playable responses continue through the existing filter. This is a playback-safety compatibility improvement, **not** a claimed anti-adblock bypass or automatic reload. Full Ubuntu and real Firefox verification remain pending. Next is Build 409's offline Brave engine evaluation and Orion/Safari capability study.
+
+## Build 409 milestone result (November 13, 2026)
+
+A **developer-only** optional Cargo experiment now invokes Brave adblock-rust's public API at version 0.13.5, including real Apple static content-blocker JSON conversion, and a Node adapter reuses DK's established synthetic engine corpus for strict, privacy-safe comparisons. See [Build 409 portability ledger](BRAVE_SAFARI_PORTABILITY_BUILD409.md). This is committed source, **not** a compiled/tested Rust binary, new Firefox runtime, signed Safari content blocker, Safari WebExtension DNR adapter or verified Orion compatibility. Native Cargo installation, transitive-license review, Xcode and actual iPhone tests remain pending. Next: Build 410 supervised offline Nesty evaluation, only after an approved labeled corpus exists.
