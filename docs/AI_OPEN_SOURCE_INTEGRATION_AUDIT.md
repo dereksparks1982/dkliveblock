@@ -1,3 +1,5 @@
+> **Current checkpoint, Build 405 / November 13, 2026:** This document records the **historical Build 287 research** below and is not the current implementation status. The maintained confirmed/research/deferred repository matrix, license metadata and Build 406–416 sequence now live in [OPEN_SOURCE_INTEGRATION_ROADMAP.md](OPEN_SOURCE_INTEGRATION_ROADMAP.md). Run `npm run audit:reuse` for actual installed bundle and manifest evidence. No code from unapproved upstream repositories was added in Build 405.
+
 # DK Live Block: AI and Open-Source Integration Audit
 
 **Research checkpoint:** November 2, 2026. **Source baseline:** Build 287 / `0.3.257`, `main`. **Status:** recommendations only; **no new dependency, trained model, browser permission, or runtime feature installed by this audit**. Keep public README files product-facing. Owner approval is needed before changing established blockers or adding new dependencies.

@@ -28,7 +28,30 @@ const SAMPLES=Object.freeze([
  {id:"popup-exception",rules:"||ads.example^",
   url:"https://ads.example/pop",type:"popup",origin:"news.example"},
  {id:"page-frame",rules:"||ads.example^",
-  url:"https://ads.example/page",type:"main_frame",origin:"news.example"}
+  url:"https://ads.example/page",type:"main_frame",origin:"news.example"},
+ // Build 405: licensed Ghostery adapter coverage, using self-created hosts.
+ {id:"responsive-image-alias",rules:"||ads.example^$image",
+  url:"https://ads.example/asset.webp",type:"imageset",origin:"news.example"},
+ {id:"beacon-ping-alias",rules:"||metrics.example^$ping",
+  url:"https://metrics.example/event",type:"beacon",origin:"news.example",method:"POST"},
+ {id:"subdomain-image",rules:"||ads.example^$image",
+  url:"https://cdn.ads.example/banner.png",type:"image",origin:"news.example"},
+ {id:"unrelated-image",rules:"||ads.example^$image",
+  url:"https://static.news.example/banner.png",type:"image",origin:"news.example"},
+ {id:"badfilter-disabled",rules:"||ads.example^$script\n||ads.example^$script,badfilter",
+  url:"https://ads.example/ad.js",type:"script",origin:"news.example"},
+ {id:"genericblock-exemption",rules:"||ads.example^$script",
+  url:"https://ads.example/ad.js",type:"script",origin:"news.example",policy:{genericblock:true}},
+ {id:"media-ad-stream",rules:"||ads.example^$media",
+  url:"https://ads.example/clip.m3u8",type:"media",origin:"news.example"},
+ {id:"important-image-allow",rules:"||ads.example^$image,important\n@@||ads.example^$image",
+  url:"https://ads.example/image.webp",type:"image",origin:"news.example"},
+ {id:"targeted-exception-other-site",rules:"||ads.example^$script\n@@||ads.example^$script,domain=trusted.example",
+  url:"https://ads.example/ad.js",type:"script",origin:"elsewhere.example"},
+ {id:"stylesheet-local-redirect",rules:"||ads.example^$stylesheet,redirect=empty.css",
+  url:"https://ads.example/ad.css",type:"stylesheet",origin:"news.example"},
+ {id:"websocket-vendor-gap",rules:"||tracker.example^$websocket",
+  url:"wss://tracker.example/socket",type:"websocket",origin:"news.example"}
 ]);
 function loadEnvironment(){
  const ctx=vm.createContext({URL,TextEncoder,TextDecoder,Uint8Array,Uint32Array,
@@ -99,7 +122,11 @@ function audit(env,rows=SAMPLES){
   if(eligible(row)&&engine.vendor){
    try{
     const req=env.DKGhosteryVendor.Request.fromRawDetails({
-     url:row.url,type:row.type,sourceUrl:"https://"+row.origin+"/",method
+     // Compare the exact type passed to Ghostery by the shipping hybrid
+     // engine. Firefox's imageset/beacon aliases were previously compared
+     // using the unnormalized raw type, creating false coverage gaps.
+     url:row.url,type:env.DKHybridEngine.ghosteryType(row.type),
+     sourceUrl:"https://"+row.origin+"/",method
     });
     verdict=engine.vendor.match(req)||{match:false};
    }catch(_){verdict={error:true};}

@@ -1,3 +1,11 @@
+## 0.3.365 / Build 405 (2026-11-13)
+- Establish a maintainable open-source reuse-first program with explicit integrated, developer-only, planned, research-only, deferred and archived repository statuses.
+- Document 13 evaluated external repositories, existing bundled components and ordered Build 406–416 adoption/benchmark milestones with licensing and privacy decisions.
+- Add a machine-readable upstream integration catalog and offline `audit:reuse` gate that checks present source files, Ghostery/PSL/Facebook manifest wiring, the existing approved dependency/license gate and synthetic engine compatibility.
+- Reuse and expand the existing DK-versus-Ghostery comparison corpus, aligning vendor `imageset`/`beacon` request types with the shipping hybrid engine. Add `audit:engine-compat`.
+- Add offline catalog/provenance/harness tests, with no new npm packages, Firefox permissions, UI, remote code or active blocking policy changes.
+- Full native Ubuntu suite and Firefox visual acceptance remain outstanding.
+
 ## 0.3.364 / Build 404 (2026-11-13)
 - Extend the conservative Meta GraphQL matcher to direct `nodes` in explicitly named feed, Marketplace and search collections while retaining existing `edges` handling.
 - Keep private messages and root GraphQL nodes untouched; apply extended search advertising roles only inside search results.

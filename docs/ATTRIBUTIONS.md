@@ -30,3 +30,7 @@ Before incorporating other third-party sounds or imagery, document their authors
 ## Build 394 provenance gate
 
 The offline `npm run audit:licenses` gate verifies the already bundled Ghostery/MPL, Mozilla PSL/MPL and Facebook/MIT source/license pairs, checked-in Ghostery hash, pinned dependency versions and manifest wiring. Unknown new dependencies require a separate licensing review. This is not legal advice or exhaustive transitive dependency/filter-list clearance. Third-party rights and source-availability obligations remain independent of DK's custom source license.
+
+## Build 405: potential upstream sources are not new bundled licenses
+
+The [open-source integration roadmap](OPEN_SOURCE_INTEGRATION_ROADMAP.md) catalogs additional *candidate* GitHub repositories, current high-level license indicators and proposed work. None of those candidates was installed, vendored into the runtime or relicensed in Build 405. The existing Ghostery MPL-2.0, Mozilla PSL MPL-2.0, Facebook MIT and offline micrograd MIT notices remain authoritative. A future actual integration must extend these attribution and license files at the same time code is introduced.

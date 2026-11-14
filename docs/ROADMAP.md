@@ -1,3 +1,12 @@
+## Build 405 / v0.3.365: reuse-first open-source integration roadmap (November 13, 2026)
+- [x] [Living upstream reuse plan and build sequence](OPEN_SOURCE_INTEGRATION_ROADMAP.md), including actual integrated versus considered repositories, specific license uncertainties, 406–416 priorities and acceptance gates.
+- [x] Add offline, machine-readable catalog `scripts/open-source-integration-catalog.js` distinguishing bundled, development-vendored, planned, research-only, deferred and archived candidates.
+- [x] Add `npm run audit:reuse` which verifies bundle evidence, GPL/MPL/MIT license gate, native/third-party manifest order and real bundled Ghostery differential results without network.
+- [x] Expand existing `scripts/engine-verdict-audit.js` corpus and correct its Ghostery imageset/beacon request-type normalization to match shipping DK bridge behavior.
+- [x] Add `npm run audit:engine-compat`, regression cases for catalog truth, missing notices, version changes, dangerous dependencies and synthetic verdict privacy.
+- [x] Preserve unchanged shipped engine versions, original MIT Facebook source, no GPL import, source licenses, approved artwork and user controls.
+- [ ] Full native Ubuntu test suite, upstream adapter compatibility and live owner Firefox tests remain pending.
+
 ## Build 404 / v0.3.364: Facebook named GraphQL node collections (November 13, 2026)
 - [x] Support direct `nodes` arrays, alongside `edges`, only under four existing first-party feed/search/Marketplace schema paths.
 - [x] Reuse all existing affirmative `th_dat_spo`, legacy sponsorship and typed rendering-strategy evidence checks.
