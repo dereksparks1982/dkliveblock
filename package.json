@@ -1,12 +1,12 @@
 {
   "name": "dk-live-block",
   "private": true,
-  "version": "0.3.369",
+  "version": "0.3.370",
   "scripts": {
     "build:ghostery": "node scripts/build-ghostery.mjs",
     "verify:ghostery": "node scripts/build-ghostery.mjs --verify",
     "test:local": "bash scripts/test-local.sh",
-    "test:integration": "node --test --test-reporter=tap --test-concurrency=2 tests/test-local-runner.test.js tests/meta-graphql-build402.test.js tests/meta-graphql-build403.test.js tests/meta-graphql-build404.test.js tests/open-source-reuse-build405.test.js tests/engine-verdict-reuse-build405.test.js tests/ghostery-upstream-build406.test.js tests/ghostery-compatibility-report-build406.test.js tests/facebook-pipeline-build407.test.js tests/youtube-refusal-preservation-build408.test.js tests/brave-portability-build409.test.js tests/facebook-referrer-safety-build391.test.js tests/facebook-dual-referrer-build395.test.js tests/facebook-scan-queue-build398.test.js tests/facebook-ad-label-cache-build399.test.js tests/facebook-reference-budget-build400.test.js tests/ghostery-cosmetics.test.js tests/ghostery-cosmetics-build392.test.js tests/ghostery-css-budgets-build397.test.js tests/ghostery-dom-build401.test.js tests/ghostery-dom-cosmetics-build401.test.js tests/ghostery-request-types-build393.test.js tests/third-party-license-build394.test.js tests/website-localization-build276.test.js tests/website-russian-build396.test.js",
+    "test:integration": "node --test --test-reporter=tap --test-concurrency=2 tests/test-local-runner.test.js tests/meta-graphql-build402.test.js tests/meta-graphql-build403.test.js tests/meta-graphql-build404.test.js tests/open-source-reuse-build405.test.js tests/engine-verdict-reuse-build405.test.js tests/ghostery-upstream-build406.test.js tests/ghostery-compatibility-report-build406.test.js tests/facebook-pipeline-build407.test.js tests/youtube-refusal-preservation-build408.test.js tests/brave-portability-build409.test.js tests/nesty-holdout-build410.test.js tests/facebook-referrer-safety-build391.test.js tests/facebook-dual-referrer-build395.test.js tests/facebook-scan-queue-build398.test.js tests/facebook-ad-label-cache-build399.test.js tests/facebook-reference-budget-build400.test.js tests/ghostery-cosmetics.test.js tests/ghostery-cosmetics-build392.test.js tests/ghostery-css-budgets-build397.test.js tests/ghostery-dom-build401.test.js tests/ghostery-dom-cosmetics-build401.test.js tests/ghostery-request-types-build393.test.js tests/third-party-license-build394.test.js tests/website-localization-build276.test.js tests/website-russian-build396.test.js",
     "audit:evidence": "node scripts/nesty-evidence-lab.js",
     "audit:checkpoint": "node scripts/checkpoint-audit.js",
     "audit:licenses": "node scripts/third-party-license-gate.js",
@@ -17,7 +17,8 @@
     "audit:brave": "node scripts/brave-portability-audit.js --compare",
     "audit:brave:safari-corpus": "node scripts/brave-portability-audit.js --safari-corpus",
     "audit:brave:safari-report": "node scripts/brave-portability-audit.js --safari-report",
-    "audit:brave:capabilities": "node scripts/brave-portability-audit.js --capabilities"
+    "audit:brave:capabilities": "node scripts/brave-portability-audit.js --capabilities",
+    "audit:nesty:holdout": "node scripts/nesty-holdout-evaluator.js"
   },
   "dependencies": {
     "@ghostery/adblocker": "2.20.3"
