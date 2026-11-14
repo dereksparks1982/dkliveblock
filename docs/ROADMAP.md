@@ -1,3 +1,12 @@
+## Build 410 / v0.3.370: Nesty offline synthetic site-holdout and false-positive safety gate (November 14, 2026)
+- [x] Reuse existing synthetic ad-evidence model `src/adaptive-model.js` and Build 295 confusion-matrix metrics; no second runtime engine or external ML dependency.
+- [x] Add deterministic 60-case, six-profile hand-authored synthetic corpus with balanced site-held-out folds and explicit authentication/ordinary-content negatives.
+- [x] Calibrate only on training-side site folds with a fixed seven-threshold grid, strict precision/recall/FPR/protected safety checks, and fail-closed abstention.
+- [x] Add Wilson false-positive uncertainty, a synthetic-only and no-new-runtime release gate, privacy-safe aggregate output and exact-schema input validation.
+- [x] Expose `npm run audit:nesty:holdout`, register 25 new regression cases and document the observed synthetic model weakness and independent real-data requirements.
+- [x] Preserve current Firefox Nesty review-only behavior, full MIT Facebook detector, YouTube media safety, Ghostery, banners and existing extension privileges.
+- [ ] Full Ubuntu suite, consented independent real labeled holdouts, calibrated model, Firefox actual outcomes, approval and release still pending. Site-separated synthetic tests are not real-world accuracy evidence.
+
 ## Build 409 / v0.3.369: developer-only Brave Rust comparison and Apple Safari conversion (November 13, 2026)
 - [x] Reuse the official MPL-2.0 Brave adblock-rust 0.13.5 API in a separate optional Cargo harness; no second Firefox network engine, no changed extension permissions.
 - [x] Reuse DK's existing synthetic native/Ghostery/hybrid verdict cases, strictly validate ID-only Brave results, and separately classify intentional DK policy exclusions and redirects.
