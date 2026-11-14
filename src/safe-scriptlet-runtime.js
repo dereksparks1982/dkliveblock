@@ -8,7 +8,10 @@ const NAME=/^[A-Za-z_$][A-Za-z0-9_$]{0,39}$/;
 const BAD=new Set(["__proto__","constructor","prototype","document","location","navigator",
  "fetch","XMLHttpRequest","eval","Function","globalThis","self","top","parent",
  "frames","opener","browser","chrome","history","JSON","Promise","crypto",
- "localStorage","sessionStorage","cookieStore"]);
+ "localStorage","sessionStorage","cookieStore","__defineGetter__",
+ "__defineSetter__","__lookupGetter__","__lookupSetter__","toString",
+ "toLocaleString","valueOf","hasOwnProperty","isPrototypeOf",
+ "propertyIsEnumerable"]);
 const parseLiteral=JSON.parse;
 let active=[],lastSignature="";
 function verified(row){
