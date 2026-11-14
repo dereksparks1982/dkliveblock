@@ -1,3 +1,11 @@
+## Build 409 / v0.3.369: developer-only Brave Rust comparison and Apple Safari conversion (November 13, 2026)
+- [x] Reuse the official MPL-2.0 Brave adblock-rust 0.13.5 API in a separate optional Cargo harness; no second Firefox network engine, no changed extension permissions.
+- [x] Reuse DK's existing synthetic native/Ghostery/hybrid verdict cases, strictly validate ID-only Brave results, and separately classify intentional DK policy exclusions and redirects.
+- [x] Call Brave's actual content-blocking conversion API for a tiny synthetic Apple Safari trigger/action ruleset; never conflate this with Safari WebExtension DNR.
+- [x] Add fail-closed output validation, 17 regression tests, npm developer commands and detailed Orion/Safari capability and acceptance ledger.
+- [x] Keep current bundled Ghostery, MIT Facebook detector, YouTube safeguards, both approved languages and no automatic Cargo installation unchanged.
+- [ ] Rust/Cargo compilation and verified Brave output, transitive license audit, generated Cargo.lock, Safari/Xcode compilation, Orion iOS acceptance, full Ubuntu Node suite and Firefox site tests remain pending. No production port or public release.
+
 ## Build 408 / v0.3.368: preserve YouTube player error-screen evidence (November 13, 2026)
 - [x] Reuse existing Firefox JSON response filter, MAIN-world bridge and first-party feed helper; no new engine.
 - [x] Preserve an explicit `playabilityStatus.errorScreen` object/array even if `status: "OK"` or absent.
