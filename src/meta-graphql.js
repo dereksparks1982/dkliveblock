@@ -16,13 +16,24 @@ function route(url){
     /^\/api\/graphql\/?$/.test(u.pathname)&&!u.hash;
  }catch(_){return false;}
 }
+// Marketplace listing composer and bulk creation depend on unmodified
+// GraphQL response envelopes. There is no sponsored feed to prune there.
+// A precise route gate is preferable to a broad Facebook-wide exception.
+function protectedComposerPage(url){
+ try{
+  const u=new URL(url);
+  return u.protocol==="https:"&&validSite(u.hostname)&&
+   /^\/marketplace\/(?:create(?:\/|$)|you\/selling\/create(?:\/|$))/i.test(u.pathname);
+ }catch(_){return false;}
+}
 function eligible(d,site){
  if(!d||d.type!=="xmlhttprequest"||d.statusCode!==200||
     String(d.method||"").toUpperCase()!=="POST"||
     !Number.isSafeInteger(d.tabId)||d.tabId<0||!route(d.url)||!validSite(site))return false;
  try{
   const u=new URL(d.documentUrl||d.originUrl||"");
-  return u.protocol==="https:"&&validSite(u.hostname)&&!u.username&&!u.password;
+  return u.protocol==="https:"&&validSite(u.hostname)&&!u.username&&!u.password&&
+   !protectedComposerPage(d.documentUrl||d.originUrl||"");
  }catch(_){return false;}
 }
 function header(headers,name){
@@ -67,10 +78,31 @@ function sponsoredFields(unit){
  return object(unit)&&(adMetadata(unit.sponsored_data)||
   adMetadata(unit.th_dat_spo,true));
 }
+// Independently documented exact Facebook ad-label rendering strategy.
+// An arbitrary class name or quoted text is insufficient. Require the
+// specific nested metadata location within a known feed/search ad unit.
+const SPONSORED_LABEL_STRATEGY="CometStorySponsoredLabelStrategy";
+function sponsoredRenderStrategy(n){
+ const metadata=n?.comet_sections?.context_layout?.story?.comet_sections?.metadata;
+ if(!object(metadata))return false;
+ const keys=Object.keys(metadata);
+ // Never walk the full feed on a pathological metadata object.
+ if(keys.length>24)return false;
+ return keys.some(k=>object(metadata[k])&&
+  metadata[k].__typename===SPONSORED_LABEL_STRATEGY);
+}
+// Search may classify several distinct ad roles ending in _ADS. Never
+// apply that broader role test to normal feeds or user content.
+function sponsoredSearchEdge(edge){
+ if(sponsoredEdge(edge))return true;
+ const role=edge?.node?.role;
+ return typeof role==="string"&&role.length<=48&&
+  /^[A-Z][A-Z_]{0,40}_ADS$/.test(role);
+}
 function adNode(n){
  return object(n)&&(n.__typename==="SponsoredData"||
   n.__typename==="MarketplaceFeedAdStory"||
-  n.role==="SEARCH_ADS"||
+  n.role==="SEARCH_ADS"||sponsoredRenderStrategy(n)||
   sponsoredFields(n)||sponsoredFields(n.story)||
   sponsoredFields(n.relay_rendering_strategy?.view_model?.story));
 }
@@ -102,16 +134,13 @@ function pruneRecord(doc){
     removed+=dropFromArray(unit.new_adverts,"nodes",ad=>adNode(ad)||
      object(ad)&&ad.__typename==="AdsSideFeedUnit");
    }
-   // Preserve unknown side units; only discard explicitly named ad-only
-   // wrappers after their contained ad array has been filtered to empty.
-   removed+=dropFromArray(side,"nodes",n=>
-    object(n)&&n.__typename==="AdsSideFeedUnit"&&
-    object(n.new_adverts)&&Array.isArray(n.new_adverts.nodes)&&
-    n.new_adverts.nodes.length===0);
+   // Retain the AdsSideFeedUnit wrapper and original node ordering even when
+   // an ad-only inner array becomes empty. Facebook's Marketplace composer
+   // and other client code may require the wrapper's stable shape.
   }
  }
  const results=data.serpResponse?.results;
- if(object(results))removed+=pruneEdges(results);
+ if(object(results))removed+=dropFromArray(results,"edges",sponsoredSearchEdge);
  const marketUnits=data.marketplace_search?.feed_units;
  if(object(marketUnits))removed+=pruneEdges(marketUnits);
  // Other GraphQL shapes are deliberately left intact, including the generic
@@ -363,7 +392,7 @@ function experimentEnabled(settings,request,site){
   settings?.metaGraphqlFilter===true&&eligible(request,site);
 }
 const API=Object.freeze({EXPERIMENT_OWNER,experimentEnabled,MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
- validSite,route,eligible,safeHeaders,adMetadata,sponsoredFields,adNode,sponsoredEdge,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
+ validSite,route,eligible,protectedComposerPage,safeHeaders,adMetadata,sponsoredFields,adNode,sponsoredEdge,sponsoredRenderStrategy,sponsoredSearchEdge,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

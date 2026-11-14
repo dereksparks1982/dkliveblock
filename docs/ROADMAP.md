@@ -1,3 +1,12 @@
+## Build 403 / v0.3.363: Facebook feed strategy evidence and Marketplace composer compatibility (November 13, 2026)
+- [x] Match the exact `CometStorySponsoredLabelStrategy` typed metadata path within supported GraphQL feed records, including nested `__bbox` and JSONL.
+- [x] Recognize additional uppercase `_ADS` roles only in dedicated search results; preserve normal feed roles and organic posts.
+- [x] Retain `AdsSideFeedUnit` wrappers and stable ordering when removing positively marked ad children, reducing risk of breaking Facebook client features.
+- [x] Bypass GraphQL response modification on Marketplace item/bulk listing composer routes, including the known create page family.
+- [x] Keep 24-entry metadata budget, Meta Nesty 05 opt-out, existing `th_dat_spo` and historic fields, no root parser-decoy alteration.
+- [x] Add 15 new offline regression fixtures and update the older sidebar-wrapper contract.
+- [ ] Live Firefox Facebook feed, Marketplace composer, interactions and uBlock comparison acceptance remain outstanding.
+
 ## Build 402 / v0.3.362: Facebook renamed sponsored GraphQL metadata (November 12, 2026)
 - [x] Recognize `th_dat_spo` as a candidate alias for `sponsored_data` in known first-party GraphQL feed/Marketplace/search and dedicated ad slots.
 - [x] Require positive `SponsoredData` type or short non-empty ad ID for the *new* alias, keeping historical `sponsored_data` behavior intact.

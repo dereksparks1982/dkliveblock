@@ -53,17 +53,20 @@ test("Build 264: never remove organic sponsored_data without ad evidence",()=>{
  assert.equal(r.changed,false);
  assert.equal(r.text,original);
 });
-test("Build 264: known sidebar-only ad removed, unknown wrapper survives",()=>{
+test("Build 403: known sidebar ad child removed, stable wrappers survive",()=>{
  const data={data:{viewer:{sideFeedUnit:{nodes:[
   {__typename:"AdsSideFeedUnit",new_adverts:{nodes:[{id:"ad",sponsored_data:{ad_id:"x"}}]}},
   {__typename:"AdsSideFeedUnit",other:{id:"friend"}},
   {new_adverts:{nodes:[{id:"safe",sponsored_data:{label:"non-ad"}}]}}
  ]}}}};
  const r=Meta.rewrite(JSON.stringify(data));
- assert.equal(r.removed,2);
+ assert.equal(r.removed,1);
  const rows=JSON.parse(r.text).data.viewer.sideFeedUnit.nodes;
- assert.equal(rows.length,2);assert.equal(rows[0].other.id,"friend");
- assert.equal(rows[1].new_adverts.nodes[0].id,"safe");
+ assert.equal(rows.length,3);
+ assert.equal(rows[0].__typename,"AdsSideFeedUnit");
+ assert.deepEqual(rows[0].new_adverts.nodes,[]);
+ assert.equal(rows[1].other.id,"friend");
+ assert.equal(rows[2].new_adverts.nodes[0].id,"safe");
 });
 test("Build 264: JSONL preserves ordinary records and separators",()=>{
  const sponsored={data:{marketplace_search:{feed_units:{edges:[story("ad",true),story("safe",false)]}}}};

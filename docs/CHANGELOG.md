@@ -1,3 +1,10 @@
+## 0.3.363 / Build 403 (2026-11-13)
+- Expand first-party Meta GraphQL sponsored detection with exact `CometStorySponsoredLabelStrategy` metadata path, requiring a typed strategy within a known feed edge.
+- Add bounded search-only `_ADS` role detection without applying it to unrelated stories.
+- Protect Marketplace listing creation pages from GraphQL mutation; keep wrapper shapes intact while removing only explicitly marked advertising children.
+- Add tests for composer routes, normal posts, nested/JSONL transport, structural compatibility and metadata work limits.
+- Full Ubuntu and browser acceptance pending, no user-test request.
+
 ## 0.3.362 / Build 402 (2026-11-12)
 - Support newer `th_dat_spo` Facebook sponsorship metadata in the existing first-party GraphQL filter, retaining old `sponsored_data` semantics.
 - Restrict new decisions to clearly marked ads in known collection shapes; preserve regular posts and Facebook JSON parser canaries.
