@@ -34,6 +34,8 @@ function manualAudit(scenarios=SCENARIOS){
  for(const [id,rules,host,expected] of scenarios){
   if(typeof id!=="string"||!/^[a-z0-9-]{1,48}$/.test(id)||
     typeof rules!=="string"||rules.length>2000||
+    (!rules.includes("audit.example##+js(")&&
+     !rules.includes("audit.example#@#+js("))||
     typeof host!=="string"||!Array.isArray(expected)||
     expected.length>24||expected.some(p=>typeof p!=="string"||p.length>120))
    throw Error("Invalid offline fixture");
