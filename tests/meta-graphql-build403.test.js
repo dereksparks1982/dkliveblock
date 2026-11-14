@@ -126,5 +126,5 @@ test("Build 403: malformed sibling GraphQL errors fail open",()=>{
 test("Build 403: production manifest stays synchronized and test wired",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
  assert.equal(m.version,p.version);
- assert.equal(p.version,"0.3.363");
+ assert.ok(/^\d+\.\d+\.\d+$/.test(p.version));
 });

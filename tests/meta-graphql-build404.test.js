@@ -116,5 +116,5 @@ test("Build 404: strict route still excludes Marketplace creation pages",()=>{
 });
 test("Build 404: manifest and package versions match",()=>{
  const m=require("../src/manifest.json"),p=require("../package.json");
- assert.equal(m.version,p.version);assert.equal(p.version,"0.3.364");
+ assert.equal(m.version,p.version);assert.ok(/^\d+\.\d+\.\d+$/.test(p.version));
 });

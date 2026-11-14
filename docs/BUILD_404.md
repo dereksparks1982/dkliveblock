@@ -7,3 +7,7 @@ Previously the first-party GraphQL rewriter filtered `edges` collections in seve
 The implementation deliberately does not traverse arbitrary or user-owned arrays, message content, profiles or root `data.node` parser decoys. It preserves Marketplace listing composer exclusions, side-feed wrappers, all old/new sponsorship markers, the 1,000-entry array ceiling, JSONL and RequireJS transaction checks, existing tab limits and user opt-out. No browser permissions, new dependencies, scriptlets, new telemetry or UI changes.
 
 15 regression fixtures exercise simultaneous edges/nodes, legacy and renamed ad metadata, rendering strategy, upper-case search roles, ordinary content, Marketplace, oversized arrays, malformed/failed streamed responses, nested RequireJS and route protection. Full Ubuntu suite and signed-in Firefox verification remain pending.
+
+## Post-commit test compatibility correction
+
+The full meta-GraphQL regression run exposed a historical hard-coded package patch-version assertion from Build 403. Both Build 403 and Build 404 test fixtures now validate manifest/package version synchronization and semantic version syntax, allowing later builds to advance without a false failure. No production code changed in this correction.
