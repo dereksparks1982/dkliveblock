@@ -1,0 +1,13 @@
+[package]
+name = "dk-brave-offline-differential"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Developer-only synthetic comparison with Brave adblock-rust; not a browser extension"
+
+[dependencies]
+# Brave's official MPL-2.0 engine, developer-only and NEVER bundled into src/.
+# The exact crate version is deliberate; run cargo generate-lockfile after
+# an explicit upstream/license review before storing a lockfile.
+adblock = { version = "=0.13.5", features = ["content-blocking"] }
+serde_json = "=1.0.149"
