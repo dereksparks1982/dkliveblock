@@ -1,3 +1,11 @@
+## Build 404 / v0.3.364: Facebook named GraphQL node collections (November 13, 2026)
+- [x] Support direct `nodes` arrays, alongside `edges`, only under four existing first-party feed/search/Marketplace schema paths.
+- [x] Reuse all existing affirmative `th_dat_spo`, legacy sponsorship and typed rendering-strategy evidence checks.
+- [x] Add search-only strict uppercase `_ADS` role support for direct search-result nodes; do not apply to ordinary feeds.
+- [x] Retain side wrappers, Marketplace composer gating, fail-open JSONL/RequireJS transactions and the existing 1,000-record array cap.
+- [x] Add 15 executable tests for mixed arrays, old/new markers, private data, ordinary posts, malformed streams and opt-out.
+- [ ] Real Firefox logged-in coverage and full Ubuntu suite are still pending.
+
 ## Build 403 / v0.3.363: Facebook feed strategy evidence and Marketplace composer compatibility (November 13, 2026)
 - [x] Match the exact `CometStorySponsoredLabelStrategy` typed metadata path within supported GraphQL feed records, including nested `__bbox` and JSONL.
 - [x] Recognize additional uppercase `_ADS` roles only in dedicated search results; preserve normal feed roles and organic posts.

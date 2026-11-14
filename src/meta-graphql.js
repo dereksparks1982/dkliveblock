@@ -93,11 +93,14 @@ function sponsoredRenderStrategy(n){
 }
 // Search may classify several distinct ad roles ending in _ADS. Never
 // apply that broader role test to normal feeds or user content.
-function sponsoredSearchEdge(edge){
- if(sponsoredEdge(edge))return true;
- const role=edge?.node?.role;
+function sponsoredSearchNode(node){
+ if(adNode(node))return true;
+ const role=node?.role;
  return typeof role==="string"&&role.length<=48&&
   /^[A-Z][A-Z_]{0,40}_ADS$/.test(role);
+}
+function sponsoredSearchEdge(edge){
+ return sponsoredEdge(edge)||sponsoredSearchNode(edge?.node);
 }
 function adNode(n){
  return object(n)&&(n.__typename==="SponsoredData"||
@@ -114,17 +117,29 @@ function sponsoredEdge(edge){
 function pruneEdges(parent){
  return dropFromArray(parent,"edges",sponsoredEdge);
 }
+// First-party GraphQL uses both edge wrappers and direct node collections.
+// Restrict this optional route to named feed containers. Never prune a bare
+// data.node, a shared/composer record, a message inbox or arbitrary arrays.
+function pruneFeedCollection(parent){
+ if(!object(parent))return 0;
+ return pruneEdges(parent)+dropFromArray(parent,"nodes",adNode);
+}
+function pruneSearchCollection(parent){
+ if(!object(parent))return 0;
+ return dropFromArray(parent,"edges",sponsoredSearchEdge)+
+  dropFromArray(parent,"nodes",sponsoredSearchNode);
+}
 function pruneRecord(doc){
  if(!object(doc)||doc.error||Array.isArray(doc.errors)&&doc.errors.length)return 0;
  const data=doc.data;if(!object(data))return 0;
  let removed=0;
  const viewer=data.viewer;
  if(object(viewer)){
-  if(object(viewer.news_feed))removed+=pruneEdges(viewer.news_feed);
+  if(object(viewer.news_feed))removed+=pruneFeedCollection(viewer.news_feed);
   // Facebook also embeds Marketplace sponsored stories inside these
   // dedicated feed collections. Never inspect a generic user-owned array.
   if(object(viewer.marketplace_feed_stories))
-   removed+=pruneEdges(viewer.marketplace_feed_stories);
+   removed+=pruneFeedCollection(viewer.marketplace_feed_stories);
   const side=viewer.sideFeedUnit;
   if(object(side)&&Array.isArray(side.nodes)&&side.nodes.length<=MAX_RECORDS){
    // new_adverts is a dedicated ad slot. Only remove explicitly marked ad
@@ -140,9 +155,9 @@ function pruneRecord(doc){
   }
  }
  const results=data.serpResponse?.results;
- if(object(results))removed+=dropFromArray(results,"edges",sponsoredSearchEdge);
+ if(object(results))removed+=pruneSearchCollection(results);
  const marketUnits=data.marketplace_search?.feed_units;
- if(object(marketUnits))removed+=pruneEdges(marketUnits);
+ if(object(marketUnits))removed+=pruneFeedCollection(marketUnits);
  // Other GraphQL shapes are deliberately left intact, including the generic
  // data.node path, messaging, reactions and unrelated feed components.
  return removed;
@@ -392,7 +407,7 @@ function experimentEnabled(settings,request,site){
   settings?.metaGraphqlFilter===true&&eligible(request,site);
 }
 const API=Object.freeze({EXPERIMENT_OWNER,experimentEnabled,MAX_BYTES,MAX_FILTERS,MAX_PER_TAB,MAX_DELAY_MS,MAX_LIFETIME_MS,MAX_CHUNKS,
- validSite,route,eligible,protectedComposerPage,safeHeaders,adMetadata,sponsoredFields,adNode,sponsoredEdge,sponsoredRenderStrategy,sponsoredSearchEdge,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
+ validSite,route,eligible,protectedComposerPage,safeHeaders,adMetadata,sponsoredFields,adNode,sponsoredEdge,sponsoredRenderStrategy,sponsoredSearchNode,sponsoredSearchEdge,pruneFeedCollection,pruneSearchCollection,pruneRecord,pruneRequireEnvelope,safeRequireEnvelope,rewrite,attach,stats,clear});
 root.DKMetaGraphQL=API;
 if(typeof module!=="undefined")module.exports=API;
 })(typeof globalThis!=="undefined"?globalThis:this);

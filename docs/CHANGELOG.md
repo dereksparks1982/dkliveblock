@@ -1,3 +1,9 @@
+## 0.3.364 / Build 404 (2026-11-13)
+- Extend the conservative Meta GraphQL matcher to direct `nodes` in explicitly named feed, Marketplace and search collections while retaining existing `edges` handling.
+- Keep private messages and root GraphQL nodes untouched; apply extended search advertising roles only inside search results.
+- Add 15 synthetic regression cases; no permissions, dependencies or UI changed.
+- Real Facebook/Firefox acceptance and full native suite remain outstanding.
+
 ## 0.3.363 / Build 403 (2026-11-13)
 - Expand first-party Meta GraphQL sponsored detection with exact `CometStorySponsoredLabelStrategy` metadata path, requiring a typed strategy within a known feed edge.
 - Add bounded search-only `_ADS` role detection without applying it to unrelated stories.
