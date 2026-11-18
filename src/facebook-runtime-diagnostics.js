@@ -28,11 +28,11 @@ function diagnosisText(report){
   "\nMatched labels: "+num("labelsClassified")+
   " | anchored labels: "+num("labelsAnchored")+
   " | hidden posts: "+num("hidden")+
-  "\nUnanchored attempts: "+num("labelsUnanchored")+
-  " | deferred: "+num("labelsDeferred")+
-  " | pending retries: "+num("pending")+
   "\nLate text edits: "+num("inlineAdLabelEdits")+
   " | shallow labels recovered: "+num("shallowPostLabelsRecovered")+
+  "\nNesty fallback active: "+(d.legacyActive===1?"yes":"no")+
+  " | wakeups: "+num("legacyWakeups")+
+  " | legacy-hidden posts: "+num("legacyHidden")+
   "\nNext: "+(t.next||"No specific conclusion.");
 }
 async function collect(api,tab,Report){
@@ -52,11 +52,6 @@ async function collect(api,tab,Report){
  catch(_){graph=null;}
  const report=Report.build(detector,graph);
  if(!report)throw Error("Cannot construct an aggregate report.");
- // Navigation/closure during the async inspection invalidates the snapshot.
- let after=null;
- try{after=await api.tabs.get(tab.id);}catch(_){throw Error("Facebook tab was closed during inspection.");}
- if(!after||after.id!==tab.id||after.url!==current.url)
-  throw Error("Facebook tab changed during inspection. Repeat the check.");
  // Only the diagnostic builder's fixed schema and local extension version
  // cross into JSON. Never include tab URL, title, post text, IDs or cookies.
  return Object.freeze({...report,extensionVersion:String(api.runtime.getManifest()?.version||"").slice(0,30)});
@@ -66,10 +61,8 @@ function init(doc=root.document,api=root.browser,Report=root.DKFacebookDiagnosti
  const saveButton=doc?.getElementById?.("fbExportRuntime");
  const status=doc?.getElementById?.("fbRuntimeStatus");
  if(!collectButton||!saveButton||!status||!api?.tabs?.query)return false;
- let snapshot=null,checking=false;
+ let snapshot=null;
  async function check(){
-  if(checking)return;
-  checking=true;
   snapshot=null;saveButton.disabled=true;collectButton.disabled=true;
   status.textContent="Inspecting local Facebook engine…";
   try{
@@ -79,7 +72,7 @@ function init(doc=root.document,api=root.browser,Report=root.DKFacebookDiagnosti
    status.textContent=diagnosisText(snapshot);
    saveButton.disabled=false;
   }catch(err){status.textContent=String(err?.message||"Unable to inspect Facebook.");}
-  finally{collectButton.disabled=false;checking=false;}
+  finally{collectButton.disabled=false;}
  }
  collectButton.addEventListener("click",()=>{void check();});
  saveButton.addEventListener("click",()=>{

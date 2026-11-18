@@ -1605,14 +1605,28 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
   // Never allow media hosts or disable the network/ad filter engine.
   if(recorded&&data.settings.youtubeResponseFilter&&
      DKYouTubeExperiment.get(data.youtubeExperiment,id,pageHost)==="combined"){
-   // A YouTube warning can disappear without interrupting playback.
-   // Do not force-reload an otherwise playable video. Keep recovery code
-   // dormant until an independently validated automatic strategy is ready.
-   // Existing network advertising filters and player handling are unchanged.
-   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)&&
-       DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId)){
-    DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,"enforcement",false,now);
-    return {ok:recorded,recoveryAttempted:false};
+   // Passive warnings never reload YouTube. If TWO separate visible
+   // refusals match a real live watch URL, temporarily switch ONLY the
+   // player-response strategy while retaining network ad filtering.
+   // This may help a subsequent YouTube API request without restarting
+   // an already-playable video. The prior combined strategy is preserved.
+   if(msg.kind==="enforcement"&&DKPlaybackHealth.isYouTube(pageHost)){
+    if(!DKAdaptiveYouTube.matchesLiveWatch(liveTab?.url,msg.watchVideoId))
+     return {ok:recorded,recoveryAttempted:false,strategyChanged:false};
+    const strategy=DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,
+     "enforcement",false,now);
+    if(strategy.changed){
+     DKYouTubeResponse.clear(id);
+     try{await browser.tabs.sendMessage(id,{action:"refresh"});}catch(_){}
+     // Restore the normal dual-strategy policy after its bounded window.
+     setTimeout(()=>{
+      if(DKAdaptiveYouTube.mode(data.youtubeAdaptive,id,pageHost)==="combined"&&
+         DKYouTubeExperiment.get(data.youtubeExperiment,id,pageHost)==="combined"&&
+         data.hosts.get(id)===pageHost&&activeTab(id,pageHost))
+       browser.tabs.sendMessage(id,{action:"refresh"}).catch(()=>{});
+     },DKAdaptiveYouTube.REFUSAL_MS+250);
+    }
+    return {ok:recorded,recoveryAttempted:false,strategyChanged:strategy.changed};
    }
    const adapted=DKAdaptiveYouTube.note(data.youtubeAdaptive,id,pageHost,
     msg.kind,nearby,now);
@@ -1865,9 +1879,6 @@ browser.runtime.onMessage.addListener(async(msg,sender={})=>{
    css:active?DKAuthProtection.safeCosmetics(DKVideoAssist.safeCosmetics(data.engine.getSelectors(h,policy,15000),h)).slice(0,15000).map(s=>s+" {display:none!important;}").join("\n")+
     "\n"+DKGhosteryCosmetics.styles(data.engine.vendor,h,{
       streaming:DKVideoAssist.isStreamingHost(h),policy,page:url,
-      // Only the browser-identified same-host top frame supplies DOM names.
-      domSignals:fromContent&&sender.frameId===0&&
-       host(sender.tab?.url||"")===h?msg.domSignals:null,
       safeSelector:list=>DKAuthProtection.safeCosmetics(list),
       protectSelector:selector=>DKVideoAssist.protectSelector(selector)||DKVideoAssist.protectCBSSelector(selector,h)||adExceptions.includes(selector)
     }):"",procedural:active?data.engine.getProcedural(h,policy).slice(0,300):[]};}

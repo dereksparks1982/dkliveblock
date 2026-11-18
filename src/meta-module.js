@@ -24,6 +24,71 @@ function create(doc,win){
  // A missing full engine must be visible as a failure, never silently
  // replaced by the old partial scanner. That regressed Facebook parity.
  const facebook=platform==="facebook"?(root.DKFacebookFullCore?.create?.(doc,win)||null):null;
+ // An older, independently vetted Facebook scanner stays dormant until the
+ // Nesty supervisor sees repeated full-engine misses. A missing full engine
+ // remains an explicit failure, never silent replacement.
+ const supervisor=facebook?root.DKMetaStrategyNesty?.create?.()||null:null;
+ let legacy=null,exceptions=[],fallbackTimer=null,auditTimer=null,lastSupervisorAt=-Infinity;
+ const SUPERVISOR_SAMPLE_MS=120,DORMANT_AUDIT_MS=5000;
+ function stopDormantAudit(){
+  if(auditTimer!==null){
+   (win?.clearTimeout||clearTimeout)(auditTimer);auditTimer=null;
+  }
+ }
+ function scheduleDormantAudit(){
+  if(auditTimer!==null||!legacy?.hiddenCount)return;
+  auditTimer=(win?.setTimeout||setTimeout)(()=>{
+   auditTimer=null;
+   // No new ad-search work while dormant; only check already hidden cards.
+   if(!supervisor?.snapshot?.().active&&facebook?.diagnostics?.().coreEnabled===1){
+    try{legacy?.auditHidden?.(30);}catch(_){}
+    if(legacy?.hiddenCount>0)scheduleDormantAudit();
+   }
+  },DORMANT_AUDIT_MS);
+ }
+ function stopFallback(restore=true){
+  if(fallbackTimer!==null){
+   (win?.clearTimeout||clearTimeout)(fallbackTimer);fallbackTimer=null;
+  }
+  stopDormantAudit();
+  if(restore)legacy?.restore?.();
+  else {
+   // Keep vetted ad hides across strategy expiry. Turning protection OFF
+   // still calls restore() and immediately reveals the original content.
+   legacy?.park?.();scheduleDormantAudit();
+  }
+ }
+ function updateSupervisor(signal=false){
+  if(!supervisor)return false;
+  const now=Date.now();
+  // The primary core already observes the feed. Avoid rebuilding its heavy
+  // diagnostic snapshot for every class/style mutation in the page.
+  if(!Number.isFinite(now)||now-lastSupervisorAt<SUPERVISOR_SAMPLE_MS)
+   return supervisor.snapshot().active&&!!legacy;
+  lastSupervisorAt=now;
+  const was=supervisor.snapshot().active;
+  const next=supervisor.update(facebook?.diagnostics?.(),signal,now);
+  if(was&&!next.active)stopFallback(next.reason!=="expired");
+  if(next.changed&&next.active){
+   stopDormantAudit();
+   // Keep the old implementation available for site reversions without
+   // burdening ordinary Facebook mutations with two parallel scanners.
+   // A fallback may only run when the primary engine authorizes the
+   // candidate card against kept Pages and user-revealed posts.
+   if(typeof facebook?.canFallbackHide!=="function"){
+    supervisor.reset();return false;
+   }
+   if(!legacy)legacy=root.DKFacebookAds?.create?.(doc,win,60,null,
+    card=>facebook.canFallbackHide(card)===true)||null;
+   legacy?.setExceptions?.(exceptions);
+   if(!legacy){supervisor.reset();return false;}
+   if(fallbackTimer!==null)(win?.clearTimeout||clearTimeout)(fallbackTimer);
+   fallbackTimer=(win?.setTimeout||setTimeout)(()=>{
+    fallbackTimer=null;updateSupervisor(false);
+   },root.DKMetaStrategyNesty.ACTIVE_MS+100);
+  }
+  return supervisor.snapshot().active&&!!legacy;
+ }
  const observer=root.DKAdaptiveDispatcher?.create?.()||null;
  if(observer){
   observer.register("meta-explicit-sponsored",ctx=>{
@@ -35,20 +100,44 @@ function create(doc,win){
   });
  }
  function review(element){return observer?.inspect({element,platform})||[];}
- return Object.freeze({company:"meta",platform,scan:()=>facebook?.scan()||0,
-  setEnabled:enabled=>facebook?.setEnabled?.(enabled),
-  scanInserted:records=>facebook?.scanInserted?.(records)||0,
-  scanVisible:()=>facebook?.scanVisible?.()||0,
-  restore:()=>facebook?.restore(),setExceptions:r=>facebook?.setExceptions(r),
-  observeMutation:r=>facebook?.observeMutation(r)||false,review,
+ function scan(){
+  const found=facebook?.scan?.()||0;
+  return found+(updateSupervisor()?legacy?.scan?.()||0:0);
+ }
+ function setEnabled(enabled){
+  facebook?.setEnabled?.(enabled);
+  if(enabled!==true){supervisor?.reset();stopFallback();lastSupervisorAt=-Infinity;}
+ }
+ function setExceptions(r){
+  exceptions=Array.isArray(r)?r.slice(0,120):[];
+  facebook?.setExceptions?.(exceptions);legacy?.setExceptions?.(exceptions);
+ }
+ function restore(){supervisor?.reset();stopFallback();lastSupervisorAt=-Infinity;facebook?.restore?.();}
+ function observeMutation(r){
+  const full=facebook?.observeMutation?.(r)===true;
+  const exact=root.DKMetaStrategyNesty?.explicitLabelMutation?.(r)===true;
+  updateSupervisor(exact);
+  return full||exact;
+ }
+ return Object.freeze({company:"meta",platform,scan,setEnabled,
+  scanInserted:records=>{
+   const count=facebook?.scanInserted?.(records)||0;
+   return count+(updateSupervisor()?legacy?.scanInserted?.(records)||0:0);
+  },
+  scanVisible:()=>facebook?.scanVisible?.()|| (updateSupervisor()?legacy?.scanVisible?.()||0:0),
+  restore,setExceptions,observeMutation,review,
   investigateDelivery:signals=>root.DKMetaDeliveryCatalog?.inspect?.(signals)||[],
   inspectSignals:signals=>intelligence?.inspect?.(win.location.hostname,signals)||null,
   intelligenceProfile:()=>intelligence?.snapshot?.(win.location.hostname,false)||null,
   deliveryMethods:()=>root.DKMetaDeliveryCatalog?.entries||[],
-  diagnostics:()=>facebook?.diagnostics?.()||Object.freeze({
+  diagnostics:()=>facebook?Object.freeze({...facebook.diagnostics(),
+   nestyFallback:supervisor?.snapshot?.()||null,
+   legacyActive:supervisor?.snapshot?.().active?1:0,
+   legacyWakeups:supervisor?.snapshot?.().wakeups||0,
+   legacyHidden:legacy?.hiddenCount||0}):Object.freeze({
    platform,hidden:0,coreFull:0,coreMissing:platform==="facebook"?1:0,
    mode:platform==="facebook"?"full-facebook-engine-unavailable":"observation-only"}),
-  get hiddenCount(){return facebook?.hiddenCount||0;}});
+  get hiddenCount(){return (facebook?.hiddenCount||0)+(legacy?.hiddenCount||0);}});
 }
 const API=Object.freeze({create,sampleMutations});
 root.DKMetaModule=API;

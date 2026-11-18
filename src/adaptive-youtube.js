@@ -88,14 +88,24 @@ function note(store,id,site,kind,blockedMediaNearby,now=Date.now()){
    sawMediaError:false,sawBuffering:false,sawEnforcement:false,
    sawAdSkip:false,sawAdShowing:false};
  }
- // Contextual observations suppress inappropriate fallback suggestions.
- // They NEVER count as failures or cause additional blocking.
+ // Context alone cannot disable ad filtering. A verified enforcement
+ // requires TWO separated observations within the short local window before
+ // a strategy-only fallback can run. Media and network rules are untouched.
  if(CONTEXT.has(kind)){
-  if(kind==="enforcement")x.sawEnforcement=true;
+  if(kind==="enforcement"){
+   x.sawEnforcement=true;
+   if(!Number.isFinite(x.lastRefusal)||now-x.lastRefusal>=MIN_GAP_MS){
+    x.refusalCount=Math.min(2,(x.refusalCount||0)+1);
+    x.lastRefusal=now;
+   }
+  }
   if(kind==="ad-skip")x.sawAdSkip=true;
   if(kind==="ad-showing")x.sawAdShowing=true;
   x.last=now;store.delete(id);store.set(id,x);
   if(store.size>MAX_TABS)store.delete(store.keys().next().value);
+  if(kind==="enforcement"&&x.refusalCount>=2&&
+     !x.sawAdShowing&&!x.sawAdSkip)
+   return recoverRefusal(store,id,site,now);
   return unchanged;
  }
  // No repeated fast page signals may generate two independent failures.

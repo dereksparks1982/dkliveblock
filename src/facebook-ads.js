@@ -582,7 +582,7 @@ function sampleFastArticles(nodes,max=18){
  else{for(let i=0;i<9;i++)out.push(nodes[i]);for(let i=n-9;i<n;i++)out.push(nodes[i]);}
  return out;
 }
-function create(doc,win,max=100,onEvidence=null){
+function create(doc,win,max=100,onEvidence=null,canHide=null){
  const host=String(win?.location?.hostname||doc?.location?.hostname||"").toLowerCase();
  if(!isFacebook(host)||(win?.top&&win.top!==win))return null;
  const hidden=new Map(),cache=new Map(),limit=Math.max(1,Math.min(120,max));
@@ -622,12 +622,21 @@ function create(doc,win,max=100,onEvidence=null){
  let exceptions=[];
  function allowed(el){return exceptions.some(s=>{try{return el.matches?.(s)||el.closest?.(s);}catch(_){return false;}});}
  function hide(el,trigger=null,kind=""){
+  // The primary full engine owns user keep/show decisions. When Nesty wakes
+  // this dormant strategy, its explicit veto is mandatory and fail-closed.
+  if(typeof canHide==="function"){
+   try{if(canHide(el)!==true)return false;}catch(_){return false;}
+  }
+  // The full Facebook core owns its own hidden cards. A dormant Nesty
+  // fallback must never hide that card twice or take over its style.
+  if(el?.closest?.("[data-fbsb-hidden]")||el?.querySelector?.("[data-fbsb-hidden]"))return false;
   if(!el||allowed(el)||hidden.has(el)||hidden.size>=limit||!el.style?.setProperty||
      el.isConnected===false||!el.getClientRects?.().length)return false;
   for(const other of hidden.keys())if(other.contains?.(el)||el.contains?.(other))return false;
   hidden.set(el,{value:el.style.getPropertyValue("display"),
    priority:el.style.getPropertyPriority("display"),trigger,
    hiddenAt:Date.now(),dirty:false,misses:0,lastMiss:0});
+  el.setAttribute?.("data-dklb-nesty-legacy-hidden","");
   el.style.setProperty("display","none","important");
   // Existing vetted hide succeeds before any Nesty observation.
   // No DOM node, URL, post text or identity crosses this interface.
@@ -636,6 +645,10 @@ function create(doc,win,max=100,onEvidence=null){
   return true;
  }
  function restoreOne(el,old){
+  // Remove our marker even if the page changed the style. Never unhide a
+  // post that the primary engine has also claimed through its own marker.
+  el.removeAttribute?.("data-dklb-nesty-legacy-hidden");
+  if(el.closest?.("[data-fbsb-hidden]")||el.querySelector?.("[data-fbsb-hidden]"))return;
   if(el.style?.getPropertyValue("display")!=="none"||el.style.getPropertyPriority("display")!=="important")return;
   if(old.value)el.style.setProperty("display",old.value,old.priority);else el.style.removeProperty("display");
  }
@@ -665,7 +678,40 @@ function create(doc,win,max=100,onEvidence=null){
   }
   return false;
  }
- function restore(){stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
+ // A Nesty strategy may become dormant without relinquishing a verified
+ // post hide. Releasing every hidden card at the end of the strategy window
+ // caused ads to reappear. Only restore() (site pause or exception) reveals.
+ function park(){stopMobileWatch();}
+ let auditCursor=0;
+ function auditHidden(max=30){
+  // A dormant scanner only maintains its own previously hidden cards.
+  // Never scan new content while parked. Rotate through the bounded list
+  // so later hidden cards cannot starve behind the first thirty.
+  // Restore recycled cards only after two independent negative checks.
+  let released=0;
+  const rows=[...hidden.entries()],budget=Math.max(1,Math.min(30,max));
+  const start=rows.length?auditCursor%rows.length:0;
+  for(let i=0;i<Math.min(rows.length,budget);i++){
+   const [el,old]=rows[(start+i)%rows.length];
+   if(!hidden.has(el))continue;
+   if(el.isConnected===false){hidden.delete(el);released++;continue;}
+   if(allowed(el)||old.trigger&&allowed(old.trigger)){
+    restoreOne(el,old);hidden.delete(el);released++;continue;
+   }
+   if(stillSponsored(el,old)){old.misses=0;old.lastMiss=0;continue;}
+   const now=Date.now();
+   if(old.misses>=1&&now-old.lastMiss>=700){
+    restoreOne(el,old);hidden.delete(el);released++;
+   }else if(old.misses===0||now<old.lastMiss){
+    // Keep the FIRST negative time. Resetting it on every early recheck
+    // could indefinitely defer cleanup on busy React feed mutations.
+    old.misses=1;old.lastMiss=now;
+   }
+  }
+  auditCursor=rows.length?(start+Math.min(rows.length,budget))%rows.length:0;
+  return released;
+ }
+ function restore(){auditCursor=0;stopMobileWatch();for(const [el,old]of hidden)restoreOne(el,old);hidden.clear();}
  function setExceptions(list){
   exceptions=Array.isArray(list)?list.filter(s=>typeof s==="string"&&s.length>0&&s.length<=240&&!/[\r\n{};]/.test(s)).slice(0,120):[];
   for(const [el,old]of hidden)if(allowed(el)||old.trigger&&allowed(old.trigger)){restoreOne(el,old);hidden.delete(el);}
@@ -1077,7 +1123,7 @@ function create(doc,win,max=100,onEvidence=null){
   return count;
  }
 
- return {scan,scanVisible,scanInserted,restore,setExceptions,observeMutation,
+ return {scan,scanVisible,scanInserted,park,auditHidden,restore,setExceptions,observeMutation,
   diagnostics(){return Object.freeze({platform:"facebook",hidden:hidden.size,
    cachedLabels:cache.size,limit,menuCursor,articleCursor,bylineCursor,referenceCursor,
    railHeadingCursor,railLabelCursor,railLinkCursor,marketplaceCursor,mobileCursor,hardCursor,exceptions:exceptions.length,

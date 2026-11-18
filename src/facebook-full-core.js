@@ -366,7 +366,7 @@ function classifyLabel(el) {
   // cache covers symbols Facebook has already discarded.
   if (el.tagName === "use") {
     const ref = el.getAttribute("xlink:href") || el.getAttribute("href");
-    if (ref && ref.length <= 161 && ref.startsWith("#")) {
+    if (ref && ref.startsWith("#")) {
       const id = ref.slice(1);
       const target = document.getElementById(id);
       const text = target
@@ -1074,6 +1074,11 @@ function tooBigToBeAPost(container) {
 function hidePost(container, reason, label, via) {
   if (!dkEnabled) return;
   if (isPostReason(reason)) container = wholePost(container);
+  // Nesty may briefly wake the retained legacy scanner after repeated misses.
+  // Never claim or overwrite its existing hide; one controller owns a post.
+  // The legacy scan is bounded and automatically restored on expiry.
+  if (container?.closest?.("[data-dklb-nesty-legacy-hidden]") ||
+      container?.querySelector?.("[data-dklb-nesty-legacy-hidden]")) return;
   if (dkExcluded(container) || dkExcluded(label)) return;
   // Too big is not the end of it: a post-sized card may sit inside, around the
   // label - a landmark that wraps a little wider than the post it marks. Hide
@@ -1520,34 +1525,18 @@ function tryHideFromLabel(label, reason) {
 // insertion is a mutation we observe, so use it to walk forward to whoever
 // references it. `~=` matches one entry of a space-separated list, which is what
 // aria-labelledby is.
-// A portal reference can link back to a second portal, forming a cycle.
-// Prevent unbounded recursion while retaining the licensed engine's
-// forward-link recovery. Only live DOM nodes are held, and only on the stack.
-const resolvingReferrers = new Set();
-const MAX_REFERRER_HOPS = 8;
 function resolveViaReferrer(label) {
-  if (!label?.id || typeof label.id !== "string" || label.id.length > 160 ||
-      resolvingReferrers.has(label) ||
-      resolvingReferrers.size >= MAX_REFERRER_HOPS) return false;
+  if (!label.id) return false;
   const id = CSS.escape(label.id);
-  // Check at most one ARIA and one SVG referrer. A disconnected first
-  // match must not conceal the usable second relationship.
-  let aria=null,svg=null;
-  try { aria=document.querySelector(`[aria-labelledby~="${id}"]`); } catch (_) {}
-  try { svg=document.querySelector(`use[*|href="#${id}"]`); } catch (_) {}
-  const seen=new Set();
-  let attempted=false;
-  resolvingReferrers.add(label);
-  try {
-    for(const referrer of [aria,svg]){
-      if(!referrer||referrer===label||seen.has(referrer)||
-          resolvingReferrers.has(referrer))continue;
-      seen.add(referrer);
-      processLabel(referrer);
-      attempted=true;
-    }
-  } finally { resolvingReferrers.delete(label); }
-  return attempted;
+  // Two ways to point at a label target: aria-labelledby from an ordinary
+  // element, or xlink:href from an <svg><use> that draws it as a sprite - the form
+  // many feed ads use. `*|href` matches href in any namespace.
+  const referrer =
+    document.querySelector(`[aria-labelledby~="${id}"]`) ||
+    document.querySelector(`use[*|href="#${id}"]`);
+  if (!referrer || referrer === label) return false;
+  processLabel(referrer);
+  return true;
 }
 
 function processLabel(label) {
@@ -2089,22 +2078,6 @@ function ensureRetryLoopRunning() {
 // first, because Facebook mints these continuously.
 const MAX_LABEL_CACHE = 200;
 const labelTextById = new Map();
-// Ordinary short labels must remain cached: a former reference to organic
-// text is not proof of an ad. Keep a *separate* small rescue cache only for
-// recognized ad/suggested markers, so unrelated DOM churn cannot evict all
-// advertising evidence before Facebook attaches its late ARIA reference.
-const MAX_AD_LABEL_RESCUES = 64;
-const AD_LABEL_RESCUE_MS = 30000;
-const adLabelRescues = new Map(); // id -> {text, at}; no post text or URL
-function rescuedAdLabel(id) {
-  const entry = adLabelRescues.get(id);
-  if (!entry) return "";
-  if (Date.now() - entry.at > AD_LABEL_RESCUE_MS) {
-    adLabelRescues.delete(id);
-    return "";
-  }
-  return entry.text;
-}
 // How many labels completed via a late text node rather than arriving whole.
 // Zero on a feed with ads means that is not how they are being built any more.
 let lateTextLabels = 0;
@@ -2125,27 +2098,13 @@ function rememberLabelTarget(el) {
 // record, where there is an id and a string but the element may already be
 // detached and emptied. `source` is only used to resolve forward from.
 function cacheLabelText(id, raw, source) {
-  if (typeof id !== "string" || !id || id.length > 160 ||
-      typeof raw !== "string" || raw.length > 120) return;
-  const text = raw.replace(INVISIBLE_CHARS_RE, "").trim();
+  const text = (raw || "").replace(INVISIBLE_CHARS_RE, "").trim();
   if (!text || text.length > 40) return;
   const el = { id, textContent: text };
-  // Refresh an existing entry in place rather than evicting an unrelated
-  // organic label when Facebook updates the same accessibility target.
-  labelTextById.delete(id);
-  if (labelTextById.size >= MAX_LABEL_CACHE)
+  if (labelTextById.size >= MAX_LABEL_CACHE) {
     labelTextById.delete(labelTextById.keys().next().value);
-  labelTextById.set(id, text);
-  const key = labelKey(text);
-  const important = SPONSORED_TEXTS.has(key) ||
-    SUGGESTED_TEXTS.has(key) || FOREIGN_SPONSORED_TEXTS.has(key);
-  // A re-used id with new, non-ad text must invalidate older ad evidence.
-  adLabelRescues.delete(id);
-  if (important) {
-    if (adLabelRescues.size >= MAX_AD_LABEL_RESCUES)
-      adLabelRescues.delete(adLabelRescues.keys().next().value);
-    adLabelRescues.set(id, { text, at: Date.now() });
   }
+  labelTextById.set(el.id, text);
 
   // Caching alone isn't enough: the post was scanned before this label
   // existed, found nothing, and nothing re-examines it. Resolve forward now,
@@ -2154,7 +2113,8 @@ function cacheLabelText(id, raw, source) {
   // every id Facebook adds.
   // The foreign words go forward too: the element that references this label
   // is where isForeignAdLabel is checked, when the referrer is classified.
-  if (important) {
+  const key = labelKey(text);
+  if (SPONSORED_TEXTS.has(key) || SUGGESTED_TEXTS.has(key) || FOREIGN_SPONSORED_TEXTS.has(key)) {
     // The cache lives in the isolated world, so it can't be inspected from the
     // page console. Log the one event that matters instead: an ad's label
     // target existing long enough for us to see it. Silence here means the
@@ -2570,32 +2530,15 @@ function bylineCount(card) {
 // accessible name is computed, so a live lookup alone fails even though the
 // post genuinely was labelled. An empty string means the reference dangles:
 // nothing to read either way.
-// Facebook can join many accessibility names in aria-labelledby. Process
-// at most 16 unique ids, preserving both ends: sponsored refs sometimes
-// arrive at the tail, while generic refs are usually at the start. This
-// is used by both the full detector and the conservative unlabeled shape
-// guard, so malformed/oversized attributes must fail open, not infer "ad".
-const MAX_LABEL_REF_IDS = 16;
-const MAX_LABEL_REF_ATTR = 1024;
-const MAX_LABEL_REF_TEXT = 120;
 function labelRefTexts(el) {
   const out = [];
-  const raw = (el.getAttribute && el.getAttribute("aria-labelledby")) || "";
-  if (typeof raw !== "string" || raw.length > MAX_LABEL_REF_ATTR) return out;
-  const ids = raw.trim().split(/\s+/).filter(Boolean);
-  const chosen = ids.length > MAX_LABEL_REF_IDS
-    ? ids.slice(0, MAX_LABEL_REF_IDS / 2).concat(ids.slice(-MAX_LABEL_REF_IDS / 2))
-    : ids;
-  const visited = new Set();
-  for (const id of chosen) {
-    if (!id || id.length > 160 || visited.has(id)) continue;
-    visited.add(id);
+  const ids = (el.getAttribute && el.getAttribute("aria-labelledby")) || "";
+  for (const id of ids.split(/\s+/)) {
+    if (!id) continue;
     const target = document.getElementById(id);
-    const live = target?.textContent;
-    const text = typeof live === "string"
-      ? live.length <= MAX_LABEL_REF_TEXT
-        ? live.replace(INVISIBLE_CHARS_RE, "").trim() : ""
-      : labelTextById.get(id) || rescuedAdLabel(id) || "";
+    const text = target
+      ? target.textContent.replace(INVISIBLE_CHARS_RE, "").trim()
+      : labelTextById.get(id) || "";
     out.push({ id, text });
   }
   return out;
@@ -2960,54 +2903,21 @@ function scanRoot(root) {
 // requestAnimationFrame coalesces everything since the last paint into one pass,
 // run just before the next paint - the latest moment that still hides content
 // before it is drawn.
-// A busy Facebook render can insert dozens of descendants of the same card.
-// The old per-frame Set deduplicated identity, not ancestor/child overlap,
-// and re-ran the same subtree scan many times before paint.
 const pendingRoots = new Set();
-const MAX_SCAN_ROOTS_PER_FRAME = 48;
-const MAX_PENDING_SCAN_ROOTS = 96;
 let scanScheduled = false;
 
-function flushScheduledScans() {
-  scanScheduled = false;
-  let processed = 0;
-  const roots = Array.from(pendingRoots);
-  pendingRoots.clear();
-  for (const root of roots) {
-    if (!root.isConnected) continue;
-    if (processed >= MAX_SCAN_ROOTS_PER_FRAME) {
-      // Never discard a connected subtree just because this frame was busy.
-      pendingRoots.add(root);
-      continue;
-    }
-    processed += 1;
-    scanRoot(root);
-  }
-  if (pendingRoots.size && !scanScheduled) {
-    scanScheduled = true;
-    requestAnimationFrame(flushScheduledScans);
-  }
-}
 function scheduleScan(root) {
-  if (!root || root.nodeType !== Node.ELEMENT_NODE || !root.isConnected) return;
-  // A pending ancestor scan already includes this element.
-  for (let parent = root.parentElement; parent; parent = parent.parentElement)
-    if (pendingRoots.has(parent)) return;
-  // A newly queued outer card makes earlier inner work redundant.
-  for (const queued of pendingRoots)
-    if (root.contains(queued)) pendingRoots.delete(queued);
-  if (pendingRoots.size >= MAX_PENDING_SCAN_ROOTS) {
-    // Rather than silently dropping ad candidates, fall back once to the
-    // existing full body scan, which retains all source/exception guards.
+  pendingRoots.add(root);
+  if (scanScheduled) return;
+  scanScheduled = true;
+  requestAnimationFrame(() => {
+    scanScheduled = false;
+    const roots = Array.from(pendingRoots);
     pendingRoots.clear();
-    pendingRoots.add(document.body || root);
-  } else {
-    pendingRoots.add(root);
-  }
-  if (!scanScheduled) {
-    scanScheduled = true;
-    requestAnimationFrame(flushScheduledScans);
-  }
+    for (const r of roots) {
+      if (r.isConnected) scanRoot(r);
+    }
+  });
 }
 
 // Facebook recycles DOM nodes, so a container we hid can be repurposed for
@@ -3355,7 +3265,7 @@ function dkSetEnabled(enabled) {
     observer.disconnect(); dkObserverActive = false;
     revealObserver?.disconnect(); feedChildObserver?.disconnect();
     mobileFeed = null; feedChildObserver = null;
-    hideMarker(); pendingLabels.clear(); pendingRoots.clear(); adLabelRescues.clear();
+    hideMarker(); pendingLabels.clear();
     if (retryIntervalId !== null) { clearInterval(retryIntervalId); retryIntervalId = null; }
     for (const card of Array.from(hiddenPosts.keys())) restorePost(card);
     return;
@@ -3403,10 +3313,27 @@ function dkDiagnostics() {
     exceptions:dkExceptions.length,
     inlineAdLabelEdits,shallowPostLabelsRecovered});
 }
+// The dormant legacy Nesty strategy must obey every user-facing keep/show
+// decision enforced here, even if it has evidence the full detector missed.
+// No preference contents, Page identity or DOM node are exported.
+function dkCanFallbackHide(card) {
+ if(!dkEnabled||!dkSettingsReady||!dkObserverActive||!card||
+    card.nodeType!==Node.ELEMENT_NODE||card.isConnected===false||
+    !document.body?.contains(card))return false;
+ try {
+  if(dkExcluded(card)||isPageContainer(card)||tooBigToBeAPost(card)||
+     wasOpenedOnPurpose(card)||wasShownByUser(card)||
+     isKeptAuthor(card)||isKeptPage(card))return false;
+  if(card.closest('[role="dialog"],nav,form,[role="navigation"]')||
+     card.querySelector('[role="dialog"]'))return false;
+  return true;
+ }catch(_){return false;}
+}
 const dkApi=Object.freeze({
  installed:true,create:()=>dkApi,setEnabled:dkSetEnabled,
  setExceptions:dkSetExceptions,restore:()=>dkSetEnabled(false),
  scan:dkScan,scanInserted:()=>0,scanVisible:()=>0,observeMutation:dkObserveMutation,
+ canFallbackHide:dkCanFallbackHide,
  diagnostics:dkDiagnostics,get hiddenCount(){return hiddenPosts.size;}
 });
 globalThis.DKFacebookFullCore=dkApi;

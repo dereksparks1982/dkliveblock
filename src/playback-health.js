@@ -56,7 +56,8 @@ function createAdProbe(){
 // changing it. Only bounded text inside the known player root is inspected,
 // never exported. A positive result means "enforcement observed", not "fixed".
 function createEnforcementProbe(recognizer){
- let present=false,last=-Infinity;
+ let present=false,last=-Infinity,candidateSince=null,sustainedReported=false;
+ const CONFIRM_MS=800,STALE_MS=6000,SUSTAINED_MS=22000;
  const selectors=[
   "#movie_player .ytp-error",
   "#movie_player .ytp-error-content",
@@ -64,12 +65,12 @@ function createEnforcementProbe(recognizer){
   "#movie_player yt-playability-error-supported-renderer",
   "#movie_player yt-player-error-message-view-model",
   "#movie_player ytd-enforcement-message-view-model",
-  "#movie_player"
+  "#movie_player .ytp-error-message"
  ];
  function scan(document,now=Date.now()){
   if(!Number.isFinite(now)||!document||document.hidden===true||
      document.visibilityState==="hidden"||typeof recognizer!=="function"){
-   present=false;return null;
+   present=false;candidateSince=null;sustainedReported=false;return null;
   }
   let found=false;
   try{
@@ -90,14 +91,27 @@ function createEnforcementProbe(recognizer){
     if(recognizer(raw)){found=true;break;}
    }
   }catch(_){return null;}
-  if(!found){present=false;return null;}
-  if(present)return null;
-  present=true;
+  if(!found){present=false;candidateSince=null;sustainedReported=false;return null;}
+  if(present){
+   // One bounded follow-up if the same refusal persists. Avoid a reload
+   // or repeated reports on a continuously blocked video.
+   if(!sustainedReported&&now-last>=SUSTAINED_MS){
+    sustainedReported=true;last=now;return "enforcement";
+   }
+   return null;
+  }
+  // Require two visible samples. A transient DOM translation or stale player
+  // error must not trigger a false adblock enforcement diagnosis.
+  if(candidateSince===null||now<candidateSince||now-candidateSince>STALE_MS){
+   candidateSince=now;return null;
+  }
+  if(now-candidateSince<CONFIRM_MS)return null;
+  candidateSince=null;present=true;sustainedReported=false;
   if(now-last<REPORT_INTERVAL)return null;
   last=now;
   return "enforcement";
  }
- function reset(){present=false;last=-Infinity;}
+ function reset(){present=false;last=-Infinity;candidateSince=null;sustainedReported=false;}
  return Object.freeze({scan,reset});
 }
 function createProbe(){
