@@ -26,7 +26,7 @@ with tempfile.TemporaryDirectory(prefix="dk-amo-preflight-") as folder:
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text("source notice", encoding="utf-8")
     (root / "LICENSE").write_text("NO MONETIZATION\nTHIRD-PARTY", encoding="utf-8")
-    (root / "README.md").write_text("Not for sale or commercial exploitation", encoding="utf-8")
+    (root / "README.md").write_text("Free for individuals and ordinary internal company use. Resale, paid repackaging and monetization of DK Live Block itself are prohibited.", encoding="utf-8")
     (root / "src/ghostery-vendor.js").write_bytes(b"x" * 100_100)
     repo_link = '<a href="https://github.com/dereksparks1982/dkliveblock" target="_blank" rel="noopener noreferrer">GitHub Repository</a>'
     for page in ("src/popup.html", "src/options.html"):
